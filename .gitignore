@@ -1,7 +1,3 @@
 .vscode
 .mypy_cache
 .vs
-bin
-obj
-**/Platforms
-Properties
