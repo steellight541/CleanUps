@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CleanUps.Shared")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+46d5cfcc6682810c2836860014de1b0a6df1a40f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+68e744b8ffac204ea7fbe64e52dd9c8c13421c0c")]
 [assembly: System.Reflection.AssemblyProductAttribute("CleanUps.Shared")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CleanUps.Shared")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

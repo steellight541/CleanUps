@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace CleanUps.BusinessDomain.Models;
+﻿namespace CleanUps.BusinessDomain.Models;
 
 public partial class User
 {

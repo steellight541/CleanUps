@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using CleanUps.BusinessDomain.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace CleanUps.DataAccess.DatabaseHub;
