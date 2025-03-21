@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CleanUps.MAUI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+731ebfe09a5b05fd8d74bdb9d4f51eab77bf489a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+46d5cfcc6682810c2836860014de1b0a6df1a40f")]
 [assembly: System.Reflection.AssemblyProductAttribute("CleanUps.MAUI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CleanUps.MAUI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

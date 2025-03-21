@@ -631,7 +631,6 @@ C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.MAUI\bin\Debug\net8.0-
 C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.MAUI\bin\Debug\net8.0-ios\iossimulator-x64\Microsoft.Maui.Controls.HotReload.Forms.dll
 C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.MAUI\bin\Debug\net8.0-ios\iossimulator-x64\Microsoft.VisualStudio.DesignTools.MobileTapContracts.dll
 C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.MAUI\bin\Debug\net8.0-ios\iossimulator-x64\Microsoft.VisualStudio.DesignTools.TapContract.dll
-C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.MAUI\obj\Debug\net8.0-ios\iossimulator-x64\build-signature\signature
 C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.MAUI\obj\Debug\net8.0-ios\iossimulator-x64\scopedcss\Components\Layout\MainLayout.razor.rz.scp.css
 C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.MAUI\obj\Debug\net8.0-ios\iossimulator-x64\scopedcss\Components\Layout\NavMenu.razor.rz.scp.css
 C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.MAUI\obj\Debug\net8.0-ios\iossimulator-x64\scopedcss\bundle\CleanUps.MAUI.styles.css

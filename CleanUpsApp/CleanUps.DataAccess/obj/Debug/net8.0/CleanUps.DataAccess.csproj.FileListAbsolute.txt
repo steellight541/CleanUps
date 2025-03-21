@@ -25,3 +25,6 @@ C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.DataAccess\obj\Debug\n
 C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.DataAccess\obj\Debug\net8.0\CleanUps.DataAccess.pdb
 C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.DataAccess\obj\Debug\net8.0\CleanUps.DataAccess.genruntimeconfig.cache
 C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.DataAccess\obj\Debug\net8.0\ref\CleanUps.DataAccess.dll
+C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.DataAccess\bin\Debug\net8.0\CleanUps.BusinessDomain.dll
+C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.DataAccess\bin\Debug\net8.0\CleanUps.BusinessDomain.pdb
+C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.DataAccess\obj\Debug\net8.0\CleanUps.8A36E2E2.Up2Date
