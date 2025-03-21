@@ -1,0 +1,6 @@
+@CleanUps.API_HostAddress = http://localhost:5278
+
+GET {{CleanUps.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

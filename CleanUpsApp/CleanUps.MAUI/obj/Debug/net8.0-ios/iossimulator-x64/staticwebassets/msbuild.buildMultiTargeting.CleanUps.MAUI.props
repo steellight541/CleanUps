@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\CleanUps.MAUI.props" />
+</Project>
