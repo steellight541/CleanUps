@@ -20,4 +20,8 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\CleanUps.BusinessLogic\CleanUps.BusinessLogic.csproj" />
+  </ItemGroup>
+
 </Project>
