@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.BusinessDomain\\CleanUps.BusinessDomain.csproj": {}
+    "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.BusinessDomain\\CleanUps.BusinessDomain.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.BusinessDomain\\CleanUps.BusinessDomain.csproj": {
+    "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.BusinessDomain\\CleanUps.BusinessDomain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.BusinessDomain\\CleanUps.BusinessDomain.csproj",
+        "projectUniqueName": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.BusinessDomain\\CleanUps.BusinessDomain.csproj",
         "projectName": "CleanUps.BusinessDomain",
-        "projectPath": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.BusinessDomain\\CleanUps.BusinessDomain.csproj",
-        "packagesPath": "C:\\Users\\Gormw\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.BusinessDomain\\obj\\",
+        "projectPath": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.BusinessDomain\\CleanUps.BusinessDomain.csproj",
+        "packagesPath": "C:\\Users\\wawer\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.BusinessDomain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Gormw\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\wawer\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -66,7 +66,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

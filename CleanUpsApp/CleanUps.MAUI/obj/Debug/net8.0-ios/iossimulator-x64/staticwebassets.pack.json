@@ -1,27 +1,27 @@
 {
   "Files": [
     {
-      "Id": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\obj\\Debug\\net8.0-ios\\iossimulator-x64\\scopedcss\\bundle\\CleanUps.MAUI.styles.css",
+      "Id": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\obj\\Debug\\net8.0-ios\\iossimulator-x64\\scopedcss\\bundle\\CleanUps.MAUI.styles.css",
       "PackagePath": "staticwebassets\\CleanUps.MAUI.styles.css"
     },
     {
-      "Id": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\css\\app.css",
+      "Id": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\css\\app.css",
       "PackagePath": "staticwebassets\\css\\app.css"
     },
     {
-      "Id": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
+      "Id": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
       "PackagePath": "staticwebassets\\css\\bootstrap\\bootstrap.min.css"
     },
     {
-      "Id": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\css\\bootstrap\\bootstrap.min.css.map",
+      "Id": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\css\\bootstrap\\bootstrap.min.css.map",
       "PackagePath": "staticwebassets\\css\\bootstrap\\bootstrap.min.css.map"
     },
     {
-      "Id": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\favicon.png",
+      "Id": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\favicon.png",
       "PackagePath": "staticwebassets\\favicon.png"
     },
     {
-      "Id": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\index.html",
+      "Id": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\index.html",
       "PackagePath": "staticwebassets\\index.html"
     },
     {

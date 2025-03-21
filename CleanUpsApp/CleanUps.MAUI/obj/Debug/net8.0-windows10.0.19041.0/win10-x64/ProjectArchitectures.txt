@@ -1,1 +1,1 @@
-C:\Users\Gormw\OneDrive\Skrivebord\Diverse\ZWMClean\CleanUpsApp\CleanUps.MAUI\CleanUps.MAUI.csproj;x64
+C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.MAUI\CleanUps.MAUI.csproj;x64

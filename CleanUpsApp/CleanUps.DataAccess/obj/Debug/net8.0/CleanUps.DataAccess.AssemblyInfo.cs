@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CleanUps.DataAccess")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+55d28932b777f795660108ad1a28b601a57f758e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+731ebfe09a5b05fd8d74bdb9d4f51eab77bf489a")]
 [assembly: System.Reflection.AssemblyProductAttribute("CleanUps.DataAccess")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CleanUps.DataAccess")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

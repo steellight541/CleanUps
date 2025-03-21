@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "oBR+OznXsaDPGUVgXwGmcXnjAXD2wCnU+H0ZlvSEWzo=",
+  "Hash": "SkVkL40fIYZTjcN9bVkne97xtsrMTe2xeY0rZePhFR4=",
   "Source": "CleanUps.MAUI",
   "BasePath": "/",
   "Mode": "Root",
@@ -10,17 +10,17 @@
     {
       "Name": "CleanUps.MAUI\\wwwroot",
       "Source": "CleanUps.MAUI",
-      "ContentRoot": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\",
       "BasePath": "/",
       "Pattern": "**"
     }
   ],
   "Assets": [
     {
-      "Identity": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\obj\\Debug\\net8.0-ios\\iossimulator-x64\\scopedcss\\bundle\\CleanUps.MAUI.styles.css",
+      "Identity": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\obj\\Debug\\net8.0-ios\\iossimulator-x64\\scopedcss\\bundle\\CleanUps.MAUI.styles.css",
       "SourceId": "CleanUps.MAUI",
       "SourceType": "Computed",
-      "ContentRoot": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\obj\\Debug\\net8.0-ios\\iossimulator-x64\\scopedcss\\bundle\\",
+      "ContentRoot": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\obj\\Debug\\net8.0-ios\\iossimulator-x64\\scopedcss\\bundle\\",
       "BasePath": "/",
       "RelativePath": "CleanUps.MAUI#[.{fingerprint}]?.styles.css",
       "AssetKind": "All",
@@ -35,13 +35,13 @@
       "Integrity": "jEd/DROdtmDMdbEcRzzGoYGA8MUSS6V4XVlHvdGccTc=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\obj\\Debug\\net8.0-ios\\iossimulator-x64\\scopedcss\\bundle\\CleanUps.MAUI.styles.css"
+      "OriginalItemSpec": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\obj\\Debug\\net8.0-ios\\iossimulator-x64\\scopedcss\\bundle\\CleanUps.MAUI.styles.css"
     },
     {
-      "Identity": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\obj\\Debug\\net8.0-ios\\iossimulator-x64\\scopedcss\\projectbundle\\CleanUps.MAUI.bundle.scp.css",
+      "Identity": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\obj\\Debug\\net8.0-ios\\iossimulator-x64\\scopedcss\\projectbundle\\CleanUps.MAUI.bundle.scp.css",
       "SourceId": "CleanUps.MAUI",
       "SourceType": "Computed",
-      "ContentRoot": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\obj\\Debug\\net8.0-ios\\iossimulator-x64\\scopedcss\\projectbundle\\",
+      "ContentRoot": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\obj\\Debug\\net8.0-ios\\iossimulator-x64\\scopedcss\\projectbundle\\",
       "BasePath": "/",
       "RelativePath": "CleanUps.MAUI#[.{fingerprint}]!.bundle.scp.css",
       "AssetKind": "All",
@@ -56,13 +56,13 @@
       "Integrity": "jEd/DROdtmDMdbEcRzzGoYGA8MUSS6V4XVlHvdGccTc=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\obj\\Debug\\net8.0-ios\\iossimulator-x64\\scopedcss\\projectbundle\\CleanUps.MAUI.bundle.scp.css"
+      "OriginalItemSpec": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\obj\\Debug\\net8.0-ios\\iossimulator-x64\\scopedcss\\projectbundle\\CleanUps.MAUI.bundle.scp.css"
     },
     {
-      "Identity": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\css\\app.css",
+      "Identity": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\css\\app.css",
       "SourceId": "CleanUps.MAUI",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\",
       "BasePath": "/",
       "RelativePath": "css/app#[.{fingerprint}]?.css",
       "AssetKind": "All",
@@ -80,10 +80,10 @@
       "OriginalItemSpec": "wwwroot\\css\\app.css"
     },
     {
-      "Identity": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
+      "Identity": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
       "SourceId": "CleanUps.MAUI",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\",
       "BasePath": "/",
       "RelativePath": "css/bootstrap/bootstrap.min#[.{fingerprint}]?.css",
       "AssetKind": "All",
@@ -101,10 +101,10 @@
       "OriginalItemSpec": "wwwroot\\css\\bootstrap\\bootstrap.min.css"
     },
     {
-      "Identity": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\css\\bootstrap\\bootstrap.min.css.map",
+      "Identity": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\css\\bootstrap\\bootstrap.min.css.map",
       "SourceId": "CleanUps.MAUI",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\",
       "BasePath": "/",
       "RelativePath": "css/bootstrap/bootstrap.min.css#[.{fingerprint}]?.map",
       "AssetKind": "All",
@@ -122,10 +122,10 @@
       "OriginalItemSpec": "wwwroot\\css\\bootstrap\\bootstrap.min.css.map"
     },
     {
-      "Identity": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\favicon.png",
+      "Identity": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\favicon.png",
       "SourceId": "CleanUps.MAUI",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\",
       "BasePath": "/",
       "RelativePath": "favicon#[.{fingerprint}]?.png",
       "AssetKind": "All",
@@ -143,10 +143,10 @@
       "OriginalItemSpec": "wwwroot\\favicon.png"
     },
     {
-      "Identity": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\index.html",
+      "Identity": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\index.html",
       "SourceId": "CleanUps.MAUI",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\",
       "BasePath": "/",
       "RelativePath": "index#[.{fingerprint}]?.html",
       "AssetKind": "All",
@@ -167,7 +167,7 @@
   "Endpoints": [
     {
       "Route": "CleanUps.MAUI.bundle.scp.css",
-      "AssetFile": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\obj\\Debug\\net8.0-ios\\iossimulator-x64\\scopedcss\\projectbundle\\CleanUps.MAUI.bundle.scp.css",
+      "AssetFile": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\obj\\Debug\\net8.0-ios\\iossimulator-x64\\scopedcss\\projectbundle\\CleanUps.MAUI.bundle.scp.css",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -188,7 +188,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 21 Mar 2025 09:03:21 GMT"
+          "Value": "Fri, 21 Mar 2025 12:19:56 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -204,7 +204,7 @@
     },
     {
       "Route": "CleanUps.MAUI.ovoasshyl6.bundle.scp.css",
-      "AssetFile": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\obj\\Debug\\net8.0-ios\\iossimulator-x64\\scopedcss\\projectbundle\\CleanUps.MAUI.bundle.scp.css",
+      "AssetFile": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\obj\\Debug\\net8.0-ios\\iossimulator-x64\\scopedcss\\projectbundle\\CleanUps.MAUI.bundle.scp.css",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -225,7 +225,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 21 Mar 2025 09:03:21 GMT"
+          "Value": "Fri, 21 Mar 2025 12:19:56 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -249,7 +249,7 @@
     },
     {
       "Route": "CleanUps.MAUI.ovoasshyl6.styles.css",
-      "AssetFile": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\obj\\Debug\\net8.0-ios\\iossimulator-x64\\scopedcss\\bundle\\CleanUps.MAUI.styles.css",
+      "AssetFile": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\obj\\Debug\\net8.0-ios\\iossimulator-x64\\scopedcss\\bundle\\CleanUps.MAUI.styles.css",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -270,7 +270,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 21 Mar 2025 09:03:21 GMT"
+          "Value": "Fri, 21 Mar 2025 12:19:56 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -294,7 +294,7 @@
     },
     {
       "Route": "CleanUps.MAUI.styles.css",
-      "AssetFile": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\obj\\Debug\\net8.0-ios\\iossimulator-x64\\scopedcss\\bundle\\CleanUps.MAUI.styles.css",
+      "AssetFile": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\obj\\Debug\\net8.0-ios\\iossimulator-x64\\scopedcss\\bundle\\CleanUps.MAUI.styles.css",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -315,7 +315,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 21 Mar 2025 09:03:21 GMT"
+          "Value": "Fri, 21 Mar 2025 12:19:56 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -331,7 +331,7 @@
     },
     {
       "Route": "css/app.css",
-      "AssetFile": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\css\\app.css",
+      "AssetFile": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\css\\app.css",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -352,7 +352,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 21 Mar 2025 08:57:40 GMT"
+          "Value": "Fri, 21 Mar 2025 12:19:56 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -368,7 +368,7 @@
     },
     {
       "Route": "css/app.dex3usdpik.css",
-      "AssetFile": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\css\\app.css",
+      "AssetFile": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\css\\app.css",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -389,7 +389,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 21 Mar 2025 08:57:40 GMT"
+          "Value": "Fri, 21 Mar 2025 12:19:56 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -413,7 +413,7 @@
     },
     {
       "Route": "css/bootstrap/bootstrap.min.6gzpyzhau4.css",
-      "AssetFile": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
+      "AssetFile": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -434,7 +434,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 21 Mar 2025 08:57:40 GMT"
+          "Value": "Fri, 21 Mar 2025 12:19:56 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -458,7 +458,7 @@
     },
     {
       "Route": "css/bootstrap/bootstrap.min.css",
-      "AssetFile": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
+      "AssetFile": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -479,7 +479,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 21 Mar 2025 08:57:40 GMT"
+          "Value": "Fri, 21 Mar 2025 12:19:56 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -495,7 +495,7 @@
     },
     {
       "Route": "css/bootstrap/bootstrap.min.css.8inm30yfxf.map",
-      "AssetFile": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\css\\bootstrap\\bootstrap.min.css.map",
+      "AssetFile": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\css\\bootstrap\\bootstrap.min.css.map",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -516,7 +516,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 21 Mar 2025 08:57:40 GMT"
+          "Value": "Fri, 21 Mar 2025 12:19:56 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -540,7 +540,7 @@
     },
     {
       "Route": "css/bootstrap/bootstrap.min.css.map",
-      "AssetFile": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\css\\bootstrap\\bootstrap.min.css.map",
+      "AssetFile": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\css\\bootstrap\\bootstrap.min.css.map",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -561,7 +561,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 21 Mar 2025 08:57:40 GMT"
+          "Value": "Fri, 21 Mar 2025 12:19:56 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -577,7 +577,7 @@
     },
     {
       "Route": "favicon.ifv42okdf2.png",
-      "AssetFile": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\favicon.png",
+      "AssetFile": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\favicon.png",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -598,7 +598,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 21 Mar 2025 08:57:40 GMT"
+          "Value": "Fri, 21 Mar 2025 12:19:56 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -622,7 +622,7 @@
     },
     {
       "Route": "favicon.png",
-      "AssetFile": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\favicon.png",
+      "AssetFile": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\favicon.png",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -643,7 +643,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 21 Mar 2025 08:57:40 GMT"
+          "Value": "Fri, 21 Mar 2025 12:19:56 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -659,7 +659,7 @@
     },
     {
       "Route": "index.html",
-      "AssetFile": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\index.html",
+      "AssetFile": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\index.html",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -680,7 +680,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 21 Mar 2025 08:57:40 GMT"
+          "Value": "Fri, 21 Mar 2025 12:19:56 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -696,7 +696,7 @@
     },
     {
       "Route": "index.lhcd9jf1er.html",
-      "AssetFile": "C:\\Users\\Gormw\\OneDrive\\Skrivebord\\Diverse\\ZWMClean\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\index.html",
+      "AssetFile": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.MAUI\\wwwroot\\index.html",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -717,7 +717,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 21 Mar 2025 08:57:40 GMT"
+          "Value": "Fri, 21 Mar 2025 12:19:56 GMT"
         },
         {
           "Name": "Cache-Control",

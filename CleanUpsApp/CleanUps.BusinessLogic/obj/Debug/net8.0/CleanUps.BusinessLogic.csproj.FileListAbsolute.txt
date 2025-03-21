@@ -10,3 +10,15 @@ C:\Users\Gormw\OneDrive\Skrivebord\Diverse\ZWMClean\CleanUpsApp\CleanUps.Busines
 C:\Users\Gormw\OneDrive\Skrivebord\Diverse\ZWMClean\CleanUpsApp\CleanUps.BusinessLogic\obj\Debug\net8.0\refint\CleanUps.BusinessLogic.dll
 C:\Users\Gormw\OneDrive\Skrivebord\Diverse\ZWMClean\CleanUpsApp\CleanUps.BusinessLogic\obj\Debug\net8.0\CleanUps.BusinessLogic.pdb
 C:\Users\Gormw\OneDrive\Skrivebord\Diverse\ZWMClean\CleanUpsApp\CleanUps.BusinessLogic\obj\Debug\net8.0\ref\CleanUps.BusinessLogic.dll
+C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.BusinessLogic\bin\Debug\net8.0\CleanUps.BusinessLogic.deps.json
+C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.BusinessLogic\bin\Debug\net8.0\CleanUps.BusinessLogic.dll
+C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.BusinessLogic\bin\Debug\net8.0\CleanUps.BusinessLogic.pdb
+C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.BusinessLogic\obj\Debug\net8.0\CleanUps.BusinessLogic.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.BusinessLogic\obj\Debug\net8.0\CleanUps.BusinessLogic.AssemblyInfoInputs.cache
+C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.BusinessLogic\obj\Debug\net8.0\CleanUps.BusinessLogic.AssemblyInfo.cs
+C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.BusinessLogic\obj\Debug\net8.0\CleanUps.BusinessLogic.csproj.CoreCompileInputs.cache
+C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.BusinessLogic\obj\Debug\net8.0\CleanUps.BusinessLogic.sourcelink.json
+C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.BusinessLogic\obj\Debug\net8.0\CleanUps.BusinessLogic.dll
+C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.BusinessLogic\obj\Debug\net8.0\refint\CleanUps.BusinessLogic.dll
+C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.BusinessLogic\obj\Debug\net8.0\CleanUps.BusinessLogic.pdb
+C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.BusinessLogic\obj\Debug\net8.0\ref\CleanUps.BusinessLogic.dll
