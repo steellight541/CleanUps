@@ -18,7 +18,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CleanUpsApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+fdbe0fad91401a96e96d9cb8b0ab08c2d79d77ad")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+8c7185cb5abf7a2058833576f1a2ea0ed0b336d6")]
 [assembly: System.Reflection.AssemblyProductAttribute("CleanUpsApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CleanUpsApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
