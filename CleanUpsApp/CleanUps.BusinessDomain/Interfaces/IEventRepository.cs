@@ -2,6 +2,7 @@
 
 namespace CleanUps.BusinessDomain.Interfaces
 {
+
     public interface IEventRepository
     {
         //Create
