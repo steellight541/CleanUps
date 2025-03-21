@@ -4,15 +4,14 @@ using CleanUps.DataAccess.DatabaseHub;
 
 namespace CleanUps.DataAccess.Repositories
 {
-    public class EventRepository : ICRUDRepository<Event>
+    public class UserRepository : ICRUDRepository<User>
     {
         private readonly CleanUpsContext _context;
-        public EventRepository(CleanUpsContext context)
+        public UserRepository(CleanUpsContext context)
         {
             _context = context;
         }
-
-        public async Task Create(Event eventToBeCreated)
+        public async Task Create(User entityToBeCreated)
         {
             throw new NotImplementedException();
         }
@@ -22,17 +21,17 @@ namespace CleanUps.DataAccess.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task<List<Event>> GetAll()
+        public async Task<List<User>> GetAll()
         {
             throw new NotImplementedException();
         }
 
-        public async Task<Event> GetById(int id)
+        public async Task<User> GetById(int id)
         {
             throw new NotImplementedException();
         }
 
-        public async Task Update(Event eventToBeUpdated)
+        public async Task Update(User entityToBeUpdated)
         {
             throw new NotImplementedException();
         }

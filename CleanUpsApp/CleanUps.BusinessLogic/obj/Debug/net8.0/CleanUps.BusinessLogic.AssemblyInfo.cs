@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CleanUps.BusinessLogic")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+68e744b8ffac204ea7fbe64e52dd9c8c13421c0c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d36a792240634b5513c1e08438b09ef220a2985b")]
 [assembly: System.Reflection.AssemblyProductAttribute("CleanUps.BusinessLogic")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CleanUps.BusinessLogic")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
