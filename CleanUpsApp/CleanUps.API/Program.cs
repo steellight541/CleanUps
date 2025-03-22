@@ -11,7 +11,7 @@ builder.Services.AddSwaggerGen();
 
 
 // Register dependencies from CleanUps.Configuration
-builder.Services.AddAppDependencies(builder.Configuration);
+builder.Services.AddAppDependencies(builder.Configuration); 
 
 var app = builder.Build();
 
