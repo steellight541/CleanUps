@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CleanUps.BusinessDomain\CleanUps.BusinessDomain.csproj" />
+    <ProjectReference Include="..\CleanUps.Shared\CleanUps.Shared.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,8 @@
 ﻿namespace CleanUps.BusinessDomain.Models;
 
+/// <summary>
+/// Represents a user role in the CleanUps application.Used to categorize users by their permissions or responsibilities.
+/// </summary>
 public partial class Role
 {
     public int RoleId { get; set; }

@@ -1710,13 +1710,43 @@
         "type": "project",
         "framework": ".NETCoreApp,Version=v8.0",
         "dependencies": {
-          "CleanUps.BusinessDomain": "1.0.0"
+          "CleanUps.BusinessDomain": "1.0.0",
+          "CleanUps.Shared": "1.0.0"
         },
         "compile": {
           "bin/placeholder/CleanUps.BusinessLogic.dll": {}
         },
         "runtime": {
           "bin/placeholder/CleanUps.BusinessLogic.dll": {}
+        }
+      },
+      "CleanUps.DataAccess/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "CleanUps.BusinessDomain": "1.0.0",
+          "CleanUps.BusinessLogic": "1.0.0",
+          "Microsoft.EntityFrameworkCore": "9.0.3",
+          "Microsoft.EntityFrameworkCore.SqlServer": "9.0.3"
+        },
+        "compile": {
+          "bin/placeholder/CleanUps.DataAccess.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/CleanUps.DataAccess.dll": {}
+        }
+      },
+      "CleanUps.Shared/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "CleanUps.BusinessDomain": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/CleanUps.Shared.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/CleanUps.Shared.dll": {}
         }
       }
     }
@@ -5192,11 +5222,22 @@
       "type": "project",
       "path": "../CleanUps.BusinessLogic/CleanUps.BusinessLogic.csproj",
       "msbuildProject": "../CleanUps.BusinessLogic/CleanUps.BusinessLogic.csproj"
+    },
+    "CleanUps.DataAccess/1.0.0": {
+      "type": "project",
+      "path": "../CleanUps.DataAccess/CleanUps.DataAccess.csproj",
+      "msbuildProject": "../CleanUps.DataAccess/CleanUps.DataAccess.csproj"
+    },
+    "CleanUps.Shared/1.0.0": {
+      "type": "project",
+      "path": "../CleanUps.Shared/CleanUps.Shared.csproj",
+      "msbuildProject": "../CleanUps.Shared/CleanUps.Shared.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net8.0": [
       "CleanUps.BusinessLogic >= 1.0.0",
+      "CleanUps.DataAccess >= 1.0.0",
       "Microsoft.EntityFrameworkCore >= 9.0.3",
       "Microsoft.EntityFrameworkCore.Design >= 9.0.3",
       "Microsoft.EntityFrameworkCore.SqlServer >= 9.0.3",
@@ -5239,6 +5280,9 @@
           "projectReferences": {
             "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.BusinessLogic\\CleanUps.BusinessLogic.csproj": {
               "projectPath": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.BusinessLogic\\CleanUps.BusinessLogic.csproj"
+            },
+            "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.DataAccess\\CleanUps.DataAccess.csproj": {
+              "projectPath": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.DataAccess\\CleanUps.DataAccess.csproj"
             }
           }
         }

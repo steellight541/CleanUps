@@ -1,5 +1,9 @@
 ﻿namespace CleanUps.BusinessDomain.Models;
 
+/// <summary>
+/// Represents an event in the CleanUps application, such as a community cleanup or gathering.
+/// This class holds details about the event's location, timing, status, and associated data like attendance and photos.
+/// </summary>
 public partial class Event
 {
     public int EventId { get; set; }
@@ -26,7 +30,7 @@ public partial class Event
 
     public decimal? TrashCollected { get; set; }
 
-    public int NumberOfAttendees { get; set; }
+    public int NumberOfAttendees { get; set; } = 0;
 
     public virtual ICollection<EventAttendance> EventAttendances { get; set; } = new List<EventAttendance>();
 

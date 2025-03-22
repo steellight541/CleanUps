@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CleanUps.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+552b74fac156a139876c25237e506a1f47a6337f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9c6c629659b38263e23fde85fee9d95c4f4dc161")]
 [assembly: System.Reflection.AssemblyProductAttribute("CleanUps.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CleanUps.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

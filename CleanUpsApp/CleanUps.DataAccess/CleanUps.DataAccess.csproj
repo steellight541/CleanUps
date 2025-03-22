@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CleanUps.BusinessDomain\CleanUps.BusinessDomain.csproj" />
+    <ProjectReference Include="..\CleanUps.BusinessLogic\CleanUps.BusinessLogic.csproj" />
   </ItemGroup>
 
 </Project>

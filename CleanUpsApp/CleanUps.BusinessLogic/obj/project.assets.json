@@ -11,6 +11,19 @@
         "runtime": {
           "bin/placeholder/CleanUps.BusinessDomain.dll": {}
         }
+      },
+      "CleanUps.Shared/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "CleanUps.BusinessDomain": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/CleanUps.Shared.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/CleanUps.Shared.dll": {}
+        }
       }
     }
   },
@@ -19,11 +32,17 @@
       "type": "project",
       "path": "../CleanUps.BusinessDomain/CleanUps.BusinessDomain.csproj",
       "msbuildProject": "../CleanUps.BusinessDomain/CleanUps.BusinessDomain.csproj"
+    },
+    "CleanUps.Shared/1.0.0": {
+      "type": "project",
+      "path": "../CleanUps.Shared/CleanUps.Shared.csproj",
+      "msbuildProject": "../CleanUps.Shared/CleanUps.Shared.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net8.0": [
-      "CleanUps.BusinessDomain >= 1.0.0"
+      "CleanUps.BusinessDomain >= 1.0.0",
+      "CleanUps.Shared >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -61,6 +80,9 @@
           "projectReferences": {
             "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.BusinessDomain\\CleanUps.BusinessDomain.csproj": {
               "projectPath": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.BusinessDomain\\CleanUps.BusinessDomain.csproj"
+            },
+            "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.Shared\\CleanUps.Shared.csproj": {
+              "projectPath": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.Shared\\CleanUps.Shared.csproj"
             }
           }
         }

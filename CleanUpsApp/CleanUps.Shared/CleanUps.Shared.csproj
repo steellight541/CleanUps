@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\CleanUps.BusinessDomain\CleanUps.BusinessDomain.csproj" />
+  </ItemGroup>
+
 </Project>

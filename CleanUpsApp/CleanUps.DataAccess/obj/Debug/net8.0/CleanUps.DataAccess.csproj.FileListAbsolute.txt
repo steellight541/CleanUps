@@ -10,9 +10,3 @@ C:\Users\Gormw\OneDrive\Skrivebord\Diverse\ZWMClean\CleanUpsApp\CleanUps.DataAcc
 C:\Users\Gormw\OneDrive\Skrivebord\Diverse\ZWMClean\CleanUpsApp\CleanUps.DataAccess\obj\Debug\net8.0\refint\CleanUps.DataAccess.dll
 C:\Users\Gormw\OneDrive\Skrivebord\Diverse\ZWMClean\CleanUpsApp\CleanUps.DataAccess\obj\Debug\net8.0\CleanUps.DataAccess.pdb
 C:\Users\Gormw\OneDrive\Skrivebord\Diverse\ZWMClean\CleanUpsApp\CleanUps.DataAccess\obj\Debug\net8.0\ref\CleanUps.DataAccess.dll
-C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.DataAccess\obj\Debug\net8.0\CleanUps.DataAccess.csproj.AssemblyReference.cache
-C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.DataAccess\obj\Debug\net8.0\CleanUps.DataAccess.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.DataAccess\obj\Debug\net8.0\CleanUps.DataAccess.AssemblyInfoInputs.cache
-C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.DataAccess\obj\Debug\net8.0\CleanUps.DataAccess.AssemblyInfo.cs
-C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.DataAccess\obj\Debug\net8.0\CleanUps.DataAccess.csproj.CoreCompileInputs.cache
-C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.DataAccess\obj\Debug\net8.0\CleanUps.DataAccess.sourcelink.json
