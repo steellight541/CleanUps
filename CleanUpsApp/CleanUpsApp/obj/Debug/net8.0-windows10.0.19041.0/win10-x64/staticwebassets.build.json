@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "d0RKCkaY+nHORznpcv5EZUVRNgNopMkChp/4JeTFOTs=",
+  "Hash": "P8XUfQq7/5CipCsnQr2KjilAf3DQoy1t5Qz25gy9q00=",
   "Source": "CleanUpsApp",
   "BasePath": "/",
   "Mode": "Root",
@@ -10,17 +10,17 @@
     {
       "Name": "CleanUpsApp\\wwwroot",
       "Source": "CleanUpsApp",
-      "ContentRoot": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\",
       "BasePath": "/",
       "Pattern": "**"
     }
   ],
   "Assets": [
     {
-      "Identity": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\obj\\Debug\\net8.0-windows10.0.19041.0\\win10-x64\\scopedcss\\bundle\\CleanUpsApp.styles.css",
+      "Identity": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\obj\\Debug\\net8.0-windows10.0.19041.0\\win10-x64\\scopedcss\\bundle\\CleanUpsApp.styles.css",
       "SourceId": "CleanUpsApp",
       "SourceType": "Computed",
-      "ContentRoot": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\obj\\Debug\\net8.0-windows10.0.19041.0\\win10-x64\\scopedcss\\bundle\\",
+      "ContentRoot": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\obj\\Debug\\net8.0-windows10.0.19041.0\\win10-x64\\scopedcss\\bundle\\",
       "BasePath": "/",
       "RelativePath": "CleanUpsApp#[.{fingerprint}]?.styles.css",
       "AssetKind": "All",
@@ -35,13 +35,13 @@
       "Integrity": "zB2O7mkmiDjCh1yFxnIGsYni5Jg2f1aMw/tN/lKt+38=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\obj\\Debug\\net8.0-windows10.0.19041.0\\win10-x64\\scopedcss\\bundle\\CleanUpsApp.styles.css"
+      "OriginalItemSpec": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\obj\\Debug\\net8.0-windows10.0.19041.0\\win10-x64\\scopedcss\\bundle\\CleanUpsApp.styles.css"
     },
     {
-      "Identity": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\obj\\Debug\\net8.0-windows10.0.19041.0\\win10-x64\\scopedcss\\projectbundle\\CleanUpsApp.bundle.scp.css",
+      "Identity": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\obj\\Debug\\net8.0-windows10.0.19041.0\\win10-x64\\scopedcss\\projectbundle\\CleanUpsApp.bundle.scp.css",
       "SourceId": "CleanUpsApp",
       "SourceType": "Computed",
-      "ContentRoot": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\obj\\Debug\\net8.0-windows10.0.19041.0\\win10-x64\\scopedcss\\projectbundle\\",
+      "ContentRoot": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\obj\\Debug\\net8.0-windows10.0.19041.0\\win10-x64\\scopedcss\\projectbundle\\",
       "BasePath": "/",
       "RelativePath": "CleanUpsApp#[.{fingerprint}]!.bundle.scp.css",
       "AssetKind": "All",
@@ -56,13 +56,13 @@
       "Integrity": "zB2O7mkmiDjCh1yFxnIGsYni5Jg2f1aMw/tN/lKt+38=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\obj\\Debug\\net8.0-windows10.0.19041.0\\win10-x64\\scopedcss\\projectbundle\\CleanUpsApp.bundle.scp.css"
+      "OriginalItemSpec": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\obj\\Debug\\net8.0-windows10.0.19041.0\\win10-x64\\scopedcss\\projectbundle\\CleanUpsApp.bundle.scp.css"
     },
     {
-      "Identity": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\css\\app.css",
+      "Identity": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\css\\app.css",
       "SourceId": "CleanUpsApp",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\",
       "BasePath": "/",
       "RelativePath": "css/app#[.{fingerprint}]?.css",
       "AssetKind": "All",
@@ -80,10 +80,10 @@
       "OriginalItemSpec": "wwwroot\\css\\app.css"
     },
     {
-      "Identity": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
+      "Identity": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
       "SourceId": "CleanUpsApp",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\",
       "BasePath": "/",
       "RelativePath": "css/bootstrap/bootstrap.min#[.{fingerprint}]?.css",
       "AssetKind": "All",
@@ -101,10 +101,10 @@
       "OriginalItemSpec": "wwwroot\\css\\bootstrap\\bootstrap.min.css"
     },
     {
-      "Identity": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\css\\bootstrap\\bootstrap.min.css.map",
+      "Identity": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\css\\bootstrap\\bootstrap.min.css.map",
       "SourceId": "CleanUpsApp",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\",
       "BasePath": "/",
       "RelativePath": "css/bootstrap/bootstrap.min.css#[.{fingerprint}]?.map",
       "AssetKind": "All",
@@ -122,10 +122,10 @@
       "OriginalItemSpec": "wwwroot\\css\\bootstrap\\bootstrap.min.css.map"
     },
     {
-      "Identity": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\favicon.png",
+      "Identity": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\favicon.png",
       "SourceId": "CleanUpsApp",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\",
       "BasePath": "/",
       "RelativePath": "favicon#[.{fingerprint}]?.png",
       "AssetKind": "All",
@@ -143,10 +143,10 @@
       "OriginalItemSpec": "wwwroot\\favicon.png"
     },
     {
-      "Identity": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\index.html",
+      "Identity": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\index.html",
       "SourceId": "CleanUpsApp",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\",
       "BasePath": "/",
       "RelativePath": "index#[.{fingerprint}]?.html",
       "AssetKind": "All",
@@ -167,7 +167,7 @@
   "Endpoints": [
     {
       "Route": "CleanUpsApp.bundle.scp.css",
-      "AssetFile": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\obj\\Debug\\net8.0-windows10.0.19041.0\\win10-x64\\scopedcss\\projectbundle\\CleanUpsApp.bundle.scp.css",
+      "AssetFile": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\obj\\Debug\\net8.0-windows10.0.19041.0\\win10-x64\\scopedcss\\projectbundle\\CleanUpsApp.bundle.scp.css",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -188,7 +188,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 17 Mar 2025 15:08:18 GMT"
+          "Value": "Sat, 22 Mar 2025 14:47:34 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -204,7 +204,7 @@
     },
     {
       "Route": "CleanUpsApp.styles.css",
-      "AssetFile": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\obj\\Debug\\net8.0-windows10.0.19041.0\\win10-x64\\scopedcss\\bundle\\CleanUpsApp.styles.css",
+      "AssetFile": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\obj\\Debug\\net8.0-windows10.0.19041.0\\win10-x64\\scopedcss\\bundle\\CleanUpsApp.styles.css",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -225,7 +225,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 17 Mar 2025 15:08:18 GMT"
+          "Value": "Sat, 22 Mar 2025 14:47:34 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -241,7 +241,7 @@
     },
     {
       "Route": "CleanUpsApp.whvvt5gjzz.bundle.scp.css",
-      "AssetFile": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\obj\\Debug\\net8.0-windows10.0.19041.0\\win10-x64\\scopedcss\\projectbundle\\CleanUpsApp.bundle.scp.css",
+      "AssetFile": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\obj\\Debug\\net8.0-windows10.0.19041.0\\win10-x64\\scopedcss\\projectbundle\\CleanUpsApp.bundle.scp.css",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -262,7 +262,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 17 Mar 2025 15:08:18 GMT"
+          "Value": "Sat, 22 Mar 2025 14:47:34 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -286,7 +286,7 @@
     },
     {
       "Route": "CleanUpsApp.whvvt5gjzz.styles.css",
-      "AssetFile": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\obj\\Debug\\net8.0-windows10.0.19041.0\\win10-x64\\scopedcss\\bundle\\CleanUpsApp.styles.css",
+      "AssetFile": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\obj\\Debug\\net8.0-windows10.0.19041.0\\win10-x64\\scopedcss\\bundle\\CleanUpsApp.styles.css",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -307,7 +307,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 17 Mar 2025 15:08:18 GMT"
+          "Value": "Sat, 22 Mar 2025 14:47:34 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -331,7 +331,7 @@
     },
     {
       "Route": "css/app.css",
-      "AssetFile": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\css\\app.css",
+      "AssetFile": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\css\\app.css",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -352,7 +352,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 17 Mar 2025 15:08:06 GMT"
+          "Value": "Sat, 22 Mar 2025 14:47:34 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -368,7 +368,7 @@
     },
     {
       "Route": "css/app.dex3usdpik.css",
-      "AssetFile": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\css\\app.css",
+      "AssetFile": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\css\\app.css",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -389,7 +389,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 17 Mar 2025 15:08:06 GMT"
+          "Value": "Sat, 22 Mar 2025 14:47:34 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -413,7 +413,7 @@
     },
     {
       "Route": "css/bootstrap/bootstrap.min.6gzpyzhau4.css",
-      "AssetFile": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
+      "AssetFile": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -434,7 +434,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 17 Mar 2025 15:08:06 GMT"
+          "Value": "Sat, 22 Mar 2025 14:47:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -458,7 +458,7 @@
     },
     {
       "Route": "css/bootstrap/bootstrap.min.css",
-      "AssetFile": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
+      "AssetFile": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -479,7 +479,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 17 Mar 2025 15:08:06 GMT"
+          "Value": "Sat, 22 Mar 2025 14:47:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -495,7 +495,7 @@
     },
     {
       "Route": "css/bootstrap/bootstrap.min.css.8inm30yfxf.map",
-      "AssetFile": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\css\\bootstrap\\bootstrap.min.css.map",
+      "AssetFile": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\css\\bootstrap\\bootstrap.min.css.map",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -516,7 +516,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 17 Mar 2025 15:08:06 GMT"
+          "Value": "Sat, 22 Mar 2025 14:47:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -540,7 +540,7 @@
     },
     {
       "Route": "css/bootstrap/bootstrap.min.css.map",
-      "AssetFile": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\css\\bootstrap\\bootstrap.min.css.map",
+      "AssetFile": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\css\\bootstrap\\bootstrap.min.css.map",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -561,7 +561,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 17 Mar 2025 15:08:06 GMT"
+          "Value": "Sat, 22 Mar 2025 14:47:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -577,7 +577,7 @@
     },
     {
       "Route": "favicon.ifv42okdf2.png",
-      "AssetFile": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\favicon.png",
+      "AssetFile": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\favicon.png",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -598,7 +598,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 17 Mar 2025 15:08:06 GMT"
+          "Value": "Sat, 22 Mar 2025 14:47:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -622,7 +622,7 @@
     },
     {
       "Route": "favicon.png",
-      "AssetFile": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\favicon.png",
+      "AssetFile": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\favicon.png",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -643,7 +643,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 17 Mar 2025 15:08:06 GMT"
+          "Value": "Sat, 22 Mar 2025 14:47:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -659,7 +659,7 @@
     },
     {
       "Route": "index.hqrj0yhbde.html",
-      "AssetFile": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\index.html",
+      "AssetFile": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\index.html",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -680,7 +680,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 17 Mar 2025 15:08:06 GMT"
+          "Value": "Sat, 22 Mar 2025 14:47:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -704,7 +704,7 @@
     },
     {
       "Route": "index.html",
-      "AssetFile": "C:\\school\\projecten\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\index.html",
+      "AssetFile": "C:\\Users\\wawer\\Source\\Repos\\CleanUps\\CleanUpsApp\\CleanUpsApp\\wwwroot\\index.html",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -725,7 +725,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 17 Mar 2025 15:08:06 GMT"
+          "Value": "Sat, 22 Mar 2025 14:47:35 GMT"
         },
         {
           "Name": "Cache-Control",
