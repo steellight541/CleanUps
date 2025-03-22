@@ -8,7 +8,7 @@ namespace CleanUps.BusinessLogic.Services
     /// Provides mapping functionality between <see cref="EventDTO"/> and <see cref="Event"/> entities in the CleanUps application.
     /// This class is responsible for transforming data transfer objects (DTOs) to domain models and vice versa.
     /// </summary>
-    public class EventMapper : IEventMapper
+    internal class EventMapper : IEventMapper
     {
         /// <summary>
         /// Maps an <see cref="EventDTO"/> to an <see cref="Event"/> domain model.

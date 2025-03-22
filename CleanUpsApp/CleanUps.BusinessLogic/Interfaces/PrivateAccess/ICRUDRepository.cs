@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 
-//[assembly: InternalsVisibleTo("CleanUps.DataAccess")]
+[assembly: InternalsVisibleTo("CleanUps.DataAccess")]
+[assembly: InternalsVisibleTo("CleanUps.Configuration")]
 
 namespace CleanUps.BusinessLogic.Interfaces.PrivateAccess
 {
@@ -9,7 +10,7 @@ namespace CleanUps.BusinessLogic.Interfaces.PrivateAccess
     /// This interface provides asynchronous methods for creating, reading, updating, and deleting entities.
     /// </summary>
     /// <typeparam name="T">The type of entity managed by the repository.</typeparam>
-    public interface ICRUDRepository<T>
+    internal interface ICRUDRepository<T> //I want to make this inaccessible to the Api, so the api doesnt access the database directly at some point 
     {
         /// <summary>
         /// Creates a new entity asynchronously in the database.

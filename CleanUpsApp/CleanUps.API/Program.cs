@@ -1,10 +1,4 @@
-using CleanUps.BusinessDomain.Models;
-using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
-using CleanUps.BusinessLogic.Interfaces.PublicAccess;
-using CleanUps.BusinessLogic.Services;
-using CleanUps.DataAccess.DatabaseHub;
-using CleanUps.DataAccess.Repositories;
-using Microsoft.EntityFrameworkCore;
+using CleanUps.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,13 +10,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 
-//register dependencies
-builder.Services.AddScoped<IEventService, EventService>();
-builder.Services.AddScoped<IEventValidator, EventValidator>();
-builder.Services.AddScoped<IEventMapper, EventMapper>();
-builder.Services.AddScoped<ICRUDRepository<Event>, EventRepository>(); // Register as public interface
-builder.Services.AddDbContext<CleanUpsContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("CleanUpsDb")));
+// Register dependencies from CleanUps.Configuration
+builder.Services.AddAppDependencies(builder.Configuration);
 
 var app = builder.Build();
 

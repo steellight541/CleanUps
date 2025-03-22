@@ -4,7 +4,7 @@ using CleanUps.DataAccess.DatabaseHub;
 
 namespace CleanUps.DataAccess.Repositories
 {
-    public class UserRepository : ICRUDRepository<User>
+    internal class UserRepository : ICRUDRepository<User>
     {
         private readonly CleanUpsContext _context;
         public UserRepository(CleanUpsContext context)

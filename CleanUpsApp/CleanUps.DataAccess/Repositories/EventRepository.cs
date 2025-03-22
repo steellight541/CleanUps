@@ -2,10 +2,12 @@
 using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
 using CleanUps.DataAccess.DatabaseHub;
 using Microsoft.EntityFrameworkCore;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("CleanUps.Configuration")]
 namespace CleanUps.DataAccess.Repositories
 {
-    public class EventRepository : ICRUDRepository<Event>
+    internal class EventRepository : ICRUDRepository<Event>
     {
         private readonly CleanUpsContext _context;
         public EventRepository(CleanUpsContext context)
@@ -21,20 +23,6 @@ namespace CleanUps.DataAccess.Repositories
         {
             await _context.Events.AddAsync(eventToBeCreated);
             await _context.SaveChangesAsync();
-        }
-
-        /// <summary>
-        /// Deletes an Event from the database by its ID.
-        /// </summary>
-        /// <param name="id">The ID of the Event to be deleted.</param>
-        public async Task DeleteAsync(int id)
-        {
-            var eventToDelete = await _context.Events.FindAsync(id);
-            if (eventToDelete != null)
-            {
-                _context.Events.Remove(eventToDelete);
-                await _context.SaveChangesAsync();
-            }
         }
 
         /// <summary>
@@ -64,6 +52,20 @@ namespace CleanUps.DataAccess.Repositories
         {
             _context.Events.Update(eventToBeUpdated);
             await _context.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Deletes an Event from the database by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the Event to be deleted.</param>
+        public async Task DeleteAsync(int id)
+        {
+            var eventToDelete = await _context.Events.FindAsync(id);
+            if (eventToDelete != null)
+            {
+                _context.Events.Remove(eventToDelete);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }
