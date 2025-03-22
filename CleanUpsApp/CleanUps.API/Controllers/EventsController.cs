@@ -9,7 +9,7 @@ namespace CleanUps.API.Controllers
     /// <summary>
     /// Provides RESTful API endpoints for managing events.
     /// </summary>
-    [Route("api/Events")]  
+    [Route("api/Events")]
     [ApiController]
     public class EventsController : ControllerBase
     {
