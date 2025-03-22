@@ -13,10 +13,10 @@ namespace CleanUps.API.Controllers
     [ApiController]
     public class EventsController : ControllerBase
     {
-        private readonly IEventService _eventService;
-        public EventsController(IEventService eventService)
+        private readonly IEventProcessor _ep;
+        public EventsController(IEventProcessor eventProcessor)
         {
-            _eventService = eventService;
+            _ep = eventProcessor;
         }
 
         // GET: api/Events
@@ -39,7 +39,7 @@ namespace CleanUps.API.Controllers
         {
             try
             {
-                List<EventDTO> events = await _eventService.GetAllAsync();
+                List<EventDTO> events = await _ep.GetAllAsync();
 
                 if (events.Count == 0)
                 {
@@ -80,7 +80,7 @@ namespace CleanUps.API.Controllers
         {
             try
             {
-                EventDTO eventToGet = await _eventService.GetByIdAsync(id);
+                EventDTO eventToGet = await _ep.GetByIdAsync(id);
 
                 return Ok(eventToGet);
             }
@@ -121,7 +121,7 @@ namespace CleanUps.API.Controllers
         {
             try
             {
-                EventDTO addedEvent = await _eventService.CreateAsync(eventToBeAdded);
+                EventDTO addedEvent = await _ep.CreateAsync(eventToBeAdded);
 
                 return Created("api/Events/" + addedEvent.EventId, addedEvent);
             }
@@ -158,11 +158,16 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> PutAsync([FromBody] EventDTO eventToBeUpdated)
+        public async Task<IActionResult> PutAsync(int id, [FromBody] EventDTO eventToBeUpdated)
         {
+            if (id != eventToBeUpdated.EventId)
+            {
+                return BadRequest("ID in the URL does not match the Event ID in the payload.");
+            }
+
             try
             {
-                EventDTO updatedEvent = await _eventService.UpdateAsync(eventToBeUpdated);
+                EventDTO updatedEvent = await _ep.UpdateAsync(id, eventToBeUpdated);
 
                 return Ok(updatedEvent);
             }
@@ -204,7 +209,7 @@ namespace CleanUps.API.Controllers
         {
             try
             {
-                EventDTO eventToBeDeleted = await _eventService.DeleteAsync(id);
+                EventDTO eventToBeDeleted = await _ep.DeleteAsync(id);
                 return Ok(eventToBeDeleted);
             }
             catch (ArgumentException argEx)

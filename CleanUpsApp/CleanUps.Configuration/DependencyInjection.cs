@@ -22,6 +22,7 @@ namespace CleanUps.Configuration
             services.AddScoped<ICRUDRepository<Event>, EventRepository>();
 
             // Register services
+            services.AddScoped<IEventProcessor, EventProcessor>();
             services.AddScoped<IEventValidator, EventValidator>();
             services.AddScoped<IEventMapper, EventMapper>();
 
