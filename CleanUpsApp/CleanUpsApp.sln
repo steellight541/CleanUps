@@ -1,27 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35818.85 d17.13
+VisualStudioVersion = 17.13.35913.81 d17.13
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleanUpsApp", "CleanUpsApp\CleanUpsApp.csproj", "{A50DD2EF-DF3F-4F9D-BADD-63E905B842CC}"
-EndProject
 Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A50DD2EF-DF3F-4F9D-BADD-63E905B842CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A50DD2EF-DF3F-4F9D-BADD-63E905B842CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A50DD2EF-DF3F-4F9D-BADD-63E905B842CC}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{A50DD2EF-DF3F-4F9D-BADD-63E905B842CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A50DD2EF-DF3F-4F9D-BADD-63E905B842CC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A50DD2EF-DF3F-4F9D-BADD-63E905B842CC}.Release|Any CPU.Deploy.0 = Release|Any CPU
-	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {7D964312-BCC6-4C0E-B641-0DCFF3088F26}
+		SolutionGuid = {6D36ABA7-1D83-49F4-8EFD-60F8FEA96A71}
 	EndGlobalSection
 EndGlobal
