@@ -2,7 +2,9 @@
 using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
 using CleanUps.BusinessLogic.Interfaces.PublicAccess;
 using CleanUps.Shared.DTOs;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("CleanUps.Test")]
 
 namespace CleanUps.BusinessLogic.Services
 {

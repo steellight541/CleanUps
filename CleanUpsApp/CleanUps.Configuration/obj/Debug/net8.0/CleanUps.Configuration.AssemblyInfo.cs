@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CleanUps.Configuration")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bb445ef4da745a6bc4b164e291fab505b44b2fb2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3592c9f9f2802ec8026e8ea479c56d8ab1c1165a")]
 [assembly: System.Reflection.AssemblyProductAttribute("CleanUps.Configuration")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CleanUps.Configuration")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
