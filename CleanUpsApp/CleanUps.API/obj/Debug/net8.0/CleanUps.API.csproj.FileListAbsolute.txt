@@ -35,3 +35,11 @@ C:\Users\Gormw\OneDrive\Skrivebord\Diverse\ZWMClean\CleanUpsApp\CleanUps.API\obj
 C:\Users\Gormw\OneDrive\Skrivebord\Diverse\ZWMClean\CleanUpsApp\CleanUps.API\obj\Debug\net8.0\CleanUps.API.pdb
 C:\Users\Gormw\OneDrive\Skrivebord\Diverse\ZWMClean\CleanUpsApp\CleanUps.API\obj\Debug\net8.0\CleanUps.API.genruntimeconfig.cache
 C:\Users\Gormw\OneDrive\Skrivebord\Diverse\ZWMClean\CleanUpsApp\CleanUps.API\obj\Debug\net8.0\ref\CleanUps.API.dll
+C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.API\obj\Debug\net8.0\CleanUps.API.csproj.AssemblyReference.cache
+C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.API\obj\Debug\net8.0\CleanUps.API.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.API\obj\Debug\net8.0\CleanUps.API.AssemblyInfoInputs.cache
+C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.API\obj\Debug\net8.0\CleanUps.API.AssemblyInfo.cs
+C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.API\obj\Debug\net8.0\CleanUps.API.csproj.CoreCompileInputs.cache
+C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.API\obj\Debug\net8.0\CleanUps.API.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.API\obj\Debug\net8.0\CleanUps.API.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\wawer\source\repos\CleanUps\CleanUpsApp\CleanUps.API\obj\Debug\net8.0\CleanUps.API.sourcelink.json

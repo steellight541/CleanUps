@@ -11,7 +11,7 @@ namespace CleanUps.BusinessLogic.Services
     /// This service handles CRUD operations for events, delegating validation to <see cref="IEventValidator"/>,
     /// transformation to <see cref="IEventMapper"/>, and database saving to <see cref="ICRUDRepository{T}"/>.
     /// </summary>
-    public class EventService : IEventService
+    internal class EventService : IEventService
     {
         private readonly ICRUDRepository<Event> _repo;
         private readonly IEventValidator _validator;

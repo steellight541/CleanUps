@@ -1720,6 +1720,21 @@
           "bin/placeholder/CleanUps.BusinessLogic.dll": {}
         }
       },
+      "CleanUps.Configuration/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "CleanUps.BusinessDomain": "1.0.0",
+          "CleanUps.BusinessLogic": "1.0.0",
+          "CleanUps.DataAccess": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/CleanUps.Configuration.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/CleanUps.Configuration.dll": {}
+        }
+      },
       "CleanUps.DataAccess/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v8.0",
@@ -5223,6 +5238,11 @@
       "path": "../CleanUps.BusinessLogic/CleanUps.BusinessLogic.csproj",
       "msbuildProject": "../CleanUps.BusinessLogic/CleanUps.BusinessLogic.csproj"
     },
+    "CleanUps.Configuration/1.0.0": {
+      "type": "project",
+      "path": "../CleanUps.Configuration/CleanUps.Configuration.csproj",
+      "msbuildProject": "../CleanUps.Configuration/CleanUps.Configuration.csproj"
+    },
     "CleanUps.DataAccess/1.0.0": {
       "type": "project",
       "path": "../CleanUps.DataAccess/CleanUps.DataAccess.csproj",
@@ -5237,7 +5257,8 @@
   "projectFileDependencyGroups": {
     "net8.0": [
       "CleanUps.BusinessLogic >= 1.0.0",
-      "CleanUps.DataAccess >= 1.0.0",
+      "CleanUps.Configuration >= 1.0.0",
+      "CleanUps.Shared >= 1.0.0",
       "Microsoft.EntityFrameworkCore >= 9.0.3",
       "Microsoft.EntityFrameworkCore.Design >= 9.0.3",
       "Microsoft.EntityFrameworkCore.SqlServer >= 9.0.3",
@@ -5281,8 +5302,11 @@
             "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.BusinessLogic\\CleanUps.BusinessLogic.csproj": {
               "projectPath": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.BusinessLogic\\CleanUps.BusinessLogic.csproj"
             },
-            "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.DataAccess\\CleanUps.DataAccess.csproj": {
-              "projectPath": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.DataAccess\\CleanUps.DataAccess.csproj"
+            "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.Configuration\\CleanUps.Configuration.csproj": {
+              "projectPath": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.Configuration\\CleanUps.Configuration.csproj"
+            },
+            "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.Shared\\CleanUps.Shared.csproj": {
+              "projectPath": "C:\\Users\\wawer\\source\\repos\\CleanUps\\CleanUpsApp\\CleanUps.Shared\\CleanUps.Shared.csproj"
             }
           }
         }

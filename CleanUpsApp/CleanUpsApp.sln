@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleanUps.BusinessDomain", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleanUps.BusinessLogic", "CleanUps.BusinessLogic\CleanUps.BusinessLogic.csproj", "{E2095155-B700-4839-994A-C7AA3AF943FA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleanUps.Configuration", "CleanUps.Configuration\CleanUps.Configuration.csproj", "{68DAC63A-1E7D-467F-ABE8-0BE186E618F7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{E2095155-B700-4839-994A-C7AA3AF943FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E2095155-B700-4839-994A-C7AA3AF943FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E2095155-B700-4839-994A-C7AA3AF943FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68DAC63A-1E7D-467F-ABE8-0BE186E618F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68DAC63A-1E7D-467F-ABE8-0BE186E618F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68DAC63A-1E7D-467F-ABE8-0BE186E618F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68DAC63A-1E7D-467F-ABE8-0BE186E618F7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

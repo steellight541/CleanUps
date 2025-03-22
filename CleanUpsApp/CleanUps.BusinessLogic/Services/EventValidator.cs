@@ -7,7 +7,7 @@ namespace CleanUps.BusinessLogic.Services
     /// Validates Event data in the CleanUps application.
     /// This class ensures that <see cref="EventDTO"/> objects and event IDs meet the required business rules before processing.
     /// </summary>
-    public class EventValidator : IEventValidator
+    internal class EventValidator : IEventValidator
     {
         /// <summary>
         /// Validates an <see cref="EventDTO"/> for creating a new event.

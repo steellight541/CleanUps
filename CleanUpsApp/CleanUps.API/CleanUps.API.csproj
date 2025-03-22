@@ -22,7 +22,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CleanUps.BusinessLogic\CleanUps.BusinessLogic.csproj" />
-    <ProjectReference Include="..\CleanUps.DataAccess\CleanUps.DataAccess.csproj" />
+    <ProjectReference Include="..\CleanUps.Configuration\CleanUps.Configuration.csproj" />
+    <ProjectReference Include="..\CleanUps.Shared\CleanUps.Shared.csproj" />
   </ItemGroup>
 
 </Project>
