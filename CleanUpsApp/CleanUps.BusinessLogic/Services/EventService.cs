@@ -35,7 +35,7 @@ namespace CleanUps.BusinessLogic.Services
         /// <param name="eventDto">The <see cref="EventDTO"/> containing the event data to create.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         /// <exception cref="ArgumentException">Thrown when <paramref name="eventDto"/> fails validation (e.g., missing required fields or invalid data).</exception>
-        public async Task CreateAsync(EventDTO eventDto)
+        public async Task<EventDTO> CreateAsync(EventDTO eventDto)
         {
             // Step 1: Validate the DTO
             _validator.ValidateForCreate(eventDto);
@@ -45,6 +45,7 @@ namespace CleanUps.BusinessLogic.Services
 
             // Step 3: Save using the repository
             await _repo.CreateAsync(eventToCreate);
+            return eventDto;
         }
 
         /// <summary>
@@ -90,7 +91,7 @@ namespace CleanUps.BusinessLogic.Services
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         /// <exception cref="ArgumentException">Thrown when <paramref name="eventDto"/> fails validation (e.g., missing required fields or invalid data).</exception>
         /// <exception cref="KeyNotFoundException">Thrown when no event with the specified ID in <paramref name="eventDto"/> is found.</exception>
-        public async Task UpdateAsync(EventDTO eventDto)
+        public async Task<EventDTO> UpdateAsync(EventDTO eventDto)
         {
             // Step 1: Validate the DTO
             _validator.ValidateForUpdate(eventDto);
@@ -107,6 +108,8 @@ namespace CleanUps.BusinessLogic.Services
 
             // Step 4: Update using the repository
             await _repo.UpdateAsync(eventToUpdate);
+            return eventDto;
+
         }
 
         /// <summary>
@@ -116,7 +119,7 @@ namespace CleanUps.BusinessLogic.Services
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         /// <exception cref="ArgumentException">Thrown when <paramref name="id"/> is less than or equal to zero.</exception>
         /// <exception cref="KeyNotFoundException">Thrown when no event with the specified <paramref name="id"/> is found.</exception>
-        public async Task DeleteAsync(int id)
+        public async Task<EventDTO> DeleteAsync(int id)
         {
             // Step 1: Validate the ID
             _validator.ValidateId(id);
@@ -130,6 +133,8 @@ namespace CleanUps.BusinessLogic.Services
 
             // Step 3: Delete using the repository
             await _repo.DeleteAsync(id);
+
+            return _mapper.ToEventDTO(eventToDelete);
         }
 
     }

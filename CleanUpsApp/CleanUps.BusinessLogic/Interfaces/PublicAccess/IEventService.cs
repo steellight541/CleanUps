@@ -13,7 +13,7 @@ namespace CleanUps.BusinessLogic.Interfaces.PublicAccess
         /// </summary>
         /// <param name="eventDto">The <see cref="EventDTO"/> containing the event data to create.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public Task CreateAsync(EventDTO eventDto);
+        public Task<EventDTO> CreateAsync(EventDTO eventDto);
 
         /// <summary>
         /// Retrieves all events asynchronously from the CleanUps application.
@@ -33,13 +33,13 @@ namespace CleanUps.BusinessLogic.Interfaces.PublicAccess
         /// </summary>
         /// <param name="eventDto">The <see cref="EventDTO"/> containing the updated event data.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public Task UpdateAsync(EventDTO eventDto);
+        public Task<EventDTO> UpdateAsync(EventDTO eventDto);
 
         /// <summary>
         /// Deletes an event asynchronously from the CleanUps application by its ID.
         /// </summary>
         /// <param name="id">The <see cref="int"/> identifier of the event to delete.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public Task DeleteAsync(int id);
+        public Task<EventDTO> DeleteAsync(int id);
     }
 }
