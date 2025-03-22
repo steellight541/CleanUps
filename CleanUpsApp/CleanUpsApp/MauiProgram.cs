@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
 namespace CleanUpsApp;
-
+ 
 public static class MauiProgram
 {
 	public static MauiApp CreateMauiApp()
