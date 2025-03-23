@@ -1,4 +1,6 @@
-﻿namespace CleanUps.BusinessDomain.Models;
+﻿using CleanUps.BusinessDomain.Models.Flags;
+
+namespace CleanUps.BusinessDomain.Models;
 
 /// <summary>
 /// Represents a user role in the CleanUps application.Used to categorize users by their permissions or responsibilities.

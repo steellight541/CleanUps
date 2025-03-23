@@ -1,4 +1,5 @@
 ﻿using CleanUps.BusinessDomain.Models;
+using CleanUps.Shared.DTOs.Flags;
 
 namespace CleanUps.Shared.DTOs
 {

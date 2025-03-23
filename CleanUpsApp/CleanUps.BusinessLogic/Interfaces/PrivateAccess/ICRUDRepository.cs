@@ -1,4 +1,4 @@
-﻿using CleanUps.BusinessDomain.Models;
+﻿using CleanUps.BusinessDomain.Models.Flags;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("CleanUps.DataAccess")]

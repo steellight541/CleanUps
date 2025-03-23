@@ -1,5 +1,5 @@
 ﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
-using CleanUps.BusinessLogic.Services;
+using CleanUps.BusinessLogic.Services.Validators;
 using CleanUps.Shared.DTOs;
 namespace CleanUps.Test.BusinessLogic
 {

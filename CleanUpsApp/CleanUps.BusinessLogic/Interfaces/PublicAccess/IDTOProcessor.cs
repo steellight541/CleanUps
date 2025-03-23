@@ -1,4 +1,4 @@
-﻿using CleanUps.Shared.DTOs;
+﻿using CleanUps.Shared.DTOs.Flags;
 
 namespace CleanUps.BusinessLogic.Interfaces.PublicAccess
 {

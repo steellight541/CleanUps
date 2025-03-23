@@ -1,5 +1,5 @@
-﻿using CleanUps.BusinessDomain.Models;
-using CleanUps.Shared.DTOs;
+﻿using CleanUps.BusinessDomain.Models.Flags;
+using CleanUps.Shared.DTOs.Flags;
 using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("CleanUps.Configuration")]
 [assembly: InternalsVisibleTo("CleanUps.Test")]

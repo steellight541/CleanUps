@@ -1,4 +1,6 @@
-﻿namespace CleanUps.BusinessDomain.Models;
+﻿using CleanUps.BusinessDomain.Models.Flags;
+
+namespace CleanUps.BusinessDomain.Models;
 
 /// <summary>
 /// Represents an event in the CleanUps application, such as a community cleanup or gathering.

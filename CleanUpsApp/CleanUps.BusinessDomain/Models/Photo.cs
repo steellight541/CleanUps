@@ -1,4 +1,6 @@
-﻿namespace CleanUps.BusinessDomain.Models;
+﻿using CleanUps.BusinessDomain.Models.Flags;
+
+namespace CleanUps.BusinessDomain.Models;
 
 /// <summary>
 /// Represents a photo associated with an event in the CleanUps application.

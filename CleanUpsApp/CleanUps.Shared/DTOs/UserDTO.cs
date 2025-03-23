@@ -1,4 +1,6 @@
-﻿namespace CleanUps.Shared.DTOs
+﻿using CleanUps.Shared.DTOs.Flags;
+
+namespace CleanUps.Shared.DTOs
 {
     public record UserDTO : RecordFlag
     {
