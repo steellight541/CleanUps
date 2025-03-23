@@ -1,13 +1,12 @@
-﻿using CleanUps.BusinessLogic.Interfaces.PublicAccess;
+﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
 using CleanUps.BusinessLogic.Services;
 using CleanUps.Shared.DTOs;
-using System;
 namespace CleanUps.Test.BusinessLogic
 {
     [TestClass()]
     public class EventValidatorTests
     {
-        private IEventValidator _validator;
+        private IDTOValidator<EventDTO> _validator;
 
         [TestInitialize()]
         public void Setup()

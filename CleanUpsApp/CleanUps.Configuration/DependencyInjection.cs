@@ -2,8 +2,10 @@
 using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
 using CleanUps.BusinessLogic.Interfaces.PublicAccess;
 using CleanUps.BusinessLogic.Services;
+using CleanUps.BusinessLogic.Services.Mapper;
 using CleanUps.DataAccess.DatabaseHub;
 using CleanUps.DataAccess.Repositories;
+using CleanUps.Shared.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,9 +24,12 @@ namespace CleanUps.Configuration
             services.AddScoped<ICRUDRepository<Event>, EventRepository>();
 
             // Register services
-            services.AddScoped<IEventProcessor, EventProcessor>();
-            services.AddScoped<IEventValidator, EventValidator>();
-            services.AddScoped<IEventMapper, EventMapper>();
+            services.AddScoped<IDTOProcessor<EventDTO>, EventProcessor>();
+            services.AddScoped<IDTOValidator<EventDTO>, EventValidator>();
+            services.AddScoped<IMapper<Event, EventDTO>, EventMapper>();
+            services.AddScoped<IMapper<EventAttendance, EventAttendanceDTO>, EventAttendanceMapper>();
+            services.AddScoped<IMapper<Photo, PhotoDTO>, PhotoMapper>();
+            services.AddScoped<IMapper<User, UserDTO>, UserMapper>();
 
             return services;
         }

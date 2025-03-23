@@ -10,26 +10,26 @@ namespace CleanUps.BusinessLogic.Services
 {
     /// <summary>
     /// Manages event-related operations in the CleanUps application.
-    /// This service handles CRUD operations for events, delegating validation to <see cref="IEventValidator"/>,
+    /// This service handles CRUD operations for events, delegating validation to <see cref="IEntityValidator"/>,
     /// transformation to <see cref="IEventMapper"/>, and database saving to <see cref="ICRUDRepository{T}"/>.
     /// </summary>
-    internal class EventProcessor : IEventProcessor
+    internal class EventProcessor : IDTOProcessor<EventDTO>
     {
-        private readonly ICRUDRepository<Event> _repo;
-        private readonly IEventValidator _validator;
-        private readonly IEventMapper _mapper;
+        private readonly ICRUDRepository<Event> _eventRepo;
+        private readonly IDTOValidator<EventDTO> _eventDTOValidator;
+        private readonly IMapper<Event, EventDTO> _eventMapper;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EventProcessor"/> class.
         /// </summary>
         /// <param name="repo">The <see cref="ICRUDRepository{T}"/> implementation for event database operations.</param>
-        /// <param name="validator">The <see cref="IEventValidator"/> used to validate event data.</param>
+        /// <param name="validator">The <see cref="IEntityValidator"/> used to validate event data.</param>
         /// <param name="mapper">The <see cref="IEventMapper"/> used to map between <see cref="EventDTO"/> and <see cref="Event"/>.</param>
-        public EventProcessor(ICRUDRepository<Event> repo, IEventValidator validator, IEventMapper mapper)
+        public EventProcessor(ICRUDRepository<Event> repo, IDTOValidator<EventDTO> validator, IMapper<Event, EventDTO> mapper)
         {
-            _repo = repo;
-            _validator = validator;
-            _mapper = mapper;
+            _eventRepo = repo;
+            _eventDTOValidator = validator;
+            _eventMapper = mapper;
         }
         /// <summary>
         /// Creates a new event in the CleanUps application.
@@ -40,13 +40,13 @@ namespace CleanUps.BusinessLogic.Services
         public async Task<EventDTO> CreateAsync(EventDTO eventDto)
         {
             // Step 1: Validate the DTO
-            _validator.ValidateForCreate(eventDto);
+            _eventDTOValidator.ValidateForCreate(eventDto);
 
             // Step 2: Transform DTO to Domain Model
-            var eventToCreate = _mapper.ToEvent(eventDto);
+            var eventToCreate = _eventMapper.ConvertToModel(eventDto);
 
             // Step 3: Save using the repository
-            await _repo.CreateAsync(eventToCreate);
+            await _eventRepo.CreateAsync(eventToCreate);
             return eventDto;
         }
 
@@ -57,10 +57,10 @@ namespace CleanUps.BusinessLogic.Services
         public async Task<List<EventDTO>> GetAllAsync()
         {
             // Step 1: Retrieve all events
-            var events = await _repo.GetAllAsync();
+            var events = await _eventRepo.GetAllAsync();
 
             // Step 2: Transform to DTOs
-            return _mapper.ToEventDTOList(events);
+            return _eventMapper.ConvertToDTOList(events);
         }
 
         /// <summary>
@@ -73,17 +73,17 @@ namespace CleanUps.BusinessLogic.Services
         public async Task<EventDTO> GetByIdAsync(int id)
         {
             // Step 1: Validate the ID
-            _validator.ValidateId(id);
+            _eventDTOValidator.ValidateId(id);
 
             // Step 2: Retrieve the event
-            var eventResult = await _repo.GetByIdAsync(id);
+            var eventResult = await _eventRepo.GetByIdAsync(id);
             if (eventResult == null)
             {
                 throw new KeyNotFoundException($"Event with ID {id} not found.");
             }
 
             // Step 3: Transform to DTO
-            return _mapper.ToEventDTO(eventResult);
+            return _eventMapper.ConvertToDTO(eventResult);
         }
 
         /// <summary>
@@ -96,20 +96,20 @@ namespace CleanUps.BusinessLogic.Services
         public async Task<EventDTO> UpdateAsync(int id, EventDTO eventDto)
         {
             // Step 1: Validate the DTO
-            _validator.ValidateForUpdate(id, eventDto);
+            _eventDTOValidator.ValidateForUpdate(id, eventDto);
 
             // Step 2: Check if the event exists
-            var existingEvent = await _repo.GetByIdAsync(eventDto.EventId);
+            var existingEvent = await _eventRepo.GetByIdAsync(eventDto.EventId);
             if (existingEvent == null)
             {
                 throw new KeyNotFoundException($"Event with ID {eventDto.EventId} not found.");
             }
 
             // Step 3: Transform DTO to Domain Model
-            var eventToUpdate = _mapper.ToEvent(eventDto);
+            var eventToUpdate = _eventMapper.ConvertToModel(eventDto);
 
             // Step 4: Update using the repository
-            await _repo.UpdateAsync(eventToUpdate);
+            await _eventRepo.UpdateAsync(eventToUpdate);
             return eventDto;
 
         }
@@ -124,19 +124,19 @@ namespace CleanUps.BusinessLogic.Services
         public async Task<EventDTO> DeleteAsync(int id)
         {
             // Step 1: Validate the ID
-            _validator.ValidateId(id);
+            _eventDTOValidator.ValidateId(id);
 
             // Step 2: Check if the event exists
-            var eventToDelete = await _repo.GetByIdAsync(id);
+            var eventToDelete = await _eventRepo.GetByIdAsync(id);
             if (eventToDelete == null)
             {
                 throw new KeyNotFoundException($"Event with ID {id} not found.");
             }
 
             // Step 3: Delete using the repository
-            await _repo.DeleteAsync(id);
+            await _eventRepo.DeleteAsync(id);
 
-            return _mapper.ToEventDTO(eventToDelete);
+            return _eventMapper.ConvertToDTO(eventToDelete);
         }
 
     }

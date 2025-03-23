@@ -6,7 +6,7 @@ namespace CleanUps.Shared.DTOs
     /// A data transfer object (DTO) representing an event in the CleanUps application.
     /// This record is used to transfer event data between the API layer and the business logic layer.
     /// </summary>
-    public record EventDTO
+    public record EventDTO : RecordFlag
     {
         /// <summary>
         /// Gets or sets the unique identifier of the event.
@@ -85,12 +85,12 @@ namespace CleanUps.Shared.DTOs
         /// Gets or sets the collection of attendance records for the event.
         /// Each record links a <see cref="User"/> to the event with a check-in time.
         /// </summary>
-        public virtual ICollection<EventAttendance> EventAttendances { get; set; } = new List<EventAttendance>();
+        public virtual ICollection<EventAttendanceDTO> EventAttendances { get; set; } = new List<EventAttendanceDTO>();
 
         /// <summary>
         /// Gets or sets the collection of photos associated with the event.
         /// Each photo contains image data and metadata related to the event.
         /// </summary>
-        public virtual ICollection<Photo> Photos { get; set; } = new List<Photo>();
+        public virtual ICollection<PhotoDTO> Photos { get; set; } = new List<PhotoDTO>();
     }
 }

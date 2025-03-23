@@ -1,17 +1,15 @@
 ﻿using CleanUps.BusinessDomain.Models;
-using CleanUps.BusinessLogic.Interfaces.PublicAccess;
-using CleanUps.BusinessLogic.Services;
+using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
 using CleanUps.Shared.DTOs;
 
 [TestClass]
 public class EventMapperTests
 {
-    private IEventMapper _mapper;
+    private IMapper<Event, EventDTO> _mapper;
 
     [TestInitialize]
     public void Setup()
     {
-        _mapper = new EventMapper();
     }
 
     [TestMethod]
@@ -33,7 +31,7 @@ public class EventMapperTests
         };
 
         // Act
-        Event eventModel = _mapper.ToEvent(eventDto);
+        Event eventModel = _mapper.ConvertToModel(eventDto);
 
         // Assert
         Assert.AreEqual("Main St", eventModel.StreetName);
@@ -58,7 +56,7 @@ public class EventMapperTests
         };
 
         // Act
-        EventDTO eventDto = _mapper.ToEventDTO(eventModel);
+        EventDTO eventDto = _mapper.ConvertToDTO(eventModel);
 
         // Assert
         Assert.AreEqual(1, eventDto.EventId);

@@ -1,7 +1,6 @@
 ﻿using CleanUps.BusinessDomain.Models;
 using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
 using CleanUps.DataAccess.DatabaseHub;
-using CleanUps.Shared.DTOs;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
 

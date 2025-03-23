@@ -1,12 +1,7 @@
 ﻿using CleanUps.Shared.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace CleanUps.MAUI.Services
+namespace CleanUps.Shared.Services
 {
     public class EventApiService
     {
