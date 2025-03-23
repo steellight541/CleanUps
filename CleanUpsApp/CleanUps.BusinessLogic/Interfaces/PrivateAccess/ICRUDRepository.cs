@@ -10,7 +10,7 @@ namespace CleanUps.BusinessLogic.Interfaces.PrivateAccess
     /// Defines a generic repository interface for CRUD operations on entities of type <typeparamref name="ModelClass"/> in the CleanUps application.
     /// This interface provides asynchronous methods for creating, reading, updating, and deleting entities.
     /// </summary>
-    /// <typeparam name="ModelClass">The type of entity managed by the repository.</typeparam>
+    /// <typeparam name="ModelClass">The type of entity managed by the repository.</typeparam> 
     internal interface ICRUDRepository<ModelClass> where ModelClass : ModelFlag
     {
         /// <summary>
