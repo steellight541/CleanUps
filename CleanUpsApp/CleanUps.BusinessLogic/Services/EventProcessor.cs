@@ -13,19 +13,19 @@ namespace CleanUps.BusinessLogic.Services
     /// This service handles CRUD operations for events, delegating validation to <see cref="IEventValidator"/>,
     /// transformation to <see cref="IEventMapper"/>, and database saving to <see cref="ICRUDRepository{T}"/>.
     /// </summary>
-    internal class EventService : IEventService
+    internal class EventProcessor : IEventProcessor
     {
         private readonly ICRUDRepository<Event> _repo;
         private readonly IEventValidator _validator;
         private readonly IEventMapper _mapper;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EventService"/> class.
+        /// Initializes a new instance of the <see cref="EventProcessor"/> class.
         /// </summary>
         /// <param name="repo">The <see cref="ICRUDRepository{T}"/> implementation for event database operations.</param>
         /// <param name="validator">The <see cref="IEventValidator"/> used to validate event data.</param>
         /// <param name="mapper">The <see cref="IEventMapper"/> used to map between <see cref="EventDTO"/> and <see cref="Event"/>.</param>
-        public EventService(ICRUDRepository<Event> repo, IEventValidator validator, IEventMapper mapper)
+        public EventProcessor(ICRUDRepository<Event> repo, IEventValidator validator, IEventMapper mapper)
         {
             _repo = repo;
             _validator = validator;
@@ -93,10 +93,10 @@ namespace CleanUps.BusinessLogic.Services
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         /// <exception cref="ArgumentException">Thrown when <paramref name="eventDto"/> fails validation (e.g., missing required fields or invalid data).</exception>
         /// <exception cref="KeyNotFoundException">Thrown when no event with the specified ID in <paramref name="eventDto"/> is found.</exception>
-        public async Task<EventDTO> UpdateAsync(EventDTO eventDto)
+        public async Task<EventDTO> UpdateAsync(int id, EventDTO eventDto)
         {
             // Step 1: Validate the DTO
-            _validator.ValidateForUpdate(eventDto);
+            _validator.ValidateForUpdate(id, eventDto);
 
             // Step 2: Check if the event exists
             var existingEvent = await _repo.GetByIdAsync(eventDto.EventId);

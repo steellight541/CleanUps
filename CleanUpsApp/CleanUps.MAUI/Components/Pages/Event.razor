@@ -1,0 +1,39 @@
+﻿@page "/event"
+@using CleanUps.MAUI.Services
+@using CleanUps.Shared.DTOs
+@inject EventApiService _eventApiService
+
+<h3>Events</h3>
+
+@if (events == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <table class="table">
+        @foreach (var ev in events)
+        {
+            <tr>
+                <td>@ev.Description</td>
+                <td>@ev.DateOfEvent.ToShortDateString()</td>
+            </tr>
+        }
+    </table>
+}
+
+@code {
+    private List<EventDTO> events;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            events = await _eventApiService.GetEvents();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+}

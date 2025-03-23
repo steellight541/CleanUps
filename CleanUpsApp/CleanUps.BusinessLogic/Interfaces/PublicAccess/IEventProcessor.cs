@@ -6,7 +6,7 @@ namespace CleanUps.BusinessLogic.Interfaces.PublicAccess
     /// Defines a contract for managing event-related operations in the CleanUps application.
     /// This interface provides asynchronous methods for creating, reading, updating, and deleting events.
     /// </summary>
-    public interface IEventService
+    public interface IEventProcessor
     {
         /// <summary>
         /// Creates a new event asynchronously in the CleanUps application.
@@ -33,7 +33,7 @@ namespace CleanUps.BusinessLogic.Interfaces.PublicAccess
         /// </summary>
         /// <param name="eventDto">The <see cref="EventDTO"/> containing the updated event data.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public Task<EventDTO> UpdateAsync(EventDTO eventDto);
+        public Task<EventDTO> UpdateAsync(int id, EventDTO eventDto);
 
         /// <summary>
         /// Deletes an event asynchronously from the CleanUps application by its ID.
