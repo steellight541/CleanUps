@@ -1,7 +1,7 @@
 ﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
 using CleanUps.Shared.DTOs;
 
-namespace CleanUps.BusinessLogic.Services
+namespace CleanUps.BusinessLogic.Services.Validators
 {
     /// <summary>
     /// Validates Event data in the CleanUps application.
@@ -47,7 +47,7 @@ namespace CleanUps.BusinessLogic.Services
             }
             if (id != eventDto.EventId)
             {
-                throw new ArgumentException("Event ID and Id from URL does not match", ("EventId: " + nameof(eventDto.EventId)+ " " + "Id from URL: " + nameof(id)));
+                throw new ArgumentException("Event ID and Id from URL does not match", "EventId: " + nameof(eventDto.EventId)+ " " + "Id from URL: " + nameof(id));
             }
             if (id <= 0)
             {

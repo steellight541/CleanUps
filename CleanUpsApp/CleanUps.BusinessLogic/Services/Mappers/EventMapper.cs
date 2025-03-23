@@ -2,7 +2,7 @@
 using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
 using CleanUps.Shared.DTOs;
 
-namespace CleanUps.BusinessLogic.Services.Mapper
+namespace CleanUps.BusinessLogic.Services.Mappers
 {
     /// <summary>
     /// Provides mapping functionality between <see cref="EventDTO"/> and <see cref="Event"/> entities in the CleanUps application.

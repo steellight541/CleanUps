@@ -2,7 +2,7 @@
 using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
 using CleanUps.Shared.DTOs;
 
-namespace CleanUps.BusinessLogic.Services.Mapper
+namespace CleanUps.BusinessLogic.Services.Mappers
 {
     internal class PhotoMapper : IMapper<Photo, PhotoDTO>
     {

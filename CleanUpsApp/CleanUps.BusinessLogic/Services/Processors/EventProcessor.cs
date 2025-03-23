@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("CleanUps.Test")]
 
-namespace CleanUps.BusinessLogic.Services
+namespace CleanUps.BusinessLogic.Services.Processors
 {
     /// <summary>
     /// Manages event-related operations in the CleanUps application.
