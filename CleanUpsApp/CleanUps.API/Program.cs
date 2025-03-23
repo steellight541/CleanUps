@@ -11,7 +11,17 @@ builder.Services.AddSwaggerGen();
 
 
 // Register dependencies from CleanUps.Configuration
-builder.Services.AddAppDependencies(builder.Configuration); 
+builder.Services.AddAppDependencies(builder.Configuration);
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowMAUI", policy =>
+    {
+        policy.WithOrigins("http://localhost", "https://localhost") // MAUI's origins
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
 
@@ -25,6 +35,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseCors("AllowMAUI");
 
 app.MapControllers();
 
