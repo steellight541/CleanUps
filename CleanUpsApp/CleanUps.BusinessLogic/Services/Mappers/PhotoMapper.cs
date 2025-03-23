@@ -6,12 +6,6 @@ namespace CleanUps.BusinessLogic.Services.Mappers
 {
     internal class PhotoMapper : IMapper<Photo, PhotoDTO>
     {
-        private readonly IMapper<Event, EventDTO> _eventMapper;
-
-        public PhotoMapper(IMapper<Event, EventDTO> eventMapper)
-        {
-            _eventMapper = eventMapper;
-        }
         public PhotoDTO ConvertToDTO(Photo photoModel)
         {
             return new PhotoDTO
@@ -20,7 +14,7 @@ namespace CleanUps.BusinessLogic.Services.Mappers
                 EventId = photoModel.EventId,
                 PhotoData = photoModel.PhotoData,
                 Caption = photoModel.Caption,
-                Event = _eventMapper.ConvertToDTO(photoModel.Event)
+                Event = new EventMapper().ConvertToDTO(photoModel.Event)
             };
         }
 
@@ -37,7 +31,7 @@ namespace CleanUps.BusinessLogic.Services.Mappers
                 EventId = dto.EventId,
                 PhotoData = dto.PhotoData,
                 Caption = dto.Caption,
-                Event = _eventMapper.ConvertToModel(dto.Event)
+                Event = new EventMapper().ConvertToModel(dto.Event)
             };
         }
 

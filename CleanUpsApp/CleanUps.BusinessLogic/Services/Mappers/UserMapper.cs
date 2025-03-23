@@ -6,12 +6,6 @@ namespace CleanUps.BusinessLogic.Services.Mappers
 {
     internal class UserMapper : IMapper<User, UserDTO>
     {
-        private readonly IMapper<EventAttendance, EventAttendanceDTO> _eventAttendanceMapper;
-
-        public UserMapper(IMapper<EventAttendance, EventAttendanceDTO> eventAttendanceMapper)
-        {
-            _eventAttendanceMapper = eventAttendanceMapper;
-        }
 
         public UserDTO ConvertToDTO(User userModel)
         {
@@ -23,7 +17,7 @@ namespace CleanUps.BusinessLogic.Services.Mappers
                 Password = userModel.Password,
                 RoleId = userModel.RoleId,
                 CreatedDate = userModel.CreatedDate,
-                EventAttendances = _eventAttendanceMapper.ConvertToDTOList(userModel.EventAttendances.ToList())
+                EventAttendances = new EventAttendanceMapper().ConvertToDTOList(userModel.EventAttendances.ToList())
             };
         }
 
@@ -42,7 +36,7 @@ namespace CleanUps.BusinessLogic.Services.Mappers
                 Password = dto.Password,
                 RoleId = dto.RoleId,
                 CreatedDate = dto.CreatedDate,
-                EventAttendances = _eventAttendanceMapper.ConvertToModelList(dto.EventAttendances.ToList())
+                EventAttendances = new EventAttendanceMapper().ConvertToModelList(dto.EventAttendances.ToList())
             };
         }
 

@@ -6,15 +6,6 @@ namespace CleanUps.BusinessLogic.Services.Mappers
 {
     internal class EventAttendanceMapper : IMapper<EventAttendance, EventAttendanceDTO>
     {
-        private readonly IMapper<Event, EventDTO> _eventMapper;
-        private readonly IMapper<User, UserDTO> _userMapper;
-
-        public EventAttendanceMapper(IMapper<Event, EventDTO> eventMapper, IMapper<User, UserDTO> userMapper)
-        {
-            _eventMapper = eventMapper;
-            _userMapper = userMapper;
-        }
-
         public EventAttendanceDTO ConvertToDTO(EventAttendance eventAttendanceModel)
         {
             return new EventAttendanceDTO
@@ -22,8 +13,8 @@ namespace CleanUps.BusinessLogic.Services.Mappers
                 EventId = eventAttendanceModel.EventId,
                 UserId = eventAttendanceModel.UserId,
                 CheckIn = eventAttendanceModel.CheckIn,
-                Event = _eventMapper.ConvertToDTO(eventAttendanceModel.Event),
-                User = _userMapper.ConvertToDTO(eventAttendanceModel.User)
+                Event = new EventMapper().ConvertToDTO(eventAttendanceModel.Event),
+                User = new UserMapper().ConvertToDTO(eventAttendanceModel.User)
             };
         }
 
@@ -39,8 +30,8 @@ namespace CleanUps.BusinessLogic.Services.Mappers
                 EventId = eventAttendanceDTO.EventId,
                 UserId = eventAttendanceDTO.UserId,
                 CheckIn = eventAttendanceDTO.CheckIn,
-                Event = _eventMapper.ConvertToModel(eventAttendanceDTO.Event),
-                User = _userMapper.ConvertToModel(eventAttendanceDTO.User)
+                Event = new EventMapper().ConvertToModel(eventAttendanceDTO.Event),
+                User = new UserMapper().ConvertToModel(eventAttendanceDTO.User)
             };
         }
 

@@ -34,10 +34,10 @@ namespace CleanUps.Configuration
             services.AddScoped<IDTOValidator<EventDTO>, EventValidator>();
 
             // Mappers
-            services.AddScoped<IMapper<Event, EventDTO>, EventMapper>();
-            services.AddScoped<IMapper<EventAttendance, EventAttendanceDTO>, EventAttendanceMapper>();
-            services.AddScoped<IMapper<Photo, PhotoDTO>, PhotoMapper>();
-            services.AddScoped<IMapper<User, UserDTO>, UserMapper>();
+            services.AddSingleton<IMapper<Event, EventDTO>, EventMapper>();
+            services.AddSingleton<IMapper<EventAttendance, EventAttendanceDTO>, EventAttendanceMapper>();
+            services.AddSingleton<IMapper<Photo, PhotoDTO>, PhotoMapper>();
+            services.AddSingleton<IMapper<User, UserDTO>, UserMapper>();
 
             return services;
         }

@@ -10,14 +10,6 @@ namespace CleanUps.BusinessLogic.Services.Mappers
     /// </summary>
     internal class EventMapper : IMapper<Event, EventDTO>
     {
-        private readonly IMapper<EventAttendance, EventAttendanceDTO> _eventAttendanceMapper;
-        private readonly IMapper<Photo, PhotoDTO> _photoMapper;
-
-        public EventMapper(IMapper<EventAttendance, EventAttendanceDTO> eventAttendanceMapper, IMapper<Photo, PhotoDTO> photoMapper)
-        {
-            _eventAttendanceMapper = eventAttendanceMapper;
-            _photoMapper = photoMapper;
-        }
 
         /// <summary>
         /// Maps an <see cref="Event"/> domain model to an <see cref="EventDTO"/> for data transfer.
@@ -42,8 +34,8 @@ namespace CleanUps.BusinessLogic.Services.Mappers
                 FamilyFriendly = eventModel.FamilyFriendly,
                 TrashCollected = eventModel.TrashCollected,
                 NumberOfAttendees = eventModel.NumberOfAttendees,
-                EventAttendances = _eventAttendanceMapper.ConvertToDTOList(eventModel.EventAttendances.ToList()),
-                Photos = _photoMapper.ConvertToDTOList(eventModel.Photos.ToList())
+                EventAttendances = new EventAttendanceMapper().ConvertToDTOList(eventModel.EventAttendances.ToList()),
+                Photos = new PhotoMapper().ConvertToDTOList(eventModel.Photos.ToList())
             };
         }
 
@@ -80,8 +72,8 @@ namespace CleanUps.BusinessLogic.Services.Mappers
                 FamilyFriendly = eventDto.FamilyFriendly,
                 TrashCollected = eventDto.TrashCollected,
                 NumberOfAttendees = eventDto.NumberOfAttendees,
-                EventAttendances = _eventAttendanceMapper.ConvertToModelList(eventDto.EventAttendances.ToList()),
-                Photos = _photoMapper.ConvertToModelList(eventDto.Photos.ToList())
+                EventAttendances = new EventAttendanceMapper().ConvertToModelList(eventDto.EventAttendances.ToList()),
+                Photos = new PhotoMapper().ConvertToModelList(eventDto.Photos.ToList())
             };
         }
 
