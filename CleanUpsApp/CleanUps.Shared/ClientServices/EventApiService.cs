@@ -1,7 +1,7 @@
 ﻿using CleanUps.Shared.DTOs;
 using System.Net.Http.Json;
 
-namespace CleanUps.Shared.Services
+namespace CleanUps.Shared.ClientServices
 {
     public class EventApiService
     {
