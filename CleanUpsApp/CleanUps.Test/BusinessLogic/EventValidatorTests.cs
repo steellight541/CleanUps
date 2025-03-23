@@ -1,92 +1,125 @@
 ﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
 using CleanUps.BusinessLogic.Services.Validators;
 using CleanUps.Shared.DTOs;
-namespace CleanUps.Test.BusinessLogic
+
+[TestClass()]
+public class EventValidatorTests
 {
-    [TestClass()]
-    public class EventValidatorTests
+    private IDTOValidator<EventDTO> _validator;
+
+    [TestInitialize()]
+    public void Setup()
     {
-        private IDTOValidator<EventDTO> _validator;
+        _validator = new EventValidator();
+    }
 
-        [TestInitialize()]
-        public void Setup()
+    [TestMethod()]
+    public void ValidateForCreate_ValidEventDTO_DoesNotThrow()
+    {
+        // Arrange
+        EventDTO eventDto = new EventDTO
         {
-            _validator = new EventValidator();
-        }
+            StreetName = "Main St",
+            City = "Anytown",
+            ZipCode = "12345",
+            Country = "USA",
+            Description = "Cleanup event",
+            DateOfEvent = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            StartTime = TimeOnly.FromDateTime(DateTime.Now),
+            EndTime = TimeOnly.FromDateTime(DateTime.Now.AddHours(2)),
+            Status = "Planned"
+        };
 
-        [TestMethod()]
-        public void ValidateForCreate_ValidEventDTO_DoesNotThrow()
+        // Act
+        _validator.ValidateForCreate(eventDto);
+
+        // Assert
+        Assert.IsTrue(true); // No exception means the test passes
+    }
+
+    [TestMethod()]
+    [ExpectedException(typeof(ArgumentException))]
+    public void ValidateForCreate_MissingStreetName_ThrowsArgumentException()
+    {
+        // Arrange
+        EventDTO eventDto = new EventDTO
         {
-            // Arrange
-            EventDTO eventDto = new EventDTO
-            {
-                StreetName = "Main St",
-                City = "Anytown",
-                ZipCode = "12345",
-                Country = "USA",
-                Description = "Cleanup event",
-                DateOfEvent = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
-                StartTime = TimeOnly.FromDateTime(DateTime.Now),
-                EndTime = TimeOnly.FromDateTime(DateTime.Now.AddHours(2)),
-                Status = "Planned"
-            };
+            //Missing StreetName
+            City = "Anytown",
+            ZipCode = "12345",
+            Country = "USA",
+            Description = "Cleanup event",
+            DateOfEvent = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            StartTime = TimeOnly.FromDateTime(DateTime.Now),
+            EndTime = TimeOnly.FromDateTime(DateTime.Now.AddHours(2)),
+            Status = "Planned"
+        };
 
-            // Act
-            _validator.ValidateForCreate(eventDto);
+        // Act
+        _validator.ValidateForCreate(eventDto);
 
-            // Assert (implicitly asserts no exception is thrown)
-            Assert.IsTrue(true); // Simple pass if no exception
-        }
+        // Assert (handled by ExpectedException)
+    }
 
-        [TestMethod()]
-        [ExpectedException(typeof(ArgumentException))]
-        public void ValidateForCreate_MissingStreetName_ThrowsArgumentException()
+    [TestMethod()]
+    [ExpectedException(typeof(ArgumentException))]
+    public void ValidateForCreate_PastDate_ThrowsArgumentException()
+    {
+        // Arrange
+        EventDTO eventDto = new EventDTO
         {
-            // Arrange
-            var eventDto = new EventDTO
-            {
-                //Testing if exception is thrown when StreetName is missing
-                City = "Anytown",
-                ZipCode = "12345",
-                Country = "USA",
-                Description = "Cleanup event",
-                DateOfEvent = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
-                StartTime = TimeOnly.FromDateTime(DateTime.Now),
-                EndTime = TimeOnly.FromDateTime(DateTime.Now.AddHours(2)),
-                Status = "Planned"
-            };
+            StreetName = "Main St",
+            City = "Anytown",
+            ZipCode = "12345",
+            Country = "USA",
+            Description = "Cleanup event",
+            DateOfEvent = DateOnly.FromDateTime(DateTime.Today.AddDays(-1)),
+            StartTime = TimeOnly.FromDateTime(DateTime.Now),
+            EndTime = TimeOnly.FromDateTime(DateTime.Now.AddHours(2)),
+            Status = "Planned"
+        };
 
-            // Act
-            _validator.ValidateForCreate(eventDto);
+        // Act
+        _validator.ValidateForCreate(eventDto);
 
-            // Assert (handled by ExpectedException)
-        }
+        // Assert (handled by ExpectedException)
+    }
 
-        [TestMethod()]
-        public void ValidateId_ValidId_DoesNotThrow()
+    [TestMethod()]
+    [ExpectedException(typeof(ArgumentException))]
+    public void ValidateForUpdate_NegativeId_ThrowsArgumentException()
+    {
+        // Arrange
+        EventDTO eventDto = new EventDTO
         {
-            // Arrange
-            int id = 1;
+            EventId = -1,
+            StreetName = "Main St",
+            City = "Anytown",
+            ZipCode = "12345",
+            Country = "USA",
+            Description = "Cleanup event",
+            DateOfEvent = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            StartTime = TimeOnly.FromDateTime(DateTime.Now),
+            EndTime = TimeOnly.FromDateTime(DateTime.Now.AddHours(2)),
+            Status = "Planned"
+        };
 
-            // Act
-            _validator.ValidateId(id);
+        // Act
+        _validator.ValidateForUpdate(-1, eventDto);
 
-            // Assert
-            Assert.IsTrue(true); // Simple pass if no exception
-        }
+        // Assert (handled by ExpectedException)
+    }
 
-        [TestMethod()]
-        [ExpectedException(typeof(ArgumentException))]
-        public void ValidateId_NegativeId_ThrowsArgumentException()
-        {
-            // Arrange
-            int id = -1;
+    [TestMethod()]
+    [ExpectedException(typeof(ArgumentException))]
+    public void ValidateId_ZeroId_ThrowsArgumentException()
+    {
+        // Arrange
+        int id = 0;
 
-            // Act
-            _validator.ValidateId(id);
+        // Act
+        _validator.ValidateId(id);
 
-            // Assert (handled by ExpectedException)
-        }
-
+        // Assert (handled by ExpectedException)
     }
 }
