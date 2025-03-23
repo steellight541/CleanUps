@@ -39,11 +39,19 @@ namespace CleanUps.BusinessLogic.Services
         /// <param name="eventDto">The <see cref="EventDTO"/> to validate for updating.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="eventDto"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="eventDto"/> fails validation (e.g., required fields are missing, invalid data, or <see cref="EventDTO.EventId"/> is invalid).</exception>
-        public void ValidateForUpdate(EventDTO eventDto)
+        public void ValidateForUpdate(int id, EventDTO eventDto)
         {
             if (eventDto == null)
             {
                 throw new ArgumentNullException(nameof(eventDto), "Event DTO cannot be null.");
+            }
+            if (id != eventDto.EventId)
+            {
+                throw new ArgumentException("Event ID and Id from URL does not match", ("EventId: " + nameof(eventDto.EventId)+ " " + "Id from URL: " + nameof(id)));
+            }
+            if (id <= 0)
+            {
+                throw new ArgumentException("Event ID must be greater than zero.", nameof(eventDto.EventId));
             }
 
             if (eventDto.EventId <= 0)

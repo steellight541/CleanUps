@@ -20,7 +20,7 @@ namespace CleanUps.BusinessLogic.Interfaces.PublicAccess
         /// Ensures the DTO meets the requirements for updating an event, such as having a valid <see cref="EventDTO.EventId"/>.
         /// </summary>
         /// <param name="eventDto">The <see cref="EventDTO"/> to validate for updating.</param>
-        public void ValidateForUpdate(EventDTO eventDto);
+        public void ValidateForUpdate(int id, EventDTO eventDto);
 
         /// <summary>
         /// Validates an event ID to ensure it is a positive integer.

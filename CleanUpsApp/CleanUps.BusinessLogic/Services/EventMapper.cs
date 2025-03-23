@@ -15,7 +15,7 @@ namespace CleanUps.BusinessLogic.Services
         /// </summary>
         /// <param name="eventDto">The <see cref="EventDTO"/> to map, containing event data received from fx. the API layer.</param>
         /// <returns>An <see cref="Event"/> domain model populated with the data from the provided <see cref="EventDTO"/>.</returns>
-        public Event ToEvent(EventDTO eventDto)
+        public Event ToEvent(EventDTO eventDto) 
         {
             return new Event
             {

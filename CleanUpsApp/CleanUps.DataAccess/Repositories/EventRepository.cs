@@ -1,6 +1,7 @@
 ﻿using CleanUps.BusinessDomain.Models;
 using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
 using CleanUps.DataAccess.DatabaseHub;
+using CleanUps.Shared.DTOs;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
 
@@ -41,7 +42,13 @@ namespace CleanUps.DataAccess.Repositories
         /// <returns>The Event with the specified ID, or null if not found.</returns>
         public async Task<Event> GetByIdAsync(int id)
         {
-            return await _context.Events.FindAsync(id);
+            Event ev = await _context.Events.FindAsync(id);
+            if (ev == null)
+            {
+                throw new KeyNotFoundException($"Event with ID {ev.EventId} not found.");
+            }
+            return ev;
+
         }
 
         /// <summary>
@@ -50,6 +57,9 @@ namespace CleanUps.DataAccess.Repositories
         /// <param name="eventToBeUpdated">The updated Event.</param>
         public async Task UpdateAsync(Event eventToBeUpdated)
         {
+            Event existingEvent = await GetByIdAsync(eventToBeUpdated.EventId);
+            _context.Entry(existingEvent).State = EntityState.Detached;
+
             _context.Events.Update(eventToBeUpdated);
             await _context.SaveChangesAsync();
         }
