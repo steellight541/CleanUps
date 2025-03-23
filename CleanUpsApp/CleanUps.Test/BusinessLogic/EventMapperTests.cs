@@ -13,7 +13,7 @@ public class EventMapperTests
     }
 
     [TestMethod]
-    public void ToEvent_ValidEventDTO_MapsStreetNameCorrectly()
+    public void ToEvent_ValidEventDTO_MapsStreetNameCorrectly() 
     {
         // Arrange
         EventDTO eventDto = new EventDTO
