@@ -5,18 +5,20 @@ using CleanUps.Shared.DTOs;
 namespace CleanUps.BusinessLogic.Services.Mappers
 {
     /// <summary>
-    /// Provides mapping functionality between <see cref="EventDTO"/> and <see cref="Event"/> entities in the CleanUps application.
-    /// This class is responsible for transforming data transfer objects (DTOs) to domain models and vice versa.
+    /// Provides mapping functionality between <see cref="Event"/> domain models and <see cref="EventDTO"/> data transfer objects.
     /// </summary>
     internal class EventMapper : IMapper<Event, EventDTO>
     {
 
         /// <summary>
-        /// Maps an <see cref="Event"/> domain model to an <see cref="EventDTO"/> for data transfer.
+        /// Maps an <see cref="Event"/> domain model to an <see cref="EventDTO"/>.
         /// </summary>
-        /// <param name="eventEntity">The <see cref="Event"/> domain model to map, containing event data from fx. the business layer.</param>
-        /// <returns>An <see cref="EventDTO"/> populated with the data from the provided <see cref="Event"/> domain model.</returns>
-
+        /// <param name="eventModel">
+        /// The <see cref="Event"/> model to convert.
+        /// </param>
+        /// <returns>
+        /// An <see cref="EventDTO"/> that represents the provided event model.
+        /// </returns>
         public EventDTO ConvertToDTO(Event eventModel)
         {
             return new EventDTO
@@ -40,11 +42,14 @@ namespace CleanUps.BusinessLogic.Services.Mappers
         }
 
         /// <summary>
-        /// Maps a collection of <see cref="Event"/> domain models to a list of <see cref="EventDTO"/> objects.
+        /// Maps a list of <see cref="Event"/> models to a list of <see cref="EventDTO"/> objects.
         /// </summary>
-        /// <param name="events">A <see cref="List{T}"/> of <see cref="Event"/> domain models to map.</param>
-        /// <returns>A <see cref="List{T}"/> of <see cref="EventDTO"/> objects, each corresponding to an <see cref="Event"/> in the input collection.</returns>
-
+        /// <param name="listOfModels">
+        /// The list of <see cref="Event"/> models to convert.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="EventDTO"/> objects.
+        /// </returns>
         public List<EventDTO> ConvertToDTOList(List<Event> listOfModels)
         {
             return listOfModels.Select(ConvertToDTO).ToList();
@@ -53,8 +58,12 @@ namespace CleanUps.BusinessLogic.Services.Mappers
         /// <summary>
         /// Maps an <see cref="EventDTO"/> to an <see cref="Event"/> domain model.
         /// </summary>
-        /// <param name="eventDto">The <see cref="EventDTO"/> to map, containing event data received from fx. the API layer.</param>
-        /// <returns>An <see cref="Event"/> domain model populated with the data from the provided <see cref="EventDTO"/>.</returns>
+        /// <param name="eventDto">
+        /// The <see cref="EventDTO"/> to convert.
+        /// </param>
+        /// <returns>
+        /// An <see cref="Event"/> model corresponding to the provided DTO.
+        /// </returns>
         public Event ConvertToModel(EventDTO eventDto)
         {
             return new Event
@@ -77,7 +86,15 @@ namespace CleanUps.BusinessLogic.Services.Mappers
             };
         }
 
-
+        /// <summary>
+        /// Maps a list of <see cref="EventDTO"/> objects to a list of <see cref="Event"/> models.
+        /// </summary>
+        /// <param name="listOfDTOs">
+        /// The list of <see cref="EventDTO"/> objects to convert.
+        /// </param>
+        /// <returns>
+        /// A list of <see cref="Event"/> models.
+        /// </returns>
         public List<Event> ConvertToModelList(List<EventDTO> listOfDTOs)
         {
             return listOfDTOs.Select(ConvertToModel).ToList();

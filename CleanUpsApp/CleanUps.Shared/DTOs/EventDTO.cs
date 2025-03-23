@@ -4,8 +4,7 @@ using CleanUps.Shared.DTOs.Flags;
 namespace CleanUps.Shared.DTOs
 {
     /// <summary>
-    /// A data transfer object (DTO) representing an event in the CleanUps application.
-    /// This record is used to transfer event data between the API layer and the business logic layer.
+    /// Represents an event with details such as location, description, timing, and related records.
     /// </summary>
     public record EventDTO : RecordFlag
     {
@@ -84,7 +83,7 @@ namespace CleanUps.Shared.DTOs
 
         /// <summary>
         /// Gets or sets the collection of attendance records for the event.
-        /// Each record links a <see cref="User"/> to the event with a check-in time.
+        /// Each record links a <see cref="UserDTO"/> to the event with a check-in time.
         /// </summary>
         public virtual ICollection<EventAttendanceDTO> EventAttendances { get; set; } = new List<EventAttendanceDTO>();
 

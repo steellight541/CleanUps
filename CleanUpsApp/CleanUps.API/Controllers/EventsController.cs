@@ -1,6 +1,7 @@
 ﻿using CleanUps.BusinessLogic.Interfaces.PublicAccess;
 using CleanUps.Shared.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -14,6 +15,12 @@ namespace CleanUps.API.Controllers
     public class EventsController : ControllerBase
     {
         private readonly IDTOProcessor<EventDTO> _eventProcessor;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EventsController"/> class.
+        /// </summary>
+        /// <param name="eventProcessor">
+        /// The <see cref="IDTOProcessor{DTORecord}"/> implementation used for processing event data.
+        /// </param>
         public EventsController(IDTOProcessor<EventDTO> eventProcessor)
         {
             _eventProcessor = eventProcessor;
@@ -50,7 +57,7 @@ namespace CleanUps.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, "An internal server error occurred: " + ex.Message);
             }
         }
 
@@ -65,8 +72,8 @@ namespace CleanUps.API.Controllers
         /// Returns an <see cref="IActionResult"/> containing either:
         /// <list type="bullet">
         ///   <item><description><see cref="OkObjectResult"/> (HTTP 200) with the requested <see cref="EventDTO"/>.</description></item>
+        ///   <item><description><see cref="BadRequestObjectResult"/> (HTTP 400) if the provided id is invalid.</description></item>
         ///   <item><description><see cref="NotFoundObjectResult"/> (HTTP 404) if the event cannot be found.</description></item>
-        ///   <item><description><see cref="BadRequestObjectResult"/> (HTTP 400) if the request is invalid.</description></item>
         ///   <item><description><see cref="ObjectResult"/> (HTTP 500) if an internal error occurs.</description></item>
         /// </list>
         /// </returns>
@@ -84,17 +91,17 @@ namespace CleanUps.API.Controllers
 
                 return Ok(eventToGet);
             }
-            catch (ArgumentException argEx)
+            catch (ArgumentException argumentException)
             {
-                return NotFound(argEx.Message);
+                return BadRequest(argumentException.Message);
             }
-            catch (KeyNotFoundException knfEx)
+            catch (KeyNotFoundException keyNotFoundException)
             {
-                return NotFound(knfEx.Message);
+                return NotFound(keyNotFoundException.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, "An internal server error occurred: " + ex.Message);
             }
         }
 
@@ -125,13 +132,21 @@ namespace CleanUps.API.Controllers
 
                 return Created("api/Events/" + addedEvent.EventId, addedEvent);
             }
-            catch (ArgumentException argEx)
+            catch (ArgumentNullException argumentNullException)
             {
-                return BadRequest(argEx.Message);
+                return BadRequest(argumentNullException.Message);
+            }
+            catch (ArgumentException argumentException)
+            {
+                return BadRequest(argumentException.Message);
+            }
+            catch (DbUpdateException dbUpdateException)
+            {
+                return StatusCode(500, "Failed to save the event due to a database error: " + dbUpdateException.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, "An internal server error occurred: " + ex.Message);
             }
 
         }
@@ -140,6 +155,9 @@ namespace CleanUps.API.Controllers
         /// <summary>
         /// Updates an existing event.
         /// </summary>
+        /// <param name="id">
+        /// The unique identifier of the event to update.
+        /// </param>
         /// <param name="eventToBeUpdated">
         /// The <see cref="EventDTO"/> containing updated details of the event.
         /// </param>
@@ -149,7 +167,8 @@ namespace CleanUps.API.Controllers
         ///   <item><description><see cref="OkObjectResult"/> (HTTP 200) with the updated <see cref="EventDTO"/>.</description></item>
         ///   <item><description><see cref="BadRequestObjectResult"/> (HTTP 400) if the provided data is invalid.</description></item>
         ///   <item><description><see cref="NotFoundObjectResult"/> (HTTP 404) if the event to update cannot be found.</description></item>
-        ///   <item><description><see cref="ObjectResult"/> (HTTP 500) if an internal error occurs.</description></item>
+        ///   <item><description><see cref="ConflictObjectResult"/> (HTTP 409) if a concurrency conflict is detected.</description></item>
+        ///   <item><description><see cref="ObjectResult"/> (HTTP 500) if a database error or internal error occurs.</description></item>
         /// </list>
         /// </returns>
         [HttpPut]
@@ -157,12 +176,13 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> PutAsync(int id, [FromBody] EventDTO eventToBeUpdated)
         {
             if (id != eventToBeUpdated.EventId)
             {
-                return BadRequest("ID in the URL does not match the Event ID in the payload.");
+                return BadRequest("Try again, ID in the URL does not match the Event ID.");
             }
 
             try
@@ -171,17 +191,29 @@ namespace CleanUps.API.Controllers
 
                 return Ok(updatedEvent);
             }
-            catch (ArgumentException aEx)
+            catch (ArgumentNullException argumentNullException)
             {
-                return BadRequest(aEx.Message);
+                return BadRequest(argumentNullException.Message);
             }
-            catch (KeyNotFoundException knfEx)
+            catch (ArgumentException argumentException)
             {
-                return NotFound(knfEx.Message);
+                return BadRequest(argumentException.Message);
+            }
+            catch (KeyNotFoundException keyNotFoundException)
+            {
+                return NotFound(keyNotFoundException.Message);
+            }
+            catch (DbUpdateConcurrencyException dbUpdateConcurrencyException) // Handle concurrency conflicts
+            {
+                return Conflict("Event was modified by another user. Refresh and retry: " + dbUpdateConcurrencyException.Message);
+            }
+            catch (DbUpdateException dbUpdateException) // Handle other database errors
+            {
+                return StatusCode(500, "Failed to update the event due to a database error: " + dbUpdateException.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, "An internal server error occurred: " + ex.Message);
             }
         }
 
@@ -197,7 +229,7 @@ namespace CleanUps.API.Controllers
         /// <list type="bullet">
         ///   <item><description><see cref="OkObjectResult"/> (HTTP 200) with the deleted <see cref="EventDTO"/>.</description></item>
         ///   <item><description><see cref="NotFoundObjectResult"/> (HTTP 404) if the event cannot be found.</description></item>
-        ///   <item><description><see cref="ObjectResult"/> (HTTP 500) if an internal error occurs.</description></item>
+        ///   <item><description><see cref="ObjectResult"/> (HTTP 500) if a database error or internal error occurs.</description></item>
         /// </list>
         /// </returns>
         [HttpDelete]
@@ -212,20 +244,24 @@ namespace CleanUps.API.Controllers
                 EventDTO eventToBeDeleted = await _eventProcessor.DeleteAsync(id);
                 return Ok(eventToBeDeleted);
             }
-            catch (ArgumentException argEx)
+            catch (ArgumentException argumentException)
             {
-                return NotFound(argEx.Message);
+                return NotFound(argumentException.Message);
             }
-            catch (KeyNotFoundException knfEx)
+            catch (KeyNotFoundException keyNotFoundException)
             {
-                return NotFound(knfEx.Message);
+                return NotFound(keyNotFoundException.Message);
+            }
+            catch (DbUpdateException)
+            {
+                return StatusCode(500, "Failed to delete the event due to a database error.");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, "An internal server error occurred: " + ex.Message);
             }
         }
 
-        //Filter http methods to be done...
+        //Filter http methods below (to be done...)
     }
 }

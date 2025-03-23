@@ -30,18 +30,22 @@ public partial class CleanUpsContext : DbContext
     /// Gets or sets the <see cref="DbSet{TEntity}"/> of <see cref="Event"/> entities, representing events in the CleanUps application.
     /// </summary>
     public virtual DbSet<Event> Events { get; set; }
+
     /// <summary>
     /// Gets or sets the <see cref="DbSet{TEntity}"/> of <see cref="EventAttendance"/> entities, representing user attendance records for events.
     /// </summary>
     public virtual DbSet<EventAttendance> EventAttendances { get; set; }
+
     /// <summary>
     /// Gets or sets the <see cref="DbSet{TEntity}"/> of <see cref="Photo"/> entities, representing photos associated with events.
     /// </summary>
     public virtual DbSet<Photo> Photos { get; set; }
+
     /// <summary>
     /// Gets or sets the <see cref="DbSet{TEntity}"/> of <see cref="Role"/> entities, representing user roles in the CleanUps application.
     /// </summary>
     public virtual DbSet<Role> Roles { get; set; }
+
     /// <summary>
     /// Gets or sets the <see cref="DbSet{TEntity}"/> of <see cref="User"/> entities, representing users in the CleanUps application.
     /// </summary>
