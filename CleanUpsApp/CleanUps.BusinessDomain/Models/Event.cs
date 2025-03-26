@@ -6,7 +6,7 @@ namespace CleanUps.BusinessDomain.Models;
 /// Represents an event in the CleanUps application, such as a community cleanup or gathering.
 /// This class holds details about the event's location, timing, status, and associated data like attendance and photos.
 /// </summary>
-public partial class Event : ModelFlag
+public partial class Event : EFModel
 {
     public int EventId { get; set; }
 

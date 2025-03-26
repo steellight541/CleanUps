@@ -3,12 +3,12 @@
 namespace CleanUps.BusinessLogic.Interfaces.PublicAccess
 {
     /// <summary>
-    /// Defines an interface for processing data transfer objects (DTOs) of type <typeparamref name="DTORecord"/> by providing CRUD operations.
+    /// Defines an interface for processing data transfer objects (DTOs) of type <typeparamref name="T"/> by providing CRUD operations.
     /// </summary>
-    /// <typeparam name="DTORecord">
-    /// The DTO type that must inherit from <see cref="RecordFlag"/>.
+    /// <typeparam name="T">
+    /// The DTO type that must inherit from <see cref="RecordDTO"/>.
     /// </typeparam>
-    public interface IDTOProcessor<DTORecord> where DTORecord : RecordFlag
+    public interface IDataTransferService<T> where T : RecordDTO
     {
         /// <summary>
         /// Creates a new DTO asynchronously.
@@ -19,7 +19,7 @@ namespace CleanUps.BusinessLogic.Interfaces.PublicAccess
         /// <returns>
         /// A <see cref="Task{TResult}"/> containing the created DTO.
         /// </returns>
-        public Task<DTORecord> CreateAsync(DTORecord dtoToCreate);
+        public Task<T> CreateAsync(T dtoToCreate);
 
         /// <summary>
         /// Retrieves all DTOs asynchronously.
@@ -27,7 +27,7 @@ namespace CleanUps.BusinessLogic.Interfaces.PublicAccess
         /// <returns>
         /// A <see cref="Task{TResult}"/> containing a <see cref="List{T}"/> of all DTOs.
         /// </returns>
-        public Task<List<DTORecord>> GetAllAsync();
+        public Task<List<T>> GetAllAsync();
 
         /// <summary>
         /// Retrieves a DTO by its identifier asynchronously.
@@ -38,7 +38,7 @@ namespace CleanUps.BusinessLogic.Interfaces.PublicAccess
         /// <returns>
         /// A <see cref="Task{TResult}"/> containing the DTO if found.
         /// </returns>
-        public Task<DTORecord> GetByIdAsync(int id);
+        public Task<T> GetByIdAsync(int id);
 
         /// <summary>
         /// Updates an existing DTO asynchronously.
@@ -52,7 +52,7 @@ namespace CleanUps.BusinessLogic.Interfaces.PublicAccess
         /// <returns>
         /// A <see cref="Task{TResult}"/> containing the updated DTO.
         /// </returns>
-        public Task<DTORecord> UpdateAsync(int id, DTORecord dtoToUpdate);
+        public Task<T> UpdateAsync(int id, T dtoToUpdate);
 
         /// <summary>
         /// Deletes a DTO by its identifier asynchronously.
@@ -63,6 +63,6 @@ namespace CleanUps.BusinessLogic.Interfaces.PublicAccess
         /// <returns>
         /// A <see cref="Task{TResult}"/> containing the deleted DTO.
         /// </returns>
-        public Task<DTORecord> DeleteAsync(int id);
+        public Task<T> DeleteAsync(int id);
     }
 }

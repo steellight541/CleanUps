@@ -1,9 +1,9 @@
 ﻿using CleanUps.BusinessDomain.Models;
 using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
 using CleanUps.BusinessLogic.Interfaces.PublicAccess;
-using CleanUps.BusinessLogic.Services.Mappers;
-using CleanUps.BusinessLogic.Services.Processors;
-using CleanUps.BusinessLogic.Services.Validators;
+using CleanUps.BusinessLogic.Mappers;
+using CleanUps.BusinessLogic.Services;
+using CleanUps.BusinessLogic.Validators;
 using CleanUps.DataAccess.DatabaseHub;
 using CleanUps.DataAccess.Repositories;
 using CleanUps.Shared.DTOs;
@@ -38,16 +38,16 @@ namespace CleanUps.Configuration
                 options.UseSqlServer(configuration.GetConnectionString("CleanUpsDb")));
 
             // Register repositories
-            services.AddScoped<ICRUDRepository<Event>, EventRepository>();
-            services.AddScoped<ICRUDRepository<User>, UserRepository>();
+            services.AddScoped<IRepository<Event>, EventRepository>();
+            services.AddScoped<IRepository<User>, UserRepository>();
 
 
             // Register services
             // Processors
-            services.AddScoped<IDTOProcessor<EventDTO>, EventProcessor>();
+            services.AddScoped<IDataTransferService<EventDTO>, EventService>();
 
             // Validators
-            services.AddScoped<IDTOValidator<EventDTO>, EventValidator>();
+            services.AddScoped<IValidator<EventDTO>, EventValidator>();
 
             // Mappers
             services.AddSingleton<IMapper<Event, EventDTO>, EventMapper>();

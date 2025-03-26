@@ -6,7 +6,7 @@ namespace CleanUps.BusinessDomain.Models;
 /// Represents a user in the CleanUps application.
 /// This class stores user information such as name, email, password, role, and event attendance history.
 /// </summary>
-public partial class User : ModelFlag
+public partial class User : EFModel
 {
     public int UserId { get; set; }
 

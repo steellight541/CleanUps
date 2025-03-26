@@ -2,7 +2,7 @@
 using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
 using CleanUps.Shared.DTOs;
 
-namespace CleanUps.BusinessLogic.Services.Mappers
+namespace CleanUps.BusinessLogic.Mappers
 {
     /// <summary>
     /// Provides mapping functionality between <see cref="Event"/> domain models and <see cref="EventDTO"/> data transfer objects.

@@ -1,7 +1,7 @@
 ﻿using CleanUps.BusinessDomain.Models;
 using CleanUps.Shared.DTOs;
 using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
-using CleanUps.BusinessLogic.Services.Mappers;
+using CleanUps.BusinessLogic.Mappers;
 
 [TestClass()]
 public class EventMapperTests

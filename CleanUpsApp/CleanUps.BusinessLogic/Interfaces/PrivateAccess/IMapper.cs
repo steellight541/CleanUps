@@ -10,12 +10,12 @@ namespace CleanUps.BusinessLogic.Interfaces.PrivateAccess
     /// for types <typeparamref name="ModelClass"/> and <typeparamref name="DTORecord"/>.
     /// </summary>
     /// <typeparam name="ModelClass">
-    /// The domain model type that must inherit from <see cref="ModelFlag"/>.
+    /// The domain model type that must inherit from <see cref="EFModel"/>.
     /// </typeparam>
     /// <typeparam name="DTORecord">
-    /// The DTO type that must inherit from <see cref="RecordFlag"/>.
+    /// The DTO type that must inherit from <see cref="RecordDTO"/>.
     /// </typeparam>
-    internal interface IMapper<ModelClass, DTORecord> where ModelClass : ModelFlag where DTORecord : RecordFlag
+    internal interface IMapper<ModelClass, DTORecord> where ModelClass : EFModel where DTORecord : RecordDTO
     {
         /// <summary>
         /// Converts a DTO of type <typeparamref name="DTORecord"/> to a domain model of type <typeparamref name="ModelClass"/>.

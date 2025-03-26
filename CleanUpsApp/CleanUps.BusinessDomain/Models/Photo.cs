@@ -6,7 +6,7 @@ namespace CleanUps.BusinessDomain.Models;
 /// Represents a photo associated with an event in the CleanUps application.
 /// This class stores the photo's data, caption, and its relationship to a specific event.
 /// </summary>
-public partial class Photo : ModelFlag
+public partial class Photo : EFModel
 {
     public int PhotoId { get; set; }
 

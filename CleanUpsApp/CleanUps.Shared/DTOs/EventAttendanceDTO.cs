@@ -6,7 +6,7 @@ namespace CleanUps.Shared.DTOs
     /// Represents an attendance record for an event.
     /// Links a user to an event with a check-in time.
     /// </summary>
-    public record EventAttendanceDTO : RecordFlag
+    public record EventAttendanceDTO : RecordDTO
     {
         /// <summary>
         /// Gets or sets the identifier of the event.

@@ -30,7 +30,7 @@ namespace CleanUps.Shared.ClientServices
         /// <returns>
         /// A <see cref="Task{TResult}"/> containing the created <see cref="EventDTO"/>.
         /// </returns>
-        public async Task<EventDTO> CreateEvent(EventDTO newEvent)
+        public async Task<EventDTO> CreateEventAsync(EventDTO newEvent)
         {
             var response = await _http.PostAsJsonAsync("api/events", newEvent);
             return await response.Content.ReadFromJsonAsync<EventDTO>();
@@ -42,7 +42,7 @@ namespace CleanUps.Shared.ClientServices
         /// <returns>
         /// A <see cref="Task{TResult}"/> containing a <see cref="List{T}"/> of <see cref="EventDTO"/> objects.
         /// </returns>
-        public async Task<List<EventDTO>> GetEvents()
+        public async Task<List<EventDTO>> GetEventsAsync()
         {
             return await _http.GetFromJsonAsync<List<EventDTO>>("api/events");
         }
@@ -56,7 +56,7 @@ namespace CleanUps.Shared.ClientServices
         /// <returns>
         /// A <see cref="Task{TResult}"/> containing the <see cref="EventDTO"/> if found.
         /// </returns>
-        public async Task<EventDTO> GetEventById(int id)
+        public async Task<EventDTO> GetEventByIdAsync(int id)
         {
             return await _http.GetFromJsonAsync<EventDTO>($"api/events/{id}");
         }
@@ -73,7 +73,7 @@ namespace CleanUps.Shared.ClientServices
         /// <returns>
         /// A <see cref="Task{TResult}"/> containing the updated <see cref="EventDTO"/>.
         /// </returns>
-        public async Task<EventDTO> UpdateEvent(int id, EventDTO eventToUpdate)
+        public async Task<EventDTO> UpdateEventAsync(int id, EventDTO eventToUpdate)
         {
             var response = await _http.PutAsJsonAsync($"api/events/{id}", eventToUpdate);
             return await response.Content.ReadFromJsonAsync<EventDTO>();
@@ -88,7 +88,7 @@ namespace CleanUps.Shared.ClientServices
         /// <returns>
         /// A <see cref="Task{TResult}"/> containing the deleted <see cref="EventDTO"/>.
         /// </returns>
-        public async Task<EventDTO> DeleteEvent(int id)
+        public async Task<EventDTO> DeleteEventAsync(int id)
         {
             var response = await _http.DeleteAsync($"api/events/{id}");
             return await response.Content.ReadFromJsonAsync<EventDTO>();

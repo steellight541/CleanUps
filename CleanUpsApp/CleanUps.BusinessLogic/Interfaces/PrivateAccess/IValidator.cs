@@ -6,12 +6,12 @@ using System.Runtime.CompilerServices;
 namespace CleanUps.BusinessLogic.Interfaces.PrivateAccess
 {
     /// <summary>
-    /// Defines an interface for validating data transfer objects (DTOs) of type <typeparamref name="DTORecord"/>.
+    /// Defines an interface for validating data transfer objects (DTOs) of type <typeparamref name="T"/>.
     /// </summary>
-    /// <typeparam name="DTORecord">
-    /// The type of the DTO, which must inherit from <see cref="RecordFlag"/>.
+    /// <typeparam name="T">
+    /// The type of the DTO, which must inherit from <see cref="RecordDTO"/>.
     /// </typeparam>
-    internal interface IDTOValidator<DTORecord> where DTORecord : RecordFlag
+    internal interface IValidator<T> where T : RecordDTO
     {
         /// <summary>
         /// Validates a DTO for creation operations.
@@ -19,7 +19,7 @@ namespace CleanUps.BusinessLogic.Interfaces.PrivateAccess
         /// <param name="dto">
         /// The DTO to validate for creation.
         /// </param>
-        void ValidateForCreate(DTORecord dto);
+        void ValidateForCreate(T dto);
 
         /// <summary>
         /// Validates a DTO for update operations.
@@ -30,7 +30,7 @@ namespace CleanUps.BusinessLogic.Interfaces.PrivateAccess
         /// <param name="dto">
         /// The DTO to validate for updating.
         /// </param>
-        void ValidateForUpdate(int id, DTORecord dto);
+        void ValidateForUpdate(int id, T dto);
 
         /// <summary>
         /// Validates that the provided identifier is valid.

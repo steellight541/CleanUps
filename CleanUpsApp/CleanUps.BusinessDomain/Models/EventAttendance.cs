@@ -6,7 +6,7 @@ namespace CleanUps.BusinessDomain.Models;
 /// Represents a user's attendance at an event in the CleanUps application.
 /// This class links a user to an event and records the check-in time of the attendance.
 /// </summary>
-public partial class EventAttendance : ModelFlag
+public partial class EventAttendance : EFModel
 {
     public int EventId { get; set; }
 

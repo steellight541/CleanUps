@@ -14,14 +14,14 @@ namespace CleanUps.API.Controllers
     [ApiController]
     public class EventsController : ControllerBase
     {
-        private readonly IDTOProcessor<EventDTO> _eventProcessor;
+        private readonly IDataTransferService<EventDTO> _eventProcessor;
         /// <summary>
         /// Initializes a new instance of the <see cref="EventsController"/> class.
         /// </summary>
         /// <param name="eventProcessor">
-        /// The <see cref="IDTOProcessor{DTORecord}"/> implementation used for processing event data.
+        /// The <see cref="IDataTransferService{DTORecord}"/> implementation used for processing event data.
         /// </param>
-        public EventsController(IDTOProcessor<EventDTO> eventProcessor)
+        public EventsController(IDataTransferService<EventDTO> eventProcessor)
         {
             _eventProcessor = eventProcessor;
         }

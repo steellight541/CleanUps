@@ -10,7 +10,7 @@ namespace CleanUps.DataAccess.Repositories
     /// <summary>
     /// Implements CRUD operations for <see cref="Event"/> entities using the CleanUps database context.
     /// </summary>
-    internal class EventRepository : ICRUDRepository<Event>
+    internal class EventRepository : IRepository<Event>
     {
         private readonly CleanUpsContext _context;
         public EventRepository(CleanUpsContext context)

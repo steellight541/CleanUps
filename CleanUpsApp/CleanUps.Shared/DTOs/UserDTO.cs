@@ -6,7 +6,7 @@ namespace CleanUps.Shared.DTOs
     /// Represents a user in the CleanUps application.
     /// Contains user information and related event attendance records.
     /// </summary>
-    public record UserDTO : RecordFlag
+    public record UserDTO : RecordDTO
     {
         /// <summary>
         /// Gets or sets the unique identifier of the user.

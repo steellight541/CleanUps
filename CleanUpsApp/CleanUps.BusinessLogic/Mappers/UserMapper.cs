@@ -2,7 +2,7 @@
 using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
 using CleanUps.Shared.DTOs;
 
-namespace CleanUps.BusinessLogic.Services.Mappers
+namespace CleanUps.BusinessLogic.Mappers
 {
     /// <summary>
     /// Provides mapping functionality between <see cref="User"/> domain models and <see cref="UserDTO"/> data transfer objects.

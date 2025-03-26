@@ -6,7 +6,7 @@ namespace CleanUps.Shared.DTOs
     /// Represents a photo associated with an event.
     /// Contains the photo data and an optional caption.
     /// </summary>
-    public record PhotoDTO : RecordFlag
+    public record PhotoDTO : RecordDTO
     {
         /// <summary>
         /// Gets or sets the unique identifier of the photo.

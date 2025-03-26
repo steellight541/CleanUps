@@ -1,13 +1,13 @@
 ﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
 using CleanUps.Shared.DTOs;
 
-namespace CleanUps.BusinessLogic.Services.Validators
+namespace CleanUps.BusinessLogic.Validators
 {
     /// <summary>
     /// Validates <see cref="EventDTO"/> objects to ensure that event data meets required business rules
     /// before processing.
     /// </summary>
-    internal class EventValidator : IDTOValidator<EventDTO>
+    internal class EventValidator : IValidator<EventDTO>
     {
         /// <summary>
         /// Validates an <see cref="EventDTO"/> for creating a new event.

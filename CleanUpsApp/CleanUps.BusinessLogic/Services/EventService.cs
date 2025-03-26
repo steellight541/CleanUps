@@ -1,37 +1,36 @@
 ﻿using CleanUps.BusinessDomain.Models;
 using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
 using CleanUps.BusinessLogic.Interfaces.PublicAccess;
-using CleanUps.BusinessLogic.Services.Mappers;
 using CleanUps.Shared.DTOs;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("CleanUps.Test")]
 
-namespace CleanUps.BusinessLogic.Services.Processors
+namespace CleanUps.BusinessLogic.Services
 {
     /// <summary>
     /// Manages event-related operations by processing <see cref="EventDTO"/> objects,
     /// including creation, retrieval, update, and deletion.
     /// </summary>
-    internal class EventProcessor : IDTOProcessor<EventDTO>
+    internal class EventService : IDataTransferService<EventDTO>
     {
-        private readonly ICRUDRepository<Event> _eventRepo;
-        private readonly IDTOValidator<EventDTO> _eventDTOValidator;
+        private readonly IRepository<Event> _eventRepo;
+        private readonly IValidator<EventDTO> _eventDTOValidator;
         private readonly IMapper<Event, EventDTO> _eventMapper;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EventProcessor"/> class.
+        /// Initializes a new instance of the <see cref="EventService"/> class.
         /// </summary>
         /// <param name="repo">
-        /// The <see cref="ICRUDRepository{ModelClass}"/> implementation used for event database operations.
+        /// The <see cref="IRepository{ModelClass}"/> implementation used for event database operations.
         /// </param>
         /// <param name="validator">
-        /// The <see cref="IDTOValidator{DTORecord}"/> used to validate event data.
+        /// The <see cref="IValidator{DTORecord}"/> used to validate event data.
         /// </param>
         /// <param name="mapper">
         /// The <see cref="IMapper{ModelClass, DTORecord}"/> used to map between <see cref="Event"/> and <see cref="EventDTO"/>.
         /// </param>
-        public EventProcessor(ICRUDRepository<Event> repo, IDTOValidator<EventDTO> validator, IMapper<Event, EventDTO> mapper)
+        public EventService(IRepository<Event> repo, IValidator<EventDTO> validator, IMapper<Event, EventDTO> mapper)
         {
             _eventRepo = repo;
             _eventDTOValidator = validator;

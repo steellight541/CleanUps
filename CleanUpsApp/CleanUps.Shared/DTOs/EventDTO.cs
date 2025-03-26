@@ -1,12 +1,11 @@
-﻿using CleanUps.BusinessDomain.Models;
-using CleanUps.Shared.DTOs.Flags;
+﻿using CleanUps.Shared.DTOs.Flags;
 
 namespace CleanUps.Shared.DTOs
 {
     /// <summary>
     /// Represents an event with details such as location, description, timing, and related records.
     /// </summary>
-    public record EventDTO : RecordFlag
+    public record EventDTO : RecordDTO
     {
         /// <summary>
         /// Gets or sets the unique identifier of the event.

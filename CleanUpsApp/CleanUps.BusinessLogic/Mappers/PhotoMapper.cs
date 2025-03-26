@@ -2,7 +2,7 @@
 using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
 using CleanUps.Shared.DTOs;
 
-namespace CleanUps.BusinessLogic.Services.Mappers
+namespace CleanUps.BusinessLogic.Mappers
 {
     /// <summary>
     /// Provides methods to map between <see cref="Photo"/> domain models and <see cref="PhotoDTO"/> data transfer objects.
