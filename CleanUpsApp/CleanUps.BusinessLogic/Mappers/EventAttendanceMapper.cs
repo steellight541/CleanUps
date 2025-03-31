@@ -6,34 +6,33 @@ namespace CleanUps.BusinessLogic.Mappers
 {
     internal class EventAttendanceMapper : IMapper<EventAttendance, EventAttendanceDTO>
     {
-        public EventAttendanceDTO ConvertToDTO(EventAttendance eventAttendanceModel)
-        {
-            return new EventAttendanceDTO
-            {
-                EventId = eventAttendanceModel.EventId,
-                UserId = eventAttendanceModel.UserId,
-                CheckIn = eventAttendanceModel.CheckIn,
-            };
-        }
-
-        public List<EventAttendanceDTO> ConvertToDTOList(List<EventAttendance> eventAttendanceModels)
-        {
-            return eventAttendanceModels.Select(ConvertToDTO).ToList();
-        }
-
-        public EventAttendance ConvertToModel(EventAttendanceDTO eventAttendanceDTO)
+        public EventAttendance ConvertToModel(EventAttendanceDTO dto)
         {
             return new EventAttendance
             {
-                EventId = eventAttendanceDTO.EventId,
-                UserId = eventAttendanceDTO.UserId,
-                CheckIn = eventAttendanceDTO.CheckIn,
+                EventId = dto.EventId,
+                UserId = dto.UserId,
+                CheckIn = dto.CheckIn
             };
         }
 
-        public List<EventAttendance> ConvertToModelList(List<EventAttendanceDTO> eventAttendanceDTOs)
+        public EventAttendanceDTO ConvertToDTO(EventAttendance model)
         {
-            return eventAttendanceDTOs.Select(ConvertToModel).ToList();
+            return new EventAttendanceDTO(
+                model.EventId,
+                model.UserId,
+                model.CheckIn
+            );
+        }
+
+        public List<EventAttendanceDTO> ConvertToDTOList(List<EventAttendance> listOfModels)
+        {
+            return listOfModels.Select(model => ConvertToDTO(model)).ToList();
+        }
+
+        public List<EventAttendance> ConvertToModelList(List<EventAttendanceDTO> listOfDTOs)
+        {
+            return listOfDTOs.Select(dto => ConvertToModel(dto)).ToList();
         }
 
     }
