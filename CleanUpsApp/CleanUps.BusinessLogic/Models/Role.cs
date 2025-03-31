@@ -1,4 +1,4 @@
-﻿using CleanUps.BusinessDomain.Models.Flags;
+﻿using CleanUps.BusinessLogic.Models.Flags;
 
 namespace CleanUps.BusinessDomain.Models;
 

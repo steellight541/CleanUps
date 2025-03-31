@@ -1,4 +1,4 @@
-﻿using CleanUps.BusinessDomain.Models.Flags;
+﻿using CleanUps.BusinessLogic.Models.Flags;
 using CleanUps.Shared.DTOs.Flags;
 using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("CleanUps.Configuration")]

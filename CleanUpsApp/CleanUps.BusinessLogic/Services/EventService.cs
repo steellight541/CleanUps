@@ -6,7 +6,7 @@ using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.BusinessLogic.Services
 {
-    public class EventService : IDataTransferService<EventDTO>
+    internal class EventService : IService<EventDTO>
     {
         private readonly IRepository<Event> _repository;
         private readonly IValidator<EventDTO> _validator;

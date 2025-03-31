@@ -8,9 +8,9 @@ namespace CleanUps.API.Controllers
     [ApiController]
     public class EventsController : ControllerBase
     {
-        private readonly IDataTransferService<EventDTO> _eventService;
+        private readonly IService<EventDTO> _eventService;
 
-        public EventsController(IDataTransferService<EventDTO> eventService)
+        public EventsController(IService<EventDTO> eventService)
         {
             _eventService = eventService;
         }

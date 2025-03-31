@@ -1,6 +1,7 @@
-﻿using CleanUps.BusinessDomain.Models;
-using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
+﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
+using CleanUps.BusinessLogic.Models.Flags;
 using CleanUps.DataAccess.DatabaseHub;
+using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.DataAccess.Repositories
 {
@@ -11,27 +12,28 @@ namespace CleanUps.DataAccess.Repositories
         {
             _context = context;
         }
-        public async Task CreateAsync(User entityToBeCreated)
+
+        public Task<OperationResult<User>> CreateAsync(User entity)
         {
             throw new NotImplementedException();
         }
 
-        public async Task DeleteAsync(int id)
+        public Task<OperationResult<User>> DeleteAsync(int id)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<List<User>> GetAllAsync()
+        public Task<OperationResult<List<User>>> GetAllAsync()
         {
             throw new NotImplementedException();
         }
 
-        public async Task<User> GetByIdAsync(int id)
+        public Task<OperationResult<User>> GetByIdAsync(int id)
         {
             throw new NotImplementedException();
         }
 
-        public async Task UpdateAsync(User entityToBeUpdated)
+        public Task<OperationResult<User>> UpdateAsync(User entity)
         {
             throw new NotImplementedException();
         }

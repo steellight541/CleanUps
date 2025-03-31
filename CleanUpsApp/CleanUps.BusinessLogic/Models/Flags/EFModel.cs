@@ -1,4 +1,4 @@
-﻿namespace CleanUps.BusinessDomain.Models.Flags
+﻿namespace CleanUps.BusinessLogic.Models.Flags
 {
     /// <summary>
     /// Serves as the base flag for all model classes in the CleanUps application.

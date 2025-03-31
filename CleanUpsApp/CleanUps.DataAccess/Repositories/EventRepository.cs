@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("CleanUps.Configuration")]
 namespace CleanUps.DataAccess.Repositories
 {
-    public class EventRepository : IRepository<Event>
+    internal class EventRepository : IRepository<Event>
     {
         private readonly CleanUpsContext _context;
 
@@ -26,15 +26,15 @@ namespace CleanUps.DataAccess.Repositories
 
                 return OperationResult<Event>.Created(eventToBeCreated);
             }
-            catch (OperationCanceledException operationCanceledException)
+            catch (OperationCanceledException)
             {
                 return OperationResult<Event>.InternalServerError("Operation Canceled. Refresh and retry");
             }
-            catch (DbUpdateException dbUpdateException)
+            catch (DbUpdateException)
             {
                 return OperationResult<Event>.InternalServerError("Failed to create the event due to a database error. Try again later");
             }
-            catch (Exception exception)
+            catch (Exception)
             {
                 return OperationResult<Event>.InternalServerError("Something went wrong. Try again later");
             }
@@ -49,15 +49,15 @@ namespace CleanUps.DataAccess.Repositories
                 return OperationResult<List<Event>>.Ok(events);
 
             }
-            catch (ArgumentNullException argumentNullException)
+            catch (ArgumentNullException)
             {
                 return OperationResult<List<Event>>.BadRequest("Nothing could be found");
             }
-            catch (OperationCanceledException operationCanceledException)
+            catch (OperationCanceledException)
             {
                 return OperationResult<List<Event>>.InternalServerError("Operation Canceled. Refresh and retry");
             }
-            catch (Exception exception)
+            catch (Exception)
             {
                 return OperationResult<List<Event>>.InternalServerError("Something went wrong. Try again later");
             }
@@ -78,7 +78,7 @@ namespace CleanUps.DataAccess.Repositories
                     return OperationResult<Event>.Ok(retrievedEvent);
                 }
             }
-            catch (Exception exception)
+            catch (Exception)
             {
                 return OperationResult<Event>.InternalServerError("Something went wrong. Try again later");
             }

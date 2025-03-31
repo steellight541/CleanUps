@@ -3,7 +3,7 @@ using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.BusinessLogic.Interfaces.PublicAccess
 {
-    public interface IDataTransferService<T> where T : RecordDTO
+    public interface IService<T> where T : RecordDTO
     {
         Task<OperationResult<T>> CreateAsync(T entity);
         Task<OperationResult<List<T>>> GetAllAsync();
