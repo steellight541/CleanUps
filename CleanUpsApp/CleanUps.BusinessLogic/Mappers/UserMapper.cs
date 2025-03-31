@@ -1,6 +1,7 @@
 ﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
 using CleanUps.BusinessLogic.Models;
 using CleanUps.Shared.DTOs;
+using Role = CleanUps.Shared.DTOs.Role;
 
 namespace CleanUps.BusinessLogic.Mappers
 {
@@ -15,7 +16,7 @@ namespace CleanUps.BusinessLogic.Mappers
                 Name = userModel.Name,
                 Email = userModel.Email,
                 Password = userModel.Password,
-                RoleId = userModel.RoleId,
+                UserRole = (Role)userModel.RoleId,
                 CreatedDate = userModel.CreatedDate,
                 EventAttendances = new EventAttendanceMapper().ConvertToDTOList(userModel.EventAttendances.ToList())
             };
@@ -34,7 +35,7 @@ namespace CleanUps.BusinessLogic.Mappers
                 Name = dto.Name,
                 Email = dto.Email,
                 Password = dto.Password,
-                RoleId = dto.RoleId,
+                RoleId = (int)dto.UserRole,
                 CreatedDate = dto.CreatedDate,
                 EventAttendances = new EventAttendanceMapper().ConvertToModelList(dto.EventAttendances.ToList())
             };

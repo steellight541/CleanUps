@@ -13,8 +13,6 @@ namespace CleanUps.BusinessLogic.Mappers
                 EventId = eventAttendanceModel.EventId,
                 UserId = eventAttendanceModel.UserId,
                 CheckIn = eventAttendanceModel.CheckIn,
-                Event = new EventMapper().ConvertToDTO(eventAttendanceModel.Event),
-                User = new UserMapper().ConvertToDTO(eventAttendanceModel.User)
             };
         }
 
@@ -30,8 +28,6 @@ namespace CleanUps.BusinessLogic.Mappers
                 EventId = eventAttendanceDTO.EventId,
                 UserId = eventAttendanceDTO.UserId,
                 CheckIn = eventAttendanceDTO.CheckIn,
-                Event = new EventMapper().ConvertToModel(eventAttendanceDTO.Event),
-                User = new UserMapper().ConvertToModel(eventAttendanceDTO.User)
             };
         }
 

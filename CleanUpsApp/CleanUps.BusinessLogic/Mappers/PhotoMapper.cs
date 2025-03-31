@@ -14,7 +14,6 @@ namespace CleanUps.BusinessLogic.Mappers
                 EventId = photoModel.EventId,
                 PhotoData = photoModel.PhotoData,
                 Caption = photoModel.Caption,
-                Event = new EventMapper().ConvertToDTO(photoModel.Event)
             };
         }
 
@@ -31,7 +30,6 @@ namespace CleanUps.BusinessLogic.Mappers
                 EventId = dto.EventId,
                 PhotoData = dto.PhotoData,
                 Caption = dto.Caption,
-                Event = new EventMapper().ConvertToModel(dto.Event)
             };
         }
 

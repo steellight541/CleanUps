@@ -3,11 +3,6 @@ using CleanUps.BusinessLogic.Interfaces.PublicAccess;
 using CleanUps.BusinessLogic.Models;
 using CleanUps.Shared.DTOs;
 using CleanUps.Shared.ErrorHandling;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CleanUps.BusinessLogic.Services
 {
