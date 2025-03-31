@@ -3,8 +3,6 @@ using CleanUps.BusinessLogic.Models;
 using CleanUps.Shared.DTOs;
 using CleanUps.Shared.ErrorHandling;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System;
 
 namespace CleanUps.API.Controllers
 {
