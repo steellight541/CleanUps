@@ -8,29 +8,29 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CleanUps.API.Controllers
 {
-    [Route("api/users")]
+    [Route("api/eventattendances")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class EventAttendancesController : ControllerBase
     {
-        private readonly IService<User, UserDTO> _userService;
+        private readonly IService<EventAttendance, EventAttendanceDTO> _eventAttendanceService;
 
-        public UsersController(IService<User, UserDTO> userService)
+        public EventAttendancesController(IService<EventAttendance, EventAttendanceDTO> eventAttendanceService)
         {
-            _userService = userService;
+            _eventAttendanceService = eventAttendanceService;
         }
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> PostAsync([FromBody] UserDTO dto)
+        public async Task<IActionResult> PostAsync([FromBody] EventAttendanceDTO dto)
         {
-            Result<User> result = await _userService.CreateAsync(dto);
+            Result<EventAttendance> result = await _eventAttendanceService.CreateAsync(dto);
 
             switch (result.StatusCode)
             {
                 case 201:
-                    return Created("api/users/" + result.Data.UserId, result.Data);
+                    return Created("api/eventattendances/" + result.Data.EventAttendanceId, result.Data);
                 case 400:
                     return BadRequest(result.ErrorMessage);
                 default:
@@ -44,7 +44,7 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllAsync() //GetALl
         {
-            Result<List<User>> result = await _userService.GetAllAsync();
+            Result<List<EventAttendance>> result = await _eventAttendanceService.GetAllAsync();
 
             switch (result.StatusCode)
             {
@@ -65,7 +65,7 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetByIdAsync(int id) //GetById
         {
-            Result<User> result = await _userService.GetByIdAsync(id);
+            Result<EventAttendance> result = await _eventAttendanceService.GetByIdAsync(id);
 
             switch (result.StatusCode)
             {
@@ -87,9 +87,9 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> PutAsync(int id, [FromBody] UserDTO dto)
+        public async Task<IActionResult> PutAsync(int id, [FromBody] EventAttendanceDTO dto)
         {
-            var result = await _userService.UpdateAsync(id, dto);
+            var result = await _eventAttendanceService.UpdateAsync(id, dto);
 
             switch (result.StatusCode)
             {
@@ -115,7 +115,7 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteAsync(int id)
         {
-            var result = await _userService.DeleteAsync(id);
+            var result = await _eventAttendanceService.DeleteAsync(id);
 
             switch (result.StatusCode)
             {

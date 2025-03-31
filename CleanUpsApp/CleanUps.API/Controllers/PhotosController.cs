@@ -6,31 +6,31 @@ using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace CleanUps.API.Controllers
-{
-    [Route("api/users")]
-    [ApiController]
-    public class UsersController : ControllerBase
+    namespace CleanUps.API.Controllers
     {
-        private readonly IService<User, UserDTO> _userService;
-
-        public UsersController(IService<User, UserDTO> userService)
+        [Route("api/photos")]
+        [ApiController]
+        public class PhotosController : ControllerBase
         {
-            _userService = userService;
+        private readonly IService<Photo, PhotoDTO> _photoService;
+
+        public PhotosController(IService<Photo, PhotoDTO> photoService)
+        {
+            _photoService = photoService;
         }
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> PostAsync([FromBody] UserDTO dto)
+        public async Task<IActionResult> PostAsync([FromBody] PhotoDTO dto)
         {
-            Result<User> result = await _userService.CreateAsync(dto);
+            Result<Photo> result = await _photoService.CreateAsync(dto);
 
             switch (result.StatusCode)
             {
                 case 201:
-                    return Created("api/users/" + result.Data.UserId, result.Data);
+                    return Created("api/photos/" + result.Data.PhotoId, result.Data);
                 case 400:
                     return BadRequest(result.ErrorMessage);
                 default:
@@ -44,7 +44,7 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllAsync() //GetALl
         {
-            Result<List<User>> result = await _userService.GetAllAsync();
+            Result<List<Photo>> result = await _photoService.GetAllAsync();
 
             switch (result.StatusCode)
             {
@@ -65,7 +65,7 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetByIdAsync(int id) //GetById
         {
-            Result<User> result = await _userService.GetByIdAsync(id);
+            Result<Photo> result = await _photoService.GetByIdAsync(id);
 
             switch (result.StatusCode)
             {
@@ -87,9 +87,9 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> PutAsync(int id, [FromBody] UserDTO dto)
+        public async Task<IActionResult> PutAsync(int id, [FromBody] PhotoDTO dto)
         {
-            var result = await _userService.UpdateAsync(id, dto);
+            var result = await _photoService.UpdateAsync(id, dto);
 
             switch (result.StatusCode)
             {
@@ -115,7 +115,7 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteAsync(int id)
         {
-            var result = await _userService.DeleteAsync(id);
+            var result = await _photoService.DeleteAsync(id);
 
             switch (result.StatusCode)
             {
