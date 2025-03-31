@@ -4,21 +4,9 @@ using CleanUps.Shared.DTOs;
 
 namespace CleanUps.BusinessLogic.Mappers
 {
-    /// <summary>
-    /// Provides mapping functionality between <see cref="User"/> domain models and <see cref="UserDTO"/> data transfer objects.
-    /// </summary>
     internal class UserMapper : IMapper<User, UserDTO>
     {
 
-        /// <summary>
-        /// Converts a <see cref="User"/> model to a <see cref="UserDTO"/>.
-        /// </summary>
-        /// <param name="userModel">
-        /// The <see cref="User"/> model to convert.
-        /// </param>
-        /// <returns>
-        /// A <see cref="UserDTO"/> representing the provided user model.
-        /// </returns>
         public UserDTO ConvertToDTO(User userModel)
         {
             return new UserDTO
@@ -33,29 +21,11 @@ namespace CleanUps.BusinessLogic.Mappers
             };
         }
 
-        /// <summary>
-        /// Converts a list of <see cref="User"/> models to a list of <see cref="UserDTO"/> objects.
-        /// </summary>
-        /// <param name="listOfModels">
-        /// The list of <see cref="User"/> models to convert.
-        /// </param>
-        /// <returns>
-        /// A list of <see cref="UserDTO"/> objects.
-        /// </returns>
         public List<UserDTO> ConvertToDTOList(List<User> listOfModels)
         {
             return listOfModels.Select(ConvertToDTO).ToList();
         }
 
-        /// <summary>
-        /// Converts a <see cref="UserDTO"/> to a <see cref="User"/> model.
-        /// </summary>
-        /// <param name="dto">
-        /// The <see cref="UserDTO"/> to convert.
-        /// </param>
-        /// <returns>
-        /// A <see cref="User"/> model corresponding to the provided DTO.
-        /// </returns>
         public User ConvertToModel(UserDTO dto)
         {
             return new User
@@ -70,15 +40,6 @@ namespace CleanUps.BusinessLogic.Mappers
             };
         }
 
-        /// <summary>
-        /// Converts a list of <see cref="UserDTO"/> objects to a list of <see cref="User"/> models.
-        /// </summary>
-        /// <param name="listOfDTOs">
-        /// The list of <see cref="UserDTO"/> objects to convert.
-        /// </param>
-        /// <returns>
-        /// A list of <see cref="User"/> models.
-        /// </returns>
         public List<User> ConvertToModelList(List<UserDTO> listOfDTOs)
         {
             return listOfDTOs.Select(ConvertToModel).ToList();

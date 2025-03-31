@@ -3,25 +3,8 @@ using CleanUps.Shared.DTOs;
 
 namespace CleanUps.BusinessLogic.Validators
 {
-    /// <summary>
-    /// Validates <see cref="EventDTO"/> objects to ensure that event data meets required business rules
-    /// before processing.
-    /// </summary>
     internal class EventValidator : IValidator<EventDTO>
     {
-        /// <summary>
-        /// Validates an <see cref="EventDTO"/> for creating a new event.
-        /// Checks that required fields are set and that the event identifier is not preset.
-        /// </summary>
-        /// <param name="eventDto">
-        /// The <see cref="EventDTO"/> to validate.
-        /// </param>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if <paramref name="eventDto"/> is <see langword="null"/>.
-        /// </exception>
-        /// <exception cref="ArgumentException">
-        /// Thrown if required fields are missing or if the event identifier is set.
-        /// </exception>
         public void ValidateForCreate(EventDTO eventDto)
         {
             if (eventDto == null)
@@ -38,22 +21,6 @@ namespace CleanUps.BusinessLogic.Validators
             }
         }
 
-        /// <summary>
-        /// Validates an <see cref="EventDTO"/> for updating an existing event.
-        /// Ensures the identifier in the URL matches the DTO and that the data meets validation rules.
-        /// </summary>
-        /// <param name="id">
-        /// The identifier of the event to update.
-        /// </param>
-        /// <param name="eventDto">
-        /// The <see cref="EventDTO"/> containing updated event data.
-        /// </param>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if <paramref name="eventDto"/> is <see langword="null"/>.
-        /// </exception>
-        /// <exception cref="ArgumentException">
-        /// Thrown if the identifiers do not match or if any validation rules are broken.
-        /// </exception>
         public void ValidateForUpdate(int id, EventDTO eventDto)
         {
             if (eventDto == null)
@@ -77,15 +44,6 @@ namespace CleanUps.BusinessLogic.Validators
             ValidateCommonFields(eventDto);
         }
 
-        /// <summary>
-        /// Validates that the provided event identifier is a positive integer.
-        /// </summary>
-        /// <param name="id">
-        /// The identifier to validate.
-        /// </param>
-        /// <exception cref="ArgumentException">
-        /// Thrown if <paramref name="id"/> is less than or equal to zero.
-        /// </exception>
         public void ValidateId(int id)
         {
             if (id <= 0)
@@ -94,15 +52,6 @@ namespace CleanUps.BusinessLogic.Validators
             }
         }
 
-        /// <summary>
-        /// Validates common fields of an <see cref="EventDTO"/> required for both create and update operations.
-        /// </summary>
-        /// <param name="eventDto">
-        /// The <see cref="EventDTO"/> whose fields are to be validated.
-        /// </param>
-        /// <exception cref="ArgumentException">
-        /// Thrown if any common field does not meet validation requirements.
-        /// </exception>
         private void ValidateCommonFields(EventDTO eventDto)
         {
             if (string.IsNullOrWhiteSpace(eventDto.StreetName))
