@@ -51,7 +51,7 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (ArgumentNullException)
             {
-                return Result<List<Event>>.BadRequest("Nothing could be found");
+                return Result<List<Event>>.NoContent();
             }
             catch (OperationCanceledException)
             {
@@ -71,7 +71,7 @@ namespace CleanUps.DataAccess.Repositories
                 Event? retrievedEvent = await _context.Events.FindAsync(id);
                 if (retrievedEvent is null)
                 {
-                    return Result<Event>.BadRequest($"Event with id: {id} does not exist");
+                    return Result<Event>.NotFound($"Event with id: {id} does not exist");
                 }
                 else
                 {
@@ -92,7 +92,7 @@ namespace CleanUps.DataAccess.Repositories
 
                 if (retrievedEvent is null)
                 {
-                    return Result<Event>.BadRequest($"Event does not exist");
+                    return Result<Event>.NotFound($"Event with id: {eventToBeUpdated.EventId} does not exist");
                 }
                 else
                 {
@@ -110,7 +110,7 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (DbUpdateConcurrencyException)
             {
-                return Result<Event>.InternalServerError("Event was modified by another user. Refresh and retry");
+                return Result<Event>.Conflict("Event was modified by another user. Refresh and retry");
             }
             catch (DbUpdateException)
             {
@@ -132,7 +132,7 @@ namespace CleanUps.DataAccess.Repositories
 
                 if (eventToDelete is null)
                 {
-                    return Result<Event>.BadRequest($"Event with id: {id} does not exist");
+                    return Result<Event>.NotFound($"Event with id: {id} does not exist");
                 }
                 else
                 {
@@ -148,7 +148,7 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (DbUpdateConcurrencyException)
             {
-                return Result<Event>.InternalServerError("Concurrency issue while deleting the event. Please refresh and try again.");
+                return Result<Event>.Conflict("Concurrency issue while deleting the event. Please refresh and try again.");
             }
             catch (DbUpdateException)
             {

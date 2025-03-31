@@ -41,23 +41,17 @@ namespace CleanUps.API.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetAllAsync()
+        public async Task<IActionResult> GetAllAsync() //GetALl
         {
             Result<List<Event>> result = await _eventService.GetAllAsync();
 
-            if (result.Data.Count == 0 || result.Data is null)
-            {
-                return NoContent();
-            }
-
             switch (result.StatusCode)
             {
-                case 201:
+                case 200:
                     return Ok(result.Data);
-                case 400:
-                    return BadRequest(result.ErrorMessage);
+                case 204:
+                    return NoContent();
                 default:
                     return StatusCode(result.StatusCode, result.ErrorMessage);
             }
@@ -69,7 +63,7 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetByIdAsync(int id)
+        public async Task<IActionResult> GetByIdAsync(int id) //GetById
         {
             Result<Event> result = await _eventService.GetByIdAsync(id);
 
