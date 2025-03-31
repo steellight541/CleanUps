@@ -63,9 +63,9 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetByIdAsync(int eventId, int userId) //GetById
+        public async Task<IActionResult> GetByIdAsync(int id) //GetById
         {
-            Result<EventAttendance> result = await _eventAttendanceService.GetByIdAsync(eventId, userId);
+            Result<EventAttendance> result = await _eventAttendanceService.GetByIdAsync(id);
 
             switch (result.StatusCode)
             {
