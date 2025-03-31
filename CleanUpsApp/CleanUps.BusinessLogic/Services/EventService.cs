@@ -43,6 +43,21 @@ namespace CleanUps.BusinessLogic.Services
             }
         }
 
+        public async Task<Result<List<Event>>> GetAllAsync()
+        {
+            //Step 1. Call GetAll from the repository - return result of operation
+            var repoResult = await _repository.GetAllAsync();
+            if (!repoResult.IsSuccess)
+            {
+                return Result<List<Event>>.InternalServerError(repoResult.ErrorMessage);
+            }
+            else
+            {
+                return Result<List<Event>>.Ok(repoResult.Data);
+            }
+        }
+
+
         public async Task<Result<Event>> GetByIdAsync(int id)
         {
             //Step 1. Validate id from the parameter - return result of the validation
@@ -63,20 +78,6 @@ namespace CleanUps.BusinessLogic.Services
             else
             {
                 return Result<Event>.Ok(repoResult.Data);
-            }
-        }
-
-        public async Task<Result<List<Event>>> GetAllAsync()
-        {
-            //Step 1. Call GetAll from the repository - return result of operation
-            var repoResult = await _repository.GetAllAsync();
-            if (!repoResult.IsSuccess)
-            {
-                return Result<List<Event>>.InternalServerError(repoResult.ErrorMessage);
-            }
-            else
-            {
-                return Result<List<Event>>.Ok(repoResult.Data);
             }
         }
 

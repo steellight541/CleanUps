@@ -1,6 +1,10 @@
 ﻿using CleanUps.BusinessLogic.Interfaces.PublicAccess;
+using CleanUps.BusinessLogic.Models;
 using CleanUps.Shared.DTOs;
+using CleanUps.Shared.ErrorHandling;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System;
 
 namespace CleanUps.API.Controllers
 {
@@ -8,66 +12,130 @@ namespace CleanUps.API.Controllers
     [ApiController]
     public class EventsController : ControllerBase
     {
-        private readonly IService<EventDTO> _eventService;
+        private readonly IService<Event, EventDTO> _eventService;
 
-        public EventsController(IService<EventDTO> eventService)
+        public EventsController(IService<Event, EventDTO> eventService)
         {
             _eventService = eventService;
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAsync([FromBody] EventDTO dto)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> PostAsync([FromBody] EventDTO dto)
         {
-            var result = await _eventService.CreateAsync(dto);
-            if (result.IsSuccess)
-            {
-                return CreatedAtAction(nameof(GetByIdAsync), new { id = result.Data.EventId }, result.Data);
-            }
-            return StatusCode(result.StatusCode, new { Error = result.ErrorMessage });
-        }
+            Result<Event> result = await _eventService.CreateAsync(dto);
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync(int id)
-        {
-            var result = await _eventService.GetByIdAsync(id);
-            if (result.IsSuccess)
+            switch (result.StatusCode)
             {
-                return Ok(result.Data);
+                case 201:
+                    return Created("api/events/" + result.Data.EventId, result.Data);
+                case 400:
+                    return BadRequest(result.ErrorMessage);
+                default:
+                    return StatusCode(result.StatusCode, result.ErrorMessage);
             }
-            return StatusCode(result.StatusCode, new { Error = result.ErrorMessage });
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllAsync()
         {
-            var result = await _eventService.GetAllAsync();
-            if (result.IsSuccess)
+            Result<List<Event>> result = await _eventService.GetAllAsync();
+
+            if (result.Data.Count == 0 || result.Data is null)
             {
-                return Ok(result.Data);
+                return NoContent();
             }
-            return StatusCode(result.StatusCode, new { Error = result.ErrorMessage });
+
+            switch (result.StatusCode)
+            {
+                case 201:
+                    return Ok(result.Data);
+                case 400:
+                    return BadRequest(result.ErrorMessage);
+                default:
+                    return StatusCode(result.StatusCode, result.ErrorMessage);
+            }
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAsync(int id, [FromBody] EventDTO dto)
+        [HttpGet()]
+        [Route("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetByIdAsync(int id)
+        {
+            Result<Event> result = await _eventService.GetByIdAsync(id);
+
+            switch (result.StatusCode)
+            {
+                case 200:
+                    return Ok(result.Data);
+                case 400:
+                    return BadRequest(result.ErrorMessage);
+                case 404:
+                    return NotFound(result.ErrorMessage);
+                default:
+                    return StatusCode(result.StatusCode, result.ErrorMessage);
+            }
+        }
+
+        [HttpPut]
+        [Route("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> PutAsync(int id, [FromBody] EventDTO dto)
         {
             var result = await _eventService.UpdateAsync(id, dto);
-            if (result.IsSuccess)
+
+            switch (result.StatusCode)
             {
-                return Ok(result.Data);
+                case 200:
+                    return Ok(result.Data);
+                case 400:
+                    return BadRequest(result.ErrorMessage);
+                case 404:
+                    return NotFound(result.ErrorMessage);
+                case 409:
+                    return Conflict(result.ErrorMessage);
+                default:
+                    return StatusCode(result.StatusCode, result.ErrorMessage);
             }
-            return StatusCode(result.StatusCode, new { Error = result.ErrorMessage });
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete]
+        [Route("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             var result = await _eventService.DeleteAsync(id);
-            if (result.IsSuccess)
+
+            switch (result.StatusCode)
             {
-                return Ok(result.Data);
+                case 200:
+                    return Ok(result.Data);
+                case 400:
+                    return BadRequest(result.ErrorMessage);
+                case 404:
+                    return NotFound(result.ErrorMessage);
+                case 409:
+                    return Conflict(result.ErrorMessage);
+                default:
+                    return StatusCode(result.StatusCode, result.ErrorMessage);
             }
-            return StatusCode(result.StatusCode, new { Error = result.ErrorMessage });
         }
     }
 }
