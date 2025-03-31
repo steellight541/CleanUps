@@ -1,5 +1,4 @@
-﻿using CleanUps.BusinessDomain.Models;
-using CleanUps.BusinessLogic.Models.Flags;
+﻿using CleanUps.BusinessLogic.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace CleanUps.DataAccess.DatabaseHub;

@@ -1,5 +1,5 @@
-﻿using CleanUps.BusinessDomain.Models;
-using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
+﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
+using CleanUps.BusinessLogic.Models;
 using CleanUps.DataAccess.DatabaseHub;
 using CleanUps.Shared.ErrorHandling;
 using Microsoft.EntityFrameworkCore;
@@ -17,53 +17,53 @@ namespace CleanUps.DataAccess.Repositories
             _context = context;
         }
 
-        public async Task<OperationResult<Event>> CreateAsync(Event eventToBeCreated)
+        public async Task<Result<Event>> CreateAsync(Event eventToBeCreated)
         {
             try
             {
                 await _context.Events.AddAsync(eventToBeCreated);
                 await _context.SaveChangesAsync();
 
-                return OperationResult<Event>.Created(eventToBeCreated);
+                return Result<Event>.Created(eventToBeCreated);
             }
             catch (OperationCanceledException)
             {
-                return OperationResult<Event>.InternalServerError("Operation Canceled. Refresh and retry");
+                return Result<Event>.InternalServerError("Operation Canceled. Refresh and retry");
             }
             catch (DbUpdateException)
             {
-                return OperationResult<Event>.InternalServerError("Failed to create the event due to a database error. Try again later");
+                return Result<Event>.InternalServerError("Failed to create the event due to a database error. Try again later");
             }
             catch (Exception)
             {
-                return OperationResult<Event>.InternalServerError("Something went wrong. Try again later");
+                return Result<Event>.InternalServerError("Something went wrong. Try again later");
             }
         }
 
-        public async Task<OperationResult<List<Event>>> GetAllAsync()
+        public async Task<Result<List<Event>>> GetAllAsync()
         {
             try
             {
                 List<Event> events = await _context.Events.ToListAsync();
 
-                return OperationResult<List<Event>>.Ok(events);
+                return Result<List<Event>>.Ok(events);
 
             }
             catch (ArgumentNullException)
             {
-                return OperationResult<List<Event>>.BadRequest("Nothing could be found");
+                return Result<List<Event>>.BadRequest("Nothing could be found");
             }
             catch (OperationCanceledException)
             {
-                return OperationResult<List<Event>>.InternalServerError("Operation Canceled. Refresh and retry");
+                return Result<List<Event>>.InternalServerError("Operation Canceled. Refresh and retry");
             }
             catch (Exception)
             {
-                return OperationResult<List<Event>>.InternalServerError("Something went wrong. Try again later");
+                return Result<List<Event>>.InternalServerError("Something went wrong. Try again later");
             }
         }
 
-        public async Task<OperationResult<Event>> GetByIdAsync(int id)
+        public async Task<Result<Event>> GetByIdAsync(int id)
         {
 
             try
@@ -71,20 +71,20 @@ namespace CleanUps.DataAccess.Repositories
                 Event? retrievedEvent = await _context.Events.FindAsync(id);
                 if (retrievedEvent is null)
                 {
-                    return OperationResult<Event>.BadRequest($"Event with id: {id} does not exist");
+                    return Result<Event>.BadRequest($"Event with id: {id} does not exist");
                 }
                 else
                 {
-                    return OperationResult<Event>.Ok(retrievedEvent);
+                    return Result<Event>.Ok(retrievedEvent);
                 }
             }
             catch (Exception)
             {
-                return OperationResult<Event>.InternalServerError("Something went wrong. Try again later");
+                return Result<Event>.InternalServerError("Something went wrong. Try again later");
             }
         }
 
-        public async Task<OperationResult<Event>> UpdateAsync(Event eventToBeUpdated)
+        public async Task<Result<Event>> UpdateAsync(Event eventToBeUpdated)
         {
             try
             {
@@ -92,7 +92,7 @@ namespace CleanUps.DataAccess.Repositories
 
                 if (retrievedEvent is null)
                 {
-                    return OperationResult<Event>.BadRequest($"Event does not exist");
+                    return Result<Event>.BadRequest($"Event does not exist");
                 }
                 else
                 {
@@ -101,28 +101,28 @@ namespace CleanUps.DataAccess.Repositories
                     _context.Events.Update(eventToBeUpdated);
                     await _context.SaveChangesAsync();
 
-                    return OperationResult<Event>.Ok(eventToBeUpdated);
+                    return Result<Event>.Ok(eventToBeUpdated);
                 }
             }
             catch (OperationCanceledException)
             {
-                return OperationResult<Event>.InternalServerError("Operation Canceled. Refresh and retry");
+                return Result<Event>.InternalServerError("Operation Canceled. Refresh and retry");
             }
             catch (DbUpdateConcurrencyException)
             {
-                return OperationResult<Event>.InternalServerError("Event was modified by another user. Refresh and retry");
+                return Result<Event>.InternalServerError("Event was modified by another user. Refresh and retry");
             }
             catch (DbUpdateException)
             {
-                return OperationResult<Event>.InternalServerError("Failed to update the event due to a database error. Try again later");
+                return Result<Event>.InternalServerError("Failed to update the event due to a database error. Try again later");
             }
             catch (Exception)
             {
-                return OperationResult<Event>.InternalServerError("Something went wrong. Try again later");
+                return Result<Event>.InternalServerError("Something went wrong. Try again later");
             }
         }
 
-        public async Task<OperationResult<Event>> DeleteAsync(int id)
+        public async Task<Result<Event>> DeleteAsync(int id)
         {
             try
             {
@@ -132,31 +132,31 @@ namespace CleanUps.DataAccess.Repositories
 
                 if (eventToDelete is null)
                 {
-                    return OperationResult<Event>.BadRequest($"Event with id: {id} does not exist");
+                    return Result<Event>.BadRequest($"Event with id: {id} does not exist");
                 }
                 else
                 {
                     _context.Events.Remove(eventToDelete);
                     await _context.SaveChangesAsync();
 
-                    return OperationResult<Event>.Ok(eventToDelete);
+                    return Result<Event>.Ok(eventToDelete);
                 }
             }
             catch (OperationCanceledException)
             {
-                return OperationResult<Event>.InternalServerError("Operation Canceled. Refresh and retry");
+                return Result<Event>.InternalServerError("Operation Canceled. Refresh and retry");
             }
             catch (DbUpdateConcurrencyException)
             {
-                return OperationResult<Event>.InternalServerError("Concurrency issue while deleting the event. Please refresh and try again.");
+                return Result<Event>.InternalServerError("Concurrency issue while deleting the event. Please refresh and try again.");
             }
             catch (DbUpdateException)
             {
-                return OperationResult<Event>.InternalServerError("Failed to delete the event due to a database error. Try again later");
+                return Result<Event>.InternalServerError("Failed to delete the event due to a database error. Try again later");
             }
             catch (Exception)
             {
-                return OperationResult<Event>.InternalServerError("Something went wrong. Try again later");
+                return Result<Event>.InternalServerError("Something went wrong. Try again later");
             }
         }
     }

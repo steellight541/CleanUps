@@ -1,6 +1,6 @@
-﻿using CleanUps.BusinessDomain.Models;
+﻿using CleanUps.BusinessLogic.Models.Flags;
 
-namespace CleanUps.BusinessLogic.Models.Flags;
+namespace CleanUps.BusinessLogic.Models;
 
 /// <summary>
 /// Represents a user in the CleanUps application.

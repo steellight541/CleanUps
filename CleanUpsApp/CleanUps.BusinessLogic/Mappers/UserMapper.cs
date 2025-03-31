@@ -1,5 +1,5 @@
 ﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
-using CleanUps.BusinessLogic.Models.Flags;
+using CleanUps.BusinessLogic.Models;
 using CleanUps.Shared.DTOs;
 
 namespace CleanUps.BusinessLogic.Mappers

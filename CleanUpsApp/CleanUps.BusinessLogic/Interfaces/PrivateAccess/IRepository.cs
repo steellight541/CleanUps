@@ -2,18 +2,17 @@
 using CleanUps.Shared.ErrorHandling;
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("CleanUps.DataAccess")]
 [assembly: InternalsVisibleTo("CleanUps.Configuration")]
-
+[assembly: InternalsVisibleTo("CleanUps.DataAccess")]
 namespace CleanUps.BusinessLogic.Interfaces.PrivateAccess
 {
 
     internal interface IRepository<T> where T : EFModel //Saying the generic type T is a class that EntityFramework created with scaffolding
     {
-        Task<OperationResult<T>> CreateAsync(T entity);
-        Task<OperationResult<List<T>>> GetAllAsync();
-        Task<OperationResult<T>> GetByIdAsync(int id);
-        Task<OperationResult<T>> UpdateAsync(T entity);
-        Task<OperationResult<T>> DeleteAsync(int id);
+        Task<Result<T>> CreateAsync(T entity);
+        Task<Result<List<T>>> GetAllAsync();
+        Task<Result<T>> GetByIdAsync(int id);
+        Task<Result<T>> UpdateAsync(T entity);
+        Task<Result<T>> DeleteAsync(int id);
     }
 }

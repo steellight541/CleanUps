@@ -1,5 +1,5 @@
-﻿using CleanUps.BusinessDomain.Models;
-using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
+﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
+using CleanUps.BusinessLogic.Models;
 using CleanUps.Shared.DTOs;
 
 namespace CleanUps.BusinessLogic.Mappers

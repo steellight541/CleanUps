@@ -1,12 +1,12 @@
-﻿using CleanUps.BusinessDomain.Models;
-using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
+﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
 using CleanUps.BusinessLogic.Interfaces.PublicAccess;
+using CleanUps.BusinessLogic.Models;
 using CleanUps.Shared.DTOs;
 using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.BusinessLogic.Services
 {
-    internal class EventService : IService<EventDTO>
+    internal class EventService : IService<Event, EventDTO>
     {
         private readonly IRepository<Event> _repository;
         private readonly IValidator<EventDTO> _validator;
@@ -19,96 +19,114 @@ namespace CleanUps.BusinessLogic.Services
             _mapper = mapper;
         }
 
-        public async Task<OperationResult<EventDTO>> CreateAsync(EventDTO dto)
+        public async Task<Result<Event>> CreateAsync(EventDTO dto)
         {
+            //Step 1. Validate DTO from the parameter - return result of the validation
             var validationResult = _validator.ValidateForCreate(dto);
             if (!validationResult.IsSuccess)
             {
-                return OperationResult<EventDTO>.BadRequest(validationResult.ErrorMessage);
+                return Result<Event>.BadRequest(validationResult.ErrorMessage);
             }
 
-            var entity = _mapper.ConvertToModel(dto);
-            var createResult = await _repository.CreateAsync(entity);
+            //Step 2. Convert DTO to Domain Model
+            Event eventModel = _mapper.ConvertToModel(dto);
+
+            //Step 3. Pass the model to the repository - return result of operation
+            var createResult = await _repository.CreateAsync(eventModel);
             if (!createResult.IsSuccess)
             {
-                return OperationResult<EventDTO>.InternalServerError(createResult.ErrorMessage);
+                return Result<Event>.InternalServerError(createResult.ErrorMessage);
             }
-
-            var createdDto = _mapper.ConvertToDTO(createResult.Data);
-            return OperationResult<EventDTO>.Created(createdDto);
+            else
+            {
+                return Result<Event>.Created(createResult.Data);
+            }
         }
 
-        public async Task<OperationResult<EventDTO>> GetByIdAsync(int id)
+        public async Task<Result<Event>> GetByIdAsync(int id)
         {
+            //Step 1. Validate id from the parameter - return result of the validation
             var idValidation = _validator.ValidateId(id);
             if (!idValidation.IsSuccess)
             {
-                return OperationResult<EventDTO>.BadRequest(idValidation.ErrorMessage);
+                return Result<Event>.BadRequest(idValidation.ErrorMessage);
             }
 
+            //Step 2. Pass the id to the repository - return result of operation
             var repoResult = await _repository.GetByIdAsync(id);
             if (!repoResult.IsSuccess)
             {
                 return repoResult.StatusCode == 404
-                    ? OperationResult<EventDTO>.NotFound(repoResult.ErrorMessage)
-                    : OperationResult<EventDTO>.InternalServerError(repoResult.ErrorMessage);
+                    ? Result<Event>.NotFound(repoResult.ErrorMessage)
+                    : Result<Event>.InternalServerError(repoResult.ErrorMessage);
             }
-
-            var dto = _mapper.ConvertToDTO(repoResult.Data);
-            return OperationResult<EventDTO>.Ok(dto);
+            else
+            {
+                return Result<Event>.Ok(repoResult.Data);
+            }
         }
 
-        public async Task<OperationResult<List<EventDTO>>> GetAllAsync()
+        public async Task<Result<List<Event>>> GetAllAsync()
         {
+            //Step 1. Call GetAll from the repository - return result of operation
             var repoResult = await _repository.GetAllAsync();
             if (!repoResult.IsSuccess)
             {
-                return OperationResult<List<EventDTO>>.InternalServerError(repoResult.ErrorMessage);
+                return Result<List<Event>>.InternalServerError(repoResult.ErrorMessage);
             }
-
-            var dtos = _mapper.ConvertToDTOList(repoResult.Data);
-            return OperationResult<List<EventDTO>>.Ok(dtos);
+            else
+            {
+                return Result<List<Event>>.Ok(repoResult.Data);
+            }
         }
 
-        public async Task<OperationResult<EventDTO>> UpdateAsync(int id, EventDTO dto)
+        public async Task<Result<Event>> UpdateAsync(int id, EventDTO dto)
         {
+            //Step 1. Validate DTO from the parameter - return result of the validation
             var validationResult = _validator.ValidateForUpdate(id, dto);
             if (!validationResult.IsSuccess)
             {
-                return OperationResult<EventDTO>.BadRequest(validationResult.ErrorMessage);
+                return Result<Event>.BadRequest(validationResult.ErrorMessage);
             }
 
-            var entity = _mapper.ConvertToModel(dto);
-            var updateResult = await _repository.UpdateAsync(entity);
+            //Step 2. Convert DTO to Domain Model
+            Event eventModel = _mapper.ConvertToModel(dto);
+
+            //Step 3. Pass the model to the repository - return result of operation
+            var updateResult = await _repository.UpdateAsync(eventModel);
             if (!updateResult.IsSuccess)
             {
                 return updateResult.StatusCode == 404
-                    ? OperationResult<EventDTO>.NotFound(updateResult.ErrorMessage)
-                    : OperationResult<EventDTO>.InternalServerError(updateResult.ErrorMessage);
+                    ? Result<Event>.NotFound(updateResult.ErrorMessage)
+                    : Result<Event>.InternalServerError(updateResult.ErrorMessage);
             }
-
-            var updatedDto = _mapper.ConvertToDTO(updateResult.Data);
-            return OperationResult<EventDTO>.Ok(updatedDto);
+            else
+            {
+                return Result<Event>.Ok(updateResult.Data);
+            }
         }
 
-        public async Task<OperationResult<EventDTO>> DeleteAsync(int id)
+        public async Task<Result<Event>> DeleteAsync(int id)
         {
+            //Step 1. Validate id from the parameter - return result of the validation
             var idValidation = _validator.ValidateId(id);
             if (!idValidation.IsSuccess)
             {
-                return OperationResult<EventDTO>.BadRequest(idValidation.ErrorMessage);
+                return Result<Event>.BadRequest(idValidation.ErrorMessage);
             }
 
+            //Step 2. Pass the id to the repository - return result of operation
             var deleteResult = await _repository.DeleteAsync(id);
             if (!deleteResult.IsSuccess)
             {
                 return deleteResult.StatusCode == 404
-                    ? OperationResult<EventDTO>.NotFound(deleteResult.ErrorMessage)
-                    : OperationResult<EventDTO>.InternalServerError(deleteResult.ErrorMessage);
+                    ? Result<Event>.NotFound(deleteResult.ErrorMessage)
+                    : Result<Event>.InternalServerError(deleteResult.ErrorMessage);
             }
-
-            var deletedDto = _mapper.ConvertToDTO(deleteResult.Data);
-            return OperationResult<EventDTO>.Ok(deletedDto);
+            else
+            {
+                return Result<Event>.Ok(deleteResult.Data);
+            }
         }
     }
 }

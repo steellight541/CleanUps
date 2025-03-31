@@ -1,8 +1,8 @@
-﻿using CleanUps.BusinessDomain.Models;
+﻿
 using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
 using CleanUps.BusinessLogic.Interfaces.PublicAccess;
 using CleanUps.BusinessLogic.Mappers;
-using CleanUps.BusinessLogic.Models.Flags;
+using CleanUps.BusinessLogic.Models;
 using CleanUps.BusinessLogic.Services;
 using CleanUps.BusinessLogic.Validators;
 using CleanUps.DataAccess.DatabaseHub;
@@ -28,8 +28,8 @@ namespace CleanUps.Configuration
 
 
             // Register services
-            // Processors
-            services.AddScoped<IService<EventDTO>, EventService>();
+            // Services
+            services.AddScoped<IService<Event, EventDTO>, EventService>();
 
             // Validators
             services.AddScoped<IValidator<EventDTO>, EventValidator>();

@@ -1,14 +1,15 @@
-﻿using CleanUps.Shared.DTOs.Flags;
+﻿using CleanUps.BusinessLogic.Models.Flags;
+using CleanUps.Shared.DTOs.Flags;
 using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.BusinessLogic.Interfaces.PublicAccess
 {
-    public interface IService<T> where T : RecordDTO
+    public interface IService<TReturn, TParam> where TReturn : EFModel where TParam : RecordDTO
     {
-        Task<OperationResult<T>> CreateAsync(T entity);
-        Task<OperationResult<List<T>>> GetAllAsync();
-        Task<OperationResult<T>> GetByIdAsync(int id);
-        Task<OperationResult<T>> UpdateAsync(int id, T entity);
-        Task<OperationResult<T>> DeleteAsync(int id);
+        Task<Result<TReturn>> CreateAsync(TParam entity);
+        Task<Result<List<TReturn>>> GetAllAsync();
+        Task<Result<TReturn>> GetByIdAsync(int id);
+        Task<Result<TReturn>> UpdateAsync(int id, TParam entity);
+        Task<Result<TReturn>> DeleteAsync(int id);
     }
 }

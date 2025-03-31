@@ -1,6 +1,6 @@
 ﻿using CleanUps.BusinessLogic.Models.Flags;
 
-namespace CleanUps.BusinessDomain.Models;
+namespace CleanUps.BusinessLogic.Models;
 
 /// <summary>
 /// Represents a user's attendance at an event in the CleanUps application.
