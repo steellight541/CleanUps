@@ -38,6 +38,10 @@ namespace CleanUps.Configuration
 
             // Validators
             services.AddScoped<IValidator<EventDTO>, EventValidator>();
+            services.AddScoped<IValidator<UserDTO>, UserValidator>();
+            services.AddScoped<IValidator<PhotoDTO>, PhotoValidator>();
+            services.AddScoped<IValidator<EventAttendanceDTO>, EventAttendanceValidator>();
+
 
             // Mappers
             services.AddSingleton<IMapper<Event, EventDTO>, EventMapper>();
