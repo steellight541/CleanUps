@@ -1,9 +1,6 @@
 ﻿using CleanUps.BusinessLogic.Interfaces.PublicAccess;
 using CleanUps.Shared.DTOs;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace CleanUps.API.Controllers
 {
@@ -11,175 +8,66 @@ namespace CleanUps.API.Controllers
     [ApiController]
     public class EventsController : ControllerBase
     {
-        private readonly IDataTransferService<EventDTO> _eventProcessor;
-        public EventsController(IDataTransferService<EventDTO> eventProcessor)
+        private readonly IDataTransferService<EventDTO> _eventService;
+
+        public EventsController(IDataTransferService<EventDTO> eventService)
         {
-            _eventProcessor = eventProcessor;
+            _eventService = eventService;
         }
 
-        // GET: api/Events
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetAsync()
-        {
-            try
-            {
-                List<EventDTO> events = await _eventProcessor.GetAllAsync();
-
-                if (events.Count == 0)
-                {
-                    return NoContent();
-                }
-
-                return Ok(events);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "An internal server error occurred: " + ex.Message);
-            }
-        }
-
-        // GET api/Events/{id}
-        [HttpGet()]
-        [Route("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetAsync(int id)
-        {
-            try
-            {
-                EventDTO eventToGet = await _eventProcessor.GetByIdAsync(id);
-
-                return Ok(eventToGet);
-            }
-            catch (ArgumentException argumentException)
-            {
-                return BadRequest(argumentException.Message);
-            }
-            catch (KeyNotFoundException keyNotFoundException)
-            {
-                return NotFound(keyNotFoundException.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "An internal server error occurred: " + ex.Message);
-            }
-        }
-
-        // POST api/Events
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> PostAsync([FromBody] EventDTO eventToBeAdded)
+        public async Task<IActionResult> CreateAsync([FromBody] EventDTO dto)
         {
-            try
+            var result = await _eventService.CreateAsync(dto);
+            if (result.IsSuccess)
             {
-                EventDTO addedEvent = await _eventProcessor.CreateAsync(eventToBeAdded);
-
-                return Created("api/Events/" + addedEvent.EventId, addedEvent);
+                return CreatedAtAction(nameof(GetByIdAsync), new { id = result.Data.EventId }, result.Data);
             }
-            catch (ArgumentNullException argumentNullException)
-            {
-                return BadRequest(argumentNullException.Message);
-            }
-            catch (ArgumentException argumentException)
-            {
-                return BadRequest(argumentException.Message);
-            }
-            catch (DbUpdateException dbUpdateException)
-            {
-                return StatusCode(500, "Failed to save the event due to a database error: " + dbUpdateException.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "An internal server error occurred: " + ex.Message);
-            }
-
+            return StatusCode(result.StatusCode, new { Error = result.ErrorMessage });
         }
 
-        // PUT api/Events/{id}
-        [HttpPut]
-        [Route("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> PutAsync(int id, [FromBody] EventDTO eventToBeUpdated)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetByIdAsync(int id)
         {
-            if (id != eventToBeUpdated.EventId)
+            var result = await _eventService.GetByIdAsync(id);
+            if (result.IsSuccess)
             {
-                return BadRequest("Try again, ID in the URL does not match the Event ID.");
+                return Ok(result.Data);
             }
-
-            try
-            {
-                EventDTO updatedEvent = await _eventProcessor.UpdateAsync(id, eventToBeUpdated);
-
-                return Ok(updatedEvent);
-            }
-            catch (ArgumentNullException argumentNullException)
-            {
-                return BadRequest(argumentNullException.Message);
-            }
-            catch (ArgumentException argumentException)
-            {
-                return BadRequest(argumentException.Message);
-            }
-            catch (KeyNotFoundException keyNotFoundException)
-            {
-                return NotFound(keyNotFoundException.Message);
-            }
-            catch (DbUpdateConcurrencyException dbUpdateConcurrencyException) // Handle concurrency conflicts
-            {
-                return Conflict("Event was modified by another user. Refresh and retry: " + dbUpdateConcurrencyException.Message);
-            }
-            catch (DbUpdateException dbUpdateException) // Handle other database errors
-            {
-                return StatusCode(500, "Failed to update the event due to a database error: " + dbUpdateException.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "An internal server error occurred: " + ex.Message);
-            }
+            return StatusCode(result.StatusCode, new { Error = result.ErrorMessage });
         }
 
-        // DELETE api/Events/{id}
-        [HttpDelete]
-        [Route("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [HttpGet]
+        public async Task<IActionResult> GetAllAsync()
+        {
+            var result = await _eventService.GetAllAsync();
+            if (result.IsSuccess)
+            {
+                return Ok(result.Data);
+            }
+            return StatusCode(result.StatusCode, new { Error = result.ErrorMessage });
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateAsync(int id, [FromBody] EventDTO dto)
+        {
+            var result = await _eventService.UpdateAsync(id, dto);
+            if (result.IsSuccess)
+            {
+                return Ok(result.Data);
+            }
+            return StatusCode(result.StatusCode, new { Error = result.ErrorMessage });
+        }
+
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
-            try
+            var result = await _eventService.DeleteAsync(id);
+            if (result.IsSuccess)
             {
-                EventDTO eventToBeDeleted = await _eventProcessor.DeleteAsync(id);
-                return Ok(eventToBeDeleted);
+                return Ok(result.Data);
             }
-            catch (ArgumentException argumentException)
-            {
-                return NotFound(argumentException.Message);
-            }
-            catch (KeyNotFoundException keyNotFoundException)
-            {
-                return NotFound(keyNotFoundException.Message);
-            }
-            catch (DbUpdateException)
-            {
-                return StatusCode(500, "Failed to delete the event due to a database error.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "An internal server error occurred: " + ex.Message);
-            }
+            return StatusCode(result.StatusCode, new { Error = result.ErrorMessage });
         }
-
-        //Filter http methods below (to be done...)
     }
 }

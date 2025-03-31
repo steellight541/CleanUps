@@ -1,4 +1,5 @@
 ﻿using CleanUps.Shared.DTOs.Flags;
+using CleanUps.Shared.ErrorHandling;
 using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("CleanUps.Configuration")]
 [assembly: InternalsVisibleTo("CleanUps.Test")]
@@ -7,10 +8,10 @@ namespace CleanUps.BusinessLogic.Interfaces.PrivateAccess
 {
     internal interface IValidator<T> where T : RecordDTO
     {
-        void ValidateForCreate(T dto);
+        OperationResult<T> ValidateForCreate(T dto);
 
-        void ValidateForUpdate(int id, T dto);
+        OperationResult<T> ValidateForUpdate(int id, T dto);
 
-        void ValidateId(int id);
+        OperationResult<string> ValidateId(int id);
     }
 }

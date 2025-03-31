@@ -1,17 +1,14 @@
 ﻿using CleanUps.Shared.DTOs.Flags;
+using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.BusinessLogic.Interfaces.PublicAccess
 {
     public interface IDataTransferService<T> where T : RecordDTO
     {
-        public Task<T> CreateAsync(T dtoToCreate);
-
-        public Task<List<T>> GetAllAsync();
-
-        public Task<T> GetByIdAsync(int id);
-
-        public Task<T> UpdateAsync(int id, T dtoToUpdate);
-
-        public Task<T> DeleteAsync(int id);
+        Task<OperationResult<T>> CreateAsync(T entity);
+        Task<OperationResult<List<T>>> GetAllAsync();
+        Task<OperationResult<T>> GetByIdAsync(int id);
+        Task<OperationResult<T>> UpdateAsync(int id, T entity);
+        Task<OperationResult<T>> DeleteAsync(int id);
     }
 }
