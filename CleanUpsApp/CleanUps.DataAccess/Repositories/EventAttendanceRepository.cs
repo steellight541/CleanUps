@@ -19,6 +19,15 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
+                if (!await _context.Events.AnyAsync(e => e.EventId == eventAttendanceToBeCreated.EventId))
+                {
+                    return Result<EventAttendance>.BadRequest("Event with the specified ID does not exist.");
+                }
+                if (!await _context.Users.AnyAsync(u => u.UserId == eventAttendanceToBeCreated.UserId))
+                {
+                    return Result<EventAttendance>.BadRequest("User with the specified ID does not exist.");
+                }
+
                 await _context.EventAttendances.AddAsync(eventAttendanceToBeCreated);
                 await _context.SaveChangesAsync();
 
@@ -66,14 +75,15 @@ namespace CleanUps.DataAccess.Repositories
 
             try
             {
-                EventAttendance? retrievedEvent = await _context.EventAttendances.FindAsync(id);
-                if (retrievedEvent is null)
+                EventAttendance? EventAttendance = await _context.EventAttendances.FindAsync(id);
+                if (EventAttendance is null)
                 {
                     return Result<EventAttendance>.NotFound($"EventAttendance with id: {id} does not exist");
                 }
                 else
                 {
-                    return Result<EventAttendance>.Ok(retrievedEvent);
+                    
+                    return Result<EventAttendance>.Ok(EventAttendance);
                 }
             }
             catch (Exception)
@@ -86,15 +96,24 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
-                EventAttendance? retrievedEvent = await _context.EventAttendances.FindAsync(eventAttendanceToBeUpdated.EventId);
+                if (!await _context.Events.AnyAsync(e => e.EventId == eventAttendanceToBeUpdated.EventId))
+                {
+                    return Result<EventAttendance>.BadRequest("Event with the specified ID does not exist.");
+                }
+                if (!await _context.Users.AnyAsync(u => u.UserId == eventAttendanceToBeUpdated.UserId))
+                {
+                    return Result<EventAttendance>.BadRequest("User with the specified ID does not exist.");
+                }
 
-                if (retrievedEvent is null)
+                EventAttendance? EventAttendance = await _context.EventAttendances.FindAsync(eventAttendanceToBeUpdated.EventId);
+
+                if (EventAttendance is null)
                 {
                     return Result<EventAttendance>.NotFound($"EventAttendance with id: {eventAttendanceToBeUpdated.EventId} does not exist");
                 }
                 else
                 {
-                    _context.Entry(retrievedEvent).State = EntityState.Detached;
+                    _context.Entry(EventAttendance).State = EntityState.Detached;
 
                     _context.EventAttendances.Update(eventAttendanceToBeUpdated);
                     await _context.SaveChangesAsync();

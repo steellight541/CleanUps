@@ -30,7 +30,7 @@ namespace CleanUps.API.Controllers
             switch (result.StatusCode)
             {
                 case 201:
-                    return Created("api/eventattendances/" + result.Data.EventAttendanceId, result.Data);
+                    return Created("api/eventattendances/" + result.Data.EventId, result.Data);
                 case 400:
                     return BadRequest(result.ErrorMessage);
                 default:
@@ -63,9 +63,9 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetByIdAsync(int id) //GetById
+        public async Task<IActionResult> GetByIdAsync(int eventId, int userId) //GetById
         {
-            Result<EventAttendance> result = await _eventAttendanceService.GetByIdAsync(id);
+            Result<EventAttendance> result = await _eventAttendanceService.GetByIdAsync(eventId, userId);
 
             switch (result.StatusCode)
             {

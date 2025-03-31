@@ -50,7 +50,7 @@ namespace CleanUps.BusinessLogic.Services
             {
                 return Result<EventAttendance>.BadRequest(idValidation.ErrorMessage);
             }
-
+ 
             //Step 2. Pass the id to the repository - return result of operation
             return await _repository.GetByIdAsync(id);
         }
