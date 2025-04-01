@@ -16,12 +16,23 @@ else
         @foreach (var ev in events)
         {
             <tr>
+                <td>@ev.EventId</td>
                 <td>@ev.Description</td>
+                <td>@ev.StartTime</td>
+                <td>@ev.EndTime</td>
                 <td>@ev.DateOfEvent.ToShortDateString()</td>
+                <td>@ev.StreetName</td>
+                <td>@ev.City</td>
+                <td>@ev.ZipCode</td>
+                <td>@ev.Country</td>
+                <td>@ev.Status</td>
+                <td>@ev.FamilyFriendly</td>
+                <td>@ev.NumberOfAttendees</td>
+                <td>@ev.TrashCollected</td>
             </tr>
         }
     </table>
-} 
+}
 
 @code {
     private Result<List<EventDTO>> result;
@@ -29,14 +40,9 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            result = await _eventApiService.GetEventsAsync();
-            events = result.Data;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error: {ex.Message}");
-        }
+
+        result = await _eventApiService.GetEventsAsync();
+        events = result.Data;
+
     }
 }
