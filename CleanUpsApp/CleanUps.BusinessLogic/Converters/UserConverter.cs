@@ -2,9 +2,9 @@
 using CleanUps.BusinessLogic.Models;
 using CleanUps.Shared.DTOs;
 
-namespace CleanUps.BusinessLogic.Mappers
+namespace CleanUps.BusinessLogic.Converters
 {
-    internal class UserMapper : IMapper<User, UserDTO>
+    internal class UserConverter : IConverter<User, UserDTO>
     {
         public User ConvertToModel(UserDTO dto)
         {

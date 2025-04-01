@@ -10,9 +10,9 @@ namespace CleanUps.BusinessLogic.Services
     {
         private readonly IRepository<Photo> _repository;
         private readonly IValidator<PhotoDTO> _validator;
-        private readonly IMapper<Photo, PhotoDTO> _mapper;
+        private readonly IConverter<Photo, PhotoDTO> _mapper;
 
-        public PhotoService(IRepository<Photo> repository, IValidator<PhotoDTO> validator, IMapper<Photo, PhotoDTO> mapper)
+        public PhotoService(IRepository<Photo> repository, IValidator<PhotoDTO> validator, IConverter<Photo, PhotoDTO> mapper)
         {
             _repository = repository;
             _validator = validator;

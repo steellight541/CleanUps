@@ -10,9 +10,9 @@ namespace CleanUps.BusinessLogic.Services
     {
         private readonly IRepository<EventAttendance> _repository;
         private readonly IValidator<EventAttendanceDTO> _validator;
-        private readonly IMapper<EventAttendance, EventAttendanceDTO> _mapper;
+        private readonly IConverter<EventAttendance, EventAttendanceDTO> _mapper;
 
-        public EventAttendanceService(IRepository<EventAttendance> repository, IValidator<EventAttendanceDTO> validator, IMapper<EventAttendance, EventAttendanceDTO> mapper)
+        public EventAttendanceService(IRepository<EventAttendance> repository, IValidator<EventAttendanceDTO> validator, IConverter<EventAttendance, EventAttendanceDTO> mapper)
         {
             _repository = repository;
             _validator = validator;
