@@ -16,6 +16,10 @@ public static class MauiProgram
             });
         
         builder.Services.AddScoped<EventApiService>();
+        builder.Services.AddScoped<EventAttendanceApiService>();
+        builder.Services.AddScoped<PhotoApiService>();
+        builder.Services.AddScoped<UsersApiService>();
+
         builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7128") });// Your API base URL
 
 

@@ -18,6 +18,11 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
+                if (!await _context.Roles.AnyAsync(r => r.RoleId == userToBeCreated.RoleId))
+                {
+                    return Result<User>.BadRequest("Role does not exist");
+                }
+
                 await _context.Users.AddAsync(userToBeCreated);
                 await _context.SaveChangesAsync();
 
@@ -85,6 +90,11 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
+                if (!await _context.Roles.AnyAsync(r => r.RoleId == userToBeUpdated.RoleId))
+                {
+                    return Result<User>.BadRequest("Role does not exist");
+                }
+
                 User? retrievedUser = await _context.Users.FindAsync(userToBeUpdated.UserId);
 
                 if (retrievedUser is null)
@@ -123,6 +133,7 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
+
                 //Tries to get an existing user in the database
                 //FindAsync returns either an User or Null
                 User? userToDelete = await _context.Users.FindAsync(id);

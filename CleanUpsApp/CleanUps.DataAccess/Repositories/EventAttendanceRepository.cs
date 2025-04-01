@@ -21,11 +21,11 @@ namespace CleanUps.DataAccess.Repositories
             {
                 if (!await _context.Events.AnyAsync(e => e.EventId == eventAttendanceToBeCreated.EventId))
                 {
-                    return Result<EventAttendance>.BadRequest("Event with the specified ID does not exist.");
+                    return Result<EventAttendance>.NotFound("Event with the specified ID does not exist.");
                 }
                 if (!await _context.Users.AnyAsync(u => u.UserId == eventAttendanceToBeCreated.UserId))
                 {
-                    return Result<EventAttendance>.BadRequest("User with the specified ID does not exist.");
+                    return Result<EventAttendance>.NotFound("User with the specified ID does not exist.");
                 }
 
                 await _context.EventAttendances.AddAsync(eventAttendanceToBeCreated);

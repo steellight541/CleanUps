@@ -22,6 +22,7 @@ namespace CleanUps.API.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> PostAsync([FromBody] EventAttendanceDTO dto)
         {
@@ -33,6 +34,8 @@ namespace CleanUps.API.Controllers
                     return Created("api/eventattendances/" + result.Data.EventId, result.Data);
                 case 400:
                     return BadRequest(result.ErrorMessage);
+                case 404:
+                    return NotFound(result.ErrorMessage);
                 default:
                     return StatusCode(result.StatusCode, result.ErrorMessage);
             }

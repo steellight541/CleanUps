@@ -30,20 +30,19 @@ namespace CleanUps.Configuration
 
 
             // Register services
-            // Services
             services.AddScoped<IService<Event, EventDTO>, EventService>();
             services.AddScoped<IService<User, UserDTO>, UserService>();
             services.AddScoped<IService<Photo, PhotoDTO>, PhotoService>();
             services.AddScoped<IService<EventAttendance, EventAttendanceDTO>, EventAttendanceService>();
 
-            // Validators
+            // Register Validators
             services.AddScoped<IValidator<EventDTO>, EventValidator>();
             services.AddScoped<IValidator<UserDTO>, UserValidator>();
             services.AddScoped<IValidator<PhotoDTO>, PhotoValidator>();
             services.AddScoped<IValidator<EventAttendanceDTO>, EventAttendanceValidator>();
 
 
-            // Mappers
+            // Register Mappers
             services.AddSingleton<IMapper<Event, EventDTO>, EventMapper>();
             services.AddSingleton<IMapper<EventAttendance, EventAttendanceDTO>, EventAttendanceMapper>();
             services.AddSingleton<IMapper<Photo, PhotoDTO>, PhotoMapper>();

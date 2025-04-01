@@ -1,6 +1,7 @@
 ﻿@page "/event"
 @using CleanUps.Shared.ClientServices
 @using CleanUps.Shared.DTOs
+@using CleanUps.Shared.ErrorHandling
 @inject EventApiService _eventApiService
 
 <h3>Events</h3>
@@ -23,13 +24,15 @@ else
 } 
 
 @code {
+    private Result<List<EventDTO>> result;
     private List<EventDTO> events;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            events = await _eventApiService.GetEventsAsync();
+            result = await _eventApiService.GetEventsAsync();
+            events = result.Data;
         }
         catch (Exception ex)
         {
