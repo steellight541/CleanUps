@@ -1,4 +1,5 @@
 ﻿using CleanUps.MAUI.Services;
+using CleanUps.MAUI.Shared;
 using CleanUps.MAUI.Shared.Services;
 using Microsoft.Extensions.Logging;
 
@@ -18,6 +19,7 @@ namespace CleanUps.MAUI
 
             // Add device-specific services used by the CleanUps.MAUI.Shared project
             builder.Services.AddSingleton<IFormFactor, FormFactor>();
+            builder.Services.AddApiServices();
 
             builder.Services.AddMauiBlazorWebView();
 

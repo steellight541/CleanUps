@@ -1,6 +1,8 @@
 using CleanUps.MAUI.Shared.Services;
 using CleanUps.MAUI.Web.Components;
 using CleanUps.MAUI.Web.Services;
+using CleanUps.MAUI.Shared;
+
 
 namespace CleanUps.MAUI
 {
@@ -17,6 +19,7 @@ namespace CleanUps.MAUI
 
             // Add device-specific services used by the CleanUps.MAUI.Shared project
             builder.Services.AddSingleton<IFormFactor, FormFactor>();
+            builder.Services.AddApiServices();
 
             var app = builder.Build();
 
