@@ -42,8 +42,14 @@ else
     <p class="text-danger">Error: @users.ErrorMessage</p>
 }
 
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p class="text-danger">@errorMessage</p>
+}
+
 @code {
     private Result<List<UserDTO>> users;
+    private string errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
@@ -62,10 +68,15 @@ else
 
     private async Task DeleteUser(int userId)
     {
+
         var result = await UserApiService.DeleteUserAsync(userId);
         if (result.IsSuccess)
         {
             users = await UserApiService.GetAllUsersAsync();
+        }
+        else
+        {
+            errorMessage = result.ErrorMessage ?? "An error occurred while deleting the user.";
         }
     }
 

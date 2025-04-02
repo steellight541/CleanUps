@@ -1,0 +1,41 @@
+﻿@page "/users/{userId:int}"
+@inject UsersApiService UserApiService
+@inject NavigationManager NavigationManager
+
+<h3>User Details</h3>
+
+@if (user == null)
+{
+    <p>Loading...</p>
+}
+else if (user.IsSuccess)
+{
+    <div>
+        <p><strong>ID:</strong> @user.Data.UserId</p>
+        <p><strong>Name:</strong> @user.Data.Name</p>
+        <p><strong>Email:</strong> @user.Data.Email</p>
+        <!-- Add more fields as needed -->
+    </div>
+    <button class="btn btn-secondary" @onclick="GoBack">Back</button>
+}
+else
+{
+    <p class="text-danger">Error: @user.ErrorMessage</p>
+}
+
+@code {
+    [Parameter]
+    public int userId { get; set; }
+
+    private Result<UserDTO> user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await UserApiService.GetUserByIdAsync(userId);
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/users");
+    }
+}

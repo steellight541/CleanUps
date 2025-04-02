@@ -1,0 +1,82 @@
+﻿@page "/users/create"
+@using System.ComponentModel.DataAnnotations
+@inject UsersApiService UsersApiService
+@inject NavigationManager NavigationManager
+
+<h3>Create New User</h3>
+
+<EditForm Model="createUserModel" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="name">Name</label>
+        <InputText id="name" @bind-Value="createUserModel.Name" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="email">Email</label>
+        <InputText id="email" @bind-Value="createUserModel.Email" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="password">Password</label>
+        <InputText id="password" type="password" @bind-Value="createUserModel.Password" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <InputText id="confirmPassword" type="password" @bind-Value="createUserModel.ConfirmPassword" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p class="text-danger">@errorMessage</p>
+}
+
+@code {
+    private CreateUserModel createUserModel = new CreateUserModel();
+    private string errorMessage;
+
+    private async Task HandleSubmit()
+    {
+        UserDTO newUser = new UserDTO(0, createUserModel.Name, createUserModel.Email, createUserModel.Password, 2, DateTime.Now);
+
+        var result = await UsersApiService.CreateUserAsync(newUser);
+        if (result.IsSuccess)
+        {
+            NavigationManager.NavigateTo("/users");
+        }
+        else
+        {
+            errorMessage = result.ErrorMessage ?? "An error occurred while creating the user.";
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/users");
+    }
+
+    private class CreateUserModel
+    {
+        [Required(ErrorMessage = "Name is required.")]
+        [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
+        public string Name { get; set; }
+
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Invalid email format.")]
+        public string Email { get; set; }
+
+        [Required(ErrorMessage = "Password is required.")]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be between 6 and 100 characters.")]
+        public string Password { get; set; }
+
+        [Compare("Password", ErrorMessage = "Passwords do not match.")]
+        public string ConfirmPassword { get; set; }
+    }
+}

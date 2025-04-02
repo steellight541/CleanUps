@@ -1,0 +1,98 @@
+﻿@page "/users/edit/{userId:int}"
+@inject UsersApiService UserApiService
+@inject NavigationManager NavigationManager
+
+<h3>Edit User</h3>
+
+@if (userResult == null)
+{
+    <p>Loading...</p>
+}
+else if (!userResult.IsSuccess)
+{
+    <p class="text-danger">Error: @userResult.ErrorMessage</p>
+}
+else
+{
+    <EditForm Model="editModel" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="name">Name</label>
+            <InputText id="name" @bind-Value="editModel.Name" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <InputText id="email" @bind-Value="editModel.Email" class="form-control" />
+        </div>
+
+        <!-- Add more fields as needed -->
+
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+    </EditForm>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <p class="text-danger">@errorMessage</p>
+    }
+}
+
+@code {
+    [Parameter]
+    public int userId { get; set; }
+
+    private Result<UserDTO> userResult;
+    private UserEditModel editModel;
+    private string errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        userResult = await UserApiService.GetUserByIdAsync(userId);
+        if (userResult.IsSuccess)
+        {
+            editModel = new UserEditModel
+                {
+                    Name = userResult.Data.Name,
+                    Email = userResult.Data.Email,
+                    Password = userResult.Data.Password,
+                    RoleId = userResult.Data.RoleId,
+                    CreatedDateTime = userResult.Data.CreatedDate
+                // Map additional fields here
+                };
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        var updatedUser = new UserDTO(userId, editModel.Name, editModel.Email, editModel.Password, editModel.RoleId, editModel.CreatedDateTime);
+
+        var result = await UserApiService.UpdateUserAsync(userId, updatedUser);
+        if (result.IsSuccess)
+        {
+            NavigationManager.NavigateTo("/users");
+        }
+        else
+        {
+            errorMessage = result.ErrorMessage ?? "An error occurred while updating the user.";
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/users");
+    }
+
+    private class UserEditModel
+    {
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
+        public int RoleId { get; set; }
+        public DateTime CreatedDateTime { get; set; }
+
+        // Add more editable fields as needed
+    }
+}
