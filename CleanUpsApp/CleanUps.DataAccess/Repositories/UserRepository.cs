@@ -90,10 +90,10 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
-                if (!await _context.Roles.AnyAsync(r => r.RoleId == userToBeUpdated.RoleId))
-                {
-                    return Result<User>.BadRequest("Role does not exist");
-                }
+                //if (!await _context.Roles.AnyAsync(r => r.RoleId == userToBeUpdated.RoleId))
+                //{
+                //    return Result<User>.BadRequest("Role does not exist");
+                //}
 
                 User? retrievedUser = await _context.Users.FindAsync(userToBeUpdated.UserId);
 
