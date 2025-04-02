@@ -10,32 +10,56 @@
 }
 else if (users.IsSuccess)
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
+    <!-- Table layout for larger screens -->
+    <div class="d-none d-md-block">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in users.Data)
+                {
+                    <tr>
+                        <td>@user.UserId</td>
+                        <td>@user.Name</td>
+                        <td>@user.Email</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" @onclick="() => ViewUser(user.UserId)">View</button>
+                            <button class="btn btn-secondary btn-sm" @onclick="() => EditUser(user.UserId)">Edit</button>
+                            <button class="btn btn-danger btn-sm" @onclick="() => DeleteUser(user.UserId)">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- List-group for small screens -->
+    <div class="d-block d-md-none">
+        <div class="list-group">
             @foreach (var user in users.Data)
             {
-                <tr>
-                    <td>@user.UserId</td>
-                    <td>@user.Name</td>
-                    <td>@user.Email</td>
-                    <td>
-                        <button class="btn btn-primary" @onclick="() => ViewUser(user.UserId)">View</button>
-                        <button class="btn btn-secondary" @onclick="() => EditUser(user.UserId)">Edit</button>
-                        <button class="btn btn-danger" @onclick="() => DeleteUser(user.UserId)">Delete</button>
-                    </td>
-                </tr>
+                <div class="list-group-item">
+                    <h5>@user.Name</h5>
+                    <p><strong>Email:</strong> @user.Email</p>
+                    <div class="d-flex flex-column gap-2">
+                        <button class="btn btn-primary btn-sm" @onclick="() => ViewUser(user.UserId)">View</button>
+                        <button class="btn btn-secondary btn-sm" @onclick="() => EditUser(user.UserId)">Edit</button>
+                        <button class="btn btn-danger btn-sm" @onclick="() => DeleteUser(user.UserId)">Delete</button>
+                    </div>
+                </div>
             }
-        </tbody>
-    </table>
-    <button class="btn btn-success" @onclick="CreateNewUser">Create New User</button>
+        </div>
+    </div>
+
+    <div class="mt-2">
+        <button class="btn btn-success w-100 w-md-auto" @onclick="CreateNewUser">Create New User</button>
+    </div>
 }
 else
 {
@@ -68,7 +92,6 @@ else
 
     private async Task DeleteUser(int userId)
     {
-
         var result = await UserApiService.DeleteUserAsync(userId);
         if (result.IsSuccess)
         {
