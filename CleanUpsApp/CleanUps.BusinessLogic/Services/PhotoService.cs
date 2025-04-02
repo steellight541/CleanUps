@@ -54,7 +54,7 @@ namespace CleanUps.BusinessLogic.Services
             //Step 2. Pass the id to the repository - return result of operation
             return await _repository.GetByIdAsync(id);
         }
-        ´public async Task<Result<List<Photo>>> GetPhotosByEventIdAsync(int eventId)
+        public async Task<Result<List<Photo>>> GetPhotosByEventIdAsync(int eventId)
         {
             var idValidation = _validator.ValidateId(eventId);
             if (!idValidation.IsSuccess)
