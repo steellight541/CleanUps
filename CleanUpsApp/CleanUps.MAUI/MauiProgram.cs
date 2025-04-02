@@ -14,14 +14,10 @@ public static class MauiProgram
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
             });
-        
+
+        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://cleanup-rest-azc5hnbgdca3hwa6.westeurope-01.azurewebsites.net") });// Your API base URL
+
         builder.Services.AddScoped<EventApiService>();
-        builder.Services.AddScoped<EventAttendanceApiService>();
-        builder.Services.AddScoped<PhotoApiService>();
-        builder.Services.AddScoped<UsersApiService>();
-
-        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7128") });// Your API base URL
-
 
         builder.Services.AddMauiBlazorWebView();
 

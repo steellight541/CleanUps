@@ -15,9 +15,9 @@ builder.Services.AddAppDependencies(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowMAUI", policy =>
+    options.AddPolicy("AllowAny", policy =>
     {
-        policy.WithOrigins("http://localhost", "https://localhost") // MAUI's origins
+        policy.AllowAnyOrigin()
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -36,7 +36,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.UseCors("AllowMAUI");
+app.UseCors("AllowAny");
 
 app.MapControllers();
 
