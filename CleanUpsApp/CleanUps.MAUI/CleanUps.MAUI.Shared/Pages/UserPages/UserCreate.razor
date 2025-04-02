@@ -29,6 +29,11 @@
         <InputText id="confirmPassword" type="password" @bind-Value="createUserModel.ConfirmPassword" class="form-control" />
     </div>
 
+    <div class="form-check">
+        <InputCheckbox id="isOrganizer" @bind-Value="createUserModel.IsOrganizer" class="form-check-input" />
+        <label class="form-check-label" for="isOrganizer">Organizer</label>
+    </div>
+
     <button type="submit" class="btn btn-primary">Create</button>
     <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
 </EditForm>
@@ -44,7 +49,7 @@
 
     private async Task HandleSubmit()
     {
-        UserDTO newUser = new UserDTO(0, createUserModel.Name, createUserModel.Email, createUserModel.Password, 2, DateTime.Now);
+        UserDTO newUser = new UserDTO(0, createUserModel.Name, createUserModel.Email, createUserModel.Password, createUserModel.IsOrganizer ? 1 : 2, DateTime.Now);
 
         var result = await UsersApiService.CreateUserAsync(newUser);
         if (result.IsSuccess)
@@ -78,5 +83,7 @@
 
         [Compare("Password", ErrorMessage = "Passwords do not match.")]
         public string ConfirmPassword { get; set; }
+
+        public bool IsOrganizer { get; set; }
     }
 }

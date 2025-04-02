@@ -1,5 +1,6 @@
 ﻿@page "/events"
 @inject EventApiService EventApiService
+@inject EventAttendanceApiService EventAttendanceApiService
 @inject NavigationManager NavigationManager
 
 <h3>Events Management</h3>
@@ -16,6 +17,7 @@ else if (events.IsSuccess)
                 <th>ID</th>
                 <th>Description</th>
                 <th>Date</th>
+                <th>Participants</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -26,6 +28,7 @@ else if (events.IsSuccess)
                     <td>@ev.EventId</td>
                     <td>@ev.Description</td>
                     <td>@ev.DateOfEvent.ToShortDateString()</td>
+                    <td>@(participantCounts.TryGetValue(ev.EventId, out var count) ? count : 0)</td>
                     <td>
                         <button class="btn btn-primary" @onclick="() => ViewDetails(ev.EventId)">View</button>
                         <button class="btn btn-secondary" @onclick="() => EditEvent(ev.EventId)">Edit</button>
@@ -45,14 +48,25 @@ else
 {
     <p class="text-danger">@errorMessage</p>
 }
+
 @code {
     private Result<List<EventDTO>> events;
+    private Dictionary<int, int> participantCounts = new Dictionary<int, int>();
     private string errorMessage;
-
 
     protected override async Task OnInitializedAsync()
     {
         events = await EventApiService.GetEventsAsync();
+        if (events.IsSuccess)
+        {
+            var tasks = events.Data.Select(async ev =>
+            {
+                var attendees = await EventAttendanceApiService.GetUsersForASingleEventAsync(ev.EventId);
+                return new { ev.EventId, Count = attendees.Data?.Count ?? 0 };
+            });
+            var results = await Task.WhenAll(tasks);
+            participantCounts = results.ToDictionary(r => r.EventId, r => r.Count);
+        }
     }
 
     private void ViewDetails(int eventId)
@@ -71,6 +85,14 @@ else
         if (result.IsSuccess)
         {
             events = await EventApiService.GetEventsAsync();
+            // Optionally refresh participant counts after deletion
+            var tasks = events.Data.Select(async ev =>
+            {
+                var attendees = await EventAttendanceApiService.GetUsersForASingleEventAsync(ev.EventId);
+                return new { ev.EventId, Count = attendees.Data?.Count ?? 0 };
+            });
+            var results = await Task.WhenAll(tasks);
+            participantCounts = results.ToDictionary(r => r.EventId, r => r.Count);
         }
         else
         {

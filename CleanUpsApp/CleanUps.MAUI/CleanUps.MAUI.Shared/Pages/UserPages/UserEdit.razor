@@ -6,37 +6,41 @@
 
 @if (userResult == null)
 {
-    <p>Loading...</p>
+        <p>Loading...</p>
 }
 else if (!userResult.IsSuccess)
 {
-    <p class="text-danger">Error: @userResult.ErrorMessage</p>
+        <p class="text-danger">Error: @userResult.ErrorMessage</p>
 }
 else
 {
-    <EditForm Model="editModel" OnValidSubmit="HandleSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+        <EditForm Model="editModel" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
-        <div class="form-group">
-            <label for="name">Name</label>
-            <InputText id="name" @bind-Value="editModel.Name" class="form-control" />
+            <div class="form-group">
+                <label for="name">Name</label>
+                <InputText id="name" @bind-Value="editModel.Name" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <InputText id="email" @bind-Value="editModel.Email" class="form-control" />
+            </div>
+               <div class="form-check">
+                <InputCheckbox id="isOrganizer" @bind-Value="editModel.IsOrganizer" class="form-check-input" />
+            <label class="form-check-label" for="isOrganizer">Organizer</label>
         </div>
 
-        <div class="form-group">
-            <label for="email">Email</label>
-            <InputText id="email" @bind-Value="editModel.Email" class="form-control" />
-        </div>
+            <!-- Add more fields as needed -->
 
-        <!-- Add more fields as needed -->
-
-        <button type="submit" class="btn btn-primary">Save</button>
-        <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-    </EditForm>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+        </EditForm>
 
     @if (!string.IsNullOrEmpty(errorMessage))
     {
-        <p class="text-danger">@errorMessage</p>
+                <p class="text-danger">@errorMessage</p>
     }
 }
 
@@ -59,15 +63,15 @@ else
                     Email = userResult.Data.Email,
                     Password = userResult.Data.Password,
                     RoleId = userResult.Data.RoleId,
-                    CreatedDateTime = userResult.Data.CreatedDate
-                // Map additional fields here
+                    CreatedDateTime = userResult.Data.CreatedDate,
+                    IsOrganizer = userResult.Data.RoleId == 1
                 };
         }
     }
 
     private async Task HandleSubmit()
     {
-        var updatedUser = new UserDTO(userId, editModel.Name, editModel.Email, editModel.Password, editModel.RoleId, editModel.CreatedDateTime);
+        var updatedUser = new UserDTO(userId, editModel.Name, editModel.Email, editModel.Password, editModel.IsOrganizer ? 1 : 2, editModel.CreatedDateTime);
 
         var result = await UserApiService.UpdateUserAsync(userId, updatedUser);
         if (result.IsSuccess)
@@ -92,7 +96,6 @@ else
         public string Password { get; set; }
         public int RoleId { get; set; }
         public DateTime CreatedDateTime { get; set; }
-
-        // Add more editable fields as needed
+        public bool IsOrganizer { get; set; }
     }
 }

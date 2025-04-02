@@ -1,59 +1,54 @@
 ﻿@page "/events/{eventId:int}"
 @inject EventApiService EventApiService
-@inject PhotoApiService PhotoApiService
+@inject UsersApiService UsersApiService
 @inject EventAttendanceApiService EventAttendanceApiService
+@inject NavigationManager NavigationManager
 
 <h3>Event Details</h3>
 
-@if (eventResult == null)
+@if (eventResult == null || usersResult == null || attendeesResult == null)
 {
     <p>Loading...</p>
 }
-else if (eventResult.IsSuccess)
+else if (!eventResult.IsSuccess)
 {
-    <div>
-        <h4>@eventResult.Data.Description</h4>
-        <p><strong>Date:</strong> @eventResult.Data.DateOfEvent.ToShortDateString()</p>
-        <p><strong>Time:</strong> @eventResult.Data.StartTime.ToString("t") - @eventResult.Data.EndTime.ToString("t")</p>
-        <p><strong>Location:</strong> @eventResult.Data.StreetName, @eventResult.Data.City</p>
-    </div>
-
-    <h5>Photos</h5>
-    @if (photosResult.IsSuccess && photosResult.Data.Any())
-    {
-        <div class="row">
-            @foreach (var photo in photosResult.Data)
-            {
-                <div class="col-md-4">
-                    <img src="data:image/jpeg;base64,@Convert.ToBase64String(photo.PhotoData)" alt="@photo.Caption" class="img-fluid" />
-                    <p>@photo.Caption</p>
-                </div>
-            }
-        </div>
-    }
-    else
-    {
-    <p>No photos available.</p>
-    }
-
-    <h5>Attendees</h5>
-    @if (attendeesResult.IsSuccess && attendeesResult.Data.Any())
-    {
-        <ul>
-            @foreach (var user in attendeesResult.Data)
-            {
-                <li>@user.Name</li>
-            }
-        </ul>
-    }
-    else
-    {
-        <p>No attendees yet.</p>
-    }
+    <p class="text-danger">Error: @eventResult.ErrorMessage</p>
 }
 else
 {
-    <p class="text-danger">Error: @eventResult.ErrorMessage</p>
+    <div>
+        <h4>@eventResult.Data.Description</h4>
+        <p><strong>Event ID:</strong> @eventResult.Data.EventId</p>
+        <p><strong>Date:</strong> @eventResult.Data.DateOfEvent.ToShortDateString()</p>
+        <p><strong>Time:</strong> @eventResult.Data.StartTime.ToString("t") - @eventResult.Data.EndTime.ToString("t")</p>
+        <p><strong>Location:</strong> @eventResult.Data.StreetName, @eventResult.Data.City, @eventResult.Data.ZipCode, @eventResult.Data.Country</p>
+        <p><strong>Status:</strong> @eventResult.Data.Status</p>
+        <p><strong>Family Friendly:</strong> @(eventResult.Data.FamilyFriendly ? "Yes" : "No")</p>
+        <p><strong>Trash Collected:</strong> @(eventResult.Data.TrashCollected.HasValue ? eventResult.Data.TrashCollected.Value.ToString("F2") + " kg" : "N/A")</p>
+        <p><strong>Number of Attendees:</strong> @eventResult.Data.NumberOfAttendees</p>
+        <p><strong>Participants Signed Up:</strong> @(attendeesResult.Data?.Count ?? 0)</p>
+    </div>
+
+    <div class="form-group mt-3">
+        <label for="userSelect">Sign Up User:</label>
+        <select id="userSelect" class="form-control" @bind="selectedUserId">
+            <option value="0">Select a user</option>
+            @foreach (var user in usersResult.Data)
+            {
+                bool isAlreadySignedUp = attendeesResult.Data?.Any(a => a.UserId == user.UserId) ?? false;
+                <option value="@user.UserId" disabled="@isAlreadySignedUp">
+                    @user.Name @(isAlreadySignedUp ? "(Already Signed Up)" : "")
+                </option>
+            }
+        </select>
+    </div>
+
+    <button class="btn btn-primary mt-2" @onclick="SubmitAttendance">Sign Up</button>
+
+    @if (!string.IsNullOrEmpty(message))
+    {
+        <p class="@messageClass">@message</p>
+    }
 }
 
 @code {
@@ -61,13 +56,54 @@ else
     public int eventId { get; set; }
 
     private Result<EventDTO> eventResult;
-    private Result<List<PhotoDTO>> photosResult;
-    private Result<List<UserDTO>> attendeesResult;
+    private Result<List<UserDTO>> usersResult;
+    private Result<List<UserDTO>> attendeesResult; // Added to fetch attendees
+    private int selectedUserId;
+    private string message;
+    private string messageClass;
 
     protected override async Task OnInitializedAsync()
     {
         eventResult = await EventApiService.GetEventByIdAsync(eventId);
-        photosResult = await PhotoApiService.GetPhotosByEventIdAsync(eventId);
-        attendeesResult = await EventAttendanceApiService.GetUsersForASingleEventAsync(eventId);
+        usersResult = await UsersApiService.GetAllUsersAsync();
+        attendeesResult = await EventAttendanceApiService.GetUsersForASingleEventAsync(eventId); // Fetch attendees
     }
+
+    private async Task SubmitAttendance()
+    {
+        if (selectedUserId == 0)
+        {
+            message = "Please select a user.";
+            messageClass = "text-danger";
+            return;
+        }
+
+        var attendance = new EventAttendanceDTO
+        (
+            eventId,
+            selectedUserId,
+            DateTime.Now
+        );
+
+        var result = await EventAttendanceApiService.CreateEventAttendanceAsync(attendance);
+        if (result.IsSuccess)
+        {
+            message = "Attendance registered successfully!";
+            messageClass = "text-success";
+            // Refresh attendees list to update the dropdown
+            attendeesResult = await EventAttendanceApiService.GetUsersForASingleEventAsync(eventId);
+        }
+        else
+        {
+            message = $"Error: {result.ErrorMessage}";
+            messageClass = "text-danger";
+        }
+    }
+
 }
+<style>
+    #userSelect option:disabled {
+        background-color: #8e1420; /* Darker gray background */
+        color: #ffffff; /* White text for contrast */
+    }
+</style>
