@@ -1,4 +1,5 @@
 ﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
+using CleanUps.BusinessLogic.Interfaces.PrivateAccess.EventAttendanceInterfaces;
 using CleanUps.BusinessLogic.Interfaces.PublicAccess;
 using CleanUps.BusinessLogic.Models;
 using CleanUps.Shared.DTOs;
@@ -6,17 +7,17 @@ using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.BusinessLogic.Services
 {
-    internal class EventAttendanceService : IService<EventAttendance, EventAttendanceDTO>
+    internal class EventAttendanceService : IEventAttendanceService
     {
-        private readonly IRepository<EventAttendance> _repository;
-        private readonly IValidator<EventAttendanceDTO> _validator;
-        private readonly IConverter<EventAttendance, EventAttendanceDTO> _mapper;
+        private readonly IEventAttendanceRepository _repository;
+        private readonly IEventAttendanceValidator _validator;
+        private readonly IConverter<EventAttendance, EventAttendanceDTO> _converter;
 
-        public EventAttendanceService(IRepository<EventAttendance> repository, IValidator<EventAttendanceDTO> validator, IConverter<EventAttendance, EventAttendanceDTO> mapper)
+        public EventAttendanceService(IEventAttendanceRepository repository, IEventAttendanceValidator validator, IConverter<EventAttendance, EventAttendanceDTO> converter)
         {
             _repository = repository;
             _validator = validator;
-            _mapper = mapper;
+            _converter = converter;
         }
 
         public async Task<Result<EventAttendance>> CreateAsync(EventAttendanceDTO dto)
@@ -29,7 +30,7 @@ namespace CleanUps.BusinessLogic.Services
             }
 
             //Step 2. Convert DTO to Domain Model
-            EventAttendance eventAttendanceModel = _mapper.ConvertToModel(dto);
+            EventAttendance eventAttendanceModel = _converter.ConvertToModel(dto);
 
             //Step 3. Pass the model to the repository - return result of operation
             return await _repository.CreateAsync(eventAttendanceModel);
@@ -41,47 +42,74 @@ namespace CleanUps.BusinessLogic.Services
             return await _repository.GetAllAsync();
         }
 
-
-        public async Task<Result<EventAttendance>> GetByIdAsync(int id)
+        public async Task<Result<List<Event>>> GetEventsForASingleUserAsync(int userId)
         {
-            //Step 1. Validate id from parameter - return result of the validation
-            var idValidation = _validator.ValidateId(id);
+            var idValidation = _validator.ValidateId(userId);
             if (!idValidation.IsSuccess)
             {
-                return Result<EventAttendance>.BadRequest(idValidation.ErrorMessage);
+                return Result<List<Event>>.BadRequest(idValidation.ErrorMessage);
             }
- 
-            //Step 2. Pass the id to the repository - return result of operation
-            return await _repository.GetByIdAsync(id);
+
+            return await _repository.GetEventsForASingleUserAsync(userId);
         }
 
-        public async Task<Result<EventAttendance>> UpdateAsync(int id, EventAttendanceDTO dto)
+        public async Task<Result<List<User>>> GetUsersForASingleEventAsync(int eventId)
+        {
+            var idValidation = _validator.ValidateId(eventId);
+            if (!idValidation.IsSuccess)
+            {
+                return Result<List<User>>.BadRequest(idValidation.ErrorMessage);
+            }
+            return await _repository.GetUsersForASingleEventAsync(eventId);
+        }
+
+        public async Task<Result<EventAttendance>> UpdateEventAttendanceAsync(int eventId, int userId, EventAttendanceDTO dto)
         {
             //Step 1. Validate DTO the parameter - return result of the validation
-            var validationResult = _validator.ValidateForUpdate(id, dto);
+            var validationResult = _validator.ValidateEventAttendanceForUpdate(eventId, userId, dto);
             if (!validationResult.IsSuccess)
             {
                 return Result<EventAttendance>.BadRequest(validationResult.ErrorMessage);
             }
 
             //Step 2. Convert DTO to Domain Model
-            EventAttendance eventAttendanceModel = _mapper.ConvertToModel(dto);
+            EventAttendance eventAttendanceModel = _converter.ConvertToModel(dto);
 
             //Step 3. Pass the model to the repository - return result of operation
             return await _repository.UpdateAsync(eventAttendanceModel);
         }
+        public async Task<Result<EventAttendance>> DeleteAsync(int eventId, int userId)
+        {
+            //Step 1. Validate DTO the parameter - return result of the validation
+            var eventIdValidation = _validator.ValidateId(eventId);
+            if (!eventIdValidation.IsSuccess)
+            {
+                return Result<EventAttendance>.BadRequest(eventIdValidation.ErrorMessage);
+            }
+
+            var userIdValidation = _validator.ValidateId(userId);
+            if (!userIdValidation.IsSuccess)
+            {
+                return Result<EventAttendance>.BadRequest(userIdValidation.ErrorMessage);
+            }
+
+            //Step 2. Pass the model to the repository - return result of operation
+            return await _repository.DeleteEventAttendanceAsync(eventId, userId);
+        }
+
+        public async Task<Result<EventAttendance>> GetByIdAsync(int id)
+        {
+            return Result<EventAttendance>.InternalServerError("Service: GetByIdAsync Method is not implemented, use another method.");
+        }
 
         public async Task<Result<EventAttendance>> DeleteAsync(int id)
         {
-            //Step 1. Validate id from parameter - return result of the validation
-            var idValidation = _validator.ValidateId(id);
-            if (!idValidation.IsSuccess)
-            {
-                return Result<EventAttendance>.BadRequest(idValidation.ErrorMessage);
-            }
+            return Result<EventAttendance>.InternalServerError("Service: DeleteAsync Method with one Id paramter is not implemented, use another method.");
+        }
 
-            //Step 2. Pass the id to the repository - return result of operation
-            return await _repository.DeleteAsync(id);
+        public async Task<Result<EventAttendance>> UpdateAsync(int id, EventAttendanceDTO entity)
+        {
+            return Result<EventAttendance>.InternalServerError("Service: UpdateAsync Method with one Id paramter is not implemented, use another method.");
         }
     }
 }

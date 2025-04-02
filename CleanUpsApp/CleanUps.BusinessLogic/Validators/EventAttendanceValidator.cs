@@ -1,10 +1,10 @@
-﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
+﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess.EventAttendanceInterfaces;
 using CleanUps.Shared.DTOs;
 using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.BusinessLogic.Validators
 {
-    internal class EventAttendanceValidator : IValidator<EventAttendanceDTO>
+    internal class EventAttendanceValidator : IEventAttendanceValidator
     {
         public Result<EventAttendanceDTO> ValidateForCreate(EventAttendanceDTO dto)
         {
@@ -21,26 +21,26 @@ namespace CleanUps.BusinessLogic.Validators
             return ValidateCommonFields(dto);
         }
 
-        public Result<EventAttendanceDTO> ValidateForUpdate(int id, EventAttendanceDTO dto)
+        public Result<EventAttendanceDTO> ValidateEventAttendanceForUpdate(int eventId, int userId, EventAttendanceDTO dto)
         {
             if (dto == null)
             {
                 return Result<EventAttendanceDTO>.BadRequest("EventAttendance cannot be null.");
             }
-
-            if (id <= 0)
+            if (eventId <= 0)
             {
                 return Result<EventAttendanceDTO>.BadRequest("Event Id must be greater than zero.");
             }
-
-            if (dto.EventId != id)
+            if (userId <= 0)
             {
-                return Result<EventAttendanceDTO>.BadRequest("The Event Id does not match the provided id.");
+                return Result<EventAttendanceDTO>.BadRequest("User Id must be greater than zero.");
             }
-
+            if (dto.EventId != eventId || dto.UserId != userId)
+            {
+                return Result<EventAttendanceDTO>.BadRequest("The Event Id and User Id in the DTO do not match the provided ids.");
+            }
             return ValidateCommonFields(dto);
         }
-
         public Result<string> ValidateId(int id)
         {
             if (id <= 0)
@@ -63,6 +63,10 @@ namespace CleanUps.BusinessLogic.Validators
             }
 
             return Result<EventAttendanceDTO>.Ok(dto);
+        }
+        public Result<EventAttendanceDTO> ValidateForUpdate(int id, EventAttendanceDTO dto)
+        {
+            return Result<EventAttendanceDTO>.InternalServerError("Validator: ValidateForUpdate Method is not implemented, use another method.");
         }
     }
 }

@@ -12,9 +12,9 @@ namespace CleanUps.API.Controllers
     [ApiController]
     public class EventAttendancesController : ControllerBase
     {
-        private readonly IService<EventAttendance, EventAttendanceDTO> _eventAttendanceService;
+        private readonly IEventAttendanceService _eventAttendanceService;
 
-        public EventAttendancesController(IService<EventAttendance, EventAttendanceDTO> eventAttendanceService)
+        public EventAttendancesController(IEventAttendanceService eventAttendanceService)
         {
             _eventAttendanceService = eventAttendanceService;
         }
@@ -62,10 +62,6 @@ namespace CleanUps.API.Controllers
 
         [HttpGet()]
         [Route("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetByIdAsync(int id) //GetById
         {
             Result<EventAttendance> result = await _eventAttendanceService.GetByIdAsync(id);
@@ -82,6 +78,50 @@ namespace CleanUps.API.Controllers
                     return StatusCode(result.StatusCode, result.ErrorMessage);
             }
         }
+        [HttpGet]
+        [Route("user/{userId}/events")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+
+        public async Task<IActionResult> GetEventsForASingleUserAsync(int userId)
+        {
+            Result<List<Event>> result = await _eventAttendanceService.GetEventsForASingleUserAsync(userId);
+
+            switch (result.StatusCode)
+            {
+                case 200:
+                    return Ok(result.Data);
+                case 204:
+                    return NoContent();
+                case 400:
+                    return BadRequest(result.ErrorMessage);
+                default:
+                    return StatusCode(result.StatusCode, result.ErrorMessage);
+            }
+        }
+        [HttpGet]
+        [Route("event/{eventId}/users")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetUsersForASingleEventAsync(int eventId)
+        {
+            Result<List<User>> result = await _eventAttendanceService.GetUsersForASingleEventAsync(eventId);
+            switch (result.StatusCode)
+            {
+                case 200:
+                    return Ok(result.Data);
+                case 204:
+                    return NoContent();
+                case 400:
+                    return BadRequest(result.ErrorMessage);
+                default:
+                    return StatusCode(result.StatusCode, result.ErrorMessage);
+            }
+        }
 
         [HttpPut]
         [Route("{id}")]
@@ -90,9 +130,9 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> PutAsync(int id, [FromBody] EventAttendanceDTO dto)
+        public async Task<IActionResult> PutAsync(int eventId, int userId, [FromBody] EventAttendanceDTO dto)
         {
-            var result = await _eventAttendanceService.UpdateAsync(id, dto);
+            var result = await _eventAttendanceService.UpdateEventAttendanceAsync(eventId, userId, dto);
 
             switch (result.StatusCode)
             {

@@ -18,10 +18,10 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
-                if (!await _context.Roles.AnyAsync(r => r.RoleId == userToBeCreated.RoleId))
-                {
-                    return Result<User>.BadRequest("Role does not exist");
-                }
+                //if (!await _context.Roles.AnyAsync(r => r.RoleId == userToBeCreated.RoleId))
+                //{
+                //    return Result<User>.BadRequest("Role does not exist");
+                //}
 
                 await _context.Users.AddAsync(userToBeCreated);
                 await _context.SaveChangesAsync();

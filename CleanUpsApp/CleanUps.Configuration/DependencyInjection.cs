@@ -1,6 +1,7 @@
 ﻿
 using CleanUps.BusinessLogic.Converters;
 using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
+using CleanUps.BusinessLogic.Interfaces.PrivateAccess.EventAttendanceInterfaces;
 using CleanUps.BusinessLogic.Interfaces.PublicAccess;
 using CleanUps.BusinessLogic.Models;
 using CleanUps.BusinessLogic.Services;
@@ -26,20 +27,20 @@ namespace CleanUps.Configuration
             services.AddScoped<IRepository<Event>, EventRepository>();
             services.AddScoped<IRepository<User>, UserRepository>();
             services.AddScoped<IRepository<Photo>, PhotoRepository>();
-            services.AddScoped<IRepository<EventAttendance>, EventAttendanceRepository>();
+            services.AddScoped<IEventAttendanceRepository, EventAttendanceRepository>();
 
 
             // Register services
             services.AddScoped<IService<Event, EventDTO>, EventService>();
             services.AddScoped<IService<User, UserDTO>, UserService>();
             services.AddScoped<IService<Photo, PhotoDTO>, PhotoService>();
-            services.AddScoped<IService<EventAttendance, EventAttendanceDTO>, EventAttendanceService>();
+            services.AddScoped<IEventAttendanceService, EventAttendanceService>();
 
             // Register Validators
             services.AddScoped<IValidator<EventDTO>, EventValidator>();
             services.AddScoped<IValidator<UserDTO>, UserValidator>();
             services.AddScoped<IValidator<PhotoDTO>, PhotoValidator>();
-            services.AddScoped<IValidator<EventAttendanceDTO>, EventAttendanceValidator>();
+            services.AddScoped<IEventAttendanceValidator, EventAttendanceValidator>();
 
 
             // Register Converters
