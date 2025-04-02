@@ -1,7 +1,7 @@
 ﻿
+using CleanUps.BusinessLogic.Converters;
 using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
 using CleanUps.BusinessLogic.Interfaces.PublicAccess;
-using CleanUps.BusinessLogic.Mappers;
 using CleanUps.BusinessLogic.Models;
 using CleanUps.BusinessLogic.Services;
 using CleanUps.BusinessLogic.Validators;
@@ -42,11 +42,11 @@ namespace CleanUps.Configuration
             services.AddScoped<IValidator<EventAttendanceDTO>, EventAttendanceValidator>();
 
 
-            // Register Mappers
-            services.AddSingleton<IMapper<Event, EventDTO>, EventMapper>();
-            services.AddSingleton<IMapper<EventAttendance, EventAttendanceDTO>, EventAttendanceMapper>();
-            services.AddSingleton<IMapper<Photo, PhotoDTO>, PhotoMapper>();
-            services.AddSingleton<IMapper<User, UserDTO>, UserMapper>();
+            // Register Converters
+            services.AddSingleton<IConverter<Event, EventDTO>, EventConverter>();
+            services.AddSingleton<IConverter<EventAttendance, EventAttendanceDTO>, EventAttendanceConverter>();
+            services.AddSingleton<IConverter<Photo, PhotoDTO>, PhotoConverter>();
+            services.AddSingleton<IConverter<User, UserDTO>, UserConverter>();
 
             return services;
         }

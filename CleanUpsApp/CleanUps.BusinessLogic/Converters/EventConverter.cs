@@ -2,9 +2,9 @@
 using CleanUps.BusinessLogic.Models;
 using CleanUps.Shared.DTOs;
 
-namespace CleanUps.BusinessLogic.Mappers
+namespace CleanUps.BusinessLogic.Converters
 {
-    internal class EventMapper : IMapper<Event, EventDTO>
+    internal class EventConverter : IConverter<Event, EventDTO>
     {
         public Event ConvertToModel(EventDTO dto)
         {

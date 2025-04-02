@@ -10,9 +10,9 @@ namespace CleanUps.BusinessLogic.Services
     {
         private readonly IRepository<User> _repository;
         private readonly IValidator<UserDTO> _validator;
-        private readonly IMapper<User, UserDTO> _mapper;
+        private readonly IConverter<User, UserDTO> _mapper;
 
-        public UserService(IRepository<User> repository, IValidator<UserDTO> validator, IMapper<User, UserDTO> mapper)
+        public UserService(IRepository<User> repository, IValidator<UserDTO> validator, IConverter<User, UserDTO> mapper)
         {
             _repository = repository;
             _validator = validator;

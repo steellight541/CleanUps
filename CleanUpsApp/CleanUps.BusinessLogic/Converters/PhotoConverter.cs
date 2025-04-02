@@ -2,9 +2,9 @@
 using CleanUps.BusinessLogic.Models;
 using CleanUps.Shared.DTOs;
 
-namespace CleanUps.BusinessLogic.Mappers
+namespace CleanUps.BusinessLogic.Converters
 {
-    internal class PhotoMapper : IMapper<Photo, PhotoDTO>
+    internal class PhotoConverter : IConverter<Photo, PhotoDTO>
     {
         public Photo ConvertToModel(PhotoDTO dto)
         {

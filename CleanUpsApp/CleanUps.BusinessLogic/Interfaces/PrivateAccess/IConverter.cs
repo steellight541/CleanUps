@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("CleanUps.Test")]
 namespace CleanUps.BusinessLogic.Interfaces.PrivateAccess
 {
-    internal interface IMapper<ModelClass, DTORecord> where ModelClass : EFModel where DTORecord : RecordDTO
+    internal interface IConverter<ModelClass, DTORecord> where ModelClass : EFModel where DTORecord : RecordDTO
     {
         ModelClass ConvertToModel(DTORecord dto);
         DTORecord ConvertToDTO(ModelClass model);
