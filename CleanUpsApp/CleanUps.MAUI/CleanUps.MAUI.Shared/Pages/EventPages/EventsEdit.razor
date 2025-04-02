@@ -1,0 +1,114 @@
+﻿@page "/events/edit/{eventId:int}"
+@inject EventApiService EventApiService
+@inject NavigationManager NavigationManager
+
+@if (eventResult == null)
+{
+    <p>Loading...</p>
+}
+else if (!eventResult.IsSuccess)
+{
+    <p>Error: @eventResult.ErrorMessage</p>
+}
+else
+{
+    <EditForm Model="editModel" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div>
+            <label>Description:</label>
+            <InputText @bind-Value="editModel.Description" />
+        </div>
+        <div>
+            <label>Date of Event:</label>
+            <InputDate @bind-Value="editModel.DateOfEvent" />
+        </div>
+        <!-- Add other fields as shown in Step 4 -->
+
+        <button type="submit">Save</button>
+        <button type="button" @onclick="Cancel">Cancel</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int eventId { get; set; }
+
+    private Result<EventDTO> eventResult;
+    private EditModel editModel;
+    private string errorMessage;
+
+    private class EditModel
+    {
+        public string Description { get; set; }
+        public DateOnly DateOfEvent { get; set; }
+        public TimeOnly StartTime { get; set; }
+        public TimeOnly EndTime { get; set; }
+        public string StreetName { get; set; }
+        public string City { get; set; }
+        public string ZipCode { get; set; }
+        public string Country { get; set; }
+        public string Status { get; set; }
+        public bool FamilyFriendly { get; set; }
+        public decimal? TrashCollected { get; set; }
+        public int NumberOfAttendees { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        eventResult = await EventApiService.GetEventByIdAsync(eventId);
+        if (eventResult.IsSuccess)
+        {
+            editModel = new EditModel
+                {
+                    Description = eventResult.Data.Description,
+                    DateOfEvent = eventResult.Data.DateOfEvent,
+                    StartTime = eventResult.Data.StartTime,
+                    EndTime = eventResult.Data.EndTime,
+                    StreetName = eventResult.Data.StreetName,
+                    City = eventResult.Data.City,
+                    ZipCode = eventResult.Data.ZipCode,
+                    Country = eventResult.Data.Country,
+                    Status = eventResult.Data.Status,
+                    FamilyFriendly = eventResult.Data.FamilyFriendly,
+                    TrashCollected = eventResult.Data.TrashCollected,
+                    NumberOfAttendees = eventResult.Data.NumberOfAttendees
+                };
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        var updatedEvent = new EventDTO(
+            eventId,
+            editModel.StreetName,
+            editModel.City,
+            editModel.ZipCode,
+            editModel.Country,
+            editModel.Description,
+            editModel.DateOfEvent,
+            editModel.StartTime,
+            editModel.EndTime,
+            editModel.Status,
+            editModel.FamilyFriendly,
+            editModel.TrashCollected,
+            editModel.NumberOfAttendees
+        );
+
+        var result = await EventApiService.UpdateEventAsync(eventId, updatedEvent);
+        if (result.IsSuccess)
+        {
+            NavigationManager.NavigateTo("/events");
+        }
+        else
+        {
+            errorMessage = result.ErrorMessage;
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/events");
+    }
+}

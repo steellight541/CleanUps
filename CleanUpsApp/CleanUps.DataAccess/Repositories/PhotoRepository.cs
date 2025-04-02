@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CleanUps.DataAccess.Repositories
 {
-    internal class PhotoRepository : IRepository<Photo>
+    internal class PhotoRepository : IPhotoRepository
     {
         private readonly CleanUpsContext _context;
 
@@ -79,6 +79,33 @@ namespace CleanUps.DataAccess.Repositories
             catch (Exception)
             {
                 return Result<Photo>.InternalServerError("Something went wrong. Try again later");
+            }
+        }
+        public async Task<Result<List<Photo>>> GetPhotosByEventIdAsync(int eventId)
+        {
+            try
+            {
+                List<Photo> filteredPhotos = await _context.Photos
+                                                   .Where(p => p.EventId == eventId)
+                                                   .ToListAsync();
+                if (filteredPhotos.Count == 0)
+                {
+                    return Result<List<Photo>>.NoContent();
+
+                }
+                return Result<List<Photo>>.Ok(filteredPhotos);
+            }
+            catch (ArgumentNullException)
+            {
+                return Result<List<Photo>>.NoContent();
+            }
+            catch (OperationCanceledException)
+            {
+                return Result<List<Photo>>.InternalServerError("Operation Canceled. Refresh and retry");
+            }
+            catch (Exception)
+            {
+                return Result<List<Photo>>.InternalServerError("Something went wrong. Try again later");
             }
         }
 

@@ -1,0 +1,76 @@
+﻿@page "/events"
+@inject EventApiService EventApiService
+@inject NavigationManager NavigationManager
+
+<h3>Events Management</h3>
+
+@if (events == null)
+{
+    <p>Loading...</p>
+}
+else if (events.IsSuccess)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Description</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ev in events.Data)
+            {
+                <tr>
+                    <td>@ev.EventId</td>
+                    <td>@ev.Description</td>
+                    <td>@ev.DateOfEvent.ToShortDateString()</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => ViewDetails(ev.EventId)">View</button>
+                        <button class="btn btn-secondary" @onclick="() => EditEvent(ev.EventId)">Edit</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteEvent(ev.EventId)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <button class="btn btn-success" @onclick="CreateNewEvent">Create New Event</button>
+}
+else
+{
+    <p class="text-danger">Error: @events.ErrorMessage</p>
+}
+
+@code {
+    private Result<List<EventDTO>> events;
+
+    protected override async Task OnInitializedAsync()
+    {
+        events = await EventApiService.GetEventsAsync();
+    }
+
+    private void ViewDetails(int eventId)
+    {
+        NavigationManager.NavigateTo($"/events/{eventId}");
+    }
+
+    private void EditEvent(int eventId)
+    {
+        NavigationManager.NavigateTo($"/events/edit/{eventId}");
+    }
+
+    private async Task DeleteEvent(int eventId)
+    {
+        var result = await EventApiService.DeleteEventAsync(eventId);
+        if (result.IsSuccess)
+        {
+            events = await EventApiService.GetEventsAsync();
+        }
+    }
+
+    private void CreateNewEvent()
+    {
+        NavigationManager.NavigateTo("/events/create");
+    }
+}

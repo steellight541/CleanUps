@@ -1,0 +1,73 @@
+﻿@page "/events/{eventId:int}"
+@inject EventApiService EventApiService
+@inject PhotoApiService PhotoApiService
+@inject EventAttendanceApiService EventAttendanceApiService
+
+<h3>Event Details</h3>
+
+@if (eventResult == null)
+{
+    <p>Loading...</p>
+}
+else if (eventResult.IsSuccess)
+{
+    <div>
+        <h4>@eventResult.Data.Description</h4>
+        <p><strong>Date:</strong> @eventResult.Data.DateOfEvent.ToShortDateString()</p>
+        <p><strong>Time:</strong> @eventResult.Data.StartTime.ToString("t") - @eventResult.Data.EndTime.ToString("t")</p>
+        <p><strong>Location:</strong> @eventResult.Data.StreetName, @eventResult.Data.City</p>
+    </div>
+
+    <h5>Photos</h5>
+    @if (photosResult.IsSuccess && photosResult.Data.Any())
+    {
+        <div class="row">
+            @foreach (var photo in photosResult.Data)
+            {
+                <div class="col-md-4">
+                    <img src="data:image/jpeg;base64,@Convert.ToBase64String(photo.PhotoData)" alt="@photo.Caption" class="img-fluid" />
+                    <p>@photo.Caption</p>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+    <p>No photos available.</p>
+    }
+
+    <h5>Attendees</h5>
+    @if (attendeesResult.IsSuccess && attendeesResult.Data.Any())
+    {
+        <ul>
+            @foreach (var user in attendeesResult.Data)
+            {
+                <li>@user.Name</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>No attendees yet.</p>
+    }
+}
+else
+{
+    <p class="text-danger">Error: @eventResult.ErrorMessage</p>
+}
+
+@code {
+    [Parameter]
+    public int eventId { get; set; }
+
+    private Result<EventDTO> eventResult;
+    private Result<List<PhotoDTO>> photosResult;
+    private Result<List<UserDTO>> attendeesResult;
+
+    protected override async Task OnInitializedAsync()
+    {
+        eventResult = await EventApiService.GetEventByIdAsync(eventId);
+        photosResult = await PhotoApiService.GetPhotosByEventIdAsync(eventId);
+        attendeesResult = await EventAttendanceApiService.GetUsersForASingleEventAsync(eventId);
+    }
+}

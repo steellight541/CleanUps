@@ -26,14 +26,14 @@ namespace CleanUps.Configuration
             // Register repositories
             services.AddScoped<IRepository<Event>, EventRepository>();
             services.AddScoped<IRepository<User>, UserRepository>();
-            services.AddScoped<IRepository<Photo>, PhotoRepository>();
+            services.AddScoped<IPhotoRepository, PhotoRepository>();
             services.AddScoped<IEventAttendanceRepository, EventAttendanceRepository>();
 
 
             // Register services
             services.AddScoped<IService<Event, EventDTO>, EventService>();
             services.AddScoped<IService<User, UserDTO>, UserService>();
-            services.AddScoped<IService<Photo, PhotoDTO>, PhotoService>();
+            services.AddScoped<IPhotoService, PhotoService>();
             services.AddScoped<IEventAttendanceService, EventAttendanceService>();
 
             // Register Validators

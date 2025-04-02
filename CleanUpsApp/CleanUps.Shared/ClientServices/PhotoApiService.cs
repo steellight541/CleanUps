@@ -73,6 +73,26 @@ namespace CleanUps.Shared.ClientServices
             }
         }
 
+        public async Task<Result<List<PhotoDTO>>> GetPhotosByEventIdAsync(int userId)
+        {
+            HttpResponseMessage response = await _http.GetAsync($"api/photos/events/{userId}");
+            if (response.IsSuccessStatusCode)
+            {
+                List<PhotoDTO>? photos = await response.Content.ReadFromJsonAsync<List<PhotoDTO>>();
+                return photos != null ? Result<List<PhotoDTO>>.Ok(photos) : Result<List<PhotoDTO>>.InternalServerError("Failed to deserialize event attendance");
+            }
+
+            string errorMessage = await response.Content.ReadAsStringAsync();
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.BadRequest:
+                    return Result<List<PhotoDTO>>.BadRequest(errorMessage);
+                case HttpStatusCode.NotFound:
+                    return Result<List<PhotoDTO>>.NotFound(errorMessage);
+                default:
+                    return Result<List<PhotoDTO>>.InternalServerError(errorMessage);
+            }
+        }
         public async Task<Result<PhotoDTO>> UpdatePhotoAsync(int id, PhotoDTO photoToUpdate)
         {
             HttpResponseMessage response = await _http.PutAsJsonAsync($"api/photos/{id}", photoToUpdate);

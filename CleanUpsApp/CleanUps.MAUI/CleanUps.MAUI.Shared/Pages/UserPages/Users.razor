@@ -1,0 +1,76 @@
+﻿@page "/users"
+@inject UsersApiService UserApiService
+@inject NavigationManager NavigationManager
+
+<h3>Users Management</h3>
+
+@if (users == null)
+{
+    <p>Loading...</p>
+}
+else if (users.IsSuccess)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in users.Data)
+            {
+                <tr>
+                    <td>@user.UserId</td>
+                    <td>@user.Name</td>
+                    <td>@user.Email</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => ViewUser(user.UserId)">View</button>
+                        <button class="btn btn-secondary" @onclick="() => EditUser(user.UserId)">Edit</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteUser(user.UserId)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <button class="btn btn-success" @onclick="CreateNewUser">Create New User</button>
+}
+else
+{
+    <p class="text-danger">Error: @users.ErrorMessage</p>
+}
+
+@code {
+    private Result<List<UserDTO>> users;
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await UserApiService.GetAllUsersAsync();
+    }
+
+    private void ViewUser(int userId)
+    {
+        NavigationManager.NavigateTo($"/users/{userId}");
+    }
+
+    private void EditUser(int userId)
+    {
+        NavigationManager.NavigateTo($"/users/edit/{userId}");
+    }
+
+    private async Task DeleteUser(int userId)
+    {
+        var result = await UserApiService.DeleteUserAsync(userId);
+        if (result.IsSuccess)
+        {
+            users = await UserApiService.GetAllUsersAsync();
+        }
+    }
+
+    private void CreateNewUser()
+    {
+        NavigationManager.NavigateTo("/users/create");
+    }
+}

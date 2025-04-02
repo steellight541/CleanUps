@@ -12,9 +12,9 @@ using Microsoft.AspNetCore.Mvc;
         [ApiController]
         public class PhotosController : ControllerBase
         {
-        private readonly IService<Photo, PhotoDTO> _photoService;
+        private readonly IPhotoService _photoService;
 
-        public PhotosController(IService<Photo, PhotoDTO> photoService)
+        public PhotosController(IPhotoService photoService)
         {
             _photoService = photoService;
         }
@@ -75,6 +75,29 @@ using Microsoft.AspNetCore.Mvc;
                     return BadRequest(result.ErrorMessage);
                 case 404:
                     return NotFound(result.ErrorMessage);
+                default:
+                    return StatusCode(result.StatusCode, result.ErrorMessage);
+            }
+        }
+
+        [HttpGet]
+        [Route("events/{eventId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetPhotosByEventIdAsync(int eventId)
+        {
+            Result<List<Photo>> result = await _photoService.GetPhotosByEventIdAsync(eventId);
+
+            switch (result.StatusCode)
+            {
+                case 200:
+                    return Ok(result.Data);
+                case 204:
+                    return NoContent();
+                case 400:
+                    return BadRequest(result.ErrorMessage);
                 default:
                     return StatusCode(result.StatusCode, result.ErrorMessage);
             }

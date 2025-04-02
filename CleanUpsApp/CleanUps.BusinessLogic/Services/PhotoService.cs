@@ -6,13 +6,13 @@ using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.BusinessLogic.Services
 {
-    internal class PhotoService : IService<Photo, PhotoDTO>
+    internal class PhotoService : IPhotoService
     {
-        private readonly IRepository<Photo> _repository;
+        private readonly IPhotoRepository _repository;
         private readonly IValidator<PhotoDTO> _validator;
         private readonly IConverter<Photo, PhotoDTO> _mapper;
 
-        public PhotoService(IRepository<Photo> repository, IValidator<PhotoDTO> validator, IConverter<Photo, PhotoDTO> mapper)
+        public PhotoService(IPhotoRepository repository, IValidator<PhotoDTO> validator, IConverter<Photo, PhotoDTO> mapper)
         {
             _repository = repository;
             _validator = validator;
@@ -54,7 +54,15 @@ namespace CleanUps.BusinessLogic.Services
             //Step 2. Pass the id to the repository - return result of operation
             return await _repository.GetByIdAsync(id);
         }
-
+        ´public async Task<Result<List<Photo>>> GetPhotosByEventIdAsync(int eventId)
+        {
+            var idValidation = _validator.ValidateId(eventId);
+            if (!idValidation.IsSuccess)
+            {
+                return Result<List<Photo>>.BadRequest(idValidation.ErrorMessage);
+            }
+            return await _repository.GetPhotosByEventIdAsync(eventId);
+        }
         public async Task<Result<Photo>> UpdateAsync(int id, PhotoDTO dto)
         {
             //Step 1. Validate DTO the parameter - return result of the validation
