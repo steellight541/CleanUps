@@ -1,6 +1,26 @@
-﻿<Router AppAssembly="typeof(Layout.MainLayout).Assembly">
-    <Found Context="routeData">
-        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
-        <FocusOnNavigate RouteData="routeData" Selector="h1" />
-    </Found>
-</Router>
+﻿@using Microsoft.AspNetCore.Components.Authorization
+
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(Layout.MainLayout).Assembly" AdditionalAssemblies="new[] { typeof(CleanUps.MAUI.Shared._Imports).Assembly }">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)">
+                <NotAuthorized>
+                    @* Optional: Redirect to login page if trying to access protected route anonymously *@
+                    <h1>Access Denied</h1>
+                    <p>You are not authorized to access this resource.</p>
+                    <p>Try <a href="/login">logging in</a>.</p> @* Add a login link *@
+                </NotAuthorized>
+                <Authorizing>
+                    <p>Checking authorization...</p> @* Optional: Show while checking auth *@
+                </Authorizing>
+            </AuthorizeRouteView>
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <PageTitle>Not found</PageTitle>
+            <LayoutView Layout="@typeof(Layout.MainLayout)">
+                <p role="alert">Sorry, there's nothing at this address.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>

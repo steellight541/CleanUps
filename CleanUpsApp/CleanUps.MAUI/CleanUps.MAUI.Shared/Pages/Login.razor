@@ -1,0 +1,83 @@
+﻿@page "/login"
+@using CleanUps.MAUI.Shared.Auth
+@using CleanUps.Shared.ClientServices
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthApiService AuthService
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>Login</PageTitle>
+
+<h3>Login</h3>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+<EditForm Model="loginModel" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group mb-3">
+        <label for="email" class="form-label">Email address</label>
+        <InputText id="email" class="form-control" @bind-Value="loginModel.Email" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="password" class="form-label">Password</label>
+        <InputText id="password" type="password" class="form-control" @bind-Value="loginModel.Password" />
+    </div>
+    <button type="submit" class="btn btn-primary" disabled="@isProcessing">
+        @if (isProcessing)
+        {
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span> Logging in...</span>
+        }
+        else
+        {
+            <span>Login</span>
+        }
+    </button>
+</EditForm>
+
+@code {
+    private LoginModel loginModel = new LoginModel();
+    private string? errorMessage;
+    private bool isProcessing = false;
+
+    private async Task HandleLogin()
+    {
+        errorMessage = null;
+        isProcessing = true;
+        try
+        {
+            var result = await AuthService.LoginAsync(new LoginRequestDTO(loginModel.Email, loginModel.Password));
+
+            if (result.IsSuccess && result.Data != null)
+            {
+                CustomAuthenticationStateProvider customAuthStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
+                await customAuthStateProvider.MarkUserAsAuthenticated(result.Data.Token);
+                NavigationManager.NavigateTo("/"); // Redirect to home page after login
+            }
+            else
+            {
+                errorMessage = result.ErrorMessage ?? "Login failed.";
+            }
+        }
+        catch (Exception ex) // Catch unexpected errors during the process
+        {
+            errorMessage = $"An unexpected error occurred: {ex.Message}";
+            // Log the full exception ex
+        }
+        finally
+        {
+            isProcessing = false;
+        }
+    }
+    public class LoginModel
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+}
