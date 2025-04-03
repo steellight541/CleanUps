@@ -49,7 +49,7 @@
 
     private async Task HandleSubmit()
     {
-        UserDTO newUser = new UserDTO(0, createUserModel.Name, createUserModel.Email, createUserModel.Password, createUserModel.IsOrganizer ? 1 : 2, DateTime.Now);
+        UserDTO newUser = new UserDTO(0, createUserModel.Name, createUserModel.Email, createUserModel.IsOrganizer ? 1 : 2, DateTime.Now);
 
         var result = await UsersApiService.CreateUserAsync(newUser);
         if (result.IsSuccess)

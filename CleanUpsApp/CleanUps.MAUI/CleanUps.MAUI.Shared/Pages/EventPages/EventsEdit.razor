@@ -41,15 +41,15 @@ else
 
     private class EditModel
     {
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
         public DateOnly DateOfEvent { get; set; }
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
-        public string StreetName { get; set; }
-        public string City { get; set; }
-        public string ZipCode { get; set; }
-        public string Country { get; set; }
-        public string Status { get; set; }
+        public string StreetName { get; set; } = string.Empty;
+        public string City { get; set; } = string.Empty;
+        public string ZipCode { get; set; } = string.Empty;
+        public string Country { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
         public bool FamilyFriendly { get; set; }
         public decimal? TrashCollected { get; set; }
         public int NumberOfAttendees { get; set; }

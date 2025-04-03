@@ -27,7 +27,7 @@ else
     [Parameter]
     public int userId { get; set; }
 
-    private Result<UserDTO> user;
+    private Result<UserDTO>? user;
 
     protected override async Task OnInitializedAsync()
     {
