@@ -28,8 +28,8 @@ namespace CleanUps.Configuration
             services.AddScoped<IRepository<User>, UserRepository>();
             services.AddScoped<IPhotoRepository, PhotoRepository>();
             services.AddScoped<IEventAttendanceRepository, EventAttendanceRepository>();
-
-
+            services.AddScoped<IRepository<Role>, RoleRepository>();
+            services.AddScoped<IAuthRepository, CleanUpsContext>();
             // Register services
             services.AddScoped<IService<Event, EventDTO>, EventService>();
             services.AddScoped<IService<User, UserDTO>, UserService>();
