@@ -1,134 +1,222 @@
 ﻿@page "/events"
-@inject EventApiService EventApiService
-@inject EventAttendanceApiService EventAttendanceApiService
-@inject NavigationManager NavigationManager
+@inject EventApiService _eventApiService
+@inject EventAttendanceApiService _eventAttendanceApiService
+@inject NavigationManager _navigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@using System.IdentityModel.Tokens.Jwt
 
-<h3>Events Management</h3>
+<h3>Events overview</h3>
 
-@if (events == null)
+@if (eventsResult == null)
 {
-    <p>Loading...</p>
+    <p><em>Loading events...</em></p>
+    @if (!string.IsNullOrEmpty(loadError))
+    {
+        <p class="text-danger">@loadError</p>
+    }
 }
-else if (events.IsSuccess)
+else if (!eventsResult.IsSuccess)
 {
-    <!-- Table layout for larger screens -->
-    <div class="d-none d-md-block">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Description</th>
-                    <th>Date</th>
-                    <th>Participants</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var ev in events.Data)
-                {
-                    <tr>
-                        <td>@ev.EventId</td>
-                        <td>@ev.Description</td>
-                        <td>@ev.DateOfEvent.ToShortDateString()</td>
-                        <td>@(participantCounts.TryGetValue(ev.EventId, out var count) ? count : 0)</td>
-                        <td>
-                            <button class="btn btn-primary btn-sm" @onclick="() => ViewDetails(ev.EventId)">View</button>
-                            <button class="btn btn-secondary btn-sm" @onclick="() => EditEvent(ev.EventId)">Edit</button>
-                            <button class="btn btn-danger btn-sm" @onclick="() => DeleteEvent(ev.EventId)">Delete</button>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-
-    <!-- List-group layout for small screens -->
-    <div class="d-block d-md-none">
-        <div class="list-group">
-            @foreach (var ev in events.Data)
-            {
-                <div class="list-group-item">
-                    <h5>@ev.Description</h5>
-                    <p><strong>Date:</strong> @ev.DateOfEvent.ToShortDateString()</p>
-                    <p><strong>Participants:</strong> @(participantCounts.TryGetValue(ev.EventId, out var count) ? count : 0)</p>
-                    <div class="d-flex flex-column gap-2">
-                        <button class="btn btn-primary btn-sm" @onclick="() => ViewDetails(ev.EventId)">View</button>
-                        <button class="btn btn-secondary btn-sm" @onclick="() => EditEvent(ev.EventId)">Edit</button>
-                        <button class="btn btn-danger btn-sm" @onclick="() => DeleteEvent(ev.EventId)">Delete</button>
-                    </div>
-                </div>
-            }
-        </div>
-    </div>
-
-    <!-- Create New Event button -->
-    <div class="mt-2">
-        <button class="btn btn-success w-100 w-md-auto" @onclick="CreateNewEvent">Create New Event</button>
-    </div>
+    <p class="text-danger">Error loading events: @eventsResult.ErrorMessage</p>
+}
+else if (eventsResult.Data == null || !eventsResult.Data.Any())
+{
+    <p>No events found.</p>
 }
 else
 {
-    <p class="text-danger">Error: @events.ErrorMessage</p>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Attendees</th>
+                <th>Trash (kg)</th>
+                <th>Actions</th> @* Added Actions column *@
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ev in eventsResult.Data.OrderByDescending(e => e.DateOfEvent).ThenBy(e => e.StartTime)) @* Example sorting *@
+            {
+                <tr>
+                    <td>@ev.Description</td>
+                    <td>@ev.DateOfEvent.ToShortDateString()</td>
+                    <td>@ev.StartTime.ToString("hh\\:mm") - @ev.EndTime.ToString("hh\\:mm")</td> @* Format time *@
+                    <td>@ev.StreetName, @ev.City</td>
+                    <td>@ev.Status</td>
+                    <td>@ev.NumberOfAttendees</td>
+                    <td>@(ev.TrashCollected?.ToString("N1") ?? "-")</td> @* Format decimal, handle null *@
+                    <td>
+                        <AuthorizeView Roles="Volunteer, Organizer">
+                            @* Show button only if Volunteer or Organizer *@
+                            <Authorized>
+                                @* Add logic to determine if user can sign up (e.g., event is upcoming, not already signed up) *@
+                                @if (CanSignUp(ev))
+                                {
+                                    <button class="btn btn-sm btn-success" @onclick="() => SignUpForEvent(ev.EventId)">Sign Up</button>
+                                }
+                                else if (IsSignedUp(ev.EventId)) // You'll need logic to track this
+                                {
+                                    <span class="text-info">Attending</span>
+                                    @* Optionally add a 'Cancel Attendance' button here *@
+                                }
+                            </Authorized>
+                            <NotAuthorized>
+                                @* Optionally show details link or nothing *@
+                            </NotAuthorized>
+                        </AuthorizeView>
+
+                        <AuthorizeView Roles="Organizer">
+                            <Authorized>
+                                @* Add Edit/Delete buttons for Organizers *@
+                                <button class="btn btn-sm btn-warning ms-1" @onclick="() => EditEvent(ev.EventId)">Edit</button>
+                                <button class="btn btn-sm btn-danger ms-1" @onclick="() => DeleteEvent(ev.EventId)">Delete</button>
+                            </Authorized>
+                        </AuthorizeView>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
 
-@if (!string.IsNullOrEmpty(errorMessage))
+@if (!string.IsNullOrEmpty(actionMessage))
 {
-    <p class="text-danger">@errorMessage</p>
+    <div class="alert @(isActionError ? "alert-danger" : "alert-success") mt-2">@actionMessage</div>
 }
+
 
 @code {
-    // Existing code remains unchanged
-    private Result<List<EventDTO>> events;
-    private Dictionary<int, int> participantCounts = new Dictionary<int, int>();
-    private string errorMessage;
+    private Result<List<EventDTO>>? eventsResult;
+    private string? loadError;
+    private string? actionMessage;
+    private bool isActionError = false;
+    private int? currentUserId; // Store logged-in user ID
+    // Need a way to know which events the current user is attending
+    private HashSet<int> attendedEventIds = new HashSet<int>();
+
 
     protected override async Task OnInitializedAsync()
     {
-        events = await EventApiService.GetEventsAsync();
-        if (events.IsSuccess)
+        await LoadEvents();
+        await LoadCurrentUserState(); // Load user ID and attendances
+    }
+
+    private async Task LoadEvents()
+    {
+        try
         {
-            var tasks = events.Data.Select(async ev =>
-            {
-                var attendees = await EventAttendanceApiService.GetUsersForASingleEventAsync(ev.EventId);
-                return new { ev.EventId, Count = attendees.Data?.Count ?? 0 };
-            });
-            var results = await Task.WhenAll(tasks);
-            participantCounts = results.ToDictionary(r => r.EventId, r => r.Count);
+            eventsResult = await _eventApiService.GetEventsAsync();
+        }
+        catch (Exception ex)
+        {
+            loadError = $"Failed to load events: {ex.Message}";
+            eventsResult = Result<List<EventDTO>>.InternalServerError(loadError); // Create an error result
         }
     }
 
-    private void ViewDetails(int eventId)
+    private async Task LoadCurrentUserState()
     {
-        NavigationManager.NavigateTo($"/events/{eventId}");
-    }
+        AuthenticationState authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        ClaimsPrincipal user = authState.User;
 
-    private void EditEvent(int eventId)
-    {
-        NavigationManager.NavigateTo($"/events/edit/{eventId}");
-    }
-
-    private async Task DeleteEvent(int eventId)
-    {
-        var result = await EventApiService.DeleteEventAsync(eventId);
-        if (result.IsSuccess)
+        if (user.Identity?.IsAuthenticated ?? false)
         {
-            events = await EventApiService.GetEventsAsync();
-            var tasks = events.Data.Select(async ev =>
+            Claim? userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier) ?? user.FindFirst(JwtRegisteredClaimNames.Sub);
+
+            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int id))
             {
-                var attendees = await EventAttendanceApiService.GetUsersForASingleEventAsync(ev.EventId);
-                return new { ev.EventId, Count = attendees.Data?.Count ?? 0 };
-            });
-            var results = await Task.WhenAll(tasks);
-            participantCounts = results.ToDictionary(r => r.EventId, r => r.Count);
+                currentUserId = id;
+                // TODO: Fetch the list of events this user is attending
+                // This requires an API endpoint like GET /api/eventattendances/user/{userId}
+                // Populate `attendedEventIds` based on the result.
+                // Example call (needs implementation):
+                // var attendanceResult = await _attendanceService.GetAttendancesForUserAsync(currentUserId.Value);
+                // if(attendanceResult.IsSuccess) { attendedEventIds = attendanceResult.Data.Select(a => a.EventId).ToHashSet(); }
+            }
         }
         else
         {
-            errorMessage = result.ErrorMessage ?? "An error occurred while deleting the event.";
+            currentUserId = null;
+            attendedEventIds.Clear();
         }
     }
 
-    private void CreateNewEvent()
+
+    private bool CanSignUp(EventDTO ev)
     {
-        NavigationManager.NavigateTo("/events/create");
+        // Must be logged in, event must be in the future, and not already signed up
+        return currentUserId.HasValue &&
+               ev.DateOfEvent >= DateOnly.FromDateTime(DateTime.Today) && // Or check Status == "Upcoming"
+               !attendedEventIds.Contains(ev.EventId);
+    }
+
+    private bool IsSignedUp(int eventId)
+    {
+        return currentUserId.HasValue && attendedEventIds.Contains(eventId);
+    }
+
+    private async Task SignUpForEvent(int eventId)
+    {
+        if (!currentUserId.HasValue)
+        {
+            SetActionMessage("You must be logged in to sign up.", true);
+            return;
+        }
+
+        actionMessage = "Signing up..."; isActionError = false;
+        try
+        {
+            var attendanceDto = new EventAttendanceDTO(eventId, currentUserId.Value, DateTime.UtcNow);
+            // Use the specific Create method from EventAttendanceApiService
+            var result = await _eventAttendanceApiService.CreateEventAttendanceAsync(attendanceDto);
+
+            if (result.IsSuccess)
+            {
+                attendedEventIds.Add(eventId); // Update local state
+                SetActionMessage($"Successfully signed up for event {eventId}!", false);
+            }
+            else
+            {
+                SetActionMessage($"Failed to sign up: {result.ErrorMessage}", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            SetActionMessage($"Error signing up: {ex.Message}", true);
+        }
+        StateHasChanged(); // Update UI
+    }
+
+    // Placeholder methods for Organizer actions
+    private void EditEvent(int eventId)
+    {
+        // Navigate to an edit page, e.g., NavigationManager.NavigateTo($"/events/edit/{eventId}");
+        SetActionMessage($"TODO: Implement Edit for event {eventId}", false);
+        StateHasChanged();
+    }
+    private async Task DeleteEvent(int eventId)
+    {
+        // Confirm deletion
+        // Call API: await _eventApiService.DeleteEventAsync(eventId);
+        // Handle result, refresh list: await LoadEvents();
+        SetActionMessage($"TODO: Implement Delete for event {eventId}", false);
+        StateHasChanged();
+    }
+
+
+    private void SetActionMessage(string message, bool isError)
+    {
+        actionMessage = message;
+        isActionError = isError;
+        // Optional: Clear message after a few seconds
+        // await Task.Delay(5000);
+        // actionMessage = null;
+        // StateHasChanged();
     }
 }
