@@ -3,7 +3,7 @@ using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.BusinessLogic.Interfaces.PublicAccess
 {
-    internal interface IAuthService
+    public interface IAuthService
     {
         Task<Result<LoginResponseDTO>> LoginAsync(LoginRequestDTO request);
         // Maybe add RegisterAsync later if needed
