@@ -9,5 +9,6 @@ namespace CleanUps.BusinessLogic.Interfaces.PublicAccess
         Task<Result<List<Event>>> GetEventsForASingleUserAsync(int userId);
         Task<Result<List<User>>> GetUsersForASingleEventAsync(int eventId);
         Task<Result<EventAttendance>> UpdateEventAttendanceAsync(int eventId, int userId, EventAttendanceDTO dto);
+        Result<int> GetNumberOfUsersForASingleEvent(int eventId);
     }
 }

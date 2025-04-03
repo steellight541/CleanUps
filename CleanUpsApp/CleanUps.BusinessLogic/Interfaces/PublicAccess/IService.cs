@@ -6,9 +6,9 @@ namespace CleanUps.BusinessLogic.Interfaces.PublicAccess
 {
     public interface IService<TReturn, TParam> where TReturn : EFModel where TParam : RecordDTO
     {
-        Task<Result<TReturn>> CreateAsync(TParam entity);
         Task<Result<List<TReturn>>> GetAllAsync();
         Task<Result<TReturn>> GetByIdAsync(int id);
+        Task<Result<TReturn>> CreateAsync(TParam entity);
         Task<Result<TReturn>> UpdateAsync(int id, TParam entity);
         Task<Result<TReturn>> DeleteAsync(int id);
     }

@@ -13,6 +13,50 @@ namespace CleanUps.DataAccess.Repositories
         {
             _context = context;
         }
+        public async Task<Result<List<User>>> GetAllAsync()
+        {
+            try
+            {
+                List<User> users = new List<User>();
+                users = await _context.Users.ToListAsync();
+
+                return Result<List<User>>.Ok(users);
+
+            }
+            catch (ArgumentNullException)
+            {
+                return Result<List<User>>.NoContent();
+            }
+            catch (OperationCanceledException)
+            {
+                return Result<List<User>>.InternalServerError("Operation Canceled. Refresh and retry");
+            }
+            catch (Exception)
+            {
+                return Result<List<User>>.InternalServerError("Something went wrong. Try again later");
+            }
+        }
+
+        public async Task<Result<User>> GetByIdAsync(int id)
+        {
+
+            try
+            {
+                User? retrievedUser = await _context.Users.FindAsync(id);
+                if (retrievedUser is null)
+                {
+                    return Result<User>.NotFound($"User with id: {id} does not exist");
+                }
+                else
+                {
+                    return Result<User>.Ok(retrievedUser);
+                }
+            }
+            catch (Exception)
+            {
+                return Result<User>.InternalServerError("Something went wrong. Try again later");
+            }
+        }
 
         public async Task<Result<User>> CreateAsync(User userToBeCreated)
         {
@@ -55,51 +99,6 @@ namespace CleanUps.DataAccess.Repositories
                 }
 
                 return Result<User>.InternalServerError("Failed to create the user due to a database error. Try again later");
-            }
-            catch (Exception)
-            {
-                return Result<User>.InternalServerError("Something went wrong. Try again later");
-            }
-        }
-
-        public async Task<Result<List<User>>> GetAllAsync()
-        {
-            try
-            {
-                List<User> users = new List<User>();
-                users = await _context.Users.ToListAsync();
-
-                return Result<List<User>>.Ok(users);
-
-            }
-            catch (ArgumentNullException)
-            {
-                return Result<List<User>>.NoContent();
-            }
-            catch (OperationCanceledException)
-            {
-                return Result<List<User>>.InternalServerError("Operation Canceled. Refresh and retry");
-            }
-            catch (Exception)
-            {
-                return Result<List<User>>.InternalServerError("Something went wrong. Try again later");
-            }
-        }
-
-        public async Task<Result<User>> GetByIdAsync(int id)
-        {
-
-            try
-            {
-                User? retrievedUser = await _context.Users.FindAsync(id);
-                if (retrievedUser is null)
-                {
-                    return Result<User>.NotFound($"User with id: {id} does not exist");
-                }
-                else
-                {
-                    return Result<User>.Ok(retrievedUser);
-                }
             }
             catch (Exception)
             {
