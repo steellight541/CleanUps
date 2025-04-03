@@ -1,4 +1,9 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@using CleanUps.MAUI.Shared.Auth
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">CleanUps.MAUI</a>
     </div>
@@ -36,6 +41,63 @@
                 <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
             </NavLink>
         </div>
+        <!-- Conditional Links based on Authentication -->
+        <AuthorizeView>
+            <Authorized>
+                <!-- Links for Logged In Users -->
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="my-profile">
+                        @* Example profile page *@
+                        <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> Profile (@context.User.Identity?.Name)
+                    </NavLink>
+                </div>
+
+                <!-- Links for specific roles -->
+                <AuthorizeView Roles="Organizer">
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="manage-users">
+                            @* Example user management *@
+                            <span class="bi bi-people-fill-nav-menu" aria-hidden="true"></span> Manage Users
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="manage-events">
+                            @* Example event management *@
+                            <span class="bi bi-calendar-event-fill-nav-menu" aria-hidden="true"></span> Manage Events
+                        </NavLink>
+                    </div>
+                </AuthorizeView>
+
+
+                <div class="nav-item px-3">
+                    <button class="nav-link btn btn-link" @onclick="BeginLogout">
+                        <span class="bi bi-box-arrow-right-nav-menu" aria-hidden="true"></span> Logout
+                    </button>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <!-- Link for Anonymous Users -->
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="login">
+                        <span class="bi bi-box-arrow-in-right-nav-menu" aria-hidden="true"></span> Login
+                    </NavLink>
+                </div>
+                <!-- Optional: Register Link -->
+                @* <div class="nav-item px-3">
+             <NavLink class="nav-link" href="register">
+                 <span class="bi bi-person-plus-fill-nav-menu" aria-hidden="true"></span> Register
+             </NavLink>
+         </div> *@
+            </NotAuthorized>
+        </AuthorizeView>
     </nav>
 </div>
 
+@code {
+    private void BeginLogout()
+    {
+        var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
+        customAuthStateProvider.MarkUserAsLoggedOut();
+        NavigationManager.NavigateTo("/"); // Redirect to home after logout
+    }
+}

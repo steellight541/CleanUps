@@ -21,7 +21,7 @@ namespace CleanUps.MAUI.Shared
 
             services.AddScoped(sp => {
                 // Get the AuthStateProvider to potentially help configure HttpClient if needed later
-                //var authStateProvider = sp.GetRequiredService<AuthenticationStateProvider>();
+                var authStateProvider = sp.GetRequiredService<AuthenticationStateProvider>();
                 // Or inject IHttpContextAccessor for web scenarios
 
                 // The HttpClient needs the BaseAddress
@@ -30,7 +30,7 @@ namespace CleanUps.MAUI.Shared
                 // *** Important: Get the AuthStateProvider instance here AFTER it's potentially set the default headers ***
                 // This relies on the DI scope resolving AuthStateProvider first when HttpClient is requested, which *might* work.
                 // A DelegatingHandler is cleaner.
-                //sp.GetRequiredService<AuthenticationStateProvider>(); // Trigger AuthStateProvider resolution
+                sp.GetRequiredService<AuthenticationStateProvider>(); // Trigger AuthStateProvider resolution
 
                 return client;
             });
