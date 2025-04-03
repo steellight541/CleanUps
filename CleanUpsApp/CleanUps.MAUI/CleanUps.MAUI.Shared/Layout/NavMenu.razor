@@ -53,7 +53,7 @@
                 </div>
 
                 <!-- Links for specific roles -->
-                <AuthorizeView Roles="Organizer">
+                <AuthorizeView Roles="Organizer" Context="innerContext">
                     <div class="nav-item px-3">
                         <NavLink class="nav-link" href="manage-users">
                             @* Example user management *@
@@ -69,11 +69,11 @@
                 </AuthorizeView>
 
 
-                <div class="nav-item px-3">
-                    <button class="nav-link btn btn-link" @onclick="BeginLogout">
-                        <span class="bi bi-box-arrow-right-nav-menu" aria-hidden="true"></span> Logout
-                    </button>
-                </div>
+                    <div class="nav-item px-3">
+                        <button class="nav-link btn btn-link" @onclick="BeginLogout">
+                            <span class="bi bi-box-arrow-right-nav-menu" aria-hidden="true"></span> Logout
+                        </button>
+                    </div>
             </Authorized>
             <NotAuthorized>
                 <!-- Link for Anonymous Users -->

@@ -52,7 +52,7 @@ else
                     <td>@ev.NumberOfAttendees</td>
                     <td>@(ev.TrashCollected?.ToString("N1") ?? "-")</td> @* Format decimal, handle null *@
                     <td>
-                        <AuthorizeView Roles="Volunteer, Organizer">
+                        <AuthorizeView Roles="Volunteer, Organizer" Context="innerInnerContext">
                             @* Show button only if Volunteer or Organizer *@
                             <Authorized>
                                 @* Add logic to determine if user can sign up (e.g., event is upcoming, not already signed up) *@
@@ -71,7 +71,7 @@ else
                             </NotAuthorized>
                         </AuthorizeView>
 
-                        <AuthorizeView Roles="Organizer">
+                        <AuthorizeView Roles="Organizer" Context="innerInnerContextx">
                             <Authorized>
                                 @* Add Edit/Delete buttons for Organizers *@
                                 <button class="btn btn-sm btn-warning ms-1" @onclick="() => EditEvent(ev.EventId)">Edit</button>
@@ -150,9 +150,9 @@ else
 
     private bool CanSignUp(EventDTO ev)
     {
-        // Must be logged in, event must be in the future, and not already signed up
+        DateTime eventStart = ev.DateOfEvent.ToDateTime(ev.StartTime);
         return currentUserId.HasValue &&
-               ev.DateOfEvent >= DateOnly.FromDateTime(DateTime.Today) && // Or check Status == "Upcoming"
+               eventStart > DateTime.Now &&
                !attendedEventIds.Contains(ev.EventId);
     }
 
