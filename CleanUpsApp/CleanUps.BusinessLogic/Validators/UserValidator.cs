@@ -1,4 +1,5 @@
 ﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
+using CleanUps.BusinessLogic.Models;
 using CleanUps.Shared.DTOs;
 using CleanUps.Shared.ErrorHandling;
 
@@ -8,69 +9,45 @@ namespace CleanUps.BusinessLogic.Validators
     {
         public Result<UserDTO> ValidateForCreate(UserDTO dto)
         {
-            if (dto == null)
-            {
-                return Result<UserDTO>.BadRequest("User cannot be null.");
-            }
+            if (dto == null) return Result<UserDTO>.BadRequest("User cannot be null.");
 
-            if (dto.UserId != 0)
-            {
-                return Result<UserDTO>.BadRequest("User Id should not be set when creating a new user.");
-            }
+            if (dto.UserId != 0) return Result<UserDTO>.BadRequest("User Id should not be set when creating a new user.");
 
-            return ValidateCommonFields(dto);
+            if (string.IsNullOrWhiteSpace(dto.Password)) return Result<UserDTO>.BadRequest("Password is required.");
+
+            if (dto.Password.Length < 6) return Result<UserDTO>.BadRequest("Password must be at least 6 characters long.");
+
+            return ValidateNameEmailRoleId(dto);
         }
 
         public Result<UserDTO> ValidateForUpdate(int id, UserDTO dto)
         {
-            if (dto == null)
-            {
-                return Result<UserDTO>.BadRequest("User cannot be null.");
-            }
+            if (dto == null) return Result<UserDTO>.BadRequest("User cannot be null.");
 
-            if (id <= 0)
-            {
-                return Result<UserDTO>.BadRequest("User Id must be greater than zero.");
-            }
+            if (id <= 0) return Result<UserDTO>.BadRequest("User Id must be greater than zero.");
 
-            if (dto.UserId != id)
-            {
-                return Result<UserDTO>.BadRequest("The User Id does not match the provided id.");
-            }
+            if (dto.UserId != id) return Result<UserDTO>.BadRequest("The User Id does not match the provided id.");
 
-            return ValidateCommonFields(dto);
+            return ValidateNameEmailRoleId(dto);
         }
 
         public Result<string> ValidateId(int id)
         {
-            if (id <= 0)
-            {
-                return Result<string>.BadRequest("User Id must be greater than zero.");
-            }
+            if (id <= 0) return Result<string>.BadRequest("User Id must be greater than zero.");
+
             return Result<string>.Ok("Id is valid");
         }
 
-        private Result<UserDTO> ValidateCommonFields(UserDTO dto)
+
+        private Result<UserDTO> ValidateNameEmailRoleId(UserDTO dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Name))
-            {
-                return Result<UserDTO>.BadRequest("Name is required.");
-            }
+            if (string.IsNullOrWhiteSpace(dto.Name)) return Result<UserDTO>.BadRequest("Name is required.");
 
-            if (string.IsNullOrWhiteSpace(dto.Email))
-            {
-                return Result<UserDTO>.BadRequest("Email is required.");
-            }
+            if (string.IsNullOrWhiteSpace(dto.Email)) return Result<UserDTO>.BadRequest("Email is required.");
 
-            if (string.IsNullOrWhiteSpace(dto.Password))
-            {
-                return Result<UserDTO>.BadRequest("Password is required.");
-            }
+            // TODO: Add email format validation
 
-            if (dto.RoleId <= 0)
-            {
-                return Result<UserDTO>.BadRequest("Role Id must be greater than zero.");
-            }
+            if (dto.RoleId <= 0) return Result<UserDTO>.BadRequest("Role Id must be greater than zero.");
 
             return Result<UserDTO>.Ok(dto);
         }
