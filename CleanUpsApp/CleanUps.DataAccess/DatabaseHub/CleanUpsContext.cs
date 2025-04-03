@@ -91,7 +91,7 @@ public partial class CleanUpsContext : DbContext
                 .HasColumnType("datetime");
             entity.Property(e => e.Email).HasMaxLength(255);
             entity.Property(e => e.Name).HasMaxLength(100);
-            entity.Property(e => e.Password).HasMaxLength(50);
+            entity.Property(e => e.PasswordHash).HasMaxLength(50);
         });
 
         OnModelCreatingPartial(modelBuilder);

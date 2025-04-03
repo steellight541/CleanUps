@@ -71,7 +71,7 @@ else
 
     private async Task HandleSubmit()
     {
-        var updatedUser = new UserDTO(userId, editModel.Name, editModel.Email, editModel.Password, editModel.IsOrganizer ? 1 : 2, editModel.CreatedDateTime);
+        var updatedUser = new UserDTO(userId, editModel.Name, editModel.Email, editModel.IsOrganizer ? 1 : 2, editModel.CreatedDateTime);
 
         var result = await UserApiService.UpdateUserAsync(userId, updatedUser);
         if (result.IsSuccess)
