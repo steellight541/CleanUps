@@ -70,4 +70,10 @@
     <ProjectReference Include="..\CleanUps.MAUI.Shared\CleanUps.MAUI.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0-android'">
+    <PackageReference Include="Xamarin.AndroidX.Browser">
+      <Version>1.8.0.8</Version>
+    </PackageReference>
+  </ItemGroup>
+
 </Project>
