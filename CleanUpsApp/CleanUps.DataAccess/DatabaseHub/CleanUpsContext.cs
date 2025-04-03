@@ -1,10 +1,11 @@
-﻿using CleanUps.BusinessLogic.Models;
+﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
+using CleanUps.BusinessLogic.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace CleanUps.DataAccess.DatabaseHub;
 
-public partial class CleanUpsContext : DbContext
-{
+public partial class CleanUpsContext : DbContext, IAuthRepository
+{ 
     public CleanUpsContext()
     {
     }
