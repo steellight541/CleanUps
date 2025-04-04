@@ -1,4 +1,5 @@
 ﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
+using CleanUps.BusinessLogic.Models;
 using CleanUps.Shared.DTOs;
 using CleanUps.Shared.ErrorHandling;
 
@@ -67,9 +68,9 @@ namespace CleanUps.BusinessLogic.Validators
                 return Result<UserDTO>.BadRequest("Password is required.");
             }
 
-            if (dto.RoleId <= 0)
+            if (dto.UserRole.GetTypeCode != Role.Organizer.GetTypeCode || dto.UserRole.GetTypeCode != Role.Volunteer.GetTypeCode)
             {
-                return Result<UserDTO>.BadRequest("Role Id must be greater than zero.");
+                return Result<UserDTO>.BadRequest("Invalid role. Please use a valid role");
             }
 
             return Result<UserDTO>.Ok(dto);

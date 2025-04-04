@@ -2,5 +2,9 @@
 
 namespace CleanUps.Shared.DTOs
 {
-    public record RoleDTO(int RoleId, string RoleName) : RecordDTO;
+    public enum RoleDTO
+    {
+        Organizer = 1,
+        Volunteer = 2
+    }
 }

@@ -14,7 +14,7 @@ namespace CleanUps.BusinessLogic.Converters
                 Name = dto.Name,
                 Email = dto.Email,
                 Password = dto.Password,
-                RoleId = dto.RoleId,
+                UserRole = (Role)dto.UserRole,
                 CreatedDate = dto.CreatedDate
             };
         }
@@ -25,7 +25,7 @@ namespace CleanUps.BusinessLogic.Converters
                 model.Name,
                 model.Email,
                 model.Password,
-                model.RoleId,
+                (RoleDTO)model.UserRole,
                 model.CreatedDate
             );
         }
