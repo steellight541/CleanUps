@@ -1,6 +1,4 @@
-﻿using CleanUps.Shared.DTOs.Flags;
-
-namespace CleanUps.Shared.DTOs
+﻿namespace CleanUps.Shared.DTOs
 {
     public enum RoleDTO
     {

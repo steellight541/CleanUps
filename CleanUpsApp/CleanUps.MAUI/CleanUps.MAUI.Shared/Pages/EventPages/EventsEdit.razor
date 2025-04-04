@@ -1,6 +1,6 @@
 ﻿@page "/events/edit/{eventId:int}"
-@inject EventApiService EventApiService
-@inject NavigationManager NavigationManager
+@inject NavigationManager _navigationManager
+@inject EventApiService _eventApiService
 
 @if (eventResult == null)
 {
@@ -57,7 +57,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        eventResult = await EventApiService.GetEventByIdAsync(eventId);
+        eventResult = await _eventApiService.GetEventByIdAsync(eventId);
         if (eventResult.IsSuccess)
         {
             editModel = new EditModel
@@ -96,10 +96,10 @@ else
             editModel.NumberOfAttendees
         );
 
-        var result = await EventApiService.UpdateEventAsync(eventId, updatedEvent);
+        var result = await _eventApiService.UpdateEventAsync(eventId, updatedEvent);
         if (result.IsSuccess)
         {
-            NavigationManager.NavigateTo("/events");
+            _navigationManager.NavigateTo("/events");
         }
         else
         {
@@ -109,6 +109,6 @@ else
 
     private void Cancel()
     {
-        NavigationManager.NavigateTo("/events");
+        _navigationManager.NavigateTo("/events");
     }
 }

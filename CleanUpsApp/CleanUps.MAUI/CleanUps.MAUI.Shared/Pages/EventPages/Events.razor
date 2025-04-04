@@ -1,7 +1,7 @@
 ﻿@page "/events"
-@inject EventApiService EventApiService
-@inject EventAttendanceApiService EventAttendanceApiService
-@inject NavigationManager NavigationManager
+@inject NavigationManager _navigationManager
+@inject EventApiService _eventApiService
+@inject EventAttendanceApiService _eventAttendanceApiService
 
 <h3>Events Management</h3>
 
@@ -84,13 +84,14 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        events = await EventApiService.GetEventsAsync();
+        events = await _eventApiService.GetEventsAsync();
         if (events.IsSuccess)
         {
             var tasks = events.Data.Select(async ev =>
             {
-                var attendees = await EventAttendanceApiService.GetUsersForASingleEventAsync(ev.EventId);
-                return new { ev.EventId, Count = attendees.Data?.Count ?? 0 };
+                Result<int> attendees = await _eventAttendanceApiService.GetAttendanceCountByEventIdAsync(ev.EventId);
+
+                return new { ev.EventId, Count = attendees.Data };
             });
             var results = await Task.WhenAll(tasks);
             participantCounts = results.ToDictionary(r => r.EventId, r => r.Count);
@@ -99,24 +100,24 @@ else
 
     private void ViewDetails(int eventId)
     {
-        NavigationManager.NavigateTo($"/events/{eventId}");
+        _navigationManager.NavigateTo($"/events/{eventId}");
     }
 
     private void EditEvent(int eventId)
     {
-        NavigationManager.NavigateTo($"/events/edit/{eventId}");
+        _navigationManager.NavigateTo($"/events/edit/{eventId}");
     }
 
     private async Task DeleteEvent(int eventId)
     {
-        var result = await EventApiService.DeleteEventAsync(eventId);
+        var result = await _eventApiService.DeleteEventAsync(eventId);
         if (result.IsSuccess)
         {
-            events = await EventApiService.GetEventsAsync();
+            events = await _eventApiService.GetEventsAsync();
             var tasks = events.Data.Select(async ev =>
             {
-                var attendees = await EventAttendanceApiService.GetUsersForASingleEventAsync(ev.EventId);
-                return new { ev.EventId, Count = attendees.Data?.Count ?? 0 };
+                var attendees = await _eventAttendanceApiService.GetAttendanceCountByEventIdAsync(ev.EventId);
+                return new { ev.EventId, Count = attendees.Data };
             });
             var results = await Task.WhenAll(tasks);
             participantCounts = results.ToDictionary(r => r.EventId, r => r.Count);
@@ -129,6 +130,6 @@ else
 
     private void CreateNewEvent()
     {
-        NavigationManager.NavigateTo("/events/create");
+        _navigationManager.NavigateTo("/events/create");
     }
 }

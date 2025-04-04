@@ -1,8 +1,7 @@
 ﻿@page "/events/{eventId:int}"
-@inject EventApiService EventApiService
-@inject UsersApiService UsersApiService
-@inject EventAttendanceApiService EventAttendanceApiService
-@inject NavigationManager NavigationManager
+@inject EventApiService _eventApiService
+@inject EventAttendanceApiService _eventAttendanceApiService
+@inject UsersApiService _usersApiService
 
 <h3>Event Details</h3>
 
@@ -64,9 +63,9 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        eventResult = await EventApiService.GetEventByIdAsync(eventId);
-        usersResult = await UsersApiService.GetAllUsersAsync();
-        attendeesResult = await EventAttendanceApiService.GetUsersForASingleEventAsync(eventId); // Fetch attendees
+        eventResult = await _eventApiService.GetEventByIdAsync(eventId);
+        usersResult = await _usersApiService.GetAllUsersAsync();
+        attendeesResult = await _eventAttendanceApiService.GetUsersByEventIdAsync(eventId); // Fetch attendees
     }
 
     private async Task SubmitAttendance()
@@ -85,13 +84,13 @@ else
             DateTime.Now
         );
 
-        var result = await EventAttendanceApiService.CreateEventAttendanceAsync(attendance);
+        var result = await _eventAttendanceApiService.CreateEventAttendanceAsync(attendance);
         if (result.IsSuccess)
         {
             message = "Attendance registered successfully!";
             messageClass = "text-success";
             // Refresh attendees list to update the dropdown
-            attendeesResult = await EventAttendanceApiService.GetUsersForASingleEventAsync(eventId);
+            attendeesResult = await _eventAttendanceApiService.GetUsersByEventIdAsync(eventId);
         }
         else
         {

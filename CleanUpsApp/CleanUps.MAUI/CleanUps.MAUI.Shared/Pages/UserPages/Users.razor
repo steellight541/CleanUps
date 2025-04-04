@@ -1,6 +1,6 @@
 ﻿@page "/users"
-@inject UsersApiService UserApiService
-@inject NavigationManager NavigationManager
+@inject NavigationManager _navigationManager
+@inject UsersApiService _usersApiService
 
 <h3>Users Management</h3>
 
@@ -77,25 +77,25 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        users = await UserApiService.GetAllUsersAsync();
+        users = await _usersApiService.GetAllUsersAsync();
     }
 
     private void ViewUser(int userId)
     {
-        NavigationManager.NavigateTo($"/users/{userId}");
+        _navigationManager.NavigateTo($"/users/{userId}");
     }
 
     private void EditUser(int userId)
     {
-        NavigationManager.NavigateTo($"/users/edit/{userId}");
+        _navigationManager.NavigateTo($"/users/edit/{userId}");
     }
 
     private async Task DeleteUser(int userId)
     {
-        var result = await UserApiService.DeleteUserAsync(userId);
+        var result = await _usersApiService.DeleteUserAsync(userId);
         if (result.IsSuccess)
         {
-            users = await UserApiService.GetAllUsersAsync();
+            users = await _usersApiService.GetAllUsersAsync();
         }
         else
         {
@@ -105,6 +105,6 @@ else
 
     private void CreateNewUser()
     {
-        NavigationManager.NavigateTo("/users/create");
+        _navigationManager.NavigateTo("/users/create");
     }
 }

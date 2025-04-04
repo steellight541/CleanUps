@@ -1,6 +1,6 @@
 ﻿@page "/users/{userId:int}"
-@inject UsersApiService UserApiService
-@inject NavigationManager NavigationManager
+@inject NavigationManager _navigationManager
+@inject UsersApiService _usersApiService
 
 <h3>User Details</h3>
 
@@ -31,11 +31,11 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        user = await UserApiService.GetUserByIdAsync(userId);
+        user = await _usersApiService.GetUserByIdAsync(userId);
     }
 
     private void GoBack()
     {
-        NavigationManager.NavigateTo("/users");
+        _navigationManager.NavigateTo("/users");
     }
 }

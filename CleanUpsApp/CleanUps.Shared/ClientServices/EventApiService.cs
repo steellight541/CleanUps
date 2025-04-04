@@ -9,9 +9,9 @@ namespace CleanUps.Shared.ClientServices
     {
         private readonly HttpClient _http;
 
-        public EventApiService(HttpClient http)
+        public EventApiService(IHttpClientFactory httpClientFactory)
         {
-            _http = http;
+            _http = httpClientFactory.CreateClient("CleanupApi");
         }
 
         public async Task<Result<List<EventDTO>>> GetEventsAsync()

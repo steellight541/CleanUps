@@ -24,7 +24,6 @@ namespace CleanUps.BusinessLogic.Converters
                 model.UserId,
                 model.Name,
                 model.Email,
-                model.PasswordHash,
                 (RoleDTO)model.UserRole,
                 model.CreatedDate
             );

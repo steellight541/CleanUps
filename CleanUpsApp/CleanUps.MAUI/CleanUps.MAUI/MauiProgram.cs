@@ -19,6 +19,8 @@ namespace CleanUps.MAUI
 
             // Add device-specific services used by the CleanUps.MAUI.Shared project
             builder.Services.AddSingleton<IFormFactor, FormFactor>();
+
+            //Add Api Services
             builder.Services.AddApiServices();
 
             builder.Services.AddMauiBlazorWebView();

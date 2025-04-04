@@ -1,5 +1,4 @@
-﻿using CleanUps.BusinessLogic.Models;
-using CleanUps.Shared.DTOs;
+﻿using CleanUps.Shared.DTOs;
 using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.BusinessLogic.Interfaces.PrivateAccess.EventAttendanceInterfaces

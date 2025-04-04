@@ -13,6 +13,8 @@ namespace CleanUps.MAUI.Web.Client
 
             // Add device-specific services used by the CleanUps.MAUI.Shared project
             builder.Services.AddSingleton<IFormFactor, FormFactor>();
+
+            //Add Api Services
             builder.Services.AddApiServices();
 
             await builder.Build().RunAsync();

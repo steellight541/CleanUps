@@ -35,7 +35,7 @@ namespace CleanUps.BusinessLogic.Validators
             {
                 return Result<EventAttendanceDTO>.BadRequest("User Id must be greater than zero.");
             }
-            if  dto.UserId != userId || dto.EventId != eventId)
+            if  (dto.UserId != userId || dto.EventId != eventId)
             {
                 return Result<EventAttendanceDTO>.BadRequest("The User Id and Event Id in the DTO do not match the provided ids.");
             }

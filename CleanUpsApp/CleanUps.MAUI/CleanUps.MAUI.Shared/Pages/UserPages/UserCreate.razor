@@ -1,7 +1,6 @@
 ﻿@page "/users/create"
-@using System.ComponentModel.DataAnnotations
-@inject UsersApiService UsersApiService
-@inject NavigationManager NavigationManager
+@inject NavigationManager _navigationManager
+@inject UsersApiService _usersApiService
 
 <h3>Create New User</h3>
 
@@ -49,12 +48,13 @@
 
     private async Task HandleSubmit()
     {
-        UserDTO newUser = new UserDTO(0, createUserModel.Name, createUserModel.Email, createUserModel.Password, createUserModel.IsOrganizer ? RoleDTO.Organizer : RoleDTO.Volunteer, DateTime.Now);
+        UserDTO newUser = new UserDTO(0, createUserModel.Name, createUserModel.Email, createUserModel.IsOrganizer ? RoleDTO.Organizer : RoleDTO.Volunteer, DateTime.Now);
+        newUser.Password = createUserModel.Password;
 
-        var result = await UsersApiService.CreateUserAsync(newUser);
+        var result = await _usersApiService.CreateUserAsync(newUser);
         if (result.IsSuccess)
         {
-            NavigationManager.NavigateTo("/users");
+            _navigationManager.NavigateTo("/users");
         }
         else
         {
@@ -64,7 +64,7 @@
 
     private void Cancel()
     {
-        NavigationManager.NavigateTo("/users");
+        _navigationManager.NavigateTo("/users");
     }
 
     private class CreateUserModel

@@ -1,7 +1,6 @@
 ﻿@page "/events/create"
-@inject EventApiService EventApiService
-@inject NavigationManager NavigationManager
-
+@inject NavigationManager _navigationManager
+@inject EventApiService _eventApiService
 
 <h3>Create New Event</h3>
 
@@ -81,10 +80,10 @@
             NumberOfAttendees: 0
         );
 
-        var result = await EventApiService.CreateEventAsync(newEvent);
+        var result = await _eventApiService.CreateEventAsync(newEvent);
         if (result.IsSuccess)
         {
-            NavigationManager.NavigateTo("/events");
+            _navigationManager.NavigateTo("/events");
         }
         else
         {
@@ -94,7 +93,7 @@
 
     private void Cancel()
     {
-        NavigationManager.NavigateTo("/events");
+        _navigationManager.NavigateTo("/events");
     }
 
     private class EventCreateModel
