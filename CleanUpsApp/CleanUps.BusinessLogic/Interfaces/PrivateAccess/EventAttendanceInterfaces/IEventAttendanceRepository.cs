@@ -5,9 +5,9 @@ namespace CleanUps.BusinessLogic.Interfaces.PrivateAccess.EventAttendanceInterfa
 {
     internal interface IEventAttendanceRepository : IRepository<EventAttendance>
     {
-        Task<Result<List<Event>>> GetEventsForASingleUserAsync(int userId);
-        Task<Result<List<User>>> GetUsersForASingleEventAsync(int eventId);
-        Result<int> GetNumberOfUsersForASingleEvent(int eventId);
-        Task<Result<EventAttendance>> DeleteEventAttendanceAsync(int userId, int eventId);
+        Task<Result<List<Event>>> GetEventsByUserIdAsync(int userId);
+        Task<Result<List<User>>> GetUsersByEventIdAsync(int eventId);
+        Result<int> GetAttendanceCountByEventId(int eventId);
+        Task<Result<EventAttendance>> DeleteAttendanceAsync(int userId, int eventId);
     }
 }

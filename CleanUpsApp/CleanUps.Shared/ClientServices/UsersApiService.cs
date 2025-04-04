@@ -14,27 +14,6 @@ namespace CleanUps.Shared.ClientServices
             _http = http;
         }
 
-        public async Task<Result<UserDTO>> CreateUserAsync(UserDTO newUser)
-        {
-            HttpResponseMessage response = await _http.PostAsJsonAsync("api/users", newUser);
-            if (response.IsSuccessStatusCode)
-            {
-                UserDTO? user = await response.Content.ReadFromJsonAsync<UserDTO>();
-                return user != null ? Result<UserDTO>.Created(user) : Result<UserDTO>.InternalServerError("Failed to deserialize user");
-            }
-
-            string errorMessage = await response.Content.ReadAsStringAsync();
-            switch (response.StatusCode)
-            {
-                case HttpStatusCode.BadRequest:
-                    return Result<UserDTO>.BadRequest(errorMessage);
-                case HttpStatusCode.NotFound:
-                    return Result<UserDTO>.NotFound(errorMessage);
-                default:
-                    return Result<UserDTO>.InternalServerError(errorMessage);
-            }
-        }
-
         public async Task<Result<List<UserDTO>>> GetAllUsersAsync()
         {
             HttpResponseMessage response = await _http.GetAsync("api/users");
@@ -63,6 +42,27 @@ namespace CleanUps.Shared.ClientServices
             {
                 UserDTO? user = await response.Content.ReadFromJsonAsync<UserDTO>();
                 return user != null ? Result<UserDTO>.Ok(user) : Result<UserDTO>.InternalServerError("Failed to deserialize user");
+            }
+
+            string errorMessage = await response.Content.ReadAsStringAsync();
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.BadRequest:
+                    return Result<UserDTO>.BadRequest(errorMessage);
+                case HttpStatusCode.NotFound:
+                    return Result<UserDTO>.NotFound(errorMessage);
+                default:
+                    return Result<UserDTO>.InternalServerError(errorMessage);
+            }
+        }
+
+        public async Task<Result<UserDTO>> CreateUserAsync(UserDTO newUser)
+        {
+            HttpResponseMessage response = await _http.PostAsJsonAsync("api/users", newUser);
+            if (response.IsSuccessStatusCode)
+            {
+                UserDTO? user = await response.Content.ReadFromJsonAsync<UserDTO>();
+                return user != null ? Result<UserDTO>.Created(user) : Result<UserDTO>.InternalServerError("Failed to deserialize user");
             }
 
             string errorMessage = await response.Content.ReadAsStringAsync();

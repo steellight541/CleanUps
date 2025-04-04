@@ -32,7 +32,7 @@ namespace CleanUps.BusinessLogic.Services
         }
 
 
-        public async Task<Result<List<Event>>> GetEventsForASingleUserAsync(int userId)
+        public async Task<Result<List<Event>>> GetEventsByUserIdAsync(int userId)
         {
             var idValidation = _validator.ValidateId(userId);
             if (!idValidation.IsSuccess)
@@ -40,28 +40,28 @@ namespace CleanUps.BusinessLogic.Services
                 return Result<List<Event>>.BadRequest(idValidation.ErrorMessage);
             }
 
-            return await _repository.GetEventsForASingleUserAsync(userId);
+            return await _repository.GetEventsByUserIdAsync(userId);
         }
 
-        public async Task<Result<List<User>>> GetUsersForASingleEventAsync(int eventId)
+        public async Task<Result<List<User>>> GetUsersByEventIdAsync(int eventId)
         {
             var idValidation = _validator.ValidateId(eventId);
             if (!idValidation.IsSuccess)
             {
                 return Result<List<User>>.BadRequest(idValidation.ErrorMessage);
             }
-            return await _repository.GetUsersForASingleEventAsync(eventId);
+            return await _repository.GetUsersByEventIdAsync(eventId);
         }
 
 
-        public Result<int> GetNumberOfUsersForASingleEvent(int eventId)
+        public Result<int> GetAttendanceCountByEventId(int eventId)
         {
             var idValidation = _validator.ValidateId(eventId);
             if (!idValidation.IsSuccess)
             {
                 return Result<int>.BadRequest(idValidation.ErrorMessage);
             }
-            return _repository.GetNumberOfUsersForASingleEvent(eventId);
+            return _repository.GetAttendanceCountByEventId(eventId);
         }
 
         public async Task<Result<EventAttendance>> CreateAsync(EventAttendanceDTO dto)
@@ -85,7 +85,7 @@ namespace CleanUps.BusinessLogic.Services
             return Result<EventAttendance>.InternalServerError("Service: UpdateAsync Method with one Id paramter is not implemented, use another method.");
         }
 
-        public async Task<Result<EventAttendance>> UpdateEventAttendanceAsync(int userId, int eventId, EventAttendanceDTO dto)
+        public async Task<Result<EventAttendance>> UpdateAttendanceAsync(int userId, int eventId, EventAttendanceDTO dto)
         {
             //Step 1. Validate DTO the parameter - return result of the validation
             var validationResult = _validator.ValidateEventAttendanceForUpdate(userId, eventId, dto);
@@ -100,7 +100,7 @@ namespace CleanUps.BusinessLogic.Services
             //Step 3. Pass the model to the repository - return result of operation
             return await _repository.UpdateAsync(eventAttendanceModel);
         }
-        public async Task<Result<EventAttendance>> DeleteEventAttendanceAsync(int userId, int eventId)
+        public async Task<Result<EventAttendance>> DeleteAttendanceAsync(int userId, int eventId)
         {
             //Step 1. Validate DTO the parameter - return result of the validation
             var eventIdValidation = _validator.ValidateId(eventId);
@@ -116,7 +116,7 @@ namespace CleanUps.BusinessLogic.Services
             }
 
             //Step 2. Pass the model to the repository - return result of operation
-            return await _repository.DeleteEventAttendanceAsync(userId, eventId);
+            return await _repository.DeleteAttendanceAsync(userId, eventId);
         }
 
         public async Task<Result<EventAttendance>> DeleteAsync(int id)

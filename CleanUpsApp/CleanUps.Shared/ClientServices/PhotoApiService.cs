@@ -14,25 +14,6 @@ namespace CleanUps.Shared.ClientServices
             _http = http;
         }
 
-        public async Task<Result<PhotoDTO>> CreatePhotoAsync(PhotoDTO newPhoto)
-        {
-            HttpResponseMessage response = await _http.PostAsJsonAsync("api/photos", newPhoto);
-            if (response.IsSuccessStatusCode)
-            {
-                PhotoDTO? photo = await response.Content.ReadFromJsonAsync<PhotoDTO>();
-                return photo != null ? Result<PhotoDTO>.Created(photo) : Result<PhotoDTO>.InternalServerError("Failed to deserialize photo");
-            }
-
-            string errorMessage = await response.Content.ReadAsStringAsync();
-            switch (response.StatusCode)
-            {
-                case HttpStatusCode.BadRequest:
-                    return Result<PhotoDTO>.BadRequest(errorMessage);
-                default:
-                    return Result<PhotoDTO>.InternalServerError(errorMessage);
-            }
-        }
-
         public async Task<Result<List<PhotoDTO>>> GetAllPhotosAsync()
         {
             HttpResponseMessage response = await _http.GetAsync("api/photos");
@@ -93,6 +74,26 @@ namespace CleanUps.Shared.ClientServices
                     return Result<List<PhotoDTO>>.InternalServerError(errorMessage);
             }
         }
+
+        public async Task<Result<PhotoDTO>> CreatePhotoAsync(PhotoDTO newPhoto)
+        {
+            HttpResponseMessage response = await _http.PostAsJsonAsync("api/photos", newPhoto);
+            if (response.IsSuccessStatusCode)
+            {
+                PhotoDTO? photo = await response.Content.ReadFromJsonAsync<PhotoDTO>();
+                return photo != null ? Result<PhotoDTO>.Created(photo) : Result<PhotoDTO>.InternalServerError("Failed to deserialize photo");
+            }
+
+            string errorMessage = await response.Content.ReadAsStringAsync();
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.BadRequest:
+                    return Result<PhotoDTO>.BadRequest(errorMessage);
+                default:
+                    return Result<PhotoDTO>.InternalServerError(errorMessage);
+            }
+        }
+
         public async Task<Result<PhotoDTO>> UpdatePhotoAsync(int id, PhotoDTO photoToUpdate)
         {
             HttpResponseMessage response = await _http.PutAsJsonAsync($"api/photos/{id}", photoToUpdate);

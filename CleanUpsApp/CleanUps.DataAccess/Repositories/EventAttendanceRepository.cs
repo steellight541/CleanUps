@@ -41,7 +41,7 @@ namespace CleanUps.DataAccess.Repositories
             return Result<EventAttendance>.InternalServerError("Repository: GetByIdAsync Method is not implemented, use another method.");
         }
 
-        public async Task<Result<List<Event>>> GetEventsForASingleUserAsync(int userId)
+        public async Task<Result<List<Event>>> GetEventsByUserIdAsync(int userId)
         {
             try
             {
@@ -70,7 +70,7 @@ namespace CleanUps.DataAccess.Repositories
             }
         }
 
-        public async Task<Result<List<User>>> GetUsersForASingleEventAsync(int eventId)
+        public async Task<Result<List<User>>> GetUsersByEventIdAsync(int eventId)
         {
             try
             {
@@ -100,7 +100,7 @@ namespace CleanUps.DataAccess.Repositories
             }
         }
 
-        public Result<int> GetNumberOfUsersForASingleEvent(int eventId)
+        public Result<int> GetAttendanceCountByEventId(int eventId)
         {
             try
             {
@@ -193,7 +193,7 @@ namespace CleanUps.DataAccess.Repositories
             }
         }
 
-        public async Task<Result<EventAttendance>> DeleteEventAttendanceAsync(int userId, int eventId)
+        public async Task<Result<EventAttendance>> DeleteAttendanceAsync(int userId, int eventId)
         {
             try
             {

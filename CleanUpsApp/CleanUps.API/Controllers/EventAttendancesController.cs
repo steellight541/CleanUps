@@ -53,7 +53,7 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetEventsForASingleUserAsync(int userId) // YourApi.com/api/eventattendances/user/{userId}/events
         {
-            Result<List<Event>> result = await _eventAttendanceService.GetEventsForASingleUserAsync(userId);
+            Result<List<Event>> result = await _eventAttendanceService.GetEventsByUserIdAsync(userId);
 
             switch (result.StatusCode)
             {
@@ -78,7 +78,7 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetUsersForASingleEventAsync(int eventId) // YourApi.com/api/eventattendances/event/{eventId}/users
         {
-            Result<List<User>> result = await _eventAttendanceService.GetUsersForASingleEventAsync(eventId);
+            Result<List<User>> result = await _eventAttendanceService.GetUsersByEventIdAsync(eventId);
             switch (result.StatusCode)
             {
                 case 200:
@@ -100,9 +100,9 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult GetNumberOfUsersForASingleEvent(int eventId)// YourApi.com/api/eventattendances/event/{eventId}/users/count
+        public IActionResult GetUserCountForEvent(int eventId)// YourApi.com/api/eventattendances/event/{eventId}/users/count
         {
-            Result<int> result = _eventAttendanceService.GetNumberOfUsersForASingleEvent(eventId); 
+            Result<int> result = _eventAttendanceService.GetAttendanceCountByEventId(eventId); 
 
             switch (result.StatusCode)
             {
@@ -152,7 +152,7 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> PutAsync(int userId, int eventId, [FromBody] EventAttendanceDTO dto) // YourApi.com/api/eventattendances/user/{userId}/event/{eventId}
         {
-            var result = await _eventAttendanceService.UpdateEventAttendanceAsync(userId, eventId, dto);
+            var result = await _eventAttendanceService.UpdateAttendanceAsync(userId, eventId, dto);
 
             switch (result.StatusCode)
             {
@@ -172,7 +172,7 @@ namespace CleanUps.API.Controllers
 
         //TODO: Allow Organizer
         [HttpDelete]
-        [Route("{id}")]
+        [Route("user/{userId}/event/{eventId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -180,7 +180,7 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteAsync(int userId, int eventId) // YourApi.com/api/eventattendances/user/{userId}/event/{eventId}
         {
-            var result = await _eventAttendanceService.DeleteEventAttendanceAsync(userId, eventId);
+            var result = await _eventAttendanceService.DeleteAttendanceAsync(userId, eventId);
 
             switch (result.StatusCode)
             {

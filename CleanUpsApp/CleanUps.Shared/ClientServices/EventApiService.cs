@@ -14,25 +14,6 @@ namespace CleanUps.Shared.ClientServices
             _http = http;
         }
 
-        public async Task<Result<EventDTO>> CreateEventAsync(EventDTO newEvent)
-        {
-            HttpResponseMessage response = await _http.PostAsJsonAsync("api/events", newEvent);
-            if (response.IsSuccessStatusCode)
-            {
-                EventDTO? eventDto = await response.Content.ReadFromJsonAsync<EventDTO>();
-                return eventDto != null ? Result<EventDTO>.Created(eventDto) : Result<EventDTO>.InternalServerError("Failed to deserialize event");
-            }
-
-            string errorMessage = await response.Content.ReadAsStringAsync();
-            switch (response.StatusCode)
-            {
-                case HttpStatusCode.BadRequest:
-                    return Result<EventDTO>.BadRequest(errorMessage);
-                default:
-                    return Result<EventDTO>.InternalServerError(errorMessage);
-            }
-        }
-
         public async Task<Result<List<EventDTO>>> GetEventsAsync()
         {
             HttpResponseMessage response = await _http.GetAsync("api/events");
@@ -68,6 +49,25 @@ namespace CleanUps.Shared.ClientServices
                     return Result<EventDTO>.BadRequest(errorMessage);
                 case HttpStatusCode.NotFound:
                     return Result<EventDTO>.NotFound(errorMessage);
+                default:
+                    return Result<EventDTO>.InternalServerError(errorMessage);
+            }
+        }
+
+        public async Task<Result<EventDTO>> CreateEventAsync(EventDTO newEvent)
+        {
+            HttpResponseMessage response = await _http.PostAsJsonAsync("api/events", newEvent);
+            if (response.IsSuccessStatusCode)
+            {
+                EventDTO? eventDto = await response.Content.ReadFromJsonAsync<EventDTO>();
+                return eventDto != null ? Result<EventDTO>.Created(eventDto) : Result<EventDTO>.InternalServerError("Failed to deserialize event");
+            }
+
+            string errorMessage = await response.Content.ReadAsStringAsync();
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.BadRequest:
+                    return Result<EventDTO>.BadRequest(errorMessage);
                 default:
                     return Result<EventDTO>.InternalServerError(errorMessage);
             }
