@@ -10,29 +10,13 @@ namespace CleanUps.BusinessLogic.Services
     {
         private readonly IRepository<Event> _repository;
         private readonly IValidator<EventDTO> _validator;
-        private readonly IConverter<Event, EventDTO> _mapper;
+        private readonly IConverter<Event, EventDTO> _converter;
 
-        public EventService(IRepository<Event> repository, IValidator<EventDTO> validator, IConverter<Event, EventDTO> mapper)
+        public EventService(IRepository<Event> repository, IValidator<EventDTO> validator, IConverter<Event, EventDTO> converter)
         {
             _repository = repository;
             _validator = validator;
-            _mapper = mapper;
-        }
-
-        public async Task<Result<Event>> CreateAsync(EventDTO dto)
-        {
-            //Step 1. Validate DTO from parameter - return result of the validation
-            var validationResult = _validator.ValidateForCreate(dto);
-            if (!validationResult.IsSuccess)
-            {
-                return Result<Event>.BadRequest(validationResult.ErrorMessage);
-            }
-
-            //Step 2. Convert DTO to Domain Model
-            Event eventModel = _mapper.ConvertToModel(dto);
-
-            //Step 3. Pass the model to the repository - return result of operation
-            return await _repository.CreateAsync(eventModel);
+            _converter = converter;
         }
 
         public async Task<Result<List<Event>>> GetAllAsync()
@@ -55,6 +39,22 @@ namespace CleanUps.BusinessLogic.Services
             return await _repository.GetByIdAsync(id);
         }
 
+        public async Task<Result<Event>> CreateAsync(EventDTO dto)
+        {
+            //Step 1. Validate DTO from parameter - return result of the validation
+            var validationResult = _validator.ValidateForCreate(dto);
+            if (!validationResult.IsSuccess)
+            {
+                return Result<Event>.BadRequest(validationResult.ErrorMessage);
+            }
+
+            //Step 2. Convert DTO to Domain Model
+            Event eventModel = _converter.ConvertToModel(dto);
+
+            //Step 3. Pass the model to the repository - return result of operation
+            return await _repository.CreateAsync(eventModel);
+        }
+
         public async Task<Result<Event>> UpdateAsync(int id, EventDTO dto)
         {
             //Step 1. Validate DTO the parameter - return result of the validation
@@ -65,7 +65,7 @@ namespace CleanUps.BusinessLogic.Services
             }
 
             //Step 2. Convert DTO to Domain Model
-            Event eventModel = _mapper.ConvertToModel(dto);
+            Event eventModel = _converter.ConvertToModel(dto);
 
             //Step 3. Pass the model to the repository - return result of operation
             return await _repository.UpdateAsync(eventModel);

@@ -102,40 +102,36 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
-                // Ensure PasswordHash is not accidentally cleared if not updating password
-                if (string.IsNullOrWhiteSpace(userToBeUpdated.PasswordHash))
-                {
-                    // This implies the service layer didn't preserve the hash correctly
-                    // Or this method is being called inappropriately without password handling
-                    return Result<User>.InternalServerError("Password hash is missing during user update.");
-                }
-
                 User? retrievedUser = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.UserId == userToBeUpdated.UserId);
 
                 if (retrievedUser is null)
                 {
                     return Result<User>.NotFound($"User with id: {userToBeUpdated.UserId} does not exist");
                 }
-                else
+
+                // Check for email conflict if email is being changed e.g.:
+                //Below says: If the retrievedUser.Email does not match userToBeupdated.Email, then perhaps... maybem.. userToBeupdated changed their email.... but then it also says:
+                //If there is an existingUser with the same email as the userToBeupdated and the existing userId is not the same as the userToBeUpdated
+                //then it must mean the userToBeUpdated is trying to use another users email (email is unique in the db)
+                if (retrievedUser.Email != userToBeUpdated.Email && await _context.Users.AnyAsync(existingUser => existingUser.Email == userToBeUpdated.Email && existingUser.UserId != userToBeUpdated.UserId))
                 {
-                    // Check for email conflict if email is being changed e.g.:
-                    //Below says: If the retrievedUser.Email does not match userToBeupdated.Email, then perhaps... maybem.. userToBeupdated changed their email.... but then it also says:
-                    //If there is an existingUser with the same email as the userToBeupdated and the existing userId is not the same as the userToBeUpdated
-                    //then it must mean the userToBeUpdated is trying to use another users email (email is unique in the db)
-                    if (retrievedUser.Email != userToBeUpdated.Email && await _context.Users.AnyAsync(existingUser => existingUser.Email == userToBeUpdated.Email && existingUser.UserId != userToBeUpdated.UserId))
-                    {
 
 
-                        return Result<User>.Conflict($"Another user with email {userToBeUpdated.Email} already exists.");
-                    }
-
-                    _context.Entry(retrievedUser).State = EntityState.Detached;
-
-                    _context.Users.Update(userToBeUpdated);
-                    await _context.SaveChangesAsync();
-
-                    return Result<User>.Ok(userToBeUpdated);
+                    return Result<User>.Conflict($"Another user with email {userToBeUpdated.Email} already exists.");
                 }
+
+                _context.Entry(retrievedUser).State = EntityState.Detached;
+
+                //_context.Users.Update(userToBeUpdated); // This marks all fields as modified
+                //For more control, attach and mark specific fields:
+                _context.Users.Attach(userToBeUpdated);
+                _context.Entry(userToBeUpdated).Property(u => u.Name).IsModified = true;
+                _context.Entry(userToBeUpdated).Property(u => u.Email).IsModified = true;
+                _context.Entry(userToBeUpdated).Property(u => u.UserRole).IsModified = true;
+                await _context.SaveChangesAsync();
+
+                return Result<User>.Ok(userToBeUpdated);
+
             }
             catch (OperationCanceledException)
             {
@@ -198,5 +194,10 @@ namespace CleanUps.DataAccess.Repositories
                 return Result<User>.InternalServerError("Something went wrong. Try again later");
             }
         }
+
+        //public async Task<Result<User>> UpdatePasswordAsync(string currentPassword, string newPassword)
+        //{
+        //    
+        //}
     }
 }

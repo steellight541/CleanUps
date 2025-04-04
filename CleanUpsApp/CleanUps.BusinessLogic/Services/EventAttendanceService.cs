@@ -20,27 +20,17 @@ namespace CleanUps.BusinessLogic.Services
             _converter = converter;
         }
 
-        public async Task<Result<EventAttendance>> CreateAsync(EventAttendanceDTO dto)
-        {
-            //Step 1. Validate DTO from parameter - return result of the validation
-            var validationResult = _validator.ValidateForCreate(dto);
-            if (!validationResult.IsSuccess)
-            {
-                return Result<EventAttendance>.BadRequest(validationResult.ErrorMessage);
-            }
-
-            //Step 2. Convert DTO to Domain Model
-            EventAttendance eventAttendanceModel = _converter.ConvertToModel(dto);
-
-            //Step 3. Pass the model to the repository - return result of operation
-            return await _repository.CreateAsync(eventAttendanceModel);
-        }
-
         public async Task<Result<List<EventAttendance>>> GetAllAsync()
         {
             //Step 1. Call GetAll from the repository - return result of operation
             return await _repository.GetAllAsync();
         }
+
+        public async Task<Result<EventAttendance>> GetByIdAsync(int id)
+        {
+            return Result<EventAttendance>.InternalServerError("Service: GetByIdAsync Method is not implemented, use another method.");
+        }
+
 
         public async Task<Result<List<Event>>> GetEventsForASingleUserAsync(int userId)
         {
@@ -61,6 +51,38 @@ namespace CleanUps.BusinessLogic.Services
                 return Result<List<User>>.BadRequest(idValidation.ErrorMessage);
             }
             return await _repository.GetUsersForASingleEventAsync(eventId);
+        }
+
+
+        public Result<int> GetNumberOfUsersForASingleEvent(int eventId)
+        {
+            var idValidation = _validator.ValidateId(eventId);
+            if (!idValidation.IsSuccess)
+            {
+                return Result<int>.BadRequest(idValidation.ErrorMessage);
+            }
+            return _repository.GetNumberOfUsersForASingleEvent(eventId);
+        }
+
+        public async Task<Result<EventAttendance>> CreateAsync(EventAttendanceDTO dto)
+        {
+            //Step 1. Validate DTO from parameter - return result of the validation
+            var validationResult = _validator.ValidateForCreate(dto);
+            if (!validationResult.IsSuccess)
+            {
+                return Result<EventAttendance>.BadRequest(validationResult.ErrorMessage);
+            }
+
+            //Step 2. Convert DTO to Domain Model
+            EventAttendance eventAttendanceModel = _converter.ConvertToModel(dto);
+
+            //Step 3. Pass the model to the repository - return result of operation
+            return await _repository.CreateAsync(eventAttendanceModel);
+        }
+
+        public async Task<Result<EventAttendance>> UpdateAsync(int id, EventAttendanceDTO entity)
+        {
+            return Result<EventAttendance>.InternalServerError("Service: UpdateAsync Method with one Id paramter is not implemented, use another method.");
         }
 
         public async Task<Result<EventAttendance>> UpdateEventAttendanceAsync(int eventId, int userId, EventAttendanceDTO dto)
@@ -97,19 +119,9 @@ namespace CleanUps.BusinessLogic.Services
             return await _repository.DeleteEventAttendanceAsync(eventId, userId);
         }
 
-        public async Task<Result<EventAttendance>> GetByIdAsync(int id)
-        {
-            return Result<EventAttendance>.InternalServerError("Service: GetByIdAsync Method is not implemented, use another method.");
-        }
-
         public async Task<Result<EventAttendance>> DeleteAsync(int id)
         {
             return Result<EventAttendance>.InternalServerError("Service: DeleteAsync Method with one Id paramter is not implemented, use another method.");
-        }
-
-        public async Task<Result<EventAttendance>> UpdateAsync(int id, EventAttendanceDTO entity)
-        {
-            return Result<EventAttendance>.InternalServerError("Service: UpdateAsync Method with one Id paramter is not implemented, use another method.");
         }
     }
 }
