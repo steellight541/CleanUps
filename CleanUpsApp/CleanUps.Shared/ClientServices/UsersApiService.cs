@@ -5,11 +5,11 @@ using System.Net.Http.Json;
 
 namespace CleanUps.Shared.ClientServices
 {
-    public class UsersApiService
+    public class UserApiService
     {
         private readonly HttpClient _http;
 
-        public UsersApiService(HttpClient http)
+        public UserApiService(HttpClient http)
         {
             _http = http;
         }

@@ -16,7 +16,7 @@ namespace CleanUps.MAUI.Shared
             services.AddScoped<EventApiService>();
             services.AddScoped<EventAttendanceApiService>();
             services.AddScoped<PhotoApiService>();
-            services.AddScoped<UsersApiService>();
+            services.AddScoped<UserApiService>();
 
         }
     }

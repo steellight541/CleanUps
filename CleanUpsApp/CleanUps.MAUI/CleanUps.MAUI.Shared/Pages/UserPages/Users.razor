@@ -1,6 +1,6 @@
 ﻿@page "/users"
 @inject NavigationManager _navigationManager
-@inject UsersApiService _usersApiService
+@inject UserApiService _userApiService
 
 <h3>Users Management</h3>
 
@@ -77,7 +77,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        users = await _usersApiService.GetAllUsersAsync();
+        users = await _userApiService.GetAllUsersAsync();
     }
 
     private void ViewUser(int userId)
@@ -92,10 +92,10 @@ else
 
     private async Task DeleteUser(int userId)
     {
-        var result = await _usersApiService.DeleteUserAsync(userId);
+        var result = await _userApiService.DeleteUserAsync(userId);
         if (result.IsSuccess)
         {
-            users = await _usersApiService.GetAllUsersAsync();
+            users = await _userApiService.GetAllUsersAsync();
         }
         else
         {

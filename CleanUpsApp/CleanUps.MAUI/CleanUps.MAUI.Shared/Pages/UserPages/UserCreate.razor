@@ -1,6 +1,6 @@
 ﻿@page "/users/create"
 @inject NavigationManager _navigationManager
-@inject UsersApiService _usersApiService
+@inject UserApiService _userApiService
 
 <h3>Create New User</h3>
 
@@ -51,7 +51,7 @@
         UserDTO newUser = new UserDTO(0, createUserModel.Name, createUserModel.Email, createUserModel.IsOrganizer ? RoleDTO.Organizer : RoleDTO.Volunteer, DateTime.Now);
         newUser.Password = createUserModel.Password;
 
-        var result = await _usersApiService.CreateUserAsync(newUser);
+        var result = await _userApiService.CreateUserAsync(newUser);
         if (result.IsSuccess)
         {
             _navigationManager.NavigateTo("/users");

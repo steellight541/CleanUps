@@ -1,6 +1,6 @@
 ﻿@page "/users/edit/{userId:int}"
 @inject NavigationManager _navigationManager
-@inject UsersApiService _usersApiService
+@inject UserApiService _userApiService
 
 <h3>Edit User</h3>
 
@@ -54,7 +54,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        userResult = await _usersApiService.GetUserByIdAsync(userId);
+        userResult = await _userApiService.GetUserByIdAsync(userId);
         if (userResult.IsSuccess)
         {
             editModel = new UserEditModel
@@ -73,7 +73,7 @@ else
     {
         var updatedUser = new UserDTO(userId, editModel.Name, editModel.Email, editModel.IsOrganizer ? RoleDTO.Organizer: RoleDTO.Volunteer, editModel.CreatedDateTime);
 
-        var result = await _usersApiService.UpdateUserAsync(userId, updatedUser);
+        var result = await _userApiService.UpdateUserAsync(userId, updatedUser);
         if (result.IsSuccess)
         {
             _navigationManager.NavigateTo("/users");
