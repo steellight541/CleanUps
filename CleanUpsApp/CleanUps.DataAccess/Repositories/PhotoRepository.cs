@@ -15,29 +15,6 @@ namespace CleanUps.DataAccess.Repositories
             _context = context;
         }
 
-        public async Task<Result<Photo>> CreateAsync(Photo photoToBeCreated)
-        {
-            try
-            {
-                await _context.Photos.AddAsync(photoToBeCreated);
-                await _context.SaveChangesAsync();
-
-                return Result<Photo>.Created(photoToBeCreated);
-            }
-            catch (OperationCanceledException)
-            {
-                return Result<Photo>.InternalServerError("Operation Canceled. Refresh and retry");
-            }
-            catch (DbUpdateException)
-            {
-                return Result<Photo>.InternalServerError("Failed to create the photo due to a database error. Try again later");
-            }
-            catch (Exception)
-            {
-                return Result<Photo>.InternalServerError("Something went wrong. Try again later");
-            }
-        }
-
         public async Task<Result<List<Photo>>> GetAllAsync()
         {
             try
@@ -106,6 +83,29 @@ namespace CleanUps.DataAccess.Repositories
             catch (Exception)
             {
                 return Result<List<Photo>>.InternalServerError("Something went wrong. Try again later");
+            }
+        }
+
+        public async Task<Result<Photo>> CreateAsync(Photo photoToBeCreated)
+        {
+            try
+            {
+                await _context.Photos.AddAsync(photoToBeCreated);
+                await _context.SaveChangesAsync();
+
+                return Result<Photo>.Created(photoToBeCreated);
+            }
+            catch (OperationCanceledException)
+            {
+                return Result<Photo>.InternalServerError("Operation Canceled. Refresh and retry");
+            }
+            catch (DbUpdateException)
+            {
+                return Result<Photo>.InternalServerError("Failed to create the photo due to a database error. Try again later");
+            }
+            catch (Exception)
+            {
+                return Result<Photo>.InternalServerError("Something went wrong. Try again later");
             }
         }
 

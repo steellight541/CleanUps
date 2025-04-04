@@ -15,37 +15,6 @@ namespace CleanUps.DataAccess.Repositories
             _context = context;
         }
 
-        public async Task<Result<EventAttendance>> CreateAsync(EventAttendance eventAttendanceToBeCreated)
-        {
-            try
-            {
-                if (!await _context.Events.AnyAsync(e => e.EventId == eventAttendanceToBeCreated.EventId))
-                {
-                    return Result<EventAttendance>.NotFound("Event with the specified ID does not exist.");
-                }
-                if (!await _context.Users.AnyAsync(u => u.UserId == eventAttendanceToBeCreated.UserId))
-                {
-                    return Result<EventAttendance>.NotFound("User with the specified ID does not exist.");
-                }
-
-                await _context.EventAttendances.AddAsync(eventAttendanceToBeCreated);
-                await _context.SaveChangesAsync();
-                return Result<EventAttendance>.Created(eventAttendanceToBeCreated);
-            }
-            catch (OperationCanceledException)
-            {
-                return Result<EventAttendance>.InternalServerError("Operation Canceled. Refresh and retry");
-            }
-            catch (DbUpdateException)
-            {
-                return Result<EventAttendance>.InternalServerError("Failed to create the eventAttendance due to a database error. Try again later");
-            }
-            catch (Exception)
-            {
-                return Result<EventAttendance>.InternalServerError("Something went wrong. Try again later");
-            }
-        }
-
         public async Task<Result<List<EventAttendance>>> GetAllAsync()
         {
             try
@@ -66,6 +35,12 @@ namespace CleanUps.DataAccess.Repositories
                 return Result<List<EventAttendance>>.InternalServerError("Something went wrong. Try again later");
             }
         }
+
+        public async Task<Result<EventAttendance>> GetByIdAsync(int id)
+        {
+            return Result<EventAttendance>.InternalServerError("Repository: GetByIdAsync Method is not implemented, use another method.");
+        }
+
         public async Task<Result<List<Event>>> GetEventsForASingleUserAsync(int userId)
         {
             try
@@ -122,6 +97,66 @@ namespace CleanUps.DataAccess.Repositories
             catch (Exception)
             {
                 return Result<List<User>>.InternalServerError("Something went wrong. Try again later");
+            }
+        }
+
+        public Result<int> GetNumberOfUsersForASingleEvent(int eventId)
+        {
+            try
+            {
+                int numberOfUsers = _context.EventAttendances
+                    .Where(ea => ea.EventId == eventId)
+                    .Select(ea => ea.User).Count();
+
+                if (numberOfUsers == 0)
+                {
+                    return Result<int>.NoContent();
+
+                }
+                return Result<int>.Ok(numberOfUsers);
+            }
+            catch (ArgumentNullException)
+            {
+                return Result<int>.NoContent();
+            }
+            catch (OperationCanceledException)
+            {
+                return Result<int>.InternalServerError("Operation Canceled. Refresh and retry");
+            }
+            catch (Exception)
+            {
+                return Result<int>.InternalServerError("Something went wrong. Try again later");
+            }
+        }
+
+        public async Task<Result<EventAttendance>> CreateAsync(EventAttendance eventAttendanceToBeCreated)
+        {
+            try
+            {
+                if (!await _context.Events.AnyAsync(e => e.EventId == eventAttendanceToBeCreated.EventId))
+                {
+                    return Result<EventAttendance>.NotFound("Event with the specified ID does not exist.");
+                }
+                if (!await _context.Users.AnyAsync(u => u.UserId == eventAttendanceToBeCreated.UserId))
+                {
+                    return Result<EventAttendance>.NotFound("User with the specified ID does not exist.");
+                }
+
+                await _context.EventAttendances.AddAsync(eventAttendanceToBeCreated);
+                await _context.SaveChangesAsync();
+                return Result<EventAttendance>.Created(eventAttendanceToBeCreated);
+            }
+            catch (OperationCanceledException)
+            {
+                return Result<EventAttendance>.InternalServerError("Operation Canceled. Refresh and retry");
+            }
+            catch (DbUpdateException)
+            {
+                return Result<EventAttendance>.InternalServerError("Failed to create the eventAttendance due to a database error. Try again later");
+            }
+            catch (Exception)
+            {
+                return Result<EventAttendance>.InternalServerError("Something went wrong. Try again later");
             }
         }
 
@@ -189,11 +224,6 @@ namespace CleanUps.DataAccess.Repositories
             {
                 return Result<EventAttendance>.InternalServerError("Something went wrong. Try again later");
             }
-        }
-
-        public async Task<Result<EventAttendance>> GetByIdAsync(int id)
-        {
-            return Result<EventAttendance>.InternalServerError("Repository: GetByIdAsync Method is not implemented, use another method.");
         }
 
         public async Task<Result<EventAttendance>> DeleteAsync(int id)

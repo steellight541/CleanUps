@@ -17,29 +17,6 @@ namespace CleanUps.DataAccess.Repositories
             _context = context;
         }
 
-        public async Task<Result<Event>> CreateAsync(Event eventToBeCreated)
-        {
-            try
-            {
-                await _context.Events.AddAsync(eventToBeCreated);
-                await _context.SaveChangesAsync();
-
-                return Result<Event>.Created(eventToBeCreated);
-            }
-            catch (OperationCanceledException)
-            {
-                return Result<Event>.InternalServerError("Operation Canceled. Refresh and retry");
-            }
-            catch (DbUpdateException)
-            {
-                return Result<Event>.InternalServerError("Failed to create the event due to a database error. Try again later");
-            }
-            catch (Exception)
-            {
-                return Result<Event>.InternalServerError("Something went wrong. Try again later");
-            }
-        }
-
         public async Task<Result<List<Event>>> GetAllAsync()
         {
             try
@@ -77,6 +54,29 @@ namespace CleanUps.DataAccess.Repositories
                 {
                     return Result<Event>.Ok(retrievedEvent);
                 }
+            }
+            catch (Exception)
+            {
+                return Result<Event>.InternalServerError("Something went wrong. Try again later");
+            }
+        }
+
+        public async Task<Result<Event>> CreateAsync(Event eventToBeCreated)
+        {
+            try
+            {
+                await _context.Events.AddAsync(eventToBeCreated);
+                await _context.SaveChangesAsync();
+
+                return Result<Event>.Created(eventToBeCreated);
+            }
+            catch (OperationCanceledException)
+            {
+                return Result<Event>.InternalServerError("Operation Canceled. Refresh and retry");
+            }
+            catch (DbUpdateException)
+            {
+                return Result<Event>.InternalServerError("Failed to create the event due to a database error. Try again later");
             }
             catch (Exception)
             {
