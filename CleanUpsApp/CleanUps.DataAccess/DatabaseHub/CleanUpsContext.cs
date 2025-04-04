@@ -20,8 +20,6 @@ public partial class CleanUpsContext : DbContext
 
     public virtual DbSet<Photo> Photos { get; set; }
 
-    public virtual DbSet<Role> Roles { get; set; }
-
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -73,13 +71,6 @@ public partial class CleanUpsContext : DbContext
                 .HasConstraintName("FK_PhotosId");
         });
 
-        modelBuilder.Entity<Role>(entity =>
-        {
-            entity.HasKey(e => e.RoleId).HasName("PK_Role");
-
-            entity.Property(e => e.RoleName).HasMaxLength(20);
-        });
-
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.UserId).HasName("PK_User");
@@ -91,7 +82,8 @@ public partial class CleanUpsContext : DbContext
                 .HasColumnType("datetime");
             entity.Property(e => e.Email).HasMaxLength(255);
             entity.Property(e => e.Name).HasMaxLength(100);
-            entity.Property(e => e.Password).HasMaxLength(50);
+            entity.Property(e => e.PasswordHash).HasMaxLength(50);
+            entity.Property(e => e.UserRole).HasColumnName("UserRole"); // Maps the enum to a column
         });
 
         OnModelCreatingPartial(modelBuilder);

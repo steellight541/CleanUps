@@ -62,16 +62,16 @@ else
                     Name = userResult.Data.Name,
                     Email = userResult.Data.Email,
                     Password = userResult.Data.Password,
-                    RoleId = userResult.Data.RoleId,
+                    RoleId = (int)userResult.Data.UserRole,
                     CreatedDateTime = userResult.Data.CreatedDate,
-                    IsOrganizer = userResult.Data.RoleId == 1
+                    IsOrganizer = (int)userResult.Data.UserRole == 1
                 };
         }
     }
 
     private async Task HandleSubmit()
     {
-        var updatedUser = new UserDTO(userId, editModel.Name, editModel.Email, editModel.Password, editModel.IsOrganizer ? 1 : 2, editModel.CreatedDateTime);
+        var updatedUser = new UserDTO(userId, editModel.Name, editModel.Email, editModel.Password, editModel.IsOrganizer ? RoleDTO.Organizer: RoleDTO.Volunteer, editModel.CreatedDateTime);
 
         var result = await UserApiService.UpdateUserAsync(userId, updatedUser);
         if (result.IsSuccess)

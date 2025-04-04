@@ -14,7 +14,7 @@ public partial class User : EFModel
 
     public string Email { get; set; } = null!;
 
-    public string Password { get; set; } = null!;
+    public string PasswordHash { get; set; } = null!;
 
     public Role UserRole { get; set; }
 

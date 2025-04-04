@@ -13,7 +13,7 @@ namespace CleanUps.BusinessLogic.Converters
                 UserId = dto.UserId,
                 Name = dto.Name,
                 Email = dto.Email,
-                Password = dto.Password,
+                PasswordHash = dto.Password,
                 UserRole = (Role)dto.UserRole,
                 CreatedDate = dto.CreatedDate
             };
@@ -24,7 +24,7 @@ namespace CleanUps.BusinessLogic.Converters
                 model.UserId,
                 model.Name,
                 model.Email,
-                model.Password,
+                model.PasswordHash,
                 (RoleDTO)model.UserRole,
                 model.CreatedDate
             );
