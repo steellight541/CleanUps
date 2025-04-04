@@ -2,9 +2,8 @@
 
 namespace CleanUps.BusinessLogic.Models;
 
-public partial class Role : EFModel
+public enum Role
 {
-    public int RoleId { get; set; }
-
-    public string RoleName { get; set; } = null!;
+    Organizer = 1,
+    Volunteer = 2
 }

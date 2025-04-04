@@ -16,7 +16,7 @@ public partial class User : EFModel
 
     public string Password { get; set; } = null!;
 
-    public int RoleId { get; set; }
+    public Role UserRole { get; set; }
 
     public DateTime CreatedDate { get; set; }
 
