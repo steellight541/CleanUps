@@ -1,4 +1,5 @@
 ﻿using CleanUps.Shared.DTOs;
+using CleanUps.Shared.DTOs.Auth;
 using CleanUps.Shared.ErrorHandling;
 using System.Net;
 using System.Net.Http.Json;
@@ -56,24 +57,24 @@ namespace CleanUps.Shared.ClientServices
             }
         }
 
-        public async Task<Result<UserDTO>> CreateUserAsync(UserDTO newUser)
+        public async Task<Result<SignUpDTO>> CreateAccountAsync(SignUpDTO newUser)
         {
             HttpResponseMessage response = await _http.PostAsJsonAsync("api/users", newUser);
             if (response.IsSuccessStatusCode)
             {
-                UserDTO? user = await response.Content.ReadFromJsonAsync<UserDTO>();
-                return user != null ? Result<UserDTO>.Created(user) : Result<UserDTO>.InternalServerError("Failed to deserialize user");
+                SignUpDTO? user = await response.Content.ReadFromJsonAsync<SignUpDTO>();
+                return user != null ? Result<SignUpDTO>.Created(user) : Result<SignUpDTO>.InternalServerError("Failed to deserialize user");
             }
 
             string errorMessage = await response.Content.ReadAsStringAsync();
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:
-                    return Result<UserDTO>.BadRequest(errorMessage);
+                    return Result<SignUpDTO>.BadRequest(errorMessage);
                 case HttpStatusCode.NotFound:
-                    return Result<UserDTO>.NotFound(errorMessage);
+                    return Result<SignUpDTO>.NotFound(errorMessage);
                 default:
-                    return Result<UserDTO>.InternalServerError(errorMessage);
+                    return Result<SignUpDTO>.InternalServerError(errorMessage);
             }
         }
 

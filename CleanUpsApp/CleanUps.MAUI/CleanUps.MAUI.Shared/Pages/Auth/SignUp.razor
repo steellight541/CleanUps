@@ -1,0 +1,102 @@
+﻿@page "/auth/signup"
+@inject UserApiService _userApiService;
+@inject NavigationManager _navigationManager
+
+<h3>Sign Up</h3>
+
+<div class="mb-3">
+    <label for="exampleFormControlInput1" class="form-label">Email address</label>
+    <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com">
+</div>
+
+<div class="mb-3">
+    <label for="inputPassword5" class="form-label">Password</label>
+    <input type="password" id="inputPassword5" class="form-control" aria-describedby="passwordHelpBlock">
+    <div id="passwordHelpBlock" class="form-text">
+        Your password must be 8-20 characters long, contain letters and numbers, and must not contain spaces, special characters, or emoji.
+    </div>
+</div>
+
+
+<EditForm Model="singUpModel" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="name">Name</label>
+        <InputText id="name" @bind-Value="singUpModel.Name" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="email">Email</label>
+        <InputText id="email" @bind-Value="singUpModel.Email" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="password">Password</label>
+        <InputText id="password" type="password" @bind-Value="singUpModel.Password" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <InputText id="confirmPassword" type="password" @bind-Value="singUpModel.ConfirmPassword" class="form-control" />
+    </div>
+
+    <div class="form-check">
+        <InputCheckbox id="isOrganizer" @bind-Value="singUpModel.IsOrganizer" class="form-check-input" />
+        <label class="form-check-label" for="isOrganizer">Organizer</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(errorMsg))
+{
+    <p class="text-danger">@errorMsg</p>
+}
+
+@code {
+    private SignUpModel singUpModel = new SignUpModel();
+    private string errorMsg = string.Empty;
+
+    private asAsyncync Task HandleSubmit()
+    {
+        RegisterUserDTO newUser = new RegisterUserDTO(singUpModel.Name, singUpModel.Email, singUpModel.Password);
+
+        var result = await _userApiService.CreateUserAsync(newUser);
+ Account (result.IsSuccess)
+        {
+            _navigationManager.NavigateTo("/events");
+        }
+        else
+        {
+            errorMsg = result.ErrorMessage ?? "An error occurred while .";
+        }
+    }
+
+    private void Cancel()
+    {
+        _navigationManager.NavigateTo("/users");
+    }
+
+    private class SignUpModel
+    {
+        [Required(ErrorMessage = "Name is required.")]
+        [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
+        public string Name { get; set; }
+
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Invalid email format.")]
+        public string Email { get; set; }
+
+        [Required(ErrorMessage = "Password is required.")]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be between 6 and 100 characters.")]
+        public string Password { get; set; }
+
+        [Compare("Password", ErrorMessage = "Passwords do not match.")]
+        public string ConfirmPassword { get; set; }
+
+        public bool IsOrganizer { get; set; }
+    }
+}
