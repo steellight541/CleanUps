@@ -8,9 +8,9 @@ namespace CleanUps.BusinessLogic.Models;
 /// </summary>
 public partial class EventAttendance : EFModel
 {
-    public int EventId { get; set; }
-
     public int UserId { get; set; }
+
+    public int EventId { get; set; }
 
     public DateTime CheckIn { get; set; }
 

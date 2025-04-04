@@ -80,15 +80,15 @@ namespace CleanUps.BusinessLogic.Services
             return await _repository.CreateAsync(eventAttendanceModel);
         }
 
-        public async Task<Result<EventAttendance>> UpdateAsync(int id, EventAttendanceDTO entity)
+        public async Task<Result<EventAttendance>> UpdateAsync(EventAttendanceDTO entity)
         {
             return Result<EventAttendance>.InternalServerError("Service: UpdateAsync Method with one Id paramter is not implemented, use another method.");
         }
 
-        public async Task<Result<EventAttendance>> UpdateEventAttendanceAsync(int eventId, int userId, EventAttendanceDTO dto)
+        public async Task<Result<EventAttendance>> UpdateEventAttendanceAsync(int userId, int eventId, EventAttendanceDTO dto)
         {
             //Step 1. Validate DTO the parameter - return result of the validation
-            var validationResult = _validator.ValidateEventAttendanceForUpdate(eventId, userId, dto);
+            var validationResult = _validator.ValidateEventAttendanceForUpdate(userId, eventId, dto);
             if (!validationResult.IsSuccess)
             {
                 return Result<EventAttendance>.BadRequest(validationResult.ErrorMessage);
@@ -100,7 +100,7 @@ namespace CleanUps.BusinessLogic.Services
             //Step 3. Pass the model to the repository - return result of operation
             return await _repository.UpdateAsync(eventAttendanceModel);
         }
-        public async Task<Result<EventAttendance>> DeleteAsync(int eventId, int userId)
+        public async Task<Result<EventAttendance>> DeleteEventAttendanceAsync(int userId, int eventId)
         {
             //Step 1. Validate DTO the parameter - return result of the validation
             var eventIdValidation = _validator.ValidateId(eventId);
@@ -116,7 +116,7 @@ namespace CleanUps.BusinessLogic.Services
             }
 
             //Step 2. Pass the model to the repository - return result of operation
-            return await _repository.DeleteEventAttendanceAsync(eventId, userId);
+            return await _repository.DeleteEventAttendanceAsync(userId, eventId);
         }
 
         public async Task<Result<EventAttendance>> DeleteAsync(int id)

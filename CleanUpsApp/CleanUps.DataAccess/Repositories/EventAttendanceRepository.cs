@@ -193,7 +193,7 @@ namespace CleanUps.DataAccess.Repositories
             }
         }
 
-        public async Task<Result<EventAttendance>> DeleteEventAttendanceAsync(int eventId, int userId)
+        public async Task<Result<EventAttendance>> DeleteEventAttendanceAsync(int userId, int eventId)
         {
             try
             {

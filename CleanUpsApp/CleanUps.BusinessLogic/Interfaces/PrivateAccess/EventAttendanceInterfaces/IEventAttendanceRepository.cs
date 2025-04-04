@@ -7,7 +7,7 @@ namespace CleanUps.BusinessLogic.Interfaces.PrivateAccess.EventAttendanceInterfa
     {
         Task<Result<List<Event>>> GetEventsForASingleUserAsync(int userId);
         Task<Result<List<User>>> GetUsersForASingleEventAsync(int eventId);
-        Task<Result<EventAttendance>> DeleteEventAttendanceAsync(int eventId, int userId);
         Result<int> GetNumberOfUsersForASingleEvent(int eventId);
+        Task<Result<EventAttendance>> DeleteEventAttendanceAsync(int userId, int eventId);
     }
 }

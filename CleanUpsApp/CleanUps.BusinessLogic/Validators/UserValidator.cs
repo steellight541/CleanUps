@@ -22,21 +22,16 @@ namespace CleanUps.BusinessLogic.Validators
             return ValidateCommonFields(dto);
         }
 
-        public Result<UserDTO> ValidateForUpdate(int id, UserDTO dto)
+        public Result<UserDTO> ValidateForUpdate(UserDTO dto)
         {
             if (dto == null)
             {
                 return Result<UserDTO>.BadRequest("User cannot be null.");
             }
 
-            if (id <= 0)
+            if (dto.UserId <= 0)
             {
                 return Result<UserDTO>.BadRequest("User Id must be greater than zero.");
-            }
-
-            if (dto.UserId != id)
-            {
-                return Result<UserDTO>.BadRequest("The User Id does not match the provided id.");
             }
 
             return ValidateCommonFields(dto);

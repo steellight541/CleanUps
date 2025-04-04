@@ -55,10 +55,10 @@ namespace CleanUps.BusinessLogic.Services
             return await _repository.CreateAsync(eventModel);
         }
 
-        public async Task<Result<Event>> UpdateAsync(int id, EventDTO dto)
+        public async Task<Result<Event>> UpdateAsync(EventDTO dto)
         {
             //Step 1. Validate DTO the parameter - return result of the validation
-            var validationResult = _validator.ValidateForUpdate(id, dto);
+            var validationResult = _validator.ValidateForUpdate(dto);
             if (!validationResult.IsSuccess)
             {
                 return Result<Event>.BadRequest(validationResult.ErrorMessage);

@@ -59,10 +59,10 @@ namespace CleanUps.BusinessLogic.Services
         }
 
 
-        public async Task<Result<User>> UpdateAsync(int id, UserDTO dto)
+        public async Task<Result<User>> UpdateAsync(UserDTO dto)
         {
             //Step 1. Validate DTO the parameter - return result of the validation
-            var validationResult = _validator.ValidateForUpdate(id, dto);
+            var validationResult = _validator.ValidateForUpdate(dto);
             if (!validationResult.IsSuccess)
             {
                 return Result<User>.BadRequest(validationResult.ErrorMessage);

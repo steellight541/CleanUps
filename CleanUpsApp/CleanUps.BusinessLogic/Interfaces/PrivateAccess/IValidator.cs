@@ -9,7 +9,7 @@ namespace CleanUps.BusinessLogic.Interfaces.PrivateAccess
     internal interface IValidator<T> where T : RecordDTO
     {
         Result<T> ValidateForCreate(T dto);
-        Result<T> ValidateForUpdate(int id, T dto);
+        Result<T> ValidateForUpdate(T dto);
         Result<string> ValidateId(int id);
     }
 }

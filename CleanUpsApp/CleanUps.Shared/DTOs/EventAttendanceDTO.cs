@@ -2,4 +2,4 @@
 
 namespace CleanUps.Shared.DTOs;
 
-public record EventAttendanceDTO(int EventId, int UserId, DateTime CheckIn) : RecordDTO;
+public record EventAttendanceDTO(int UserId, int EventId, DateTime CheckIn) : RecordDTO;

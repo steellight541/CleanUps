@@ -21,21 +21,16 @@ namespace CleanUps.BusinessLogic.Validators
             return ValidateCommonFields(dto);
         }
 
-        public Result<EventDTO> ValidateForUpdate(int id, EventDTO dto)
+        public Result<EventDTO> ValidateForUpdate(EventDTO dto)
         {
             if (dto == null)
             {
                 return Result<EventDTO>.BadRequest("Event cannot be null.");
             }
 
-            if (id <= 0)
+            if (dto.EventId <= 0)
             {
                 return Result<EventDTO>.BadRequest("Event Id must be greater than zero.");
-            }
-
-            if (dto.EventId != id)
-            {
-                return Result<EventDTO>.BadRequest("The Event Id does not match the provided id.");
             }
 
             return ValidateCommonFields(dto);

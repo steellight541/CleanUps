@@ -21,7 +21,7 @@ namespace CleanUps.BusinessLogic.Validators
             return ValidateCommonFields(dto);
         }
 
-        public Result<EventAttendanceDTO> ValidateEventAttendanceForUpdate(int eventId, int userId, EventAttendanceDTO dto)
+        public Result<EventAttendanceDTO> ValidateEventAttendanceForUpdate(int userId, int eventId, EventAttendanceDTO dto)
         {
             if (dto == null)
             {
@@ -35,9 +35,9 @@ namespace CleanUps.BusinessLogic.Validators
             {
                 return Result<EventAttendanceDTO>.BadRequest("User Id must be greater than zero.");
             }
-            if (dto.EventId != eventId || dto.UserId != userId)
+            if  dto.UserId != userId || dto.EventId != eventId)
             {
-                return Result<EventAttendanceDTO>.BadRequest("The Event Id and User Id in the DTO do not match the provided ids.");
+                return Result<EventAttendanceDTO>.BadRequest("The User Id and Event Id in the DTO do not match the provided ids.");
             }
             return ValidateCommonFields(dto);
         }
@@ -64,9 +64,11 @@ namespace CleanUps.BusinessLogic.Validators
 
             return Result<EventAttendanceDTO>.Ok(dto);
         }
-        public Result<EventAttendanceDTO> ValidateForUpdate(int id, EventAttendanceDTO dto)
+        public Result<EventAttendanceDTO> ValidateForUpdate(EventAttendanceDTO dto)
         {
             return Result<EventAttendanceDTO>.InternalServerError("Validator: ValidateForUpdate Method is not implemented, use another method.");
         }
+
+
     }
 }

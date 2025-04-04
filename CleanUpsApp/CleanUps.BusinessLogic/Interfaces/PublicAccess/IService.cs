@@ -9,7 +9,7 @@ namespace CleanUps.BusinessLogic.Interfaces.PublicAccess
         Task<Result<TReturn>> CreateAsync(TParam entity);
         Task<Result<List<TReturn>>> GetAllAsync();
         Task<Result<TReturn>> GetByIdAsync(int id);
-        Task<Result<TReturn>> UpdateAsync(int id, TParam entity);
+        Task<Result<TReturn>> UpdateAsync(TParam entity);
         Task<Result<TReturn>> DeleteAsync(int id);
     }
 }

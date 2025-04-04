@@ -64,10 +64,10 @@ namespace CleanUps.BusinessLogic.Services
             return await _repository.CreateAsync(photoModel);
         }
 
-        public async Task<Result<Photo>> UpdateAsync(int id, PhotoDTO dto)
+        public async Task<Result<Photo>> UpdateAsync(PhotoDTO dto)
         {
             //Step 1. Validate DTO the parameter - return result of the validation
-            var validationResult = _validator.ValidateForUpdate(id, dto);
+            var validationResult = _validator.ValidateForUpdate(dto);
             if (!validationResult.IsSuccess)
             {
                 return Result<Photo>.BadRequest(validationResult.ErrorMessage);
