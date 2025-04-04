@@ -1,4 +1,5 @@
 ﻿@page "/auth/signup"
+@using CleanUps.Shared.DTOs.Auth
 @inject UserApiService _userApiService;
 @inject NavigationManager _navigationManager
 
@@ -42,12 +43,7 @@
         <InputText id="confirmPassword" type="password" @bind-Value="singUpModel.ConfirmPassword" class="form-control" />
     </div>
 
-    <div class="form-check">
-        <InputCheckbox id="isOrganizer" @bind-Value="singUpModel.IsOrganizer" class="form-check-input" />
-        <label class="form-check-label" for="isOrganizer">Organizer</label>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Create</button>
+    <button type="submit" class="btn btn-primary">Sign Up</button>
     <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
 </EditForm>
 
@@ -60,24 +56,24 @@
     private SignUpModel singUpModel = new SignUpModel();
     private string errorMsg = string.Empty;
 
-    private asAsyncync Task HandleSubmit()
+    private async Task HandleSubmit()
     {
-        RegisterUserDTO newUser = new RegisterUserDTO(singUpModel.Name, singUpModel.Email, singUpModel.Password);
+        SignUpRequest newUser = new SignUpRequest(singUpModel.Name, singUpModel.Email, singUpModel.Password);
 
-        var result = await _userApiService.CreateUserAsync(newUser);
- Account (result.IsSuccess)
+        var result = await _userApiService.CreateAccountAsync(newUser);
+        if (result.IsSuccess)
         {
             _navigationManager.NavigateTo("/events");
         }
         else
         {
-            errorMsg = result.ErrorMessage ?? "An error occurred while .";
+            errorMsg = result.ErrorMessage ?? "An error occurred while signing up.";
         }
     }
 
     private void Cancel()
     {
-        _navigationManager.NavigateTo("/users");
+        _navigationManager.NavigateTo("/login");
     }
 
     private class SignUpModel
@@ -96,7 +92,5 @@
 
         [Compare("Password", ErrorMessage = "Passwords do not match.")]
         public string ConfirmPassword { get; set; }
-
-        public bool IsOrganizer { get; set; }
     }
 }
