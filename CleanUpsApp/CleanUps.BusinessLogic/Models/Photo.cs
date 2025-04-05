@@ -1,4 +1,4 @@
-﻿using CleanUps.BusinessLogic.Models.Flags;
+﻿using CleanUps.BusinessLogic.Models.AbstractModels;
 
 namespace CleanUps.BusinessLogic.Models;
 
@@ -6,7 +6,7 @@ namespace CleanUps.BusinessLogic.Models;
 /// Represents a photo associated with an event in the CleanUps application.
 /// This class stores the photo's data, caption, and its relationship to a specific event.
 /// </summary>
-public partial class Photo : EFModel
+public partial class Photo : EntityFrameworkModel
 {
     public int PhotoId { get; set; }
 

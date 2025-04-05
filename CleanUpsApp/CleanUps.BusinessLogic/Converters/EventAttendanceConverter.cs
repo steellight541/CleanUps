@@ -1,12 +1,12 @@
-﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
+﻿using CleanUps.BusinessLogic.Converters.Interfaces;
 using CleanUps.BusinessLogic.Models;
-using CleanUps.Shared.DTOs;
+using CleanUps.Shared.DTOs.EventAttendances;
 
 namespace CleanUps.BusinessLogic.Converters
 {
-    internal class EventAttendanceConverter : IConverter<EventAttendance, EventAttendanceDTO>
+    internal class EventAttendanceConverter : IEventAttendanceConverter
     {
-        public EventAttendance ConvertToModel(EventAttendanceDTO dto)
+        public EventAttendance ToModel(EventAttendanceDTO dto)
         {
             return new EventAttendance
             {
@@ -16,7 +16,7 @@ namespace CleanUps.BusinessLogic.Converters
             };
         }
 
-        public EventAttendanceDTO ConvertToDTO(EventAttendance model)
+        public EventAttendanceDTO ToDTO(EventAttendance model)
         {
             return new EventAttendanceDTO(
                 model.EventId,
@@ -25,14 +25,14 @@ namespace CleanUps.BusinessLogic.Converters
             );
         }
 
-        public List<EventAttendanceDTO> ConvertToDTOList(List<EventAttendance> listOfModels)
+        public List<EventAttendanceDTO> ToDTOList(List<EventAttendance> listOfModels)
         {
-            return listOfModels.Select(model => ConvertToDTO(model)).ToList();
+            return listOfModels.Select(model => ToDTO(model)).ToList();
         }
 
-        public List<EventAttendance> ConvertToModelList(List<EventAttendanceDTO> listOfDTOs)
+        public List<EventAttendance> ToModelList(List<EventAttendanceDTO> listOfDTOs)
         {
-            return listOfDTOs.Select(dto => ConvertToModel(dto)).ToList();
+            return listOfDTOs.Select(dto => ToModel(dto)).ToList();
         }
 
     }

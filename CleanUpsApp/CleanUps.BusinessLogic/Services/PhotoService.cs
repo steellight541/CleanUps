@@ -1,7 +1,10 @@
-﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
-using CleanUps.BusinessLogic.Interfaces.PublicAccess;
+﻿using CleanUps.BusinessLogic.Converters.Interfaces;
 using CleanUps.BusinessLogic.Models;
-using CleanUps.Shared.DTOs;
+using CleanUps.BusinessLogic.Repositories.Interfaces;
+using CleanUps.BusinessLogic.Services.Interfaces;
+using CleanUps.BusinessLogic.Validators.Interfaces;
+using CleanUps.Shared.DTOs.Events;
+using CleanUps.Shared.DTOs.Photos;
 using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.BusinessLogic.Services
@@ -9,10 +12,10 @@ namespace CleanUps.BusinessLogic.Services
     internal class PhotoService : IPhotoService
     {
         private readonly IPhotoRepository _repository;
-        private readonly IValidator<PhotoDTO> _validator;
-        private readonly IConverter<Photo, PhotoDTO> _converter;
+        private readonly IValidator<CreatePhotoRequest, UpdatePhotoRequest> _validator;
+        private readonly IConverter<Photo, PhotoResponse, CreatePhotoRequest, UpdatePhotoRequest> _converter;
 
-        public PhotoService(IPhotoRepository repository, IValidator<PhotoDTO> validator, IConverter<Photo, PhotoDTO> converter)
+        public PhotoService(IPhotoRepository repository, IValidator<CreatePhotoRequest, UpdatePhotoRequest> validator, IConverter<Photo, PhotoResponse, CreatePhotoRequest, UpdatePhotoRequest> converter)
         {
             _repository = repository;
             _validator = validator;

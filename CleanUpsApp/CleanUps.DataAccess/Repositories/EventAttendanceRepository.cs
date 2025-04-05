@@ -1,5 +1,5 @@
-﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess.EventAttendanceInterfaces;
-using CleanUps.BusinessLogic.Models;
+﻿using CleanUps.BusinessLogic.Models;
+using CleanUps.BusinessLogic.Repositories.Interfaces;
 using CleanUps.DataAccess.DatabaseHub;
 using CleanUps.Shared.ErrorHandling;
 using Microsoft.EntityFrameworkCore;

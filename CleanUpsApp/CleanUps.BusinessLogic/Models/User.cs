@@ -1,4 +1,4 @@
-﻿using CleanUps.BusinessLogic.Models.Flags;
+﻿using CleanUps.BusinessLogic.Models.AbstractModels;
 
 namespace CleanUps.BusinessLogic.Models;
 
@@ -6,7 +6,7 @@ namespace CleanUps.BusinessLogic.Models;
 /// Represents a user in the CleanUps application.
 /// This class stores user information such as name, email, password, role, and event attendance history.
 /// </summary>
-public partial class User : EFModel
+public partial class User : EntityFrameworkModel
 {
     public int UserId { get; set; }
 
@@ -16,7 +16,9 @@ public partial class User : EFModel
 
     public string PasswordHash { get; set; } = null!;
 
-    public Role UserRole { get; set; }
+    public int RoleId { get; set; } = 2;
+
+    public virtual Role Role { get; set; } = null!; // Navigation property
 
     public DateTime CreatedDate { get; set; }
 

@@ -1,58 +1,121 @@
-﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
+﻿using CleanUps.BusinessLogic.Converters.Interfaces;
 using CleanUps.BusinessLogic.Models;
-using CleanUps.Shared.DTOs;
+using CleanUps.Shared.DTOs.Enums;
+using CleanUps.Shared.DTOs.Events;
+using CleanUps.Shared.DTOs.Locations;
+using System.Drawing;
 
 namespace CleanUps.BusinessLogic.Converters
 {
-    internal class EventConverter : IConverter<Event, EventDTO>
+    internal class EventConverter : IConverter<Event, EventResponse, CreateEventRequest, UpdateEventRequest>
     {
-        public Event ConvertToModel(EventDTO dto)
+        public Event ToModel(EventResponse dto)
         {
             return new Event
             {
                 EventId = dto.EventId,
-                StreetName = dto.StreetName,
-                City = dto.City,
-                ZipCode = dto.ZipCode,
-                Country = dto.Country,
+                Title = dto.Title,
                 Description = dto.Description,
-                DateOfEvent = dto.DateOfEvent,
-                StartTime = dto.StartTime,
-                EndTime = dto.EndTime,
-                Status = dto.Status,
+                DateAndTime = dto.DateAndTime,
                 FamilyFriendly = dto.FamilyFriendly,
                 TrashCollected = dto.TrashCollected,
-                NumberOfAttendees = dto.NumberOfAttendees
+                NumberOfAttendees = dto.NumberOfAttendees,
+                StatusId = (int)dto.Status,
+                Location = new Location
+                {
+                    Id = 1,
+                    Coordinates = new Point((int)dto.Location.Longitude, (int)dto.Location.Latitude)
+                },
             };
         }
 
-        public EventDTO ConvertToDTO(Event model)
+        public Event ToModel(CreateEventRequest dto)
         {
-            return new EventDTO(
+            return new Event
+            {
+                Title = dto.Title,
+                Description = dto.Description,
+                DateAndTime = dto.DateAndTime,
+                FamilyFriendly = dto.FamilyFriendly,
+                Location = new Location
+                {
+                    Id = 1,
+                    Coordinates = new Point((int)dto.Location.Longitude, (int)dto.Location.Latitude)
+                },
+            };
+        }
+
+        public Event ToModel(UpdateEventRequest dto)
+        {
+            return new Event
+            {
+                EventId = dto.EventId,
+                Title = dto.Title,
+                Description = dto.Description,
+                DateAndTime = dto.DateAndTime,
+                FamilyFriendly = dto.FamilyFriendly,
+                TrashCollected = dto.TrashCollected,
+                NumberOfAttendees = dto.NumberOfAttendees,
+                StatusId = (int)dto.Status,
+                Location = new Location
+                {
+                    Id = 1,
+                    Coordinates = new Point((int)dto.Location.Longitude, (int)dto.Location.Latitude)
+                },
+            };
+        }
+
+
+        public EventResponse ToResponse(Event model)
+        {
+            return new EventResponse(
                 model.EventId,
-                model.StreetName,
-                model.City,
-                model.ZipCode,
-                model.Country,
+                model.Title,
                 model.Description,
-                model.DateOfEvent,
-                model.StartTime,
-                model.EndTime,
-                model.Status,
+                model.DateAndTime,
                 model.FamilyFriendly,
                 model.TrashCollected,
-                model.NumberOfAttendees
+                model.NumberOfAttendees,
+                (StatusDTO)model.StatusId,
+                new CreateLocationRequest(model.Location.Coordinates.X, model.Location.Coordinates.Y) //x is longitude and y is latitude
             );
         }
 
-        public List<EventDTO> ConvertToDTOList(List<Event> listOfModels)
+        public CreateEventRequest ToCreateRequest(Event model)
         {
-            return listOfModels.Select(model => ConvertToDTO(model)).ToList();
+            return new CreateEventRequest(
+                model.Title,
+                model.Description,
+                model.DateAndTime,
+                model.FamilyFriendly,
+                new CreateLocationRequest(model.Location.Coordinates.X, model.Location.Coordinates.Y) //x is longitude and y is latitude
+            );
+        }
+        public UpdateEventRequest ToUpdateRequest(Event model)
+        {
+            return new UpdateEventRequest(
+                model.EventId,
+                model.Title,
+                model.Description,
+                model.DateAndTime,
+                model.FamilyFriendly,
+                model.TrashCollected,
+                model.NumberOfAttendees,
+                (StatusDTO)model.StatusId,
+                new CreateLocationRequest(model.Location.Coordinates.X, model.Location.Coordinates.Y) //x is longitude and y is latitude
+            );
         }
 
-        public List<Event> ConvertToModelList(List<EventDTO> listOfDTOs)
+        public List<EventResponse> ToResponseList(List<Event> listOfModels)
         {
-            return listOfDTOs.Select(dto => ConvertToModel(dto)).ToList();
+            return listOfModels.Select(model => ToResponse(model)).ToList();
         }
+
+
+        public List<Event> ToModelList(List<EventResponse> listOfDTOs)
+        {
+            return listOfDTOs.Select(dto => ToModel(dto)).ToList();
+        }
+
     }
 }

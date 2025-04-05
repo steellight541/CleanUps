@@ -1,4 +1,4 @@
-﻿using CleanUps.BusinessLogic.Models.Flags;
+﻿using CleanUps.BusinessLogic.Models.AbstractModels;
 
 namespace CleanUps.BusinessLogic.Models;
 
@@ -6,7 +6,7 @@ namespace CleanUps.BusinessLogic.Models;
 /// Represents a user's attendance at an event in the CleanUps application.
 /// This class links a user to an event and records the check-in time of the attendance.
 /// </summary>
-public partial class EventAttendance : EFModel
+public partial class EventAttendance : EntityFrameworkModel
 {
     public int UserId { get; set; }
 

@@ -1,74 +1,68 @@
-﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
-using CleanUps.BusinessLogic.Models;
-using CleanUps.Shared.DTOs;
+﻿using CleanUps.BusinessLogic.Models;
+using CleanUps.Shared.DTOs.Users;
 using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.BusinessLogic.Validators
 {
-    internal class UserValidator : IValidator<UserDTO>
+    internal class UserValidator : IValidator<User, CreateUserRequest, UpdateUserRequest> 
     {
-        public Result<UserDTO> ValidateForCreate(UserDTO dto)
+        public Result<bool> ValidateForCreate(CreateUserRequest dto)
         {
             if (dto == null)
             {
-                return Result<UserDTO>.BadRequest("User cannot be null.");
+                return Result<bool>.BadRequest("User cannot be null.");
             }
 
-            if (dto.UserId != 0)
-            {
-                return Result<UserDTO>.BadRequest("User Id should not be set when creating a new user.");
-            }
-
-            return ValidateCommonFields(dto);
+            return Result<bool>.Ok(true);
         }
 
-        public Result<UserDTO> ValidateForUpdate(UserDTO dto)
+        public Result<bool> ValidateForUpdate(UpdateUserRequest dto)
         {
             if (dto == null)
             {
-                return Result<UserDTO>.BadRequest("User cannot be null.");
+                return Result<bool>.BadRequest("User cannot be null.");
             }
 
             if (dto.UserId <= 0)
             {
-                return Result<UserDTO>.BadRequest("User Id must be greater than zero.");
+                return Result<bool>.BadRequest("User Id must be greater than zero.");
             }
 
-            return ValidateCommonFields(dto);
+            return Result<bool>.Ok(true);
         }
 
-        public Result<string> ValidateId(int id)
+        public Result<bool> ValidateId(int id)
         {
             if (id <= 0)
             {
-                return Result<string>.BadRequest("User Id must be greater than zero.");
+                return Result<bool>.BadRequest("User Id must be greater than zero.");
             }
-            return Result<string>.Ok("Id is valid");
+            return Result<bool>.Ok(true);
         }
 
-        private Result<UserDTO> ValidateCommonFields(UserDTO dto)
-        {
-            if (string.IsNullOrWhiteSpace(dto.Name))
-            {
-                return Result<UserDTO>.BadRequest("Name is required.");
-            }
+        //private Result<UserDTO> ValidateCommonFields(UserDTO dto)
+        //{
+        //    if (string.IsNullOrWhiteSpace(dto.Name))
+        //    {
+        //        return Result<UserDTO>.BadRequest("Name is required.");
+        //    }
 
-            if (string.IsNullOrWhiteSpace(dto.Email))
-            {
-                return Result<UserDTO>.BadRequest("Email is required.");
-            }
+        //    if (string.IsNullOrWhiteSpace(dto.Email))
+        //    {
+        //        return Result<UserDTO>.BadRequest("Email is required.");
+        //    }
 
-            if (string.IsNullOrWhiteSpace(dto.Password))
-            {
-                return Result<UserDTO>.BadRequest("Password is required.");
-            }
+        //    if (string.IsNullOrWhiteSpace(dto.Password))
+        //    {
+        //        return Result<UserDTO>.BadRequest("Password is required.");
+        //    }
 
-            if (dto.UserRole.GetTypeCode != Role.Organizer.GetTypeCode || dto.UserRole.GetTypeCode != Role.Volunteer.GetTypeCode)
-            {
-                return Result<UserDTO>.BadRequest("Invalid role. Please use a valid role");
-            }
+        //    if (dto.UserRole.GetTypeCode != Role.Organizer.GetTypeCode || dto.UserRole.GetTypeCode != Role.Volunteer.GetTypeCode)
+        //    {
+        //        return Result<UserDTO>.BadRequest("Invalid role. Please use a valid role");
+        //    }
 
-            return Result<UserDTO>.Ok(dto);
-        }
+        //    return Result<UserDTO>.Ok(dto);
+        //}
     }
 }

@@ -1,64 +1,60 @@
-﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
-using CleanUps.Shared.DTOs;
+﻿using CleanUps.BusinessLogic.Models;
+using CleanUps.Shared.DTOs.Photos;
 using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.BusinessLogic.Validators
 {
-    internal class PhotoValidator : IValidator<PhotoDTO>
+    internal class PhotoValidator : IValidator<Photo, CreatePhotoRequest, UpdatePhotoRequest>
     {
-        public Result<PhotoDTO> ValidateForCreate(PhotoDTO dto)
+        public Result<bool> ValidateForCreate(CreatePhotoRequest dto)
         {
             if (dto == null)
             {
-                return Result<PhotoDTO>.BadRequest("Photo cannot be null.");
+                return Result<bool>.BadRequest("Photo cannot be null.");
             }
 
-            if (dto.PhotoId != 0)
-            {
-                return Result<PhotoDTO>.BadRequest("Photo Id should not be set when creating a new photo.");
-            }
 
-            return ValidateCommonFields(dto);
+            return Result<bool>.Ok(true);
         }
 
-        public Result<PhotoDTO> ValidateForUpdate(PhotoDTO dto)
+        public Result<bool> ValidateForUpdate(UpdatePhotoRequest dto)
         {
             if (dto == null)
             {
-                return Result<PhotoDTO>.BadRequest("Photo cannot be null.");
+                return Result<bool>.BadRequest("Photo cannot be null.");
             }
 
             if (dto.PhotoId <= 0)
             {
-                return Result<PhotoDTO>.BadRequest("Photo Id must be greater than zero.");
+                return Result<bool>.BadRequest("Photo Id must be greater than zero.");
             }
 
 
-            return ValidateCommonFields(dto);
+            return Result<bool>.Ok(true);
         }
 
-        public Result<string> ValidateId(int id)
+        public Result<bool> ValidateId(int id)
         {
             if (id <= 0)
             {
-                return Result<string>.BadRequest("Photo Id must be greater than zero.");
+                return Result<bool>.BadRequest("Photo Id must be greater than zero.");
             }
-            return Result<string>.Ok("Id is valid");
+            return Result<bool>.Ok(true);
         }
 
-        private Result<PhotoDTO> ValidateCommonFields(PhotoDTO dto)
-        {
-            if (dto.EventId <= 0)
-            {
-                return Result<PhotoDTO>.BadRequest("Event Id must be greater than zero.");
-            }
+        //private Result<Photo> ValidateCommonFields(PhotoDTO dto)
+        //{
+        //    if (dto.EventId <= 0)
+        //    {
+        //        return Result<Photo>.BadRequest("Event Id must be greater than zero.");
+        //    }
 
-            if (dto.PhotoData == null || dto.PhotoData.Length == 0)
-            {
-                return Result<PhotoDTO>.BadRequest("Photo data is required.");
-            }
+        //    if (dto.PhotoData == null || dto.PhotoData.Length == 0)
+        //    {
+        //        return Result<Photo>.BadRequest("Photo data is required.");
+        //    }
 
-            return Result<PhotoDTO>.Ok(dto);
-        }
+        //    return Result<Photo>.Ok(new Photo());
+        //}
     }
 }

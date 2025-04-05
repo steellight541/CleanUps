@@ -1,51 +1,61 @@
-﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
-using CleanUps.BusinessLogic.Interfaces.PublicAccess;
+﻿
+
+using CleanUps.BusinessLogic.Converters.Interfaces;
 using CleanUps.BusinessLogic.Models;
-using CleanUps.Shared.DTOs;
+using CleanUps.BusinessLogic.Repositories.Interfaces;
+using CleanUps.BusinessLogic.Services.Interfaces;
+using CleanUps.BusinessLogic.Validators.Interfaces;
+using CleanUps.Shared.DTOs.Users;
 using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.BusinessLogic.Services
 {
-    internal class UserService : IService<User, UserDTO>
+    internal class UserService : IUserService
     {
         private readonly IRepository<User> _repository;
-        private readonly IValidator<UserDTO> _validator;
-        private readonly IConverter<User, UserDTO> _converter;
+        private readonly IValidator<CreateUserRequest, UpdateUserRequest> _validator;
+        private readonly IConverter<User, UserResponse, CreateUserRequest, UpdateUserRequest> _converter;
 
-        public UserService(IRepository<User> repository, IValidator<UserDTO> validator, IConverter<User, UserDTO> converter)
+        public UserService(IRepository<User> repository, IValidator<CreateUserRequest, UpdateUserRequest> validator, IConverter<User, UserResponse, CreateUserRequest, UpdateUserRequest> converter)
         {
             _repository = repository;
             _validator = validator;
             _converter = converter;
         }
 
-        public async Task<Result<List<User>>> GetAllAsync()
+        public async Task<Result<List<UserResponse>>> GetAllAsync()
         {
             //Step 1. Call GetAll from the repository - return result of operation
-            return await _repository.GetAllAsync();
+            var result = await _repository.GetAllAsync();
+
+            List<UserResponse> convertedResult = _converter.ToResponseList(result.Data);
+
+            return Result<List<UserResponse>>.Ok(convertedResult);
         }
 
 
-        public async Task<Result<User>> GetByIdAsync(int id)
+        public async Task<Result<UserResponse>> GetByIdAsync(int id)
         {
             //Step 1. Validate id from parameter - return result of the validation
             var idValidation = _validator.ValidateId(id);
             if (!idValidation.IsSuccess)
             {
-                return Result<User>.BadRequest(idValidation.ErrorMessage);
+                return Result<UserResponse>.BadRequest(idValidation.ErrorMessage);
             }
 
             //Step 2. Pass the id to the repository - return result of operation
-            return await _repository.GetByIdAsync(id);
+            var repoResult = await _repository.GetByIdAsync(id);
+            ReadUserDTO
+            return ;
         }
 
-        public async Task<Result<User>> CreateAsync(UserDTO dto)
+        public async Task<Result<UserResponse>> CreateAsync(CreateUserRequest dto)
         {
             //Step 1. Validate DTO from parameter - return result of the validation
             var validationResult = _validator.ValidateForCreate(dto);
             if (!validationResult.IsSuccess)
             {
-                return Result<User>.BadRequest(validationResult.ErrorMessage);
+                return Result<UserResponse>.BadRequest(validationResult.ErrorMessage);
             }
 
             //Step 2. Convert DTO to Domain Model
@@ -59,13 +69,13 @@ namespace CleanUps.BusinessLogic.Services
         }
 
 
-        public async Task<Result<User>> UpdateAsync(UserDTO dto)
+        public async Task<Result<UserResponse>> UpdateAsync(UserDTO dto)
         {
             //Step 1. Validate DTO the parameter - return result of the validation
             var validationResult = _validator.ValidateForUpdate(dto);
             if (!validationResult.IsSuccess)
             {
-                return Result<User>.BadRequest(validationResult.ErrorMessage);
+                return Result<UserResponse>.BadRequest(validationResult.ErrorMessage);
             }
 
             //Step 2. Convert DTO to Domain Model
@@ -75,13 +85,13 @@ namespace CleanUps.BusinessLogic.Services
             return await _repository.UpdateAsync(userModel);
         }
 
-        public async Task<Result<User>> DeleteAsync(int id)
+        public async Task<Result<UserResponse>> DeleteAsync(int id)
         {
             //Step 1. Validate id from parameter - return result of the validation
             var idValidation = _validator.ValidateId(id);
             if (!idValidation.IsSuccess)
             {
-                return Result<User>.BadRequest(idValidation.ErrorMessage);
+                return Result<UserResponse>.BadRequest(idValidation.ErrorMessage);
             }
 
             //Step 2. Pass the id to the repository - return result of operation

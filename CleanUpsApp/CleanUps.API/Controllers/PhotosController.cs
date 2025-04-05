@@ -1,6 +1,5 @@
-﻿using CleanUps.BusinessLogic.Interfaces.PublicAccess;
-using CleanUps.BusinessLogic.Models;
-using CleanUps.Shared.DTOs;
+﻿using CleanUps.BusinessLogic.Models;
+using CleanUps.BusinessLogic.Services.Interfaces;
 using CleanUps.Shared.ErrorHandling;
 using Microsoft.AspNetCore.Mvc;
 

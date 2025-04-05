@@ -1,5 +1,5 @@
-﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess.EventAttendanceInterfaces;
-using CleanUps.Shared.DTOs;
+﻿using CleanUps.BusinessLogic.Validators.Interfaces;
+using CleanUps.Shared.DTOs.EventAttendances;
 using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.BusinessLogic.Validators
@@ -41,13 +41,13 @@ namespace CleanUps.BusinessLogic.Validators
             }
             return ValidateCommonFields(dto);
         }
-        public Result<string> ValidateId(int id)
+        public Result<bool> ValidateId(int id)
         {
             if (id <= 0)
             {
-                return Result<string>.BadRequest("Id must be greater than zero.");
+                return Result<bool>.BadRequest("Id must be greater than zero.");
             }
-            return Result<string>.Ok("Id is valid");
+            return Result<bool>.Ok(true);
         }
 
         private Result<EventAttendanceDTO> ValidateCommonFields(EventAttendanceDTO dto)
@@ -64,11 +64,5 @@ namespace CleanUps.BusinessLogic.Validators
 
             return Result<EventAttendanceDTO>.Ok(dto);
         }
-        public Result<EventAttendanceDTO> ValidateForUpdate(EventAttendanceDTO dto)
-        {
-            return Result<EventAttendanceDTO>.InternalServerError("Validator: ValidateForUpdate Method is not implemented, use another method.");
-        }
-
-
     }
 }

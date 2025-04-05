@@ -1,6 +1,6 @@
-﻿using CleanUps.BusinessLogic.Interfaces.PublicAccess;
-using CleanUps.BusinessLogic.Models;
-using CleanUps.Shared.DTOs;
+﻿using CleanUps.BusinessLogic.Models;
+using CleanUps.BusinessLogic.Services.Interfaces;
+using CleanUps.Shared.DTOs.EventAttendances;
 using CleanUps.Shared.ErrorHandling;
 using Microsoft.AspNetCore.Mvc;
 
@@ -150,7 +150,11 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> PutAsync(int userId, int eventId, [FromBody] EventAttendanceDTO dto) // YourApi.com/api/eventattendances/user/{userId}/event/{eventId}
         {
-            var result = await _eventAttendanceService.UpdateAttendanceAsync(userId, eventId, dto);
+            if (userId != dto.UserId && eventId != dto.EventId)
+            {
+                return BadRequest($"The parameter User-Id: {userId} and parameter Event-Id{eventId} does not match the data User-Id: {dto.UserId} and data Event-Id: {dto.EventId}");
+            }
+            var result = await _eventAttendanceService.UpdateAsync(dto);
 
             switch (result.StatusCode)
             {

@@ -1,5 +1,5 @@
-﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
-using CleanUps.BusinessLogic.Models;
+﻿using CleanUps.BusinessLogic.Models;
+using CleanUps.BusinessLogic.Repositories.Interfaces;
 using CleanUps.DataAccess.DatabaseHub;
 using CleanUps.Shared.ErrorHandling;
 using Microsoft.EntityFrameworkCore;
@@ -127,7 +127,7 @@ namespace CleanUps.DataAccess.Repositories
                 _context.Users.Attach(userToBeUpdated);
                 _context.Entry(userToBeUpdated).Property(u => u.Name).IsModified = true;
                 _context.Entry(userToBeUpdated).Property(u => u.Email).IsModified = true;
-                _context.Entry(userToBeUpdated).Property(u => u.UserRole).IsModified = true;
+                _context.Entry(userToBeUpdated).Property(u => u.RoleId).IsModified = true;
                 await _context.SaveChangesAsync();
 
                 return Result<User>.Ok(userToBeUpdated);

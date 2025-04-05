@@ -1,18 +1,20 @@
-﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
-using CleanUps.BusinessLogic.Interfaces.PublicAccess;
+﻿using CleanUps.BusinessLogic.Converters.Interfaces;
 using CleanUps.BusinessLogic.Models;
-using CleanUps.Shared.DTOs;
+using CleanUps.BusinessLogic.Repositories.Interfaces;
+using CleanUps.BusinessLogic.Services.Interfaces;
+using CleanUps.BusinessLogic.Validators.Interfaces;
+using CleanUps.Shared.DTOs.AbstractDTOs;
+using CleanUps.Shared.DTOs.Events;
 using CleanUps.Shared.ErrorHandling;
-
 namespace CleanUps.BusinessLogic.Services
 {
-    internal class EventService : IService<Event, EventDTO>
+    internal class EventService : IEventService<EventResponse, CreateEventRequest, UpdateEventRequest, DeleteEventRequest>
     {
         private readonly IRepository<Event> _repository;
-        private readonly IValidator<EventDTO> _validator;
-        private readonly IConverter<Event, EventDTO> _converter;
+        private readonly IValidator<CreateEventRequest, UpdateEventRequest> _validator;
+        private readonly IConverter<Event, EventResponse, CreateEventRequest, UpdateEventRequest> _converter;
 
-        public EventService(IRepository<Event> repository, IValidator<EventDTO> validator, IConverter<Event, EventDTO> converter)
+        public EventService(IRepository<Event> repository, IValidator<CreateEventRequest, UpdateEventRequest> validator, IConverter<Event, EventResponse, CreateEventRequest, UpdateEventRequest> converter)
         {
             _repository = repository;
             _validator = validator;

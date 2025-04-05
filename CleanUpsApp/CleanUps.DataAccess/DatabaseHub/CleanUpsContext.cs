@@ -15,6 +15,9 @@ public partial class CleanUpsContext : DbContext
     }
 
     public virtual DbSet<Event> Events { get; set; }
+    public virtual DbSet<Location> Locations { get; set; }
+    public virtual DbSet<Role> Roles { get; set; }
+    public virtual DbSet<Status> Statuses { get; set; }
 
     public virtual DbSet<EventAttendance> EventAttendances { get; set; }
 
@@ -36,12 +39,16 @@ public partial class CleanUpsContext : DbContext
     {
         modelBuilder.Entity<Event>(entity =>
         {
-            entity.Property(e => e.City).HasMaxLength(100);
-            entity.Property(e => e.Country).HasMaxLength(100);
-            entity.Property(e => e.Status).HasMaxLength(20);
-            entity.Property(e => e.StreetName).HasMaxLength(100);
+            entity.HasOne(e => e.Location)           // Event has one Location
+                .WithMany()                          // Location can be referenced by many Events (adjust if needed)
+                .HasForeignKey(e => e.LocationId);   // Foreign key property
+
+            entity.HasOne(e => e.Status)           // Event has one Status
+                .WithMany()                          // Status can be referenced by many Events (adjust if needed)
+                .HasForeignKey(e => e.StatusId);   // Foreign key property
+
             entity.Property(e => e.TrashCollected).HasColumnType("decimal(18, 0)");
-            entity.Property(e => e.ZipCode).HasMaxLength(10);
+
         });
 
         modelBuilder.Entity<EventAttendance>(entity =>
@@ -83,7 +90,10 @@ public partial class CleanUpsContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(255);
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.PasswordHash).HasMaxLength(50);
-            entity.Property(e => e.UserRole).HasColumnName("UserRole"); // Maps the enum to a column
+
+            entity.HasOne(e => e.Role)            // Event has one Status
+                 .WithMany()                      // Status can be referenced by many Events (adjust if needed)
+                 .HasForeignKey(e => e.RoleId);   // Foreign key property
         });
 
         OnModelCreatingPartial(modelBuilder);

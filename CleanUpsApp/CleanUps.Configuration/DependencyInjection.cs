@@ -1,14 +1,14 @@
 ﻿
 using CleanUps.BusinessLogic.Converters;
-using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
-using CleanUps.BusinessLogic.Interfaces.PrivateAccess.EventAttendanceInterfaces;
-using CleanUps.BusinessLogic.Interfaces.PublicAccess;
 using CleanUps.BusinessLogic.Models;
+using CleanUps.BusinessLogic.Repositories.Interfaces;
 using CleanUps.BusinessLogic.Services;
+using CleanUps.BusinessLogic.Services.Interfaces;
 using CleanUps.BusinessLogic.Validators;
+using CleanUps.BusinessLogic.Validators.Interfaces;
 using CleanUps.DataAccess.DatabaseHub;
 using CleanUps.DataAccess.Repositories;
-using CleanUps.Shared.DTOs;
+using CleanUps.Shared.DTOs.EventAttendances;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

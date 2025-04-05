@@ -1,8 +1,11 @@
 ﻿
+using System.ComponentModel.DataAnnotations;
+
 namespace CleanUps.BusinessLogic.Models;
 
-public enum Role
+public class Role
 {
-    Organizer = 1,
-    Volunteer = 2
+    [Key]
+    public int Id { get; set; }
+    public string Name { get; set; } = null!;
 }

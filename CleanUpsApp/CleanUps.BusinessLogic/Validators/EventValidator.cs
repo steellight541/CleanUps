@@ -1,103 +1,97 @@
-﻿using CleanUps.BusinessLogic.Interfaces.PrivateAccess;
-using CleanUps.Shared.DTOs;
+﻿using CleanUps.BusinessLogic.Validators.Interfaces;
+using CleanUps.Shared.DTOs.Events;
 using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.BusinessLogic.Validators
 {
-    internal class EventValidator : IValidator<EventDTO>
+    internal class EventValidator : IValidator<CreateEventRequest, UpdateEventRequest>
     {
-        public Result<EventDTO> ValidateForCreate(EventDTO dto)
+        public Result<bool> ValidateForCreate(CreateEventRequest dto)
         {
             if (dto == null)
             {
-                return Result<EventDTO>.BadRequest("Event cannot be null.");
+                return Result<bool>.BadRequest("Event cannot be null.");
             }
 
-            if (dto.EventId != 0)
-            {
-                return Result<EventDTO>.BadRequest("Event Id should not be set when creating a new event.");
-            }
-
-            return ValidateCommonFields(dto);
+            return Result<bool>.Ok(true);
         }
 
-        public Result<EventDTO> ValidateForUpdate(EventDTO dto)
+        public Result<bool> ValidateForUpdate(UpdateEventRequest dto)
         {
             if (dto == null)
             {
-                return Result<EventDTO>.BadRequest("Event cannot be null.");
+                return Result<bool>.BadRequest("Event cannot be null.");
             }
 
             if (dto.EventId <= 0)
             {
-                return Result<EventDTO>.BadRequest("Event Id must be greater than zero.");
+                return Result<bool>.BadRequest("Event Id must be greater than zero.");
             }
-
-            return ValidateCommonFields(dto);
+            return Result<bool>.Ok(true);
         }
 
-        public Result<string> ValidateId(int id)
+        public Result<bool> ValidateId(int id)
         {
             if (id <= 0)
             {
-                return Result<string>.BadRequest("Event Id must be greater than zero.");
+                return Result<bool>.BadRequest("Event Id must be greater than zero.");
             }
-            return Result<string>.Ok("Id is valid");
+            return Result<bool>.Ok(true);
         }
 
-        private Result<EventDTO> ValidateCommonFields(EventDTO dto)
-        {
-            if (string.IsNullOrWhiteSpace(dto.StreetName))
-            {
-                return Result<EventDTO>.BadRequest("StreetName is required.");
-            }
+        //private Result<Event> ValidateCommonFields(Event dto)
+        //{
+        //    if (string.IsNullOrWhiteSpace(dto.StreetName))
+        //    {
+        //        return Result<Event>.BadRequest("StreetName is required.");
+        //    }
 
-            if (string.IsNullOrWhiteSpace(dto.City))
-            {
-                return Result<EventDTO>.BadRequest("City is required.");
-            }
+        //    if (string.IsNullOrWhiteSpace(dto.City))
+        //    {
+        //        return Result<Event>.BadRequest("City is required.");
+        //    }
 
-            if (string.IsNullOrWhiteSpace(dto.ZipCode))
-            {
-                return Result<EventDTO>.BadRequest("ZipCode is required.");
-            }
+        //    if (string.IsNullOrWhiteSpace(dto.ZipCode))
+        //    {
+        //        return Result<Event>.BadRequest("ZipCode is required.");
+        //    }
 
-            if (string.IsNullOrWhiteSpace(dto.Country))
-            {
-                return Result<EventDTO>.BadRequest("Country is required.");
-            }
+        //    if (string.IsNullOrWhiteSpace(dto.Country))
+        //    {
+        //        return Result<Event>.BadRequest("Country is required.");
+        //    }
 
-            if (string.IsNullOrWhiteSpace(dto.Description))
-            {
-                return Result<EventDTO>.BadRequest("Description is required.");
-            }
+        //    if (string.IsNullOrWhiteSpace(dto.Description))
+        //    {
+        //        return Result<Event>.BadRequest("Description is required.");
+        //    }
 
-            if (string.IsNullOrWhiteSpace(dto.Status))
-            {
-                return Result<EventDTO>.BadRequest("Status is required.");
-            }
+        //    if (string.IsNullOrWhiteSpace(dto.Status))
+        //    {
+        //        return Result<Event>.BadRequest("Status is required.");
+        //    }
 
-            if (dto.DateOfEvent < DateOnly.FromDateTime(DateTime.Today))
-            {
-                return Result<EventDTO>.BadRequest("Event date cannot be in the past.");
-            }
+        //    if (dto.DateOfEvent < DateOnly.FromDateTime(DateTime.Today))
+        //    {
+        //        return Result<Event>.BadRequest("Event date cannot be in the past.");
+        //    }
 
-            if (dto.StartTime >= dto.EndTime)
-            {
-                return Result<EventDTO>.BadRequest("Start time must be before EndTime.");
-            }
+        //    if (dto.StartTime >= dto.EndTime)
+        //    {
+        //        return Result<Event>.BadRequest("Start time must be before EndTime.");
+        //    }
 
-            if (dto.TrashCollected.HasValue && dto.TrashCollected < 0)
-            {
-                return Result<EventDTO>.BadRequest("Trash collected cannot be negative.");
-            }
+        //    if (dto.TrashCollected.HasValue && dto.TrashCollected < 0)
+        //    {
+        //        return Result<Event>.BadRequest("Trash collected cannot be negative.");
+        //    }
 
-            if (dto.NumberOfAttendees < 0)
-            {
-                return Result<EventDTO>.BadRequest("Number of attendees cannot be negative.");
-            }
+        //    if (dto.NumberOfAttendees < 0)
+        //    {
+        //        return Result<Event>.BadRequest("Number of attendees cannot be negative.");
+        //    }
 
-            return Result<EventDTO>.Ok(dto);
-        }
+        //    return Result<Event>.Ok(dto);
+        //}
     }
 }
