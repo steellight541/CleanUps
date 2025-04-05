@@ -1,5 +1,5 @@
-﻿using CleanUps.BusinessLogic.Models;
-using CleanUps.Shared.ErrorHandling;
+﻿using CleanUps.BusinessLogic.Services.Interfaces;
+using CleanUps.Shared.DTOs.Events;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CleanUps.API.Controllers
@@ -8,10 +8,10 @@ namespace CleanUps.API.Controllers
     [ApiController]
     public class EventsController : ControllerBase
     {
-        private readonly IService<Event, EventDTO> _eventService;
+        private readonly IEventService _eventService;
         private readonly ILogger<EventsController> _logger;
 
-        public EventsController(IService<Event, EventDTO> eventService, ILogger<EventsController> logger)
+        public EventsController(IEventService eventService, ILogger<EventsController> logger)
         {
             _eventService = eventService;
             _logger = logger;
@@ -24,7 +24,7 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllAsync() // YourApi.com/api/events
         {
-            Result<List<Event>> result = await _eventService.GetAllAsync();
+            var result = await _eventService.GetAllAsync();
 
             switch (result.StatusCode)
             {
@@ -47,7 +47,7 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetByIdAsync(int id) // YourApi.com/api/events/{id}
         {
-            Result<Event> result = await _eventService.GetByIdAsync(id);
+            var result = await _eventService.GetByIdAsync(id);
 
             switch (result.StatusCode)
             {
@@ -68,9 +68,9 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> PostAsync([FromBody] EventDTO dto) // YourApi.com/api/events
+        public async Task<IActionResult> PostAsync([FromBody] CreateEventRequest createRequest) // YourApi.com/api/events
         {
-            Result<Event> result = await _eventService.CreateAsync(dto);
+            var result = await _eventService.CreateAsync(createRequest);
 
             switch (result.StatusCode)
             {
@@ -92,14 +92,14 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> PutAsync(int id, [FromBody] EventDTO dto)// YourApi.com/api/events/{id}
+        public async Task<IActionResult> PutAsync(int id, [FromBody] UpdateEventRequest updateRequest)// YourApi.com/api/events/{id}
         {
-            if (id != dto.EventId)
+            if (id != updateRequest.EventId)
             {
                 return BadRequest("ID mismatch between route parameter and event data.");
             }
 
-            var result = await _eventService.UpdateAsync(dto);
+            var result = await _eventService.UpdateAsync(updateRequest);
 
             switch (result.StatusCode)
             {
@@ -127,7 +127,7 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteAsync(int id) // YourApi.com/api/events/{id}
         {
-            var result = await _eventService.DeleteAsync(id);
+            var result = await _eventService.DeleteAsync(new DeleteEventRequest(id));
 
             switch (result.StatusCode)
             {

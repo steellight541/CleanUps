@@ -1,4 +1,5 @@
-﻿using CleanUps.Shared.ErrorHandling;
+﻿using CleanUps.Shared.DTOs.Photos;
+using CleanUps.Shared.ErrorHandling;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -13,129 +14,129 @@ namespace CleanUps.Shared.ClientServices
             _http = http;
         }
 
-        public async Task<Result<List<PhotoDTO>>> GetAllPhotosAsync()
+        public async Task<Result<List<PhotoResponse>>> GetAllPhotosAsync()
         {
             HttpResponseMessage response = await _http.GetAsync("api/photos");
             if (response.IsSuccessStatusCode)
             {
-                List<PhotoDTO>? photos = await response.Content.ReadFromJsonAsync<List<PhotoDTO>>();
-                return photos != null ? Result<List<PhotoDTO>>.Ok(photos) : Result<List<PhotoDTO>>.InternalServerError("Failed to deserialize photos");
+                List<PhotoResponse>? photos = await response.Content.ReadFromJsonAsync<List<PhotoResponse>>();
+                return photos != null ? Result<List<PhotoResponse>>.Ok(photos) : Result<List<PhotoResponse>>.InternalServerError("Failed to deserialize photos");
             }
 
             string errorMessage = await response.Content.ReadAsStringAsync();
             switch (response.StatusCode)
             {
                 case HttpStatusCode.NoContent:
-                    return Result<List<PhotoDTO>>.NoContent();
+                    return Result<List<PhotoResponse>>.NoContent();
                 default:
-                    return Result<List<PhotoDTO>>.InternalServerError(errorMessage);
+                    return Result<List<PhotoResponse>>.InternalServerError(errorMessage);
             }
         }
 
-        public async Task<Result<PhotoDTO>> GetPhotoByIdAsync(int id)
+        public async Task<Result<PhotoResponse>> GetPhotoByIdAsync(int id)
         {
             HttpResponseMessage response = await _http.GetAsync($"api/photos/{id}");
             if (response.IsSuccessStatusCode)
             {
-                PhotoDTO? photo = await response.Content.ReadFromJsonAsync<PhotoDTO>();
-                return photo != null ? Result<PhotoDTO>.Ok(photo) : Result<PhotoDTO>.InternalServerError("Failed to deserialize photo");
+                PhotoResponse? photo = await response.Content.ReadFromJsonAsync<PhotoResponse>();
+                return photo != null ? Result<PhotoResponse>.Ok(photo) : Result<PhotoResponse>.InternalServerError("Failed to deserialize photo");
             }
 
             string errorMessage = await response.Content.ReadAsStringAsync();
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:
-                    return Result<PhotoDTO>.BadRequest(errorMessage);
+                    return Result<PhotoResponse>.BadRequest(errorMessage);
                 case HttpStatusCode.NotFound:
-                    return Result<PhotoDTO>.NotFound(errorMessage);
+                    return Result<PhotoResponse>.NotFound(errorMessage);
                 default:
-                    return Result<PhotoDTO>.InternalServerError(errorMessage);
+                    return Result<PhotoResponse>.InternalServerError(errorMessage);
             }
         }
 
-        public async Task<Result<List<PhotoDTO>>> GetPhotosByEventIdAsync(int userId)
+        public async Task<Result<List<PhotoResponse>>> GetPhotosByEventIdAsync(int eventId)
         {
-            HttpResponseMessage response = await _http.GetAsync($"api/photos/events/{userId}");
+            HttpResponseMessage response = await _http.GetAsync($"api/photos/events/{eventId}");
             if (response.IsSuccessStatusCode)
             {
-                List<PhotoDTO>? photos = await response.Content.ReadFromJsonAsync<List<PhotoDTO>>();
-                return photos != null ? Result<List<PhotoDTO>>.Ok(photos) : Result<List<PhotoDTO>>.InternalServerError("Failed to deserialize event attendance");
+                List<PhotoResponse>? photos = await response.Content.ReadFromJsonAsync<List<PhotoResponse>>();
+                return photos != null ? Result<List<PhotoResponse>>.Ok(photos) : Result<List<PhotoResponse>>.InternalServerError("Failed to deserialize event attendance");
             }
 
             string errorMessage = await response.Content.ReadAsStringAsync();
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:
-                    return Result<List<PhotoDTO>>.BadRequest(errorMessage);
+                    return Result<List<PhotoResponse>>.BadRequest(errorMessage);
                 case HttpStatusCode.NotFound:
-                    return Result<List<PhotoDTO>>.NotFound(errorMessage);
+                    return Result<List<PhotoResponse>>.NotFound(errorMessage);
                 default:
-                    return Result<List<PhotoDTO>>.InternalServerError(errorMessage);
+                    return Result<List<PhotoResponse>>.InternalServerError(errorMessage);
             }
         }
 
-        public async Task<Result<PhotoDTO>> CreatePhotoAsync(PhotoDTO newPhoto)
+        public async Task<Result<PhotoResponse>> CreatePhotoAsync(CreatePhotoRequest createRequest)
         {
-            HttpResponseMessage response = await _http.PostAsJsonAsync("api/photos", newPhoto);
+            HttpResponseMessage response = await _http.PostAsJsonAsync("api/photos", createRequest);
             if (response.IsSuccessStatusCode)
             {
-                PhotoDTO? photo = await response.Content.ReadFromJsonAsync<PhotoDTO>();
-                return photo != null ? Result<PhotoDTO>.Created(photo) : Result<PhotoDTO>.InternalServerError("Failed to deserialize photo");
+                PhotoResponse? createdPhoto = await response.Content.ReadFromJsonAsync<PhotoResponse>();
+                return createdPhoto != null ? Result<PhotoResponse>.Created(createdPhoto) : Result<PhotoResponse>.InternalServerError("Failed to deserialize photo");
             }
 
             string errorMessage = await response.Content.ReadAsStringAsync();
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:
-                    return Result<PhotoDTO>.BadRequest(errorMessage);
+                    return Result<PhotoResponse>.BadRequest(errorMessage);
                 default:
-                    return Result<PhotoDTO>.InternalServerError(errorMessage);
+                    return Result<PhotoResponse>.InternalServerError(errorMessage);
             }
         }
 
-        public async Task<Result<PhotoDTO>> UpdatePhotoAsync(int id, PhotoDTO photoToUpdate)
+        public async Task<Result<PhotoResponse>> UpdatePhotoAsync(int id, UpdatePhotoRequest updateRequest)
         {
-            HttpResponseMessage response = await _http.PutAsJsonAsync($"api/photos/{id}", photoToUpdate);
+            HttpResponseMessage response = await _http.PutAsJsonAsync($"api/photos/{id}", updateRequest);
             if (response.IsSuccessStatusCode)
             {
-                PhotoDTO? photo = await response.Content.ReadFromJsonAsync<PhotoDTO>();
-                return photo != null ? Result<PhotoDTO>.Ok(photo) : Result<PhotoDTO>.InternalServerError("Failed to deserialize photo");
+                PhotoResponse? updatedPhoto = await response.Content.ReadFromJsonAsync<PhotoResponse>();
+                return updatedPhoto != null ? Result<PhotoResponse>.Ok(updatedPhoto) : Result<PhotoResponse>.InternalServerError("Failed to deserialize photo");
             }
 
             string errorMessage = await response.Content.ReadAsStringAsync();
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:
-                    return Result<PhotoDTO>.BadRequest(errorMessage);
+                    return Result<PhotoResponse>.BadRequest(errorMessage);
                 case HttpStatusCode.NotFound:
-                    return Result<PhotoDTO>.NotFound(errorMessage);
+                    return Result<PhotoResponse>.NotFound(errorMessage);
                 case HttpStatusCode.Conflict:
-                    return Result<PhotoDTO>.Conflict(errorMessage);
+                    return Result<PhotoResponse>.Conflict(errorMessage);
                 default:
-                    return Result<PhotoDTO>.InternalServerError(errorMessage);
+                    return Result<PhotoResponse>.InternalServerError(errorMessage);
             }
         }
 
-        public async Task<Result<PhotoDTO>> DeletePhotoAsync(int id)
+        public async Task<Result<PhotoResponse>> DeletePhotoAsync(int id)
         {
             HttpResponseMessage response = await _http.DeleteAsync($"api/photos/{id}");
             if (response.IsSuccessStatusCode)
             {
-                PhotoDTO? photo = await response.Content.ReadFromJsonAsync<PhotoDTO>();
-                return photo != null ? Result<PhotoDTO>.Ok(photo) : Result<PhotoDTO>.InternalServerError("Failed to deserialize photo");
+                PhotoResponse? deletedPhoto = await response.Content.ReadFromJsonAsync<PhotoResponse>();
+                return deletedPhoto != null ? Result<PhotoResponse>.Ok(deletedPhoto) : Result<PhotoResponse>.InternalServerError("Failed to deserialize photo");
             }
 
             string errorMessage = await response.Content.ReadAsStringAsync();
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:
-                    return Result<PhotoDTO>.BadRequest(errorMessage);
+                    return Result<PhotoResponse>.BadRequest(errorMessage);
                 case HttpStatusCode.NotFound:
-                    return Result<PhotoDTO>.NotFound(errorMessage);
+                    return Result<PhotoResponse>.NotFound(errorMessage);
                 case HttpStatusCode.Conflict:
-                    return Result<PhotoDTO>.Conflict(errorMessage);
+                    return Result<PhotoResponse>.Conflict(errorMessage);
                 default:
-                    return Result<PhotoDTO>.InternalServerError(errorMessage);
+                    return Result<PhotoResponse>.InternalServerError(errorMessage);
             }
         }
     }

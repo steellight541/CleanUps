@@ -20,12 +20,8 @@ else
     <div>
         <h4>@eventResult.Data.Description</h4>
         <p><strong>Event ID:</strong> @eventResult.Data.EventId</p>
-        <p><strong>Date:</strong> @eventResult.Data.DateOfEvent.ToShortDateString()</p>
-        <p><strong>Time:</strong> @eventResult.Data.StartTime.ToString("t") - @eventResult.Data.EndTime.ToString("t")</p>
-        <p><strong>Location:</strong> @eventResult.Data.StreetName, @eventResult.Data.City, @eventResult.Data.ZipCode, @eventResult.Data.Country</p>
         <p><strong>Status:</strong> @eventResult.Data.Status</p>
         <p><strong>Family Friendly:</strong> @(eventResult.Data.FamilyFriendly ? "Yes" : "No")</p>
-        <p><strong>Trash Collected:</strong> @(eventResult.Data.TrashCollected.HasValue ? eventResult.Data.TrashCollected.Value.ToString("F2") + " kg" : "N/A")</p>
         <p><strong>Number of Attendees:</strong> @eventResult.Data.NumberOfAttendees</p>
         <p><strong>Participants Signed Up:</strong> @(attendeesResult.Data?.Count ?? 0)</p>
     </div>
@@ -56,9 +52,9 @@ else
     [Parameter]
     public int eventId { get; set; }
 
-    private Result<EventDTO> eventResult;
-    private Result<List<UserDTO>> usersResult;
-    private Result<List<UserDTO>> attendeesResult; // Added to fetch attendees
+    private Result<EventResponse> eventResult;
+    private Result<List<UserResponse>> usersResult;
+    private Result<List<UserResponse>> attendeesResult; // Added to fetch attendees
     private int selectedUserId;
     private string message;
     private string messageClass;
@@ -86,7 +82,7 @@ else
             DateTime.Now
         );
 
-        var result = await _eventAttendanceApiService.CreateEventAttendanceAsync(attendance);
+        var result = await _eventAttendanceApiService.CreateAttendanceAsync(attendance);
         if (result.IsSuccess)
         {
             message = "Attendance registered successfully!";

@@ -9,45 +9,24 @@
     <ValidationSummary />
 
     <div class="form-group">
+        <label for="title">Title</label>
+        <InputText id="title" @bind-Value="eventCreateModel.Title" class="form-control" />
+    </div>
+
+    <div class="form-group">
         <label for="description">Description</label>
         <InputText id="description" @bind-Value="eventCreateModel.Description" class="form-control" />
     </div>
 
     <div class="form-group">
-        <label for="dateOfEvent">Date of Event</label>
-        <InputDate id="dateOfEvent" @bind-Value="eventCreateModel.DateOfEvent" class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <label for="startTime">Start Time</label>
-        <input type="time" id="startTime" @bind="eventCreateModel.StartTime" class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <label for="endTime">End Time</label>
-        <input type="time" id="endTime" @bind="eventCreateModel.EndTime" class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <label for="streetName">Street Name</label>
-        <InputText id="streetName" @bind-Value="eventCreateModel.StreetName" class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <label for="city">City</label>
-        <InputText id="city" @bind-Value="eventCreateModel.City" class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <label for="zipCode">Zip Code</label>
-        <InputText id="zipCode" @bind-Value="eventCreateModel.ZipCode" class="form-control" />
+        <label for="dateAndTime">Date and Time of Event</label>
+        <InputDate id="dateAndTime" @bind-Value="eventCreateModel.DateAndTime" class="form-control" />
     </div>
 
     <div class="form-check">
         <InputCheckbox id="familyFriendly" @bind-Value="eventCreateModel.FamilyFriendly" class="form-check-input" />
         <label class="form-check-label" for="familyFriendly">Family Friendly</label>
     </div>
-
 
     <button type="submit" class="btn btn-primary">Save</button>
     <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
@@ -64,21 +43,13 @@
 
     private async Task HandleSubmit()
     {
-        var newEvent = new EventDTO(
-            EventId: 0,  // Assuming 0 or default for new events
-            StreetName: eventCreateModel.StreetName,
-            City: eventCreateModel.City,
-            ZipCode: eventCreateModel.ZipCode,
-            Country: "Montenegro",
+        var newEvent = new CreateEventRequest(
+            Title: eventCreateModel.Title,
             Description: eventCreateModel.Description,
-            DateOfEvent: eventCreateModel.DateOfEvent,
-            StartTime: eventCreateModel.StartTime,
-            EndTime: eventCreateModel.EndTime,
-            Status: "Planned",
+            DateAndTime: eventCreateModel.DateAndTime,
             FamilyFriendly: eventCreateModel.FamilyFriendly,
-            TrashCollected: 0,
-            NumberOfAttendees: 0
-        );
+            Location: new CreateLocationRequest(eventCreateModel.Longitude, eventCreateModel.Latitude)
+    );
 
         var result = await _eventApiService.CreateEventAsync(newEvent);
         if (result.IsSuccess)
@@ -98,14 +69,11 @@
 
     private class EventCreateModel
     {
+        public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public DateOnly DateOfEvent { get; set; }
-        public TimeOnly StartTime { get; set; }
-        public TimeOnly EndTime { get; set; }
-        public string StreetName { get; set; } = string.Empty;
-        public string City { get; set; } = string.Empty;
-        public string ZipCode { get; set; } = string.Empty;
+        public DateTime DateAndTime { get; set; }
         public bool FamilyFriendly { get; set; }
-
+        public decimal Longitude { get; set; } = 50;
+        public decimal Latitude { get; set; } = 50;
     }
 }

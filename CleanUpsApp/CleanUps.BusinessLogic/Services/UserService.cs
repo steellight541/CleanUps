@@ -1,6 +1,4 @@
-﻿
-
-using CleanUps.BusinessLogic.Converters.Interfaces;
+﻿using CleanUps.BusinessLogic.Converters.Interfaces;
 using CleanUps.BusinessLogic.Models;
 using CleanUps.BusinessLogic.Repositories.Interfaces;
 using CleanUps.BusinessLogic.Services.Interfaces;
@@ -13,93 +11,105 @@ namespace CleanUps.BusinessLogic.Services
     internal class UserService : IUserService
     {
         private readonly IRepository<User> _repository;
-        private readonly IValidator<CreateUserRequest, UpdateUserRequest> _validator;
-        private readonly IConverter<User, UserResponse, CreateUserRequest, UpdateUserRequest> _converter;
+        private readonly IUserValidator _validator;
+        private readonly IUserConverter _converter;
 
-        public UserService(IRepository<User> repository, IValidator<CreateUserRequest, UpdateUserRequest> validator, IConverter<User, UserResponse, CreateUserRequest, UpdateUserRequest> converter)
+        public UserService(IRepository<User> repository,
+                           IUserValidator validator,
+                           IUserConverter converter)
         {
             _repository = repository;
             _validator = validator;
             _converter = converter;
         }
 
+        /// <summary>
+        /// Retrieves all users from the repository and returns them as a list of <see cref="UserResponse"/> objects.
+        /// </summary>
+        /// <returns>A <see cref="Result{T}"/> containing a list of <see cref="UserResponse"/> if successful, or an error message if the operation fails.</returns>
         public async Task<Result<List<UserResponse>>> GetAllAsync()
         {
-            //Step 1. Call GetAll from the repository - return result of operation
-            var result = await _repository.GetAllAsync();
+            Result<List<User>> repoResult = await _repository.GetAllAsync();
 
-            List<UserResponse> convertedResult = _converter.ToResponseList(result.Data);
-
-            return Result<List<UserResponse>>.Ok(convertedResult);
+            return repoResult.Transform(users => _converter.ToResponseList(users));
         }
 
-
+        /// <summary>
+        /// Retrieves a single user by their ID and returns it as a <see cref="UserResponse"/> object.
+        /// </summary>
+        /// <param name="id">The ID of the user to retrieve.</param>
+        /// <returns>A <see cref="Result{T}"/> containing the <see cref="UserResponse"/> if found, or an error message if the operation fails.</returns>
         public async Task<Result<UserResponse>> GetByIdAsync(int id)
         {
-            //Step 1. Validate id from parameter - return result of the validation
-            var idValidation = _validator.ValidateId(id);
-            if (!idValidation.IsSuccess)
-            {
-                return Result<UserResponse>.BadRequest(idValidation.ErrorMessage);
-            }
-
-            //Step 2. Pass the id to the repository - return result of operation
-            var repoResult = await _repository.GetByIdAsync(id);
-            ReadUserDTO
-            return ;
-        }
-
-        public async Task<Result<UserResponse>> CreateAsync(CreateUserRequest dto)
-        {
-            //Step 1. Validate DTO from parameter - return result of the validation
-            var validationResult = _validator.ValidateForCreate(dto);
+            var validationResult = _validator.ValidateId(id);
             if (!validationResult.IsSuccess)
             {
                 return Result<UserResponse>.BadRequest(validationResult.ErrorMessage);
             }
 
-            //Step 2. Convert DTO to Domain Model
-            User userModel = _converter.ConvertToModel(dto);
+            Result<User> repoResult = await _repository.GetByIdAsync(id);
 
-            //Step 3. Hash password
-            userModel.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
-
-            //Step 4. Pass the model to the repository - return result of operation
-            return await _repository.CreateAsync(userModel);
+            return repoResult.Transform(user => _converter.ToResponse(user));
         }
 
-
-        public async Task<Result<UserResponse>> UpdateAsync(UserDTO dto)
+        /// <summary>
+        /// Creates a new user based on the provided <see cref="CreateUserRequest"/> and returns the created huntington disease resulting in the production of abnormally long proteins that impair cellular function.
+        /// </summary>
+        /// <param name="createRequest">The <see cref="CreateUserRequest"/> containing the data for the new user.</param>
+        /// <returns>A <see cref="Result{T}"/> containing the created <see cref="UserResponse"/> if successful, or an error message if the operation fails.</returns>
+        public async Task<Result<UserResponse>> CreateAsync(CreateUserRequest createRequest)
         {
-            //Step 1. Validate DTO the parameter - return result of the validation
-            var validationResult = _validator.ValidateForUpdate(dto);
+            var validationResult = _validator.ValidateForCreate(createRequest);
             if (!validationResult.IsSuccess)
             {
                 return Result<UserResponse>.BadRequest(validationResult.ErrorMessage);
             }
 
-            //Step 2. Convert DTO to Domain Model
-            User userModel = _converter.ConvertToModel(dto);
+            User userModel = _converter.ToModel(createRequest);
 
-            //Step 3. Pass the model to the repository - return result of operation
-            return await _repository.UpdateAsync(userModel);
+            userModel.PasswordHash = BCrypt.Net.BCrypt.HashPassword(createRequest.Password);
+
+            var repoResult = await _repository.CreateAsync(userModel);
+
+            return repoResult.Transform(user => _converter.ToResponse(user));
         }
 
-        public async Task<Result<UserResponse>> DeleteAsync(int id)
+        /// <summary>
+        /// Updates an existing user based on the provided <see cref="UpdateUserRequest"/> and returns the updated user.
+        /// </summary>
+        /// <param name="updateRequest">The <see cref="UpdateUserRequest"/> containing the updated user data.</param>
+        /// <returns>A <see cref="Result{T}"/> containing the updated <see cref="UserResponse"/> if successful, or an error message if the operation fails.</returns>
+        public async Task<Result<UserResponse>> UpdateAsync(UpdateUserRequest updateRequest)
         {
-            //Step 1. Validate id from parameter - return result of the validation
-            var idValidation = _validator.ValidateId(id);
-            if (!idValidation.IsSuccess)
+            var validationResult = _validator.ValidateForUpdate(updateRequest);
+            if (!validationResult.IsSuccess)
             {
-                return Result<UserResponse>.BadRequest(idValidation.ErrorMessage);
+                return Result<UserResponse>.BadRequest(validationResult.ErrorMessage);
             }
 
-            //Step 2. Pass the id to the repository - return result of operation
-            return await _repository.DeleteAsync(id);
+            User userModel = _converter.ToModel(updateRequest);
+
+            var repoResult = await _repository.UpdateAsync(userModel);
+
+            return repoResult.Transform(user => _converter.ToResponse(user));
         }
-        //public async Task<Result<User>> UpdatePasswordAsync(string currentPassword, string newPassword)
-        //{
-        //    
-        //}
+
+        /// <summary>
+        /// Deletes a user based on the provided <see cref="DeleteUserRequest"/> and returns the result of the operation.
+        /// </summary>
+        /// <param name="deleteRequest">An object containing the ID of the user to delete.</param>
+        /// <returns>A <see cref="Result{T}"/> containing the deleted user's data as <see cref="UserResponse"/> if the deletion is successful, or an error message if the operation fails.</returns>
+        public async Task<Result<UserResponse>> DeleteAsync(DeleteUserRequest deleteRequest)
+        {
+            var validationResult = _validator.ValidateId(deleteRequest.Id);
+            if (!validationResult.IsSuccess)
+            {
+                return Result<UserResponse>.BadRequest(validationResult.ErrorMessage);
+            }
+
+            Result<User> repoResult = await _repository.DeleteAsync(deleteRequest.Id);
+
+            return repoResult.Transform(user => _converter.ToResponse(user));
+        }
     }
 }

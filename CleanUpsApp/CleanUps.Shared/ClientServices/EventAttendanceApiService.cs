@@ -1,4 +1,6 @@
 ﻿using CleanUps.Shared.DTOs.EventAttendances;
+using CleanUps.Shared.DTOs.Events;
+using CleanUps.Shared.DTOs.Users;
 using CleanUps.Shared.ErrorHandling;
 using System.Net;
 using System.Net.Http.Json;
@@ -33,69 +35,48 @@ namespace CleanUps.Shared.ClientServices
             }
         }
 
-        public async Task<Result<List<EventDTO>>> GetEventsByUserIdAsync(int userId)
+        public async Task<Result<List<EventResponse>>> GetEventsByUserIdAsync(int userId)
         {
             HttpResponseMessage response = await _http.GetAsync($"api/eventattendances/user/{userId}/events");
             if (response.IsSuccessStatusCode)
             {
-                List<EventDTO>? eventAttendance = await response.Content.ReadFromJsonAsync<List<EventDTO>>();
-                return eventAttendance != null ? Result<List<EventDTO>>.Ok(eventAttendance) : Result<List<EventDTO>>.InternalServerError("Failed to deserialize event attendance");
+                List<EventResponse>? eventAttendance = await response.Content.ReadFromJsonAsync<List<EventResponse>>();
+                return eventAttendance != null ? Result<List<EventResponse>>.Ok(eventAttendance) : Result<List<EventResponse>>.InternalServerError("Failed to deserialize event");
             }
 
             string errorMessage = await response.Content.ReadAsStringAsync();
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:
-                    return Result<List<EventDTO>>.BadRequest(errorMessage);
+                    return Result<List<EventResponse>>.BadRequest(errorMessage);
                 case HttpStatusCode.NotFound:
-                    return Result<List<EventDTO>>.NotFound(errorMessage);
+                    return Result<List<EventResponse>>.NotFound(errorMessage);
                 default:
-                    return Result<List<EventDTO>>.InternalServerError(errorMessage);
+                    return Result<List<EventResponse>>.InternalServerError(errorMessage);
             }
         }
-        public async Task<Result<List<UserDTO>>> GetUsersByEventIdAsync(int eventId)
+        public async Task<Result<List<UserResponse>>> GetUsersByEventIdAsync(int eventId)
         {
             HttpResponseMessage response = await _http.GetAsync($"api/eventattendances/event/{eventId}/users");
             if (response.IsSuccessStatusCode)
             {
-                List<UserDTO>? eventAttendance = await response.Content.ReadFromJsonAsync<List<UserDTO>>();
-                return eventAttendance != null ? Result<List<UserDTO>>.Ok(eventAttendance) : Result<List<UserDTO>>.InternalServerError("Failed to deserialize event attendance");
+                List<UserResponse>? eventAttendance = await response.Content.ReadFromJsonAsync<List<UserResponse>>();
+                return eventAttendance != null ? Result<List<UserResponse>>.Ok(eventAttendance) : Result<List<UserResponse>>.InternalServerError("Failed to deserialize user");
             }
 
             string errorMessage = await response.Content.ReadAsStringAsync();
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:
-                    return Result<List<UserDTO>>.BadRequest(errorMessage);
+                    return Result<List<UserResponse>>.BadRequest(errorMessage);
                 case HttpStatusCode.NotFound:
-                    return Result<List<UserDTO>>.NotFound(errorMessage);
+                    return Result<List<UserResponse>>.NotFound(errorMessage);
                 default:
-                    return Result<List<UserDTO>>.InternalServerError(errorMessage);
+                    return Result<List<UserResponse>>.InternalServerError(errorMessage);
             }
-        }
+        }      
 
-        public async Task<Result<int>> GetAttendanceCountByEventIdAsync(int eventId)
-        {
-            HttpResponseMessage response = await _http.GetAsync($"api/eventattendances/event/{eventId}/users/count");
-            if (response.IsSuccessStatusCode)
-            {
-                int? numberOfAttendances = await response.Content.ReadFromJsonAsync<int>();
-                return numberOfAttendances.HasValue ? Result<int>.Ok(numberOfAttendances.Value) : Result<int>.InternalServerError("Failed to deserialize event attendance count");
-            }
-
-            string errorMessage = await response.Content.ReadAsStringAsync();
-            switch (response.StatusCode)
-            {
-                case HttpStatusCode.BadRequest:
-                    return Result<int>.BadRequest(errorMessage);
-                case HttpStatusCode.NotFound:
-                    return Result<int>.NotFound(errorMessage);
-                default:
-                    return Result<int>.InternalServerError(errorMessage);
-            }
-        }
-
-        public async Task<Result<EventAttendanceDTO>> CreateEventAttendanceAsync(EventAttendanceDTO newEventAttendance)
+        public async Task<Result<EventAttendanceDTO>> CreateAttendanceAsync(EventAttendanceDTO newEventAttendance)
         {
             HttpResponseMessage response = await _http.PostAsJsonAsync("api/eventattendances", newEventAttendance);
             if (response.IsSuccessStatusCode)
@@ -116,9 +97,9 @@ namespace CleanUps.Shared.ClientServices
             }
         }
 
-        public async Task<Result<EventAttendanceDTO>> UpdateAttendanceAsync(EventAttendanceDTO eventAttendanceToUpdate)
+        public async Task<Result<EventAttendanceDTO>> UpdateAttendanceAsync(EventAttendanceDTO attendanceToUpdate)
         {
-            HttpResponseMessage response = await _http.PutAsJsonAsync($"api/eventattendances/user/{eventAttendanceToUpdate.UserId}/event/{eventAttendanceToUpdate.EventId}", eventAttendanceToUpdate);
+            HttpResponseMessage response = await _http.PutAsJsonAsync($"api/eventattendances/user/{attendanceToUpdate.UserId}/event/{attendanceToUpdate.EventId}", attendanceToUpdate);
             if (response.IsSuccessStatusCode)
             {
                 EventAttendanceDTO? eventAttendance = await response.Content.ReadFromJsonAsync<EventAttendanceDTO>();
@@ -139,9 +120,9 @@ namespace CleanUps.Shared.ClientServices
             }
         }
 
-        public async Task<Result<EventAttendanceDTO>> DeleteAttendanceAsync(EventAttendanceDTO eventAttendanceToDelete)
+        public async Task<Result<EventAttendanceDTO>> DeleteAttendanceAsync(EventAttendanceDTO attendanceToDelete)
         {
-            HttpResponseMessage response = await _http.DeleteAsync($"api/eventattendances/user/{eventAttendanceToDelete.UserId}/event/{eventAttendanceToDelete.EventId}");
+            HttpResponseMessage response = await _http.DeleteAsync($"api/eventattendances/user/{attendanceToDelete.UserId}/event/{attendanceToDelete.EventId}");
             if (response.IsSuccessStatusCode)
             {
                 EventAttendanceDTO? eventAttendance = await response.Content.ReadFromJsonAsync<EventAttendanceDTO>();

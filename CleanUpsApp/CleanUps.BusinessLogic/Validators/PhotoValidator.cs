@@ -1,38 +1,81 @@
-﻿using CleanUps.BusinessLogic.Models;
+﻿using CleanUps.BusinessLogic.Validators.Interfaces;
 using CleanUps.Shared.DTOs.Photos;
 using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.BusinessLogic.Validators
 {
-    internal class PhotoValidator : IValidator<Photo, CreatePhotoRequest, UpdatePhotoRequest>
+    /// <summary>
+    /// Validator for photo-related operations, implementing validation rules for creating and updating photos.
+    /// </summary>
+    internal class PhotoValidator : IPhotoValidator
     {
-        public Result<bool> ValidateForCreate(CreatePhotoRequest dto)
+        /// <summary>
+        /// Validates a CreatePhotoRequest before creating a new photo.
+        /// Ensures all required fields are present and properly formatted.
+        /// </summary>
+        /// <param name="createRequest">The CreatePhotoRequest to validate</param>
+        /// <returns>A Result indicating success or failure with an error message</returns>
+        public Result<bool> ValidateForCreate(CreatePhotoRequest createRequest)
         {
-            if (dto == null)
+            if (createRequest == null)
             {
-                return Result<bool>.BadRequest("Photo cannot be null.");
+                return Result<bool>.BadRequest("CreatePhotoRequest cannot be null.");
             }
 
+            // Validate EventId
+            if (createRequest.EventId <= 0)
+            {
+                return Result<bool>.BadRequest("Event Id must be greater than zero.");
+            }
+
+            // Validate PhotoData
+            if (createRequest.PhotoData == null || createRequest.PhotoData.Length == 0)
+            {
+                return Result<bool>.BadRequest("PhotoData cannot be null or empty.");
+            }
+
+            // Optional: Validate Caption (e.g., maximum length)
+            if (!string.IsNullOrEmpty(createRequest.Caption) && createRequest.Caption.Length > 200)
+            {
+                return Result<bool>.BadRequest("Caption cannot exceed 200 characters.");
+            }
 
             return Result<bool>.Ok(true);
         }
 
-        public Result<bool> ValidateForUpdate(UpdatePhotoRequest dto)
+        /// <summary>
+        /// Validates an UpdatePhotoRequest before updating an existing photo.
+        /// Ensures all required fields are present and properly formatted.
+        /// </summary>
+        /// <param name="updateREquest">The UpdatePhotoRequest to validate</param>
+        /// <returns>A Result indicating success or failure with an error message</returns>
+        public Result<bool> ValidateForUpdate(UpdatePhotoRequest updateREquest)
         {
-            if (dto == null)
+            if (updateREquest == null)
             {
-                return Result<bool>.BadRequest("Photo cannot be null.");
+                return Result<bool>.BadRequest("UpdatePhotoRequest cannot be null.");
             }
 
-            if (dto.PhotoId <= 0)
+            // Validate PhotoId
+            if (updateREquest.PhotoId <= 0)
             {
                 return Result<bool>.BadRequest("Photo Id must be greater than zero.");
             }
 
+            // Validate Caption (e.g., maximum length)
+            if (updateREquest.Caption.Length > 200)
+            {
+                return Result<bool>.BadRequest("Caption cannot exceed 200 characters.");
+            }
 
             return Result<bool>.Ok(true);
         }
 
+        /// <summary>
+        /// Validates a photo ID to ensure it's a positive integer.
+        /// </summary>
+        /// <param name="id">The photo ID to validate</param>
+        /// <returns>A Result indicating success or failure with an error message</returns>
         public Result<bool> ValidateId(int id)
         {
             if (id <= 0)
@@ -41,20 +84,5 @@ namespace CleanUps.BusinessLogic.Validators
             }
             return Result<bool>.Ok(true);
         }
-
-        //private Result<Photo> ValidateCommonFields(PhotoDTO dto)
-        //{
-        //    if (dto.EventId <= 0)
-        //    {
-        //        return Result<Photo>.BadRequest("Event Id must be greater than zero.");
-        //    }
-
-        //    if (dto.PhotoData == null || dto.PhotoData.Length == 0)
-        //    {
-        //        return Result<Photo>.BadRequest("Photo data is required.");
-        //    }
-
-        //    return Result<Photo>.Ok(new Photo());
-        //}
     }
 }

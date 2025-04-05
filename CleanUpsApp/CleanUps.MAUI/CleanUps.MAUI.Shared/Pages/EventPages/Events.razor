@@ -79,22 +79,22 @@ else
 
 @code {
     // Existing code remains unchanged
-    private Result<List<EventDTO>> events;
+    private Result<List<EventResponse>> events;
     private Dictionary<int, int> participantCounts = new Dictionary<int, int>();
     private string errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        events = await _eventApiService.GetEventsAsync();
+        events = await _eventApiService.GetAllEventsAsync();
         if (events.IsSuccess)
         {
-            var tasks = events.Data.Select(async ev =>
+            var tasks = events.Data.Select(ev =>
             {
-                Result<int> attendees = await _eventAttendanceApiService.GetAttendanceCountByEventIdAsync(ev.EventId);
+                int attendees = events.Data.Count;
 
-                return new { ev.EventId, Count = attendees.Data };
+                return new { ev.EventId, Count = attendees };
             });
-            var results = await Task.WhenAll(tasks);
+            var results = tasks;
             participantCounts = results.ToDictionary(r => r.EventId, r => r.Count);
         }
     }
@@ -114,13 +114,13 @@ else
         var result = await _eventApiService.DeleteEventAsync(eventId);
         if (result.IsSuccess)
         {
-            events = await _eventApiService.GetEventsAsync();
-            var tasks = events.Data.Select(async ev =>
+            events = await _eventApiService.GetAllEventsAsync();
+            var tasks = events.Data.Select(ev =>
             {
-                var attendees = await _eventAttendanceApiService.GetAttendanceCountByEventIdAsync(ev.EventId);
-                return new { ev.EventId, Count = attendees.Data };
+                int attendees = events.Data.Count;
+                return new { ev.EventId, Count = attendees };
             });
-            var results = await Task.WhenAll(tasks);
+            var results = tasks;
             participantCounts = results.ToDictionary(r => r.EventId, r => r.Count);
         }
         else

@@ -3,97 +3,157 @@ using CleanUps.BusinessLogic.Models;
 using CleanUps.BusinessLogic.Repositories.Interfaces;
 using CleanUps.BusinessLogic.Services.Interfaces;
 using CleanUps.BusinessLogic.Validators.Interfaces;
-using CleanUps.Shared.DTOs.Events;
 using CleanUps.Shared.DTOs.Photos;
 using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.BusinessLogic.Services
 {
+    /// <summary>
+    /// Service class for managing photo operations, including retrieval, creation, updating, and deletion of photos.
+    /// </summary>
     internal class PhotoService : IPhotoService
     {
         private readonly IPhotoRepository _repository;
-        private readonly IValidator<CreatePhotoRequest, UpdatePhotoRequest> _validator;
-        private readonly IConverter<Photo, PhotoResponse, CreatePhotoRequest, UpdatePhotoRequest> _converter;
+        private readonly IPhotoValidator _validator;
+        private readonly IPhotoConverter _converter;
 
-        public PhotoService(IPhotoRepository repository, IValidator<CreatePhotoRequest, UpdatePhotoRequest> validator, IConverter<Photo, PhotoResponse, CreatePhotoRequest, UpdatePhotoRequest> converter)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PhotoService"/> class with dependency injection.
+        /// </summary>
+        /// <param name="repository">The repository for accessing and managing photo data.</param>
+        /// <param name="validator">The validator for checking the validity of photo requests.</param>
+        /// <param name="converter">The converter for transforming between domain models and DTOs.</param>
+        public PhotoService(IPhotoRepository repository,
+                            IPhotoValidator validator,
+                            IPhotoConverter converter)
         {
             _repository = repository;
             _validator = validator;
             _converter = converter;
         }
 
-        public async Task<Result<List<Photo>>> GetAllAsync()
+        /// <summary>
+        /// Retrieves all photos from the repository and returns them as a list of <see cref="PhotoResponse"/> objects.
+        /// </summary>
+        /// <returns>A <see cref="Result{T}"/> containing a list of <see cref="PhotoResponse"/> if successful, or an error message if the operation fails.</returns>
+        public async Task<Result<List<PhotoResponse>>> GetAllAsync()
         {
-            //Step 1. Call GetAll from the repository - return result of operation
-            return await _repository.GetAllAsync();
+            // Retrieve all photos from the repository
+            Result<List<Photo>> repoResult = await _repository.GetAllAsync();
+
+            // Transform the result into a list of PhotoResponse DTOs
+            return repoResult.Transform(photos => _converter.ToResponseList(photos));
         }
 
-
-        public async Task<Result<Photo>> GetByIdAsync(int id)
+        /// <summary>
+        /// Retrieves a single photo by its ID and returns it as a <see cref="PhotoResponse"/> object.
+        /// </summary>
+        /// <param name="id">The ID of the photo to retrieve.</param>
+        /// <returns>A <see cref="Result{T}"/> containing the <see cref="PhotoResponse"/> if found, or an error message if the operation fails.</returns>
+        public async Task<Result<PhotoResponse>> GetByIdAsync(int id)
         {
-            //Step 1. Validate id from parameter - return result of the validation
-            var idValidation = _validator.ValidateId(id);
-            if (!idValidation.IsSuccess)
-            {
-                return Result<Photo>.BadRequest(idValidation.ErrorMessage);
-            }
-
-            //Step 2. Pass the id to the repository - return result of operation
-            return await _repository.GetByIdAsync(id);
-        }
-        public async Task<Result<List<Photo>>> GetPhotosByEventIdAsync(int eventId)
-        {
-            var idValidation = _validator.ValidateId(eventId);
-            if (!idValidation.IsSuccess)
-            {
-                return Result<List<Photo>>.BadRequest(idValidation.ErrorMessage);
-            }
-            return await _repository.GetPhotosByEventIdAsync(eventId);
-        }
-
-        public async Task<Result<Photo>> CreateAsync(PhotoDTO dto)
-        {
-            //Step 1. Validate DTO from parameter - return result of the validation
-            var validationResult = _validator.ValidateForCreate(dto);
+            // Validate the provided ID
+            var validationResult = _validator.ValidateId(id);
             if (!validationResult.IsSuccess)
             {
-                return Result<Photo>.BadRequest(validationResult.ErrorMessage);
+                return Result<PhotoResponse>.BadRequest(validationResult.ErrorMessage);
             }
 
-            //Step 2. Convert DTO to Domain Model
-            Photo photoModel = _converter.ConvertToModel(dto);
+            // Retrieve the photo from the repository
+            Result<Photo> repoResult = await _repository.GetByIdAsync(id);
 
-            //Step 3. Pass the model to the repository - return result of operation
-            return await _repository.CreateAsync(photoModel);
+            // Transform the result into a PhotoResponse DTO
+            return repoResult.Transform(photo => _converter.ToResponse(photo));
         }
 
-        public async Task<Result<Photo>> UpdateAsync(PhotoDTO dto)
+        /// <summary>
+        /// Retrieves all photos associated with a specific event ID and returns them as a list of <see cref="PhotoResponse"/> objects.
+        /// </summary>
+        /// <param name="eventId">The ID of the event to retrieve photos for.</param>
+        /// <returns>A <see cref="Result{T}"/> containing a list of <see cref="PhotoResponse"/> if successful, or an error message if the operation fails.</returns>
+        public async Task<Result<List<PhotoResponse>>> GetPhotosByEventIdAsync(int eventId)
         {
-            //Step 1. Validate DTO the parameter - return result of the validation
-            var validationResult = _validator.ValidateForUpdate(dto);
+            // Validate the provided event ID
+            var validationResult = _validator.ValidateId(eventId);
             if (!validationResult.IsSuccess)
             {
-                return Result<Photo>.BadRequest(validationResult.ErrorMessage);
+                return Result<List<PhotoResponse>>.BadRequest(validationResult.ErrorMessage);
             }
 
-            //Step 2. Convert DTO to Domain Model
-            Photo photoModel = _converter.ConvertToModel(dto);
+            // Retrieve photos associated with the event from the repository
+            Result<List<Photo>> repoResult = await _repository.GetPhotosByEventIdAsync(eventId);
 
-            //Step 3. Pass the model to the repository - return result of operation
-            return await _repository.UpdateAsync(photoModel);
+            // Transform the result into a list of PhotoResponse DTOs
+            return repoResult.Transform(photos => _converter.ToResponseList(photos));
         }
 
-        public async Task<Result<Photo>> DeleteAsync(int id)
+        /// <summary>
+        /// Creates a new photo based on the provided <see cref="CreatePhotoRequest"/> and returns the created photo.
+        /// </summary>
+        /// <param name="createRequest">The <see cref="CreatePhotoRequest"/> containing the data for the new photo.</param>
+        /// <returns>A <see cref="Result{T}"/> containing the created <see cref="PhotoResponse"/> if successful, or an error message if the operation fails.</returns>
+        public async Task<Result<PhotoResponse>> CreateAsync(CreatePhotoRequest createRequest)
         {
-            //Step 1. Validate id from parameter - return result of the validation
-            var idValidation = _validator.ValidateId(id);
-            if (!idValidation.IsSuccess)
+            // Validate the incoming request
+            var validationResult = _validator.ValidateForCreate(createRequest);
+            if (!validationResult.IsSuccess)
             {
-                return Result<Photo>.BadRequest(idValidation.ErrorMessage);
+                return Result<PhotoResponse>.BadRequest(validationResult.ErrorMessage);
             }
 
-            //Step 2. Pass the id to the repository - return result of operation
-            return await _repository.DeleteAsync(id);
+            // Convert the request DTO to a Photo domain model
+            Photo photoModel = _converter.ToModel(createRequest);
+
+            // Persist the new photo in the repository
+            var repoResult = await _repository.CreateAsync(photoModel);
+
+            // Transform the result into a PhotoResponse DTO
+            return repoResult.Transform(photo => _converter.ToResponse(photo));
+        }
+
+        /// <summary>
+        /// Updates an existing photo based on the provided <see cref="UpdatePhotoRequest"/> and returns the updated photo.
+        /// </summary>
+        /// <param name="updateRequest">The <see cref="UpdatePhotoRequest"/> containing the updated photo data.</param>
+        /// <returns>A <see cref="Result{T}"/> containing the updated <see cref="PhotoResponse"/> if successful, or an error message if the operation fails.</returns>
+        public async Task<Result<PhotoResponse>> UpdateAsync(UpdatePhotoRequest updateRequest)
+        {
+            // Validate the incoming request
+            var validationResult = _validator.ValidateForUpdate(updateRequest);
+            if (!validationResult.IsSuccess)
+            {
+                return Result<PhotoResponse>.BadRequest(validationResult.ErrorMessage);
+            }
+
+            // Convert the request DTO to a Photo domain model
+            Photo photoModel = _converter.ToModel(updateRequest);
+
+            // Update the photo in the repository
+            var repoResult = await _repository.UpdateAsync(photoModel);
+
+            // Transform the result into a PhotoResponse DTO
+            return repoResult.Transform(photo => _converter.ToResponse(photo));
+        }
+
+        /// <summary>
+        /// Deletes a photo  based on the provided <see cref="DeletePhotoRequest"/> and returns the result of the operation.
+        /// </summary>
+        /// <param name="deleteRequest">An object containing the ID of the photo to delete.</param>
+        /// <returns>A <see cref="Result{T}"/> containing the deleted photo's data as <see cref="UserResponse"/> if the deletion is successful, or an error message if the operation fails.</returns>
+        public async Task<Result<PhotoResponse>> DeleteAsync(DeletePhotoRequest deleteRequest)
+        {
+            // Validate the provided ID
+            var validationResult = _validator.ValidateId(deleteRequest.PhotoId);
+            if (!validationResult.IsSuccess)
+            {
+                return Result<PhotoResponse>.BadRequest(validationResult.ErrorMessage);
+            }
+
+            // Delete the photo from the repository
+            Result<Photo> repoResult = await _repository.DeleteAsync(deleteRequest.PhotoId);
+
+            // Transform the result into a PhotoResponse DTO
+            return repoResult.Transform(photo => _converter.ToResponse(photo));
         }
     }
 }

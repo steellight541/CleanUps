@@ -1,4 +1,5 @@
-﻿using CleanUps.Shared.ErrorHandling;
+﻿using CleanUps.Shared.DTOs.Events;
+using CleanUps.Shared.ErrorHandling;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -13,108 +14,108 @@ namespace CleanUps.Shared.ClientServices
             _http = httpClientFactory.CreateClient("CleanupApi");
         }
 
-        public async Task<Result<List<EventDTO>>> GetEventsAsync()
+        public async Task<Result<List<EventResponse>>> GetAllEventsAsync()
         {
             HttpResponseMessage response = await _http.GetAsync("api/events");
             if (response.IsSuccessStatusCode)
             {
-                List<EventDTO>? events = await response.Content.ReadFromJsonAsync<List<EventDTO>>();
-                return events != null ? Result<List<EventDTO>>.Ok(events) : Result<List<EventDTO>>.InternalServerError("Failed to deserialize events");
+                List<EventResponse>? events = await response.Content.ReadFromJsonAsync<List<EventResponse>>();
+                return events != null ? Result<List<EventResponse>>.Ok(events) : Result<List<EventResponse>>.InternalServerError("Failed to deserialize events");
             }
 
             string errorMessage = await response.Content.ReadAsStringAsync();
             switch (response.StatusCode)
             {
                 case HttpStatusCode.NoContent:
-                    return Result<List<EventDTO>>.NoContent();
+                    return Result<List<EventResponse>>.NoContent();
                 default:
-                    return Result<List<EventDTO>>.InternalServerError(errorMessage);
+                    return Result<List<EventResponse>>.InternalServerError(errorMessage);
             }
         }
 
-        public async Task<Result<EventDTO>> GetEventByIdAsync(int id)
+        public async Task<Result<EventResponse>> GetEventByIdAsync(int id)
         {
             HttpResponseMessage response = await _http.GetAsync($"api/events/{id}");
             if (response.IsSuccessStatusCode)
             {
-                EventDTO? eventDto = await response.Content.ReadFromJsonAsync<EventDTO>();
-                return eventDto != null ? Result<EventDTO>.Ok(eventDto) : Result<EventDTO>.InternalServerError("Failed to deserialize event");
+                EventResponse? eventDto = await response.Content.ReadFromJsonAsync<EventResponse>();
+                return eventDto != null ? Result<EventResponse>.Ok(eventDto) : Result<EventResponse>.InternalServerError("Failed to deserialize event");
             }
 
             string errorMessage = await response.Content.ReadAsStringAsync();
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:
-                    return Result<EventDTO>.BadRequest(errorMessage);
+                    return Result<EventResponse>.BadRequest(errorMessage);
                 case HttpStatusCode.NotFound:
-                    return Result<EventDTO>.NotFound(errorMessage);
+                    return Result<EventResponse>.NotFound(errorMessage);
                 default:
-                    return Result<EventDTO>.InternalServerError(errorMessage);
+                    return Result<EventResponse>.InternalServerError(errorMessage);
             }
         }
 
-        public async Task<Result<EventDTO>> CreateEventAsync(EventDTO newEvent)
+        public async Task<Result<EventResponse>> CreateEventAsync(CreateEventRequest createRequest)
         {
-            HttpResponseMessage response = await _http.PostAsJsonAsync("api/events", newEvent);
+            HttpResponseMessage response = await _http.PostAsJsonAsync("api/events", createRequest);
             if (response.IsSuccessStatusCode)
             {
-                EventDTO? eventDto = await response.Content.ReadFromJsonAsync<EventDTO>();
-                return eventDto != null ? Result<EventDTO>.Created(eventDto) : Result<EventDTO>.InternalServerError("Failed to deserialize event");
+                EventResponse? createdEvent = await response.Content.ReadFromJsonAsync<EventResponse>();
+                return createdEvent != null ? Result<EventResponse>.Created(createdEvent) : Result<EventResponse>.InternalServerError("Failed to deserialize event");
             }
 
             string errorMessage = await response.Content.ReadAsStringAsync();
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:
-                    return Result<EventDTO>.BadRequest(errorMessage);
+                    return Result<EventResponse>.BadRequest(errorMessage);
                 default:
-                    return Result<EventDTO>.InternalServerError(errorMessage);
+                    return Result<EventResponse>.InternalServerError(errorMessage);
             }
         }
 
-        public async Task<Result<EventDTO>> UpdateEventAsync(int id, EventDTO eventToUpdate)
+        public async Task<Result<EventResponse>> UpdateEventAsync(int id, UpdateEventRequest updateRequest)
         {
-            HttpResponseMessage response = await _http.PutAsJsonAsync($"api/events/{id}", eventToUpdate);
+            HttpResponseMessage response = await _http.PutAsJsonAsync($"api/events/{id}", updateRequest);
             if (response.IsSuccessStatusCode)
             {
-                EventDTO? eventDto = await response.Content.ReadFromJsonAsync<EventDTO>();
-                return eventDto != null ? Result<EventDTO>.Ok(eventDto) : Result<EventDTO>.InternalServerError("Failed to deserialize event");
+                EventResponse? updatedEvent = await response.Content.ReadFromJsonAsync<EventResponse>();
+                return updatedEvent != null ? Result<EventResponse>.Ok(updatedEvent) : Result<EventResponse>.InternalServerError("Failed to deserialize event");
             }
 
             string errorMessage = await response.Content.ReadAsStringAsync();
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:
-                    return Result<EventDTO>.BadRequest(errorMessage);
+                    return Result<EventResponse>.BadRequest(errorMessage);
                 case HttpStatusCode.NotFound:
-                    return Result<EventDTO>.NotFound(errorMessage);
+                    return Result<EventResponse>.NotFound(errorMessage);
                 case HttpStatusCode.Conflict:
-                    return Result<EventDTO>.Conflict(errorMessage);
+                    return Result<EventResponse>.Conflict(errorMessage);
                 default:
-                    return Result<EventDTO>.InternalServerError(errorMessage);
+                    return Result<EventResponse>.InternalServerError(errorMessage);
             }
         }
 
-        public async Task<Result<EventDTO>> DeleteEventAsync(int id)
+        public async Task<Result<EventResponse>> DeleteEventAsync(int id)
         {
             HttpResponseMessage response = await _http.DeleteAsync($"api/events/{id}");
             if (response.IsSuccessStatusCode)
             {
-                EventDTO? eventDto = await response.Content.ReadFromJsonAsync<EventDTO>();
-                return eventDto != null ? Result<EventDTO>.Ok(eventDto) : Result<EventDTO>.InternalServerError("Failed to deserialize event");
+                EventResponse? deletedEvent = await response.Content.ReadFromJsonAsync<EventResponse>();
+                return deletedEvent != null ? Result<EventResponse>.Ok(deletedEvent) : Result<EventResponse>.InternalServerError("Failed to deserialize event");
             }
 
             string errorMessage = await response.Content.ReadAsStringAsync();
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:
-                    return Result<EventDTO>.BadRequest(errorMessage);
+                    return Result<EventResponse>.BadRequest(errorMessage);
                 case HttpStatusCode.NotFound:
-                    return Result<EventDTO>.NotFound(errorMessage);
+                    return Result<EventResponse>.NotFound(errorMessage);
                 case HttpStatusCode.Conflict:
-                    return Result<EventDTO>.Conflict(errorMessage);
+                    return Result<EventResponse>.Conflict(errorMessage);
                 default:
-                    return Result<EventDTO>.InternalServerError(errorMessage);
+                    return Result<EventResponse>.InternalServerError(errorMessage);
             }
         }
     }

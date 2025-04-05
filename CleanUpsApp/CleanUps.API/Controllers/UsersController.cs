@@ -1,5 +1,6 @@
-﻿using CleanUps.BusinessLogic.Models;
-using CleanUps.Shared.ErrorHandling;
+﻿using CleanUps.BusinessLogic.Services.Interfaces;
+using CleanUps.Shared.DTOs.AbstractDTOs;
+using CleanUps.Shared.DTOs.Users;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -10,10 +11,10 @@ namespace CleanUps.API.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly IService<User, UserDTO> _userService;
+        private readonly IUserService _userService;
         private readonly ILogger<UsersController> _logger;
 
-        public UsersController(IService<User, UserDTO> userService, ILogger<UsersController> logger)
+        public UsersController(IUserService userService, ILogger<UsersController> logger)
         {
             _userService = userService;
             _logger = logger;
@@ -26,7 +27,7 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllAsync() // YourApi.com/api/users
         {
-            Result<List<User>> result = await _userService.GetAllAsync();
+            var result = await _userService.GetAllAsync();
 
             switch (result.StatusCode)
             {
@@ -49,7 +50,7 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetByIdAsync(int id) // YourApi.com/api/users/{id}
         {
-            Result<User> result = await _userService.GetByIdAsync(id);
+            var result = await _userService.GetByIdAsync(id);
 
             switch (result.StatusCode)
             {
@@ -70,9 +71,9 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> PostAsync([FromBody] UserDTO dto) // YourApi.com/api/users
+        public async Task<IActionResult> PostAsync([FromBody] CreateUserRequest createRequest) // YourApi.com/api/users
         {
-            Result<User> result = await _userService.CreateAsync(dto);
+            var result = await _userService.CreateAsync(createRequest);
 
             switch (result.StatusCode)
             {
@@ -94,14 +95,14 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> PutAsync(int id, [FromBody] UserDTO dto) // YourApi.com/api/users/{id}
+        public async Task<IActionResult> PutAsync(int id, [FromBody] UpdateUserRequest updateRequest) // YourApi.com/api/users/{id}
         {
-            if (id != dto.UserId)
+            if (id != updateRequest.UserId)
             {
                 return BadRequest("ID mismatch between route parameter and event data.");
             }
 
-            var result = await _userService.UpdateAsync(dto);
+            var result = await _userService.UpdateAsync(updateRequest);
 
             switch (result.StatusCode)
             {
@@ -129,7 +130,8 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteAsync(int id) // YourApi.com/api/users/{id}
         {
-            var result = await _userService.DeleteAsync(id);
+
+            var result = await _userService.DeleteAsync(new DeleteUserRequest(id));
 
             switch (result.StatusCode)
             {

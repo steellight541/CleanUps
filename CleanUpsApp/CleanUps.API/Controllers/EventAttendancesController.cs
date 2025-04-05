@@ -1,7 +1,5 @@
-﻿using CleanUps.BusinessLogic.Models;
-using CleanUps.BusinessLogic.Services.Interfaces;
+﻿using CleanUps.BusinessLogic.Services.Interfaces;
 using CleanUps.Shared.DTOs.EventAttendances;
-using CleanUps.Shared.ErrorHandling;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -28,7 +26,7 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllAsync() // YourApi.com/api/eventattendances
         {
-            Result<List<EventAttendance>> result = await _eventAttendanceService.GetAllAsync();
+            var result = await _eventAttendanceService.GetAllAsync();
 
             switch (result.StatusCode)
             {
@@ -51,7 +49,7 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetEventsForASingleUserAsync(int userId) // YourApi.com/api/eventattendances/user/{userId}/events
         {
-            Result<List<Event>> result = await _eventAttendanceService.GetEventsByUserIdAsync(userId);
+            var result = await _eventAttendanceService.GetEventsByUserIdAsync(userId);
 
             switch (result.StatusCode)
             {
@@ -76,7 +74,8 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetUsersForASingleEventAsync(int eventId) // YourApi.com/api/eventattendances/event/{eventId}/users
         {
-            Result<List<User>> result = await _eventAttendanceService.GetUsersByEventIdAsync(eventId);
+            var result = await _eventAttendanceService.GetUsersByEventIdAsync(eventId);
+
             switch (result.StatusCode)
             {
                 case 200:
@@ -91,40 +90,15 @@ namespace CleanUps.API.Controllers
             }
         }
 
-        //TODO: Allow Anonymous
-        [HttpGet]
-        [Route("event/{eventId}/users/count")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult GetUserCountForEvent(int eventId)// YourApi.com/api/eventattendances/event/{eventId}/users/count
-        {
-            Result<int> result = _eventAttendanceService.GetAttendanceCountByEventId(eventId); 
-
-            switch (result.StatusCode)
-            {
-                case 200:
-                    return Ok(result.Data);
-                case 204:
-                    return NoContent();
-                case 400:
-                    return BadRequest(result.ErrorMessage);
-                default:
-                    _logger.LogError("Error getting number of users: {StatusCode} - {Message}", result.StatusCode, result.ErrorMessage);
-                    return StatusCode(result.StatusCode, result.ErrorMessage);
-            }
-        }
-
         //TODO: Allow Organizer & Volunteer
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> PostAsync([FromBody] EventAttendanceDTO dto) // YourApi.com/api/eventattendances
+        public async Task<IActionResult> PostAsync([FromBody] EventAttendanceDTO eventAttendanceDTO) // YourApi.com/api/eventattendances
         {
-            Result<EventAttendance> result = await _eventAttendanceService.CreateAsync(dto);
+            var result = await _eventAttendanceService.CreateAsync(eventAttendanceDTO);
 
             switch (result.StatusCode)
             {
@@ -148,13 +122,13 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> PutAsync(int userId, int eventId, [FromBody] EventAttendanceDTO dto) // YourApi.com/api/eventattendances/user/{userId}/event/{eventId}
+        public async Task<IActionResult> PutAsync(int userId, int eventId, [FromBody] EventAttendanceDTO eventAttendanceDTO) // YourApi.com/api/eventattendances/user/{userId}/event/{eventId}
         {
-            if (userId != dto.UserId && eventId != dto.EventId)
+            if (userId != eventAttendanceDTO.UserId && eventId != eventAttendanceDTO.EventId)
             {
-                return BadRequest($"The parameter User-Id: {userId} and parameter Event-Id{eventId} does not match the data User-Id: {dto.UserId} and data Event-Id: {dto.EventId}");
+                return BadRequest($"The parameter User-Id: {userId} and parameter Event-Id{eventId} does not match the data User-Id: {eventAttendanceDTO.UserId} and data Event-Id: {eventAttendanceDTO.EventId}");
             }
-            var result = await _eventAttendanceService.UpdateAsync(dto);
+            var result = await _eventAttendanceService.UpdateAsync(eventAttendanceDTO);
 
             switch (result.StatusCode)
             {
@@ -182,7 +156,7 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteAsync(int userId, int eventId) // YourApi.com/api/eventattendances/user/{userId}/event/{eventId}
         {
-            var result = await _eventAttendanceService.DeleteAttendanceAsync(userId, eventId);
+            var result = await _eventAttendanceService.DeleteAsync(new EventAttendanceDTO(userId, eventId, DateTime.UtcNow));
 
             switch (result.StatusCode)
             {

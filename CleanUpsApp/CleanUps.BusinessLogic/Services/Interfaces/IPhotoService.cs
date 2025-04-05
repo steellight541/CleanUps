@@ -1,5 +1,4 @@
-﻿using CleanUps.Shared.DTOs.Events;
-using CleanUps.Shared.DTOs.Photos;
+﻿using CleanUps.Shared.DTOs.Photos;
 using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.BusinessLogic.Services.Interfaces

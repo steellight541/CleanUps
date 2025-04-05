@@ -1,6 +1,5 @@
-﻿using CleanUps.BusinessLogic.Models;
-using CleanUps.BusinessLogic.Services.Interfaces;
-using CleanUps.Shared.ErrorHandling;
+﻿using CleanUps.BusinessLogic.Services.Interfaces;
+using CleanUps.Shared.DTOs.Photos;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -27,7 +26,7 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllAsync() // YourApi.com/api/photos
         {
-            Result<List<Photo>> result = await _photoService.GetAllAsync();
+            var result = await _photoService.GetAllAsync();
 
             switch (result.StatusCode)
             {
@@ -50,7 +49,7 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetByIdAsync(int id) // YourApi.com/api/photos/{id}
         {
-            Result<Photo> result = await _photoService.GetByIdAsync(id);
+            var result = await _photoService.GetByIdAsync(id);
 
             switch (result.StatusCode)
             {
@@ -75,7 +74,7 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetPhotosByEventIdAsync(int eventId)// YourApi.com/api/photos/events/{id}
         {
-            Result<List<Photo>> result = await _photoService.GetPhotosByEventIdAsync(eventId);
+            var result = await _photoService.GetPhotosByEventIdAsync(eventId);
 
             switch (result.StatusCode)
             {
@@ -96,9 +95,9 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> PostAsync([FromBody] PhotoDTO dto) // YourApi.com/api/photos
+        public async Task<IActionResult> PostAsync([FromBody] CreatePhotoRequest createRequest) // YourApi.com/api/photos
         {
-            Result<Photo> result = await _photoService.CreateAsync(dto);
+            var result = await _photoService.CreateAsync(createRequest);
 
             switch (result.StatusCode)
             {
@@ -120,14 +119,14 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> PutAsync(int id, [FromBody] PhotoDTO dto) // YourApi.com/api/photos/{id}
+        public async Task<IActionResult> PutAsync(int id, [FromBody] UpdatePhotoRequest updateRequest) // YourApi.com/api/photos/{id}
         {
-            if (id != dto.PhotoId)
+            if (id != updateRequest.PhotoId)
             {
                 return BadRequest("ID mismatch between route parameter and event data.");
             }
 
-            var result = await _photoService.UpdateAsync(dto);
+            var result = await _photoService.UpdateAsync(updateRequest);
 
             switch (result.StatusCode)
             {
@@ -155,7 +154,7 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteAsync(int id)// YourApi.com/api/users/{id}
         {
-            var result = await _photoService.DeleteAsync(id);
+            var result = await _photoService.DeleteAsync(new DeletePhotoRequest(id));
 
             switch (result.StatusCode)
             {

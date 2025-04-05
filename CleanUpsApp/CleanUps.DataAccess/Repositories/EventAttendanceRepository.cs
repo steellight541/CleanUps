@@ -193,15 +193,16 @@ namespace CleanUps.DataAccess.Repositories
             }
         }
 
-        public async Task<Result<EventAttendance>> DeleteAttendanceAsync(int userId, int eventId)
+        public async Task<Result<EventAttendance>> DeleteAsync(EventAttendance attendance)
         {
             try
             {
-                EventAttendance? eventAttendance = await _context.EventAttendances.FindAsync(eventId, userId);
+
+                EventAttendance? eventAttendance = await _context.EventAttendances.FindAsync(attendance.UserId, attendance.EventId);
                 
                 if (eventAttendance == null)
                 {
-                    return Result<EventAttendance>.NotFound($"EventAttendance for event with Id-{eventId} and user with Id-{userId} does not exist");
+                    return Result<EventAttendance>.NotFound($"EventAttendance for event with Id-{attendance.EventId} and user with Id-{attendance.UserId} does not exist");
                 }
 
                 _context.EventAttendances.Remove(eventAttendance);
@@ -226,9 +227,5 @@ namespace CleanUps.DataAccess.Repositories
             }
         }
 
-        public async Task<Result<EventAttendance>> DeleteAsync(int id)
-        {
-            return Result<EventAttendance>.InternalServerError("Repository: DeleteAsync Method with one Id paramter is not implemented, use another method.");
-        }
     }
 }

@@ -2,5 +2,5 @@
 
 namespace CleanUps.BusinessLogic.Services.Interfaces
 {
-    internal interface IEventService : IService<EventResponse, CreateEventRequest, UpdateEventRequest, DeleteEventRequest>;
+    public interface IEventService : IService<EventResponse, CreateEventRequest, UpdateEventRequest, DeleteEventRequest>;
 }

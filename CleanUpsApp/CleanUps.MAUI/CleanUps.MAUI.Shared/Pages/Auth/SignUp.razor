@@ -1,5 +1,4 @@
 ﻿@page "/auth/signup"
-@using CleanUps.Shared.DTOs.Auth
 @using CleanUps.Shared.DTOs.Users
 @inject UserApiService _userApiService;
 @inject NavigationManager _navigationManager
@@ -61,7 +60,7 @@
     {
         CreateUserRequest newUser = new CreateUserRequest(singUpModel.Name, singUpModel.Email, singUpModel.Password);
 
-        var result = await _userApiService.CreateAccountAsync(newUser);
+        var result = await _userApiService.CreateUserAsync(newUser);
         if (result.IsSuccess)
         {
             _navigationManager.NavigateTo("/events");
