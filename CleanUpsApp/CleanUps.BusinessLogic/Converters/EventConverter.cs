@@ -3,7 +3,6 @@ using CleanUps.BusinessLogic.Models;
 using CleanUps.Shared.DTOs.Enums;
 using CleanUps.Shared.DTOs.Events;
 using CleanUps.Shared.DTOs.Locations;
-using System.Drawing;
 
 namespace CleanUps.BusinessLogic.Converters
 {
@@ -24,8 +23,9 @@ namespace CleanUps.BusinessLogic.Converters
                 Location = new Location
                 {
                     Id = 1,
-                    Coordinates = new Point((int)dto.Location.Longitude, (int)dto.Location.Latitude)
-                },
+                    Latitude = dto.Location.Latitude,
+                    Longitude = dto.Location.Longitude
+                }
             };
         }
 
@@ -40,8 +40,9 @@ namespace CleanUps.BusinessLogic.Converters
                 Location = new Location
                 {
                     Id = 1,
-                    Coordinates = new Point((int)dto.Location.Longitude, (int)dto.Location.Latitude)
-                },
+                    Latitude = dto.Location.Latitude,
+                    Longitude = dto.Location.Longitude
+                }
             };
         }
 
@@ -59,8 +60,9 @@ namespace CleanUps.BusinessLogic.Converters
                 Location = new Location
                 {
                     Id = 1,
-                    Coordinates = new Point((int)dto.Location.Longitude, (int)dto.Location.Latitude)
-                },
+                    Latitude = dto.Location.Latitude,
+                    Longitude = dto.Location.Longitude
+                }
             };
         }
 
@@ -76,7 +78,7 @@ namespace CleanUps.BusinessLogic.Converters
                 model.TrashCollected,
                 model.NumberOfAttendees,
                 (StatusDTO)model.StatusId,
-                new LocationResponse(model.Location.Id, model.Location.Coordinates.X, model.Location.Coordinates.Y) //x is longitude and y is latitude
+                new LocationResponse(model.Location.Id, model.Location.Longitude, model.Location.Latitude) //x is longitude and y is latitude
             );
         }
 
@@ -87,7 +89,7 @@ namespace CleanUps.BusinessLogic.Converters
                 model.Description,
                 model.DateAndTime,
                 model.FamilyFriendly,
-                new CreateLocationRequest(model.Location.Coordinates.X, model.Location.Coordinates.Y) //x is longitude and y is latitude
+                new CreateLocationRequest(model.Location.Longitude, model.Location.Latitude) //x is longitude and y is latitude
             );
         }
         public UpdateEventRequest ToUpdateRequest(Event model)
@@ -100,7 +102,7 @@ namespace CleanUps.BusinessLogic.Converters
                 model.FamilyFriendly,
                 model.TrashCollected,
                 (StatusDTO)model.StatusId,
-                new UpdateLocationRequest(model.Location.Id, model.Location.Coordinates.X, model.Location.Coordinates.Y) //x is longitude and y is latitude
+                new UpdateLocationRequest(model.Location.Id, model.Location.Longitude, model.Location.Latitude) //x is longitude and y is latitude
             );
         }
 
