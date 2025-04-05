@@ -1,6 +1,5 @@
 ﻿using CleanUps.BusinessLogic.Models.AbstractModels;
 using System.ComponentModel.DataAnnotations;
-using NetTopologySuite.Geometries;
 
 namespace CleanUps.BusinessLogic.Models
 {
