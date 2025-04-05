@@ -15,7 +15,8 @@ namespace CleanUps.BusinessLogic.Converters
                 EventId = dto.EventId,
                 Title = dto.Title,
                 Description = dto.Description,
-                DateAndTime = dto.DateAndTime,
+                StartTime = dto.StartTime,
+                EndTime = dto.EndTime,
                 FamilyFriendly = dto.FamilyFriendly,
                 TrashCollected = dto.TrashCollected,
                 NumberOfAttendees = dto.NumberOfAttendees,
@@ -35,7 +36,8 @@ namespace CleanUps.BusinessLogic.Converters
             {
                 Title = dto.Title,
                 Description = dto.Description,
-                DateAndTime = dto.DateAndTime,
+                StartTime = dto.StartTime,
+                EndTime = dto.EndTime,
                 FamilyFriendly = dto.FamilyFriendly,
                 Location = new Location
                 {
@@ -53,7 +55,8 @@ namespace CleanUps.BusinessLogic.Converters
                 EventId = dto.EventId,
                 Title = dto.Title,
                 Description = dto.Description,
-                DateAndTime = dto.DateAndTime,
+                StartTime = dto.StartTime,
+                EndTime = dto.EndTime,
                 FamilyFriendly = dto.FamilyFriendly,
                 TrashCollected = dto.TrashCollected,
                 StatusId = (int)dto.Status,
@@ -73,7 +76,8 @@ namespace CleanUps.BusinessLogic.Converters
                 model.EventId,
                 model.Title,
                 model.Description,
-                model.DateAndTime,
+                model.StartTime,
+                model.EndTime,
                 model.FamilyFriendly,
                 model.TrashCollected,
                 model.NumberOfAttendees,
@@ -87,7 +91,8 @@ namespace CleanUps.BusinessLogic.Converters
             return new CreateEventRequest(
                 model.Title,
                 model.Description,
-                model.DateAndTime,
+               model.StartTime,
+                model.EndTime,
                 model.FamilyFriendly,
                 new CreateLocationRequest(model.Location.Longitude, model.Location.Latitude) //x is longitude and y is latitude
             );
@@ -98,7 +103,8 @@ namespace CleanUps.BusinessLogic.Converters
                 model.EventId,
                 model.Title,
                 model.Description,
-                model.DateAndTime,
+                model.StartTime,
+                model.EndTime,
                 model.FamilyFriendly,
                 model.TrashCollected,
                 (StatusDTO)model.StatusId,

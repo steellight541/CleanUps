@@ -28,8 +28,13 @@ else
         </div>
 
         <div class="form-group">
-            <label for="dateAndTime">Date and Time of Event</label>
-            <InputDate id="dateAndTime" @bind-Value="editModel.DateAndTime" class="form-control" />
+            <label for="startTime">StartTime of Event</label>
+            <InputDate id="startTime" @bind-Value="editModel.StartTime" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label for="endTime">End Time of Event</label>
+            <InputDate id="endTime" @bind-Value="editModel.EndTime" class="form-control" />
         </div>
 
         <div class="form-check">
@@ -54,7 +59,8 @@ else
     {
         public string Title { get; set; }
         public string Description { get; set; }
-        public DateTime DateAndTime { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
         public bool FamilyFriendly { get; set; }
         public decimal TrashCollected { get; set; }
         public StatusDTO Status { get; set; }
@@ -71,7 +77,8 @@ else
                 {
                     Title = eventResult.Data.Title,
                     Description = eventResult.Data.Description,
-                    DateAndTime = eventResult.Data.DateAndTime,
+                    StartTime = eventResult.Data.StartTime,
+                    EndTime = eventResult.Data.EndTime,
                     FamilyFriendly = eventResult.Data.FamilyFriendly,
                     TrashCollected = eventResult.Data.TrashCollected,
                     Status = eventResult.Data.Status,
@@ -87,7 +94,8 @@ else
             eventId,
             editModel.Title,
             editModel.Description,
-            editModel.DateAndTime,
+            editModel.StartTime,
+            editModel.EndTime,
             editModel.FamilyFriendly,
             1, //dummy data
             StatusDTO.Ongoing, //dummy data

@@ -20,14 +20,14 @@ namespace CleanUps.BusinessLogic.Validators
             }
 
             // Validate common fields
-            var commonValidation = ValidateCommonFields(createRequest.Title, createRequest.Description, createRequest.DateAndTime);
+            var commonValidation = ValidateCommonFields(createRequest.Title, createRequest.Description, createRequest.StartTime);
             if (!commonValidation.IsSuccess)
             {
                 return commonValidation;
             }
 
             // Ensure DateAndTime is in the future
-            if (createRequest.DateAndTime <= DateTime.Now)
+            if (createRequest.StartTime <= DateTime.Now)
             {
                 return Result<bool>.BadRequest("Event Date and Time must be in the future.");
             }
@@ -71,7 +71,7 @@ namespace CleanUps.BusinessLogic.Validators
             }
 
             // Validate common fields
-            var commonValidation = ValidateCommonFields(updateRequest.Title, updateRequest.Description, updateRequest.DateAndTime);
+            var commonValidation = ValidateCommonFields(updateRequest.Title, updateRequest.Description, updateRequest.StartTime);
             if (!commonValidation.IsSuccess)
             {
                 return commonValidation;

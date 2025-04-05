@@ -20,7 +20,14 @@ namespace CleanUps.Configuration
         {
             // Register DbContext
             services.AddDbContext<CleanUpsContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("CleanUpsDb")));
+                options.UseSqlServer(configuration.GetConnectionString("CleanUpsDb"),
+                    sqlOptions => sqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 5,                          // Retry up to 5 times
+                        maxRetryDelay: TimeSpan.FromSeconds(30),  // Wait up to 30 seconds between retries
+                        errorNumbersToAdd: null                  // Use default SQL error codes for retries
+                    )
+                )
+            );
 
             // Register repositories
             services.AddScoped<IEventRepository, EventRepository>();

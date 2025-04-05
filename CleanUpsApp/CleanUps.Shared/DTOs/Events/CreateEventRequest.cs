@@ -3,5 +3,5 @@ using CleanUps.Shared.DTOs.Locations;
 
 namespace CleanUps.Shared.DTOs.Events
 {
-    public record  CreateEventRequest(string Title, string Description, DateTime DateAndTime, bool FamilyFriendly, CreateLocationRequest Location) : CreateRequest;
+    public record  CreateEventRequest(string Title, string Description, DateTime StartTime, DateTime EndTime, bool FamilyFriendly, CreateLocationRequest Location) : CreateRequest;
 }

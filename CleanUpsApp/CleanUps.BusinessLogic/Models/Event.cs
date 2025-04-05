@@ -14,7 +14,8 @@ public partial class Event : EntityFrameworkModel
 
     public string Description { get; set; } = null!;
 
-    public DateTime DateAndTime { get; set; }
+    public DateTime StartTime { get; set; }
+    public DateTime EndTime{ get; set; }
 
     public bool FamilyFriendly { get; set; } = false;
 
