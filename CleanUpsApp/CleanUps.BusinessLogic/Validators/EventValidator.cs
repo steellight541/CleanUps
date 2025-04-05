@@ -1,6 +1,5 @@
 ﻿using CleanUps.BusinessLogic.Validators.Interfaces;
 using CleanUps.Shared.DTOs.Events;
-using CleanUps.Shared.DTOs.Locations;
 using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.BusinessLogic.Validators
@@ -21,7 +20,7 @@ namespace CleanUps.BusinessLogic.Validators
             }
 
             // Validate common fields
-            var commonValidation = ValidateCommonFields(createRequest.Title, createRequest.Description, createRequest.DateAndTime, createRequest.Location);
+            var commonValidation = ValidateCommonFields(createRequest.Title, createRequest.Description, createRequest.DateAndTime);
             if (!commonValidation.IsSuccess)
             {
                 return commonValidation;
@@ -31,6 +30,22 @@ namespace CleanUps.BusinessLogic.Validators
             if (createRequest.DateAndTime <= DateTime.Now)
             {
                 return Result<bool>.BadRequest("Event Date and Time must be in the future.");
+            }
+
+            // Validate Location fields
+            if (createRequest.Location == null)
+            {
+                return Result<bool>.BadRequest("Location is required.");
+            }
+
+            if (createRequest.Location.Latitude < -90 || createRequest.Location.Latitude > 90)
+            {
+                return Result<bool>.BadRequest("Latitude must be between -90 and 90.");
+            }
+
+            if (createRequest.Location.Longitude < -180 || createRequest.Location.Longitude > 180)
+            {
+                return Result<bool>.BadRequest("Longitude must be between -180 and 180.");
             }
 
             return Result<bool>.Ok(true);
@@ -56,7 +71,7 @@ namespace CleanUps.BusinessLogic.Validators
             }
 
             // Validate common fields
-            var commonValidation = ValidateCommonFields(updateRequest.Title, updateRequest.Description, updateRequest.DateAndTime, updateRequest.Location);
+            var commonValidation = ValidateCommonFields(updateRequest.Title, updateRequest.Description, updateRequest.DateAndTime);
             if (!commonValidation.IsSuccess)
             {
                 return commonValidation;
@@ -68,10 +83,20 @@ namespace CleanUps.BusinessLogic.Validators
                 return Result<bool>.BadRequest("Trash Collected cannot be negative.");
             }
 
-            // Validate NumberOfAttendees
-            if (updateRequest.NumberOfAttendees < 0)
+            // Validate Location fields
+            if (updateRequest.Location == null)
             {
-                return Result<bool>.BadRequest("Number of Attendees cannot be negative.");
+                return Result<bool>.BadRequest("Location is required.");
+            }
+
+            if (updateRequest.Location.Latitude < -90 || updateRequest.Location.Latitude > 90)
+            {
+                return Result<bool>.BadRequest("Latitude must be between -90 and 90.");
+            }
+
+            if (updateRequest.Location.Longitude < -180 || updateRequest.Location.Longitude > 180)
+            {
+                return Result<bool>.BadRequest("Longitude must be between -180 and 180.");
             }
 
             return Result<bool>.Ok(true);
@@ -99,7 +124,7 @@ namespace CleanUps.BusinessLogic.Validators
         /// <param name="dateAndTime">The event date and time</param>
         /// <param name="location">The event location</param>
         /// <returns>A Result indicating success or failure with an error message</returns>
-        private Result<bool> ValidateCommonFields(string title, string description, DateTime dateAndTime, CreateLocationRequest location)
+        private Result<bool> ValidateCommonFields(string title, string description, DateTime dateAndTime)
         {
             if (string.IsNullOrWhiteSpace(title))
             {
@@ -114,22 +139,6 @@ namespace CleanUps.BusinessLogic.Validators
             if (dateAndTime == default)
             {
                 return Result<bool>.BadRequest("Date and Time is required.");
-            }
-
-            if (location == null)
-            {
-                return Result<bool>.BadRequest("Location is required.");
-            }
-
-            // Validate Location fields
-            if (location.Latitude < -90 || location.Latitude > 90)
-            {
-                return Result<bool>.BadRequest("Latitude must be between -90 and 90.");
-            }
-
-            if (location.Longitude < -180 || location.Longitude > 180)
-            {
-                return Result<bool>.BadRequest("Longitude must be between -180 and 180.");
             }
 
             return Result<bool>.Ok(true);

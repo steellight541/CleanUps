@@ -1,9 +1,12 @@
 ﻿using CleanUps.BusinessLogic.Models;
 using CleanUps.BusinessLogic.Repositories.Interfaces;
 using CleanUps.DataAccess.DatabaseHub;
+using CleanUps.Shared.DTOs.EventAttendances;
 using CleanUps.Shared.ErrorHandling;
 using Microsoft.EntityFrameworkCore;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("CleanUps.Configuration")]
 namespace CleanUps.DataAccess.Repositories
 {
     internal class EventAttendanceRepository : IEventAttendanceRepository
@@ -193,16 +196,16 @@ namespace CleanUps.DataAccess.Repositories
             }
         }
 
-        public async Task<Result<EventAttendance>> DeleteAsync(EventAttendance attendance)
+        public async Task<Result<EventAttendance>> DeleteAsync(DeleteEventAttendanceRequest deleteRequest)
         {
             try
             {
 
-                EventAttendance? eventAttendance = await _context.EventAttendances.FindAsync(attendance.UserId, attendance.EventId);
+                EventAttendance? eventAttendance = await _context.EventAttendances.FindAsync(deleteRequest.UserId, deleteRequest.EventId);
                 
                 if (eventAttendance == null)
                 {
-                    return Result<EventAttendance>.NotFound($"EventAttendance for event with Id-{attendance.EventId} and user with Id-{attendance.UserId} does not exist");
+                    return Result<EventAttendance>.NotFound($"EventAttendance for event with Id-{deleteRequest.EventId} and user with Id-{deleteRequest.UserId} does not exist");
                 }
 
                 _context.EventAttendances.Remove(eventAttendance);
@@ -227,5 +230,9 @@ namespace CleanUps.DataAccess.Repositories
             }
         }
 
+        public async Task<Result<EventAttendance>> DeleteAsync(int id)
+        {
+            return Result<EventAttendance>.InternalServerError("Method: DeleteAsync(int id) is not supported for this Repository, please user another one");
+        }
     }
 }

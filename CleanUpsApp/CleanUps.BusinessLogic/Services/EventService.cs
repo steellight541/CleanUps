@@ -5,16 +5,21 @@ using CleanUps.BusinessLogic.Services.Interfaces;
 using CleanUps.BusinessLogic.Validators.Interfaces;
 using CleanUps.Shared.DTOs.Events;
 using CleanUps.Shared.ErrorHandling;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("CleanUps.Configuration")]
 namespace CleanUps.BusinessLogic.Services
 {
+    /// <summary>
+    /// Service class for managing event operations, including retrieval, creation, updating, and deletion of events.
+    /// </summary>
     internal class EventService : IEventService
     {
-        private readonly IRepository<Event> _repository;
+        private readonly IEventRepository _repository;
         private readonly IEventValidator _validator;
         private readonly IEventConverter _converter;
 
-        public EventService(IRepository<Event> repository,
+        public EventService(IEventRepository repository,
                             IEventValidator validator,
                             IEventConverter converter)
         {

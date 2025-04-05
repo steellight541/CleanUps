@@ -77,7 +77,7 @@ namespace CleanUps.Shared.ClientServices
             }
         }
 
-        public async Task<Result<UserResponse>> UpdateUserAsync(int id, UserResponse updateRequest)
+        public async Task<Result<UserResponse>> UpdateUserAsync(int id, UpdateUserRequest updateRequest)
         {
             HttpResponseMessage response = await _http.PutAsJsonAsync($"api/users/{id}", updateRequest);
             if (response.IsSuccessStatusCode)
@@ -100,9 +100,9 @@ namespace CleanUps.Shared.ClientServices
             }
         }
 
-        public async Task<Result<UserResponse>> DeleteUserAsync(DeleteUserRequest deleteRequest)
+        public async Task<Result<UserResponse>> DeleteUserAsync(int userId)
         {
-            HttpResponseMessage response = await _http.DeleteAsync($"api/users/{deleteRequest.Id}");
+            HttpResponseMessage response = await _http.DeleteAsync($"api/users/{userId}");
             if (response.IsSuccessStatusCode)
             {
                 UserResponse? deletedUser = await response.Content.ReadFromJsonAsync<UserResponse>();

@@ -17,15 +17,25 @@ else
         <DataAnnotationsValidator />
         <ValidationSummary />
 
-        <div>
-            <label>Description:</label>
-            <InputText @bind-Value="editModel.Description" />
+        <div class="form-group">
+            <label for="title">Title</label>
+            <InputText id="title" @bind-Value="editModel.Title" class="form-control" />
         </div>
-        <div>
-            <label>Date of Event:</label>
-            <InputDate @bind-Value="editModel.DateOfEvent" />
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <InputText id="description" @bind-Value="editModel.Description" class="form-control" />
         </div>
-        <!-- Add other fields as shown in Step 4 -->
+
+        <div class="form-group">
+            <label for="dateAndTime">Date and Time of Event</label>
+            <InputDate id="dateAndTime" @bind-Value="editModel.DateAndTime" class="form-control" />
+        </div>
+
+        <div class="form-check">
+            <InputCheckbox id="familyFriendly" @bind-Value="editModel.FamilyFriendly" class="form-check-input" />
+            <label class="form-check-label" for="familyFriendly">Family Friendly</label>
+        </div>
 
         <button type="submit">Save</button>
         <button type="button" @onclick="Cancel">Cancel</button>
@@ -42,18 +52,14 @@ else
 
     private class EditModel
     {
+        public string Title { get; set; }
         public string Description { get; set; }
-        public DateOnly DateOfEvent { get; set; }
-        public TimeOnly StartTime { get; set; }
-        public TimeOnly EndTime { get; set; }
-        public string StreetName { get; set; }
-        public string City { get; set; }
-        public string ZipCode { get; set; }
-        public string Country { get; set; }
-        public string Status { get; set; }
+        public DateTime DateAndTime { get; set; }
         public bool FamilyFriendly { get; set; }
-        public decimal? TrashCollected { get; set; }
-        public int NumberOfAttendees { get; set; }
+        public decimal TrashCollected { get; set; }
+        public StatusDTO Status { get; set; }
+        public decimal Longitude { get; set; }
+        public decimal Latitude { get; set; }
     }
 
     protected override async Task OnInitializedAsync()
@@ -63,39 +69,30 @@ else
         {
             editModel = new EditModel
                 {
+                    Title = eventResult.Data.Title,
                     Description = eventResult.Data.Description,
-                    DateOfEvent = eventResult.Data.DateOfEvent,
-                    StartTime = eventResult.Data.StartTime,
-                    EndTime = eventResult.Data.EndTime,
-                    StreetName = eventResult.Data.StreetName,
-                    City = eventResult.Data.City,
-                    ZipCode = eventResult.Data.ZipCode,
-                    Country = eventResult.Data.Country,
-                    Status = eventResult.Data.Status,
+                    DateAndTime = eventResult.Data.DateAndTime,
                     FamilyFriendly = eventResult.Data.FamilyFriendly,
                     TrashCollected = eventResult.Data.TrashCollected,
-                    NumberOfAttendees = eventResult.Data.NumberOfAttendees
+                    Status = eventResult.Data.Status,
+                    Latitude = eventResult.Data.Location.Latitude,
+                    Longitude = eventResult.Data.Location.Longitude
                 };
         }
     }
 
     private async Task HandleSubmit()
     {
-        var updatedEvent = new EventDTO(
+        var updatedEvent = new UpdateEventRequest(
             eventId,
-            editModel.StreetName,
-            editModel.City,
-            editModel.ZipCode,
-            editModel.Country,
+            editModel.Title,
             editModel.Description,
-            editModel.DateOfEvent,
-            editModel.StartTime,
-            editModel.EndTime,
-            editModel.Status,
+            editModel.DateAndTime,
             editModel.FamilyFriendly,
-            editModel.TrashCollected,
-            editModel.NumberOfAttendees
-        );
+            1, //dummy data
+            StatusDTO.Ongoing, //dummy data
+            Location: new UpdateLocationRequest(eventResult.Data.Location.LocationId, editModel.Latitude, editModel.Longitude)
+    );
 
         var result = await _eventApiService.UpdateEventAsync(eventId, updatedEvent);
         if (result.IsSuccess)

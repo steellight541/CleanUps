@@ -1,13 +1,12 @@
 ﻿using CleanUps.BusinessLogic.Models;
 using CleanUps.Shared.DTOs.EventAttendances;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("CleanUps.Configuration")]
+[assembly: InternalsVisibleTo("CleanUps.DataAccess")]
 namespace CleanUps.BusinessLogic.Converters.Interfaces
 {
-    internal interface IEventAttendanceConverter
+    internal interface IEventAttendanceConverter : IConverter<EventAttendance, EventAttendanceResponse, CreateEventAttendanceRequest, UpdateEventAttendanceRequest>
     {
-        EventAttendance ToModel(EventAttendanceDTO dto);
-        EventAttendanceDTO ToDTO(EventAttendance model);
-        List<EventAttendanceDTO> ToDTOList(List<EventAttendance> listOfModels);
-        List<EventAttendance> ToModelList(List<EventAttendanceDTO> listOfDTOs);
     }
 }

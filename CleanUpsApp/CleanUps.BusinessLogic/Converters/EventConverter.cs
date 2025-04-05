@@ -7,7 +7,7 @@ using System.Drawing;
 
 namespace CleanUps.BusinessLogic.Converters
 {
-    internal class EventConverter : IConverter<Event, EventResponse, CreateEventRequest, UpdateEventRequest>
+    internal class EventConverter : IEventConverter
     {
         public Event ToModel(EventResponse dto)
         {
@@ -55,7 +55,6 @@ namespace CleanUps.BusinessLogic.Converters
                 DateAndTime = dto.DateAndTime,
                 FamilyFriendly = dto.FamilyFriendly,
                 TrashCollected = dto.TrashCollected,
-                NumberOfAttendees = dto.NumberOfAttendees,
                 StatusId = (int)dto.Status,
                 Location = new Location
                 {
@@ -77,7 +76,7 @@ namespace CleanUps.BusinessLogic.Converters
                 model.TrashCollected,
                 model.NumberOfAttendees,
                 (StatusDTO)model.StatusId,
-                new CreateLocationRequest(model.Location.Coordinates.X, model.Location.Coordinates.Y) //x is longitude and y is latitude
+                new LocationResponse(model.Location.Id, model.Location.Coordinates.X, model.Location.Coordinates.Y) //x is longitude and y is latitude
             );
         }
 
@@ -100,9 +99,8 @@ namespace CleanUps.BusinessLogic.Converters
                 model.DateAndTime,
                 model.FamilyFriendly,
                 model.TrashCollected,
-                model.NumberOfAttendees,
                 (StatusDTO)model.StatusId,
-                new CreateLocationRequest(model.Location.Coordinates.X, model.Location.Coordinates.Y) //x is longitude and y is latitude
+                new UpdateLocationRequest(model.Location.Id, model.Location.Coordinates.X, model.Location.Coordinates.Y) //x is longitude and y is latitude
             );
         }
 

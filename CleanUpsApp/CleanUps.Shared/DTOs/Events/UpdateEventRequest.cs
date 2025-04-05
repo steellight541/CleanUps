@@ -11,7 +11,6 @@ namespace CleanUps.Shared.DTOs.Events
         DateTime DateAndTime,
         bool FamilyFriendly,
         decimal TrashCollected,
-        int NumberOfAttendees,
         StatusDTO Status,
-        CreateLocationRequest Location) : UpdateRequest;
+        UpdateLocationRequest Location) : UpdateRequest;
 }

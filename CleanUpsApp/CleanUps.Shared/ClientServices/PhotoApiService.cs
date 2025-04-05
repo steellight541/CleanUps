@@ -117,9 +117,9 @@ namespace CleanUps.Shared.ClientServices
             }
         }
 
-        public async Task<Result<PhotoResponse>> DeletePhotoAsync(int id)
+        public async Task<Result<PhotoResponse>> DeletePhotoAsync(int photoId)
         {
-            HttpResponseMessage response = await _http.DeleteAsync($"api/photos/{id}");
+            HttpResponseMessage response = await _http.DeleteAsync($"api/photos/{photoId}");
             if (response.IsSuccessStatusCode)
             {
                 PhotoResponse? deletedPhoto = await response.Content.ReadFromJsonAsync<PhotoResponse>();

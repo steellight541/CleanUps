@@ -5,7 +5,7 @@ using CleanUps.Shared.DTOs.Users;
 
 namespace CleanUps.BusinessLogic.Converters
 {
-    internal class UserConverter : IConverter<User, UserResponse, CreateUserRequest, UpdateUserRequest>
+    internal class UserConverter : IUserConverter
     {
         public User ToModel(UserResponse dto)
         {

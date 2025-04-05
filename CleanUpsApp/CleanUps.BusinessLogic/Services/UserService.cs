@@ -5,16 +5,21 @@ using CleanUps.BusinessLogic.Services.Interfaces;
 using CleanUps.BusinessLogic.Validators.Interfaces;
 using CleanUps.Shared.DTOs.Users;
 using CleanUps.Shared.ErrorHandling;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("CleanUps.Configuration")]
 namespace CleanUps.BusinessLogic.Services
 {
+    /// <summary>
+    /// Service class for managing user operations, including retrieval, creation, updating, and deletion of users.
+    /// </summary>
     internal class UserService : IUserService
     {
-        private readonly IRepository<User> _repository;
+        private readonly IUserRepository _repository;
         private readonly IUserValidator _validator;
         private readonly IUserConverter _converter;
 
-        public UserService(IRepository<User> repository,
+        public UserService(IUserRepository repository,
                            IUserValidator validator,
                            IUserConverter converter)
         {

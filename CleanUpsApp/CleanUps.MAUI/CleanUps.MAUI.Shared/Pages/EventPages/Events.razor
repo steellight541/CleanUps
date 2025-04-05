@@ -30,7 +30,7 @@ else if (events.IsSuccess)
                     <tr>
                         <td>@ev.EventId</td>
                         <td>@ev.Description</td>
-                        <td>@ev.DateOfEvent.ToShortDateString()</td>
+                        <td>@ev.DateAndTime.ToShortDateString()</td>
                         <td>@(participantCounts.TryGetValue(ev.EventId, out var count) ? count : 0)</td>
                         <td>
                             <button class="btn btn-primary btn-sm" @onclick="() => ViewDetails(ev.EventId)">View</button>
@@ -50,7 +50,7 @@ else if (events.IsSuccess)
             {
                 <div class="list-group-item">
                     <h5>@ev.Description</h5>
-                    <p><strong>Date:</strong> @ev.DateOfEvent.ToShortDateString()</p>
+                    <p><strong>Date:</strong> @ev.DateAndTime.ToShortDateString()</p>
                     <p><strong>Participants:</strong> @(participantCounts.TryGetValue(ev.EventId, out var count) ? count : 0)</p>
                     <div class="d-flex flex-column gap-2">
                         <button class="btn btn-primary btn-sm" @onclick="() => ViewDetails(ev.EventId)">View</button>

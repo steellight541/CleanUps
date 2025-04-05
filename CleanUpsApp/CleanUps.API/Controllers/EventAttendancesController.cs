@@ -96,9 +96,9 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> PostAsync([FromBody] EventAttendanceDTO eventAttendanceDTO) // YourApi.com/api/eventattendances
+        public async Task<IActionResult> PostAsync([FromBody] CreateEventAttendanceRequest createRequest) // YourApi.com/api/eventattendances
         {
-            var result = await _eventAttendanceService.CreateAsync(eventAttendanceDTO);
+            var result = await _eventAttendanceService.CreateAsync(createRequest);
 
             switch (result.StatusCode)
             {
@@ -122,13 +122,13 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> PutAsync(int userId, int eventId, [FromBody] EventAttendanceDTO eventAttendanceDTO) // YourApi.com/api/eventattendances/user/{userId}/event/{eventId}
+        public async Task<IActionResult> PutAsync(int userId, int eventId, [FromBody] UpdateEventAttendanceRequest updateRequest) // YourApi.com/api/eventattendances/user/{userId}/event/{eventId}
         {
-            if (userId != eventAttendanceDTO.UserId && eventId != eventAttendanceDTO.EventId)
+            if (userId != updateRequest.UserId && eventId != updateRequest.EventId)
             {
-                return BadRequest($"The parameter User-Id: {userId} and parameter Event-Id{eventId} does not match the data User-Id: {eventAttendanceDTO.UserId} and data Event-Id: {eventAttendanceDTO.EventId}");
+                return BadRequest($"The parameter User-Id: {userId} and parameter Event-Id{eventId} does not match the data User-Id: {updateRequest.UserId} and data Event-Id: {updateRequest.EventId}");
             }
-            var result = await _eventAttendanceService.UpdateAsync(eventAttendanceDTO);
+            var result = await _eventAttendanceService.UpdateAsync(updateRequest);
 
             switch (result.StatusCode)
             {
@@ -156,7 +156,7 @@ namespace CleanUps.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteAsync(int userId, int eventId) // YourApi.com/api/eventattendances/user/{userId}/event/{eventId}
         {
-            var result = await _eventAttendanceService.DeleteAsync(new EventAttendanceDTO(userId, eventId, DateTime.UtcNow));
+            var result = await _eventAttendanceService.DeleteAsync(new DeleteEventAttendanceRequest(userId, eventId));
 
             switch (result.StatusCode)
             {

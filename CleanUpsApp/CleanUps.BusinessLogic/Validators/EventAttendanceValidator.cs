@@ -13,29 +13,23 @@ namespace CleanUps.BusinessLogic.Validators
         /// Validates an EventAttendanceDTO before creating a new event attendance.
         /// Ensures all required fields are present and properly formatted.
         /// </summary>
-        /// <param name="createDto">The EventAttendanceDTO to validate</param>
+        /// <param name="createRequest">The EventAttendanceDTO to validate</param>
         /// <returns>A Result containing the validated DTO if successful, or an error message if validation fails</returns>
-        public Result<EventAttendanceDTO> ValidateForCreate(EventAttendanceDTO createDto)
+        public Result<bool> ValidateForCreate(CreateEventAttendanceRequest createRequest)
         {
-            if (createDto == null)
+            if (createRequest == null)
             {
-                return Result<EventAttendanceDTO>.BadRequest("EventAttendanceDTO cannot be null.");
+                return Result<bool>.BadRequest("EventAttendanceDTO cannot be null.");
             }
 
             // Validate common fields
-            var commonValidation = ValidateCommonFields(createDto);
+            var commonValidation = ValidateCommonFields(createRequest.UserId, createRequest.EventId);
             if (!commonValidation.IsSuccess)
             {
                 return commonValidation;
             }
 
-            // Ensure CheckIn is not in the future
-            if (createDto.CheckIn > DateTime.Now)
-            {
-                return Result<EventAttendanceDTO>.BadRequest("CheckIn time cannot be in the future.");
-            }
-
-            return Result<EventAttendanceDTO>.Ok(createDto);
+            return Result<bool>.Ok(true);
         }
 
         /// <summary>
@@ -44,40 +38,40 @@ namespace CleanUps.BusinessLogic.Validators
         /// </summary>
         /// <param name="userId">The user ID to validate against the DTO</param>
         /// <param name="eventId">The event ID to validate against the DTO</param>
-        /// <param name="updateDto">The EventAttendanceDTO to validate</param>
+        /// <param name="updateRequest">The EventAttendanceDTO to validate</param>
         /// <returns>A Result containing the validated DTO if successful, or an error message if validation fails</returns>
-        public Result<EventAttendanceDTO> ValidateForUpdate(EventAttendanceDTO updateDto)
+        public Result<bool> ValidateForUpdate(UpdateEventAttendanceRequest updateRequest)
         {
-            if (updateDto == null)
+            if (updateRequest == null)
             {
-                return Result<EventAttendanceDTO>.BadRequest("EventAttendanceDTO cannot be null.");
+                return Result<bool>.BadRequest("EventAttendanceDTO cannot be null.");
             }
 
             // Validate userId and eventId
-            if (updateDto.UserId <= 0)
+            if (updateRequest.UserId <= 0)
             {
-                return Result<EventAttendanceDTO>.BadRequest("User Id must be greater than zero.");
+                return Result<bool>.BadRequest("User Id must be greater than zero.");
             }
 
-            if (updateDto.EventId <= 0)
+            if (updateRequest.EventId <= 0)
             {
-                return Result<EventAttendanceDTO>.BadRequest("Event Id must be greater than zero.");
+                return Result<bool>.BadRequest("Event Id must be greater than zero.");
             }
 
             // Validate common fields
-            var commonValidation = ValidateCommonFields(updateDto);
+            var commonValidation = ValidateCommonFields(updateRequest.UserId, updateRequest.EventId);
             if (!commonValidation.IsSuccess)
             {
                 return commonValidation;
             }
 
             // Ensure CheckIn is not in the future
-            if (updateDto.CheckIn > DateTime.Now)
+            if (updateRequest.CheckIn > DateTime.Now)
             {
-                return Result<EventAttendanceDTO>.BadRequest("Check-In time cannot be in the future.");
+                return Result<bool>.BadRequest("Check-In time cannot be in the future.");
             }
 
-            return Result<EventAttendanceDTO>.Ok(updateDto);
+            return Result<bool>.Ok(true);
         }
 
         /// <summary>
@@ -99,24 +93,19 @@ namespace CleanUps.BusinessLogic.Validators
         /// </summary>
         /// <param name="dto">The EventAttendanceDTO to validate</param>
         /// <returns>A Result containing the validated DTO if successful, or an error message if validation fails</returns>
-        private Result<EventAttendanceDTO> ValidateCommonFields(EventAttendanceDTO dto)
+        private Result<bool> ValidateCommonFields(int userId, int eventId)
         {
-            if (dto.UserId <= 0)
+            if (userId <= 0)
             {
-                return Result<EventAttendanceDTO>.BadRequest("User Id must be greater than zero.");
+                return Result<bool>.BadRequest("User Id must be greater than zero.");
             }
 
-            if (dto.EventId <= 0)
+            if (eventId <= 0)
             {
-                return Result<EventAttendanceDTO>.BadRequest("Event Id must be greater than zero.");
+                return Result<bool>.BadRequest("Event Id must be greater than zero.");
             }
 
-            if (dto.CheckIn == default)
-            {
-                return Result<EventAttendanceDTO>.BadRequest("Check-In time is required.");
-            }
-
-            return Result<EventAttendanceDTO>.Ok(dto);
+            return Result<bool>.Ok(true);
         }
     }
 }

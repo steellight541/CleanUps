@@ -1,7 +1,6 @@
 ﻿@page "/users/edit/{userId:int}"
 @using CleanUps.Shared.DTOs.AbstractDTOs
 @using CleanUps.Shared.DTOs.Enums
-@using CleanUps.Shared.DTOs.Roles
 @using CleanUps.Shared.DTOs.Users
 @inject NavigationManager _navigationManager
 @inject UserApiService _userApiService
@@ -31,10 +30,6 @@ else
                 <label for="email">Email</label>
                 <InputText id="email" @bind-Value="editModel.Email" class="form-control" />
             </div>
-               <div class="form-check">
-                <InputCheckbox id="isOrganizer" @bind-Value="editModel.IsOrganizer" class="form-check-input" />
-            <label class="form-check-label" for="isOrganizer">Organizer</label>
-        </div>
 
             <!-- Add more fields as needed -->
 
@@ -64,18 +59,14 @@ else
             editModel = new UserEditModel
                 {
                     Name = userResult.Data.Name,
-                    Email = userResult.Data.Email,
-                    Password = userResult.Data.Password,
-                    RoleId = (int)userResult.Data.UserRole,
-                    CreatedDateTime = userResult.Data.CreatedDate,
-                    IsOrganizer = (int)userResult.Data.UserRole == 1
+                    Email = userResult.Data.Email
                 };
         }
     }
 
     private async Task HandleSubmit()
     {
-        var updatedUser = new UserDTO(userId, editModel.Name, editModel.Email, editModel.IsOrganizer ? RoleDTO.Organizer: RoleDTO.Volunteer, editModel.CreatedDateTime);
+        var updatedUser = new UpdateUserRequest(userId, editModel.Name, editModel.Email);
 
         var result = await _userApiService.UpdateUserAsync(userId, updatedUser);
         if (result.IsSuccess)
@@ -97,9 +88,5 @@ else
     {
         public string Name { get; set; }
         public string Email { get; set; }
-        public string Password { get; set; }
-        public int RoleId { get; set; }
-        public DateTime CreatedDateTime { get; set; }
-        public bool IsOrganizer { get; set; }
     }
 }

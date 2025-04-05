@@ -1,5 +1,4 @@
 ﻿using CleanUps.BusinessLogic.Services.Interfaces;
-using CleanUps.Shared.DTOs.AbstractDTOs;
 using CleanUps.Shared.DTOs.Users;
 using Microsoft.AspNetCore.Mvc;
 

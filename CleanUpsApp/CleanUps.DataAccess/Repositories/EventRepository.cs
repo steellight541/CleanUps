@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("CleanUps.Configuration")]
 namespace CleanUps.DataAccess.Repositories
 {
-    internal class EventRepository : IRepository<Event>
+    internal class EventRepository : IEventRepository
     {
         private readonly CleanUpsContext _context;
 

@@ -1,9 +1,6 @@
 ﻿using CleanUps.BusinessLogic.Models.AbstractModels;
 using CleanUps.Shared.DTOs.AbstractDTOs;
-using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("CleanUps.Configuration")]
-[assembly: InternalsVisibleTo("CleanUps.Test")]
 namespace CleanUps.BusinessLogic.Converters.Interfaces
 {
     internal interface IConverter<ModelClass, TResponse, TCreateRequest, TUpdateRequest>

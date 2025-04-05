@@ -3,7 +3,9 @@ using CleanUps.BusinessLogic.Repositories.Interfaces;
 using CleanUps.DataAccess.DatabaseHub;
 using CleanUps.Shared.ErrorHandling;
 using Microsoft.EntityFrameworkCore;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("CleanUps.Configuration")]
 namespace CleanUps.DataAccess.Repositories
 {
     internal class PhotoRepository : IPhotoRepository

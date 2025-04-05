@@ -5,7 +5,9 @@ using CleanUps.BusinessLogic.Services.Interfaces;
 using CleanUps.BusinessLogic.Validators.Interfaces;
 using CleanUps.Shared.DTOs.Photos;
 using CleanUps.Shared.ErrorHandling;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("CleanUps.Configuration")]
 namespace CleanUps.BusinessLogic.Services
 {
     /// <summary>
@@ -17,12 +19,6 @@ namespace CleanUps.BusinessLogic.Services
         private readonly IPhotoValidator _validator;
         private readonly IPhotoConverter _converter;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PhotoService"/> class with dependency injection.
-        /// </summary>
-        /// <param name="repository">The repository for accessing and managing photo data.</param>
-        /// <param name="validator">The validator for checking the validity of photo requests.</param>
-        /// <param name="converter">The converter for transforming between domain models and DTOs.</param>
         public PhotoService(IPhotoRepository repository,
                             IPhotoValidator validator,
                             IPhotoConverter converter)

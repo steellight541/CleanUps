@@ -75,11 +75,10 @@ else
             return;
         }
 
-        var attendance = new EventAttendanceDTO
+        var attendance = new CreateEventAttendanceRequest
         (
             selectedUserId,
-            eventId,
-            DateTime.Now
+            eventId
         );
 
         var result = await _eventAttendanceApiService.CreateAttendanceAsync(attendance);

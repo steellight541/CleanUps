@@ -6,7 +6,24 @@ namespace CleanUps.BusinessLogic.Converters
 {
     internal class EventAttendanceConverter : IEventAttendanceConverter
     {
-        public EventAttendance ToModel(EventAttendanceDTO dto)
+        public EventAttendance ToModel(EventAttendanceResponse dto)
+        {
+            return new EventAttendance
+            {
+                EventId = dto.EventId,
+                UserId = dto.UserId,
+                CheckIn = dto.CheckIn
+            };
+        }
+        public EventAttendance ToModel(CreateEventAttendanceRequest dto)
+        {
+            return new EventAttendance
+            {
+                EventId = dto.EventId,
+                UserId = dto.UserId,
+            };
+        }
+        public EventAttendance ToModel(UpdateEventAttendanceRequest dto)
         {
             return new EventAttendance
             {
@@ -16,24 +33,29 @@ namespace CleanUps.BusinessLogic.Converters
             };
         }
 
-        public EventAttendanceDTO ToDTO(EventAttendance model)
+        public EventAttendanceResponse ToResponse(EventAttendance model)
         {
-            return new EventAttendanceDTO(
-                model.EventId,
-                model.UserId,
-                model.CheckIn
-            );
+            return new EventAttendanceResponse(model.UserId, model.EventId, model.CheckIn);
         }
 
-        public List<EventAttendanceDTO> ToDTOList(List<EventAttendance> listOfModels)
+        public CreateEventAttendanceRequest ToCreateRequest(EventAttendance model)
         {
-            return listOfModels.Select(model => ToDTO(model)).ToList();
+            return new CreateEventAttendanceRequest(model.UserId, model.EventId);
         }
 
-        public List<EventAttendance> ToModelList(List<EventAttendanceDTO> listOfDTOs)
+        public UpdateEventAttendanceRequest ToUpdateRequest(EventAttendance model)
+        {
+            return new UpdateEventAttendanceRequest(model.UserId, model.EventId, model.CheckIn);
+        }
+
+        public List<EventAttendanceResponse> ToResponseList(List<EventAttendance> listOfModels)
+        {
+            return listOfModels.Select(model => ToResponse(model)).ToList();
+        }
+
+        public List<EventAttendance> ToModelList(List<EventAttendanceResponse> listOfDTOs)
         {
             return listOfDTOs.Select(dto => ToModel(dto)).ToList();
         }
-
     }
 }

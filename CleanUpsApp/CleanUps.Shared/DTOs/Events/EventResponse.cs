@@ -13,5 +13,5 @@ namespace CleanUps.Shared.DTOs.Events
         decimal TrashCollected,
         int NumberOfAttendees,
         StatusDTO Status,
-        CreateLocationRequest Location) : Response;
+        LocationResponse Location) : Response;
 }

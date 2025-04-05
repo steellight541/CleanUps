@@ -15,7 +15,8 @@ else if (user.IsSuccess)
         <p><strong>ID:</strong> @user.Data.UserId</p>
         <p><strong>Name:</strong> @user.Data.Name</p>
         <p><strong>Email:</strong> @user.Data.Email</p>
-        <!-- Add more fields as needed -->
+        <p><strong>Email:</strong> @user.Data.Role.ToString()</p>
+        <p><strong>Email:</strong> @user.Data.CreatedDate</p>
     </div>
     <button class="btn btn-secondary" @onclick="GoBack">Back</button>
 }
@@ -28,7 +29,7 @@ else
     [Parameter]
     public int userId { get; set; }
 
-    private Result<UserDTO> user;
+    private Result<UserResponse> user;
 
     protected override async Task OnInitializedAsync()
     {

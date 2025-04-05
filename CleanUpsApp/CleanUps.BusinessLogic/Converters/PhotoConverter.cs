@@ -4,7 +4,7 @@ using CleanUps.Shared.DTOs.Photos;
 
 namespace CleanUps.BusinessLogic.Converters
 {
-    internal class PhotoConverter : IConverter<Photo, PhotoResponse, CreatePhotoRequest, UpdatePhotoRequest>
+    internal class PhotoConverter : IPhotoConverter
     {
         public Photo ToModel(PhotoResponse dto)
         {

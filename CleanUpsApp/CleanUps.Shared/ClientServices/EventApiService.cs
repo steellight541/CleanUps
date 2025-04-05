@@ -96,9 +96,9 @@ namespace CleanUps.Shared.ClientServices
             }
         }
 
-        public async Task<Result<EventResponse>> DeleteEventAsync(int id)
+        public async Task<Result<EventResponse>> DeleteEventAsync(int eventId)
         {
-            HttpResponseMessage response = await _http.DeleteAsync($"api/events/{id}");
+            HttpResponseMessage response = await _http.DeleteAsync($"api/events/{eventId}");
             if (response.IsSuccessStatusCode)
             {
                 EventResponse? deletedEvent = await response.Content.ReadFromJsonAsync<EventResponse>();
