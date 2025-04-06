@@ -131,9 +131,6 @@ namespace CleanUps.DataAccess.Repositories
                 }
 
                 _context.Entry(retrievedUser).State = EntityState.Detached;
-
-                //_context.Users.Update(userToBeUpdated); // This marks all fields as modified
-                //For more control, attach and mark specific fields:
                 _context.Users.Attach(userToBeUpdated);
                 _context.Entry(userToBeUpdated).Property(u => u.Name).IsModified = true;
                 _context.Entry(userToBeUpdated).Property(u => u.Email).IsModified = true;

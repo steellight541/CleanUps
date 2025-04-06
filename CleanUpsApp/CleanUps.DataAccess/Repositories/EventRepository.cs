@@ -107,8 +107,16 @@ namespace CleanUps.DataAccess.Repositories
                 else
                 {
                     _context.Entry(retrievedEvent).State = EntityState.Detached;
+                    _context.Events.Attach(eventToBeUpdated);
+                    _context.Entry(eventToBeUpdated).Property(ev => ev.Title).IsModified = true;
+                    _context.Entry(eventToBeUpdated).Property(ev => ev.Description).IsModified = true;
+                    _context.Entry(eventToBeUpdated).Property(ev => ev.StartTime).IsModified = true;
+                    _context.Entry(eventToBeUpdated).Property(ev => ev.EndTime).IsModified = true;
+                    _context.Entry(eventToBeUpdated).Property(ev => ev.FamilyFriendly).IsModified = true;
+                    _context.Entry(eventToBeUpdated).Property(ev => ev.TrashCollected).IsModified = true;
+                    _context.Entry(eventToBeUpdated).Property(ev => ev.Status).IsModified = true;
+                    _context.Entry(eventToBeUpdated).Property(ev => ev.Location).IsModified = true;
 
-                    _context.Events.Update(eventToBeUpdated);
                     await _context.SaveChangesAsync();
 
                     return Result<Event>.Ok(eventToBeUpdated);
@@ -138,7 +146,10 @@ namespace CleanUps.DataAccess.Repositories
             {
                 //Tries to get an existing event in the database
                 //FindAsync returns either an Event or Null
-                Event? eventToDelete = await _context.Events.FindAsync(id);
+                Event? eventToDelete = await _context.Events
+                    .Include(existingEvent => existingEvent.Location)
+                    .Include(existingEvent => existingEvent.Status)
+                    .FirstOrDefaultAsync(existingEvent => existingEvent.EventId == id);
 
                 if (eventToDelete is null)
                 {

@@ -144,16 +144,23 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
-                EventAttendance? existing = await _context.EventAttendances.FindAsync(eventAttendanceToBeUpdated.EventId, eventAttendanceToBeUpdated.UserId);
+                EventAttendance? existingEventAttendance = await _context.EventAttendances
+                    .Include(e => e.User)
+                    .Include(e => e.Event)
+                    .FirstOrDefaultAsync(ev => ev.EventId == eventAttendanceToBeUpdated.EventId && ev.UserId == eventAttendanceToBeUpdated.UserId);
                 
-                if (existing == null)
+                if (existingEventAttendance == null)
                 {
                     return Result<EventAttendance>.NotFound($"EventAttendance for event with Id-{eventAttendanceToBeUpdated.EventId} and user with Id-{eventAttendanceToBeUpdated.UserId} does not exist");
                 }
 
-                existing.CheckIn = eventAttendanceToBeUpdated.CheckIn; // Assuming only CheckIn is updatable
+                existingEventAttendance.CheckIn = eventAttendanceToBeUpdated.CheckIn; // Assuming only CheckIn is updatable
+
+                _context.Entry(existingEventAttendance).State = EntityState.Detached;
+                _context.EventAttendances.Attach(eventAttendanceToBeUpdated);
+                _context.Entry(eventAttendanceToBeUpdated).Property(p => p.CheckIn).IsModified = true;
                 await _context.SaveChangesAsync();
-                return Result<EventAttendance>.Ok(existing);
+                return Result<EventAttendance>.Ok(eventAttendanceToBeUpdated);
             }
             catch (OperationCanceledException)
             {
@@ -178,16 +185,18 @@ namespace CleanUps.DataAccess.Repositories
             try
             {
 
-                EventAttendance? eventAttendance = await _context.EventAttendances.FindAsync(deleteRequest.UserId, deleteRequest.EventId);
-                
-                if (eventAttendance == null)
+                EventAttendance? existingEventAttendance = await _context.EventAttendances
+                    .Include(e => e.User)
+                    .Include(e => e.Event)
+                    .FirstOrDefaultAsync(ev => ev.EventId == deleteRequest.EventId && ev.UserId == deleteRequest.UserId);
+                if (existingEventAttendance == null)
                 {
                     return Result<EventAttendance>.NotFound($"EventAttendance for event with Id-{deleteRequest.EventId} and user with Id-{deleteRequest.UserId} does not exist");
                 }
 
-                _context.EventAttendances.Remove(eventAttendance);
+                _context.EventAttendances.Remove(existingEventAttendance);
                 await _context.SaveChangesAsync();
-                return Result<EventAttendance>.Ok(eventAttendance);
+                return Result<EventAttendance>.Ok(existingEventAttendance);
             }
             catch (OperationCanceledException)
             {

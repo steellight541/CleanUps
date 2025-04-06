@@ -132,8 +132,8 @@ namespace CleanUps.DataAccess.Repositories
                 else
                 {
                     _context.Entry(retrievedPhoto).State = EntityState.Detached;
-
-                    _context.Photos.Update(photoToBeUpdated);
+                    _context.Photos.Attach(photoToBeUpdated);
+                    _context.Entry(photoToBeUpdated).Property(p => p.Caption).IsModified = true;
                     await _context.SaveChangesAsync();
 
                     return Result<Photo>.Ok(photoToBeUpdated);

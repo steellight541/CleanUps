@@ -79,7 +79,7 @@ namespace CleanUps.BusinessLogic.Converters
                 model.TrashCollected,
                 model.NumberOfAttendees,
                 (StatusDTO)model.StatusId,
-                new LocationResponse(model.Location.Id, model.Location.Longitude, model.Location.Latitude) //x is longitude and y is latitude
+                new LocationResponse(model.Location?.Id ?? 0, model.Location?.Longitude ?? 0, model.Location?.Latitude ?? 0) //x is longitude and y is latitude
             );
         }
 
@@ -91,7 +91,7 @@ namespace CleanUps.BusinessLogic.Converters
                model.StartTime,
                 model.EndTime,
                 model.FamilyFriendly,
-                new CreateLocationRequest(model.Location.Longitude, model.Location.Latitude) //x is longitude and y is latitude
+                new CreateLocationRequest(model.Location?.Longitude ?? 0, model.Location?.Latitude ?? 0) //x is longitude and y is latitude
             );
         }
         public UpdateEventRequest ToUpdateRequest(Event model)
@@ -105,7 +105,7 @@ namespace CleanUps.BusinessLogic.Converters
                 model.FamilyFriendly,
                 model.TrashCollected,
                 (StatusDTO)model.StatusId,
-                new UpdateLocationRequest(model.Location.Id, model.Location.Longitude, model.Location.Latitude) //x is longitude and y is latitude
+                new UpdateLocationRequest(model.Location?.Id ?? 0, model.Location?.Longitude ?? 0, model.Location?.Latitude ?? 0) //x is longitude and y is latitude
             );
         }
 

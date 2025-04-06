@@ -44,7 +44,7 @@ namespace CleanUps.BusinessLogic.Converters
                 model.UserId,
                 model.Name,
                 model.Email,
-                (RoleDTO)model.RoleId,
+                model.Role is not null ? (RoleDTO)model.Role.Id : RoleDTO.Volunteer,
                 model.CreatedDate
             );
         }

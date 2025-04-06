@@ -13,6 +13,6 @@ namespace CleanUps.Shared.DTOs.Events
         bool FamilyFriendly,
         decimal TrashCollected,
         int NumberOfAttendees,
-        StatusDTO? Status,
-        LocationResponse? Location) : Response;
+        StatusDTO Status,
+        LocationResponse Location) : Response;
 }
