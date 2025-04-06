@@ -22,7 +22,10 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
-                List<EventAttendance> eventAttendances = await _context.EventAttendances.ToListAsync();
+                List<EventAttendance> eventAttendances = await _context.EventAttendances
+                    .Include(e => e.User)
+                    .Include(e => e.Event)
+                    .ToListAsync();
                 return Result<List<EventAttendance>>.Ok(eventAttendances);
             }
             catch (ArgumentNullException)
@@ -51,6 +54,8 @@ namespace CleanUps.DataAccess.Repositories
                 List<Event> events = await _context.EventAttendances
                     .Where(ea => ea.UserId == userId)
                     .Select(ea => ea.Event)
+                    .Include(existingEvent => existingEvent.Location)
+                    .Include(existingEvent => existingEvent.Status)
                     .ToListAsync();
 
                 if (events.Count == 0)
@@ -80,6 +85,7 @@ namespace CleanUps.DataAccess.Repositories
                 List<User> users = await _context.EventAttendances
                     .Where(ea => ea.EventId == eventId)
                     .Select(ea => ea.User)
+                    .Include(existinUser => existinUser.Role)
                     .ToListAsync();
 
                 if (users.Count == 0)
@@ -100,35 +106,6 @@ namespace CleanUps.DataAccess.Repositories
             catch (Exception)
             {
                 return Result<List<User>>.InternalServerError("Something went wrong. Try again later");
-            }
-        }
-
-        public Result<int> GetAttendanceCountByEventId(int eventId)
-        {
-            try
-            {
-                int numberOfUsers = _context.EventAttendances
-                    .Where(ea => ea.EventId == eventId)
-                    .Select(ea => ea.User).Count();
-
-                if (numberOfUsers == 0)
-                {
-                    return Result<int>.NoContent();
-
-                }
-                return Result<int>.Ok(numberOfUsers);
-            }
-            catch (ArgumentNullException)
-            {
-                return Result<int>.NoContent();
-            }
-            catch (OperationCanceledException)
-            {
-                return Result<int>.InternalServerError("Operation Canceled. Refresh and retry");
-            }
-            catch (Exception)
-            {
-                return Result<int>.InternalServerError("Something went wrong. Try again later");
             }
         }
 

@@ -21,7 +21,9 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
-                List<Photo> photos = await _context.Photos.ToListAsync();
+                List<Photo> photos = await _context.Photos
+                    .Include(existingPhoto => existingPhoto.Event)
+                    .ToListAsync();
 
                 return Result<List<Photo>>.Ok(photos);
 
@@ -45,7 +47,10 @@ namespace CleanUps.DataAccess.Repositories
 
             try
             {
-                Photo? retrievedPhoto = await _context.Photos.FindAsync(id);
+                Photo? retrievedPhoto = await _context.Photos
+                    .Include(existinPhoto => existinPhoto.Event)
+                    .FirstOrDefaultAsync(existingPhoto => existingPhoto.PhotoId == id); 
+                
                 if (retrievedPhoto is null)
                 {
                     return Result<Photo>.NotFound($"Photo with id: {id} does not exist");
@@ -66,6 +71,7 @@ namespace CleanUps.DataAccess.Repositories
             {
                 List<Photo> filteredPhotos = await _context.Photos
                                                    .Where(p => p.EventId == eventId)
+                                                   .Include(existinPhoto => existinPhoto.Event) 
                                                    .ToListAsync();
                 if (filteredPhotos.Count == 0)
                 {
@@ -115,7 +121,9 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
-                Photo? retrievedPhoto = await _context.Photos.FindAsync(photoToBeUpdated.PhotoId);
+                Photo? retrievedPhoto = await _context.Photos
+                    .Include(existinPhoto => existinPhoto.Event)
+                    .FirstOrDefaultAsync(existingPhoto => existingPhoto.PhotoId == photoToBeUpdated.PhotoId);
 
                 if (retrievedPhoto is null)
                 {
@@ -155,7 +163,9 @@ namespace CleanUps.DataAccess.Repositories
             {
                 //Tries to get an existing photo in the database
                 //FindAsync returns either an Photo or Null
-                Photo? photoToDelete = await _context.Photos.FindAsync(id);
+                Photo? photoToDelete = await _context.Photos
+                    .Include(existinPhoto => existinPhoto.Event)
+                    .FirstOrDefaultAsync(existingPhoto => existingPhoto.PhotoId == id);
 
                 if (photoToDelete is null)
                 {

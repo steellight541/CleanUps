@@ -21,7 +21,10 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
-                List<Event> events = await _context.Events.ToListAsync();
+                List<Event> events = await _context.Events
+                    .Include(existingEvent => existingEvent.Location)
+                    .Include(existingEvent => existingEvent.Status)
+                    .ToListAsync();
 
                 return Result<List<Event>>.Ok(events);
 
@@ -45,7 +48,11 @@ namespace CleanUps.DataAccess.Repositories
 
             try
             {
-                Event? retrievedEvent = await _context.Events.FindAsync(id);
+                Event? retrievedEvent = await _context.Events
+                   .Include(existingEvent => existingEvent.Location)
+                   .Include(existingEvent => existingEvent.Status)
+                   .FirstOrDefaultAsync(existingEvent => existingEvent.EventId == id);
+
                 if (retrievedEvent is null)
                 {
                     return Result<Event>.NotFound($"Event with id: {id} does not exist");
@@ -88,12 +95,15 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
-                Event? retrievedEvent = await _context.Events.FindAsync(eventToBeUpdated.EventId);
-
+                Event? retrievedEvent = await _context.Events
+                    .Include(existingEvent => existingEvent.Location)
+                    .Include(existingEvent => existingEvent.Status)
+                    .FirstOrDefaultAsync(existingEvent => existingEvent.EventId == eventToBeUpdated.EventId);
                 if (retrievedEvent is null)
                 {
                     return Result<Event>.NotFound($"Event with id: {eventToBeUpdated.EventId} does not exist");
                 }
+
                 else
                 {
                     _context.Entry(retrievedEvent).State = EntityState.Detached;

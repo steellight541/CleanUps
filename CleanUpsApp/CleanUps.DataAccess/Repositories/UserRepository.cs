@@ -21,7 +21,9 @@ namespace CleanUps.DataAccess.Repositories
             try
             {
                 List<User> users = new List<User>();
-                users = await _context.Users.ToListAsync();
+                users = await _context.Users
+                    .Include(existinUser => existinUser.Role)
+                    .ToListAsync();
 
                 return Result<List<User>>.Ok(users);
 
@@ -45,7 +47,10 @@ namespace CleanUps.DataAccess.Repositories
 
             try
             {
-                User? retrievedUser = await _context.Users.FindAsync(id);
+                User? retrievedUser = await _context.Users
+                    .Include(existinUser=> existinUser.Role)
+                    .FirstOrDefaultAsync(existinUser => existinUser.UserId == id);
+
                 if (retrievedUser is null)
                 {
                     return Result<User>.NotFound($"User with id: {id} does not exist");
@@ -104,7 +109,10 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
-                User? retrievedUser = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.UserId == userToBeUpdated.UserId);
+                User? retrievedUser = await _context.Users
+                    .AsNoTracking()
+                    .Include(existinUser => existinUser.Role)
+                    .FirstOrDefaultAsync(u => u.UserId == userToBeUpdated.UserId);
 
                 if (retrievedUser is null)
                 {
@@ -165,7 +173,9 @@ namespace CleanUps.DataAccess.Repositories
 
                 //Tries to get an existing user in the database
                 //FindAsync returns either an User or Null
-                User? userToDelete = await _context.Users.FindAsync(id);
+                User? userToDelete = await _context.Users
+                    .Include(existinUser => existinUser.Role)
+                    .FirstOrDefaultAsync(existinUser => existinUser.UserId == id);
 
                 if (userToDelete is null)
                 {
