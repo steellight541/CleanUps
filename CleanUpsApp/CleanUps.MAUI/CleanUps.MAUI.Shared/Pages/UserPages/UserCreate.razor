@@ -1,11 +1,21 @@
 ﻿@page "/users/create"
+@inject NavigationManager _navigationManager
 
 
 <h3>Create New User</h3>
+<div class="alert alert-danger" role="alert">
+    Page under construction
+</div>
+<br />
+<p>Please visit <strong>Sign Up</strong> page to create a user</p>
 
-<p>Page under construction</p>
-<p>Visit Sign Up page to create a user</p>
+<div class="mt-2">
+    <button class="btn btn-primary" @onclick="SignUpPage">Sign Up</button>
+</div>
 
 @code {
-    
-}
+    private void SignUpPage()
+    {
+        _navigationManager.NavigateTo("/auth/signup");
+    }
+}   
