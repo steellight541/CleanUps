@@ -23,7 +23,6 @@ namespace CleanUps.BusinessLogic.Converters
                 StatusId = (int)dto.Status,
                 Location = new Location
                 {
-                    Id = 1,
                     Latitude = dto.Location.Latitude,
                     Longitude = dto.Location.Longitude
                 }
@@ -41,7 +40,6 @@ namespace CleanUps.BusinessLogic.Converters
                 FamilyFriendly = dto.FamilyFriendly,
                 Location = new Location
                 {
-                    Id = 1,
                     Latitude = dto.Location.Latitude,
                     Longitude = dto.Location.Longitude
                 }
@@ -62,7 +60,6 @@ namespace CleanUps.BusinessLogic.Converters
                 StatusId = (int)dto.Status,
                 Location = new Location
                 {
-                    Id = 1,
                     Latitude = dto.Location.Latitude,
                     Longitude = dto.Location.Longitude
                 }
