@@ -6,33 +6,33 @@ namespace CleanUps.BusinessLogic.Converters
 {
     internal class PhotoConverter : IPhotoConverter
     {
-        public Photo ToModel(PhotoResponse dto)
+        public Photo ToModel(PhotoResponse response)
         {
             return new Photo
             {
-                PhotoId = dto.PhotoId,
-                EventId = dto.EventId,
-                PhotoData = dto.PhotoData,
-                Caption = dto.Caption is not null ? dto.Caption : "no caption"
+                PhotoId = response.PhotoId,
+                EventId = response.EventId,
+                PhotoData = response.PhotoData,
+                Caption = response.Caption is not null ? response.Caption : "no caption" //If 
             };
         }
 
-        public Photo ToModel(CreatePhotoRequest dto)
+        public Photo ToModel(CreatePhotoRequest createRequest)
         {
             return new Photo
             {
-                EventId = dto.EventId,
-                PhotoData = dto.PhotoData,
-                Caption = dto.Caption is not null ? dto.Caption : "no caption"
+                EventId = createRequest.EventId,
+                PhotoData = createRequest.PhotoData,
+                Caption = createRequest.Caption is not null ? createRequest.Caption : "no caption"
             };
         }
 
-        public Photo ToModel(UpdatePhotoRequest dto)
+        public Photo ToModel(UpdatePhotoRequest updateRquest)
         {
             return new Photo
             {
-                PhotoId = dto.PhotoId,
-                Caption = dto.Caption is not null ? dto.Caption : "no caption"
+                PhotoId = updateRquest.PhotoId,
+                Caption = updateRquest.Caption is not null ? updateRquest.Caption : "no caption"
             };
         }
 
@@ -63,14 +63,14 @@ namespace CleanUps.BusinessLogic.Converters
                 );
         }
 
-        public List<PhotoResponse> ToResponseList(List<Photo> listOfModels)
+        public List<PhotoResponse> ToResponseList(List<Photo> models)
         {
-            return listOfModels.Select(model => ToResponse(model)).ToList();
+            return models.Select(model => ToResponse(model)).ToList();
         }
 
-        public List<Photo> ToModelList(List<PhotoResponse> listOfDTOs)
+        public List<Photo> ToModelList(List<PhotoResponse> responses)
         {
-            return listOfDTOs.Select(dto => ToModel(dto)).ToList();
+            return responses.Select(dto => ToModel(dto)).ToList();
         }
     }
 }

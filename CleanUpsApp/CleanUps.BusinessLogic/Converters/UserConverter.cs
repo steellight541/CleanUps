@@ -7,34 +7,34 @@ namespace CleanUps.BusinessLogic.Converters
 {
     internal class UserConverter : IUserConverter
     {
-        public User ToModel(UserResponse dto)
+        public User ToModel(UserResponse response)
         {
             return new User
             {
-                UserId = dto.UserId,
-                Name = dto.Name,
-                Email = dto.Email,
-                RoleId = (int)dto.Role,
-                CreatedDate = dto.CreatedDate
+                UserId = response.UserId,
+                Name = response.Name,
+                Email = response.Email,
+                RoleId = (int)response.Role,
+                CreatedDate = response.CreatedDate
             };
         }
 
-        public User ToModel(CreateUserRequest dto)
+        public User ToModel(CreateUserRequest createRequest)
         {
             return new User
             {
-                Name = dto.Name,
-                Email = dto.Email
+                Name = createRequest.Name,
+                Email = createRequest.Email
             };
         }
 
-        public User ToModel(UpdateUserRequest dto)
+        public User ToModel(UpdateUserRequest updateRquest)
         {
             return new User
             {
-                UserId = dto.UserId,
-                Name = dto.Name,
-                Email = dto.Email
+                UserId = updateRquest.UserId,
+                Name = updateRquest.Name,
+                Email = updateRquest.Email
             };
         }
 
@@ -66,14 +66,14 @@ namespace CleanUps.BusinessLogic.Converters
                 model.Email);
         }
 
-        public List<UserResponse> ToResponseList(List<User> listOfModels)
+        public List<UserResponse> ToResponseList(List<User> models)
         {
-            return listOfModels.Select(model => ToResponse(model)).ToList();
+            return models.Select(model => ToResponse(model)).ToList();
         }
 
-        public List<User> ToModelList(List<UserResponse> listOfDTOs)
+        public List<User> ToModelList(List<UserResponse> responses)
         {
-            return listOfDTOs.Select(dto => ToModel(dto)).ToList();
+            return responses.Select(dto => ToModel(dto)).ToList();
         }
     }
 }

@@ -8,60 +8,60 @@ namespace CleanUps.BusinessLogic.Converters
 {
     internal class EventConverter : IEventConverter
     {
-        public Event ToModel(EventResponse dto)
+        public Event ToModel(EventResponse response)
         {
             return new Event
             {
-                EventId = dto.EventId,
-                Title = dto.Title,
-                Description = dto.Description,
-                StartTime = dto.StartTime,
-                EndTime = dto.EndTime,
-                FamilyFriendly = dto.FamilyFriendly,
-                TrashCollected = dto.TrashCollected,
-                NumberOfAttendees = dto.NumberOfAttendees,
-                StatusId = (int)dto.Status,
+                EventId = response.EventId,
+                Title = response.Title,
+                Description = response.Description,
+                StartTime = response.StartTime,
+                EndTime = response.EndTime,
+                FamilyFriendly = response.FamilyFriendly,
+                TrashCollected = response.TrashCollected,
+                NumberOfAttendees = response.NumberOfAttendees,
+                StatusId = (int)response.Status,
                 Location = new Location
                 {
-                    Latitude = dto.Location.Latitude,
-                    Longitude = dto.Location.Longitude
+                    Latitude = response.Location.Latitude,
+                    Longitude = response.Location.Longitude
                 }
             };
         }
 
-        public Event ToModel(CreateEventRequest dto)
+        public Event ToModel(CreateEventRequest createRequest)
         {
             return new Event
             {
-                Title = dto.Title,
-                Description = dto.Description,
-                StartTime = dto.StartTime,
-                EndTime = dto.EndTime,
-                FamilyFriendly = dto.FamilyFriendly,
+                Title = createRequest.Title,
+                Description = createRequest.Description,
+                StartTime = createRequest.StartTime,
+                EndTime = createRequest.EndTime,
+                FamilyFriendly = createRequest.FamilyFriendly,
                 Location = new Location
                 {
-                    Latitude = dto.Location.Latitude,
-                    Longitude = dto.Location.Longitude
+                    Latitude = createRequest.Location.Latitude,
+                    Longitude = createRequest.Location.Longitude
                 }
             };
         }
 
-        public Event ToModel(UpdateEventRequest dto)
+        public Event ToModel(UpdateEventRequest updateRquest)
         {
             return new Event
             {
-                EventId = dto.EventId,
-                Title = dto.Title,
-                Description = dto.Description,
-                StartTime = dto.StartTime,
-                EndTime = dto.EndTime,
-                FamilyFriendly = dto.FamilyFriendly,
-                TrashCollected = dto.TrashCollected,
-                StatusId = (int)dto.Status,
+                EventId = updateRquest.EventId,
+                Title = updateRquest.Title,
+                Description = updateRquest.Description,
+                StartTime = updateRquest.StartTime,
+                EndTime = updateRquest.EndTime,
+                FamilyFriendly = updateRquest.FamilyFriendly,
+                TrashCollected = updateRquest.TrashCollected,
+                StatusId = (int)updateRquest.Status,
                 Location = new Location
                 {
-                    Latitude = dto.Location.Latitude,
-                    Longitude = dto.Location.Longitude
+                    Latitude = updateRquest.Location.Latitude,
+                    Longitude = updateRquest.Location.Longitude
                 }
             };
         }
@@ -79,7 +79,10 @@ namespace CleanUps.BusinessLogic.Converters
                 model.TrashCollected,
                 model.NumberOfAttendees,
                 (StatusDTO)model.StatusId,
-                new LocationResponse(model.Location?.Id ?? 0, model.Location?.Longitude ?? 0, model.Location?.Latitude ?? 0) //x is longitude and y is latitude
+                new LocationResponse(
+                    model.Location?.Id ?? 0,        //If model.Location is null, then set id to 0
+                    model.Location?.Longitude ?? 0, //If model.Location is null, then set Longitude to 0
+                    model.Location?.Latitude ?? 0)  //If model.Location is null, then set Latitude to 0
             );
         }
 
@@ -91,7 +94,9 @@ namespace CleanUps.BusinessLogic.Converters
                model.StartTime,
                 model.EndTime,
                 model.FamilyFriendly,
-                new CreateLocationRequest(model.Location?.Longitude ?? 0, model.Location?.Latitude ?? 0) //x is longitude and y is latitude
+                new CreateLocationRequest(
+                    model.Location?.Longitude ?? 0, //If model.Location is null, then set Longitude to 0
+                    model.Location?.Latitude ?? 0)  //If model.Location is null, then set Latitude to 0
             );
         }
         public UpdateEventRequest ToUpdateRequest(Event model)
@@ -105,19 +110,22 @@ namespace CleanUps.BusinessLogic.Converters
                 model.FamilyFriendly,
                 model.TrashCollected,
                 (StatusDTO)model.StatusId,
-                new UpdateLocationRequest(model.Location?.Id ?? 0, model.Location?.Longitude ?? 0, model.Location?.Latitude ?? 0) //x is longitude and y is latitude
+                new UpdateLocationRequest(
+                    model.Location?.Id ?? 0,        //If model.Location is null, then set id to 0
+                    model.Location?.Longitude ?? 0, //If model.Location is null, then set Longitude to 0
+                    model.Location?.Latitude ?? 0)  //If model.Location is null, then set Latitude to 0
             );
         }
 
-        public List<EventResponse> ToResponseList(List<Event> listOfModels)
+        public List<EventResponse> ToResponseList(List<Event> models)
         {
-            return listOfModels.Select(model => ToResponse(model)).ToList();
+            return models.Select(model => ToResponse(model)).ToList();
         }
 
 
-        public List<Event> ToModelList(List<EventResponse> listOfDTOs)
+        public List<Event> ToModelList(List<EventResponse> responses)
         {
-            return listOfDTOs.Select(dto => ToModel(dto)).ToList();
+            return responses.Select(dto => ToModel(dto)).ToList();
         }
 
     }
