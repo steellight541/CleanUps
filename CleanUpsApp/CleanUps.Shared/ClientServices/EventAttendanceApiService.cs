@@ -3,41 +3,42 @@ using CleanUps.Shared.DTOs.Events;
 using CleanUps.Shared.DTOs.Users;
 using CleanUps.Shared.ErrorHandling;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Json;
 
 namespace CleanUps.Shared.ClientServices
 {
     public class EventAttendanceApiService
     {
-        private readonly HttpClient _http;
+        private readonly HttpClient _httpClient;
 
-        public EventAttendanceApiService(HttpClient http)
+        public EventAttendanceApiService(IHttpClientFactory httpClientFactory)
         {
-            _http = http;
+            _httpClient = httpClientFactory.CreateClient("CleanupsApi");
         }
 
-        public async Task<Result<List<UpdateEventAttendanceRequest>>> GetAllAttendancesAsync()
+        public async Task<Result<List<EventAttendanceResponse>>> GetAllAttendancesAsync()
         {
-            HttpResponseMessage response = await _http.GetAsync("api/eventattendances");
+            HttpResponseMessage response = await _httpClient.GetAsync("api/eventattendances");
             if (response.IsSuccessStatusCode)
             {
-                List<UpdateEventAttendanceRequest>? eventAttendances = await response.Content.ReadFromJsonAsync<List<UpdateEventAttendanceRequest>>();
-                return eventAttendances != null ? Result<List<UpdateEventAttendanceRequest>>.Ok(eventAttendances) : Result<List<UpdateEventAttendanceRequest>>.InternalServerError("Failed to deserialize event attendances");
+                List<EventAttendanceResponse>? eventAttendances = await response.Content.ReadFromJsonAsync<List<EventAttendanceResponse>>();
+                return eventAttendances != null ? Result<List<EventAttendanceResponse>>.Ok(eventAttendances) : Result<List<EventAttendanceResponse>>.InternalServerError("Failed to deserialize event attendances");
             }
 
             string errorMessage = await response.Content.ReadAsStringAsync();
             switch (response.StatusCode)
             {
                 case HttpStatusCode.NoContent:
-                    return Result<List<UpdateEventAttendanceRequest>>.NoContent();
+                    return Result<List<EventAttendanceResponse>>.NoContent();
                 default:
-                    return Result<List<UpdateEventAttendanceRequest>>.InternalServerError(errorMessage);
+                    return Result<List<EventAttendanceResponse>>.InternalServerError(errorMessage);
             }
         }
 
         public async Task<Result<List<EventResponse>>> GetEventsByUserIdAsync(int userId)
         {
-            HttpResponseMessage response = await _http.GetAsync($"api/eventattendances/user/{userId}/events");
+            HttpResponseMessage response = await _httpClient.GetAsync($"api/eventattendances/user/{userId}/events");
             if (response.IsSuccessStatusCode)
             {
                 List<EventResponse>? eventAttendance = await response.Content.ReadFromJsonAsync<List<EventResponse>>();
@@ -57,7 +58,7 @@ namespace CleanUps.Shared.ClientServices
         }
         public async Task<Result<List<UserResponse>>> GetUsersByEventIdAsync(int eventId)
         {
-            HttpResponseMessage response = await _http.GetAsync($"api/eventattendances/event/{eventId}/users");
+            HttpResponseMessage response = await _httpClient.GetAsync($"api/eventattendances/event/{eventId}/users");
             if (response.IsSuccessStatusCode)
             {
                 List<UserResponse>? eventAttendance = await response.Content.ReadFromJsonAsync<List<UserResponse>>();
@@ -76,70 +77,70 @@ namespace CleanUps.Shared.ClientServices
             }
         }      
 
-        public async Task<Result<UpdateEventAttendanceRequest>> CreateAttendanceAsync(CreateEventAttendanceRequest newEventAttendance)
+        public async Task<Result<EventAttendanceResponse>> CreateAttendanceAsync(CreateEventAttendanceRequest newEventAttendance)
         {
-            HttpResponseMessage response = await _http.PostAsJsonAsync("api/eventattendances", newEventAttendance);
+            HttpResponseMessage response = await _httpClient.PostAsJsonAsync("api/eventattendances", newEventAttendance);
             if (response.IsSuccessStatusCode)
             {
-                UpdateEventAttendanceRequest? eventAttendance = await response.Content.ReadFromJsonAsync<UpdateEventAttendanceRequest>();
-                return eventAttendance != null ? Result<UpdateEventAttendanceRequest>.Created(eventAttendance) : Result<UpdateEventAttendanceRequest>.InternalServerError("Failed to deserialize event attendance");
+                EventAttendanceResponse? eventAttendance = await response.Content.ReadFromJsonAsync<EventAttendanceResponse>();
+                return eventAttendance != null ? Result<EventAttendanceResponse>.Created(eventAttendance) : Result<EventAttendanceResponse>.InternalServerError("Failed to deserialize event attendance");
             }
 
             string errorMessage = await response.Content.ReadAsStringAsync();
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:
-                    return Result<UpdateEventAttendanceRequest>.BadRequest(errorMessage);
+                    return Result<EventAttendanceResponse>.BadRequest(errorMessage);
                 case HttpStatusCode.NotFound:
-                    return Result<UpdateEventAttendanceRequest>.NotFound(errorMessage);
+                    return Result<EventAttendanceResponse>.NotFound(errorMessage);
                 default:
-                    return Result<UpdateEventAttendanceRequest>.InternalServerError(errorMessage);
+                    return Result<EventAttendanceResponse>.InternalServerError(errorMessage);
             }
         }
 
-        public async Task<Result<UpdateEventAttendanceRequest>> UpdateAttendanceAsync(UpdateEventAttendanceRequest attendanceToUpdate)
+        public async Task<Result<EventAttendanceResponse>> UpdateAttendanceAsync(UpdateEventAttendanceRequest attendanceToUpdate)
         {
-            HttpResponseMessage response = await _http.PutAsJsonAsync($"api/eventattendances/user/{attendanceToUpdate.UserId}/event/{attendanceToUpdate.EventId}", attendanceToUpdate);
+            HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"api/eventattendances/user/{attendanceToUpdate.UserId}/event/{attendanceToUpdate.EventId}", attendanceToUpdate);
             if (response.IsSuccessStatusCode)
             {
-                UpdateEventAttendanceRequest? eventAttendance = await response.Content.ReadFromJsonAsync<UpdateEventAttendanceRequest>();
-                return eventAttendance != null ? Result<UpdateEventAttendanceRequest>.Ok(eventAttendance) : Result<UpdateEventAttendanceRequest>.InternalServerError("Failed to deserialize event attendance");
+                EventAttendanceResponse? eventAttendance = await response.Content.ReadFromJsonAsync<EventAttendanceResponse>();
+                return eventAttendance != null ? Result<EventAttendanceResponse>.Ok(eventAttendance) : Result<EventAttendanceResponse>.InternalServerError("Failed to deserialize event attendance");
             }
 
             string errorMessage = await response.Content.ReadAsStringAsync();
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:
-                    return Result<UpdateEventAttendanceRequest>.BadRequest(errorMessage);
+                    return Result<EventAttendanceResponse>.BadRequest(errorMessage);
                 case HttpStatusCode.NotFound:
-                    return Result<UpdateEventAttendanceRequest>.NotFound(errorMessage);
+                    return Result<EventAttendanceResponse>.NotFound(errorMessage);
                 case HttpStatusCode.Conflict:
-                    return Result<UpdateEventAttendanceRequest>.Conflict(errorMessage);
+                    return Result<EventAttendanceResponse>.Conflict(errorMessage);
                 default:
-                    return Result<UpdateEventAttendanceRequest>.InternalServerError(errorMessage);
+                    return Result<EventAttendanceResponse>.InternalServerError(errorMessage);
             }
         }
 
-        public async Task<Result<UpdateEventAttendanceRequest>> DeleteAttendanceAsync(int userId, int eventId)
+        public async Task<Result<EventAttendanceResponse>> DeleteAttendanceAsync(int userId, int eventId)
         {
-            HttpResponseMessage response = await _http.DeleteAsync($"api/eventattendances/user/{userId}/event/{eventId}");
+            HttpResponseMessage response = await _httpClient.DeleteAsync($"api/eventattendances/user/{userId}/event/{eventId}");
             if (response.IsSuccessStatusCode)
             {
-                UpdateEventAttendanceRequest? eventAttendance = await response.Content.ReadFromJsonAsync<UpdateEventAttendanceRequest>();
-                return eventAttendance != null ? Result<UpdateEventAttendanceRequest>.Ok(eventAttendance) : Result<UpdateEventAttendanceRequest>.InternalServerError("Failed to deserialize event attendance");
+                EventAttendanceResponse? eventAttendance = await response.Content.ReadFromJsonAsync<EventAttendanceResponse>();
+                return eventAttendance != null ? Result<EventAttendanceResponse>.Ok(eventAttendance) : Result<EventAttendanceResponse>.InternalServerError("Failed to deserialize event attendance");
             }
 
             string errorMessage = await response.Content.ReadAsStringAsync();
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:
-                    return Result<UpdateEventAttendanceRequest>.BadRequest(errorMessage);
+                    return Result<EventAttendanceResponse>.BadRequest(errorMessage);
                 case HttpStatusCode.NotFound:
-                    return Result<UpdateEventAttendanceRequest>.NotFound(errorMessage);
+                    return Result<EventAttendanceResponse>.NotFound(errorMessage);
                 case HttpStatusCode.Conflict:
-                    return Result<UpdateEventAttendanceRequest>.Conflict(errorMessage);
+                    return Result<EventAttendanceResponse>.Conflict(errorMessage);
                 default:
-                    return Result<UpdateEventAttendanceRequest>.InternalServerError(errorMessage);
+                    return Result<EventAttendanceResponse>.InternalServerError(errorMessage);
             }
         }
     }

@@ -1,22 +1,23 @@
 ﻿using CleanUps.Shared.DTOs.Users;
 using CleanUps.Shared.ErrorHandling;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Json;
 
 namespace CleanUps.Shared.ClientServices
 {
     public class UserApiService
     {
-        private readonly HttpClient _http;
+        private readonly HttpClient _httpClient;
 
-        public UserApiService(HttpClient http)
+        public UserApiService(IHttpClientFactory httpClientFactory)
         {
-            _http = http;
+            _httpClient = httpClientFactory.CreateClient("CleanupsApi");
         }
 
         public async Task<Result<List<UserResponse>>> GetAllUsersAsync()
         {
-            HttpResponseMessage response = await _http.GetAsync("api/users");
+            HttpResponseMessage response = await _httpClient.GetAsync("api/users");
             if (response.IsSuccessStatusCode)
             {
                 List<UserResponse>? users = await response.Content.ReadFromJsonAsync<List<UserResponse>>();
@@ -37,7 +38,7 @@ namespace CleanUps.Shared.ClientServices
 
         public async Task<Result<UserResponse>> GetUserByIdAsync(int id)
         {
-            HttpResponseMessage response = await _http.GetAsync($"api/users/{id}");
+            HttpResponseMessage response = await _httpClient.GetAsync($"api/users/{id}");
             if (response.IsSuccessStatusCode)
             {
                 UserResponse? user = await response.Content.ReadFromJsonAsync<UserResponse>();
@@ -56,30 +57,30 @@ namespace CleanUps.Shared.ClientServices
             }
         }
 
-        public async Task<Result<CreateUserRequest>> CreateUserAsync(CreateUserRequest createRequest)
+        public async Task<Result<UserResponse>> CreateUserAsync(CreateUserRequest createRequest)
         {
-            HttpResponseMessage response = await _http.PostAsJsonAsync("api/users", createRequest);
+            HttpResponseMessage response = await _httpClient.PostAsJsonAsync("api/users", createRequest);
             if (response.IsSuccessStatusCode)
             {
-                CreateUserRequest? createdUser = await response.Content.ReadFromJsonAsync<CreateUserRequest>();
-                return createdUser != null ? Result<CreateUserRequest>.Created(createdUser) : Result<CreateUserRequest>.InternalServerError("Failed to deserialize user");
+                UserResponse? createdUser = await response.Content.ReadFromJsonAsync<UserResponse>();
+                return createdUser != null ? Result<UserResponse>.Created(createdUser) : Result<UserResponse>.InternalServerError("Failed to deserialize user");
             }
 
             string errorMessage = await response.Content.ReadAsStringAsync();
             switch (response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:
-                    return Result<CreateUserRequest>.BadRequest(errorMessage);
+                    return Result<UserResponse>.BadRequest(errorMessage);
                 case HttpStatusCode.NotFound:
-                    return Result<CreateUserRequest>.NotFound(errorMessage);
+                    return Result<UserResponse>.NotFound(errorMessage);
                 default:
-                    return Result<CreateUserRequest>.InternalServerError(errorMessage);
+                    return Result<UserResponse>.InternalServerError(errorMessage);
             }
         }
 
         public async Task<Result<UserResponse>> UpdateUserAsync(int id, UpdateUserRequest updateRequest)
         {
-            HttpResponseMessage response = await _http.PutAsJsonAsync($"api/users/{id}", updateRequest);
+            HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"api/users/{id}", updateRequest);
             if (response.IsSuccessStatusCode)
             {
                 UserResponse? updatedUser = await response.Content.ReadFromJsonAsync<UserResponse>();
@@ -102,7 +103,7 @@ namespace CleanUps.Shared.ClientServices
 
         public async Task<Result<UserResponse>> DeleteUserAsync(int userId)
         {
-            HttpResponseMessage response = await _http.DeleteAsync($"api/users/{userId}");
+            HttpResponseMessage response = await _httpClient.DeleteAsync($"api/users/{userId}");
             if (response.IsSuccessStatusCode)
             {
                 UserResponse? deletedUser = await response.Content.ReadFromJsonAsync<UserResponse>();

@@ -1,22 +1,23 @@
 ﻿using CleanUps.Shared.DTOs.Events;
 using CleanUps.Shared.ErrorHandling;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Json;
 
 namespace CleanUps.Shared.ClientServices
 {
     public class EventApiService
     {
-        private readonly HttpClient _http;
+        private readonly HttpClient _httpClient;
 
         public EventApiService(IHttpClientFactory httpClientFactory)
         {
-            _http = httpClientFactory.CreateClient("CleanupApi");
+            _httpClient = httpClientFactory.CreateClient("CleanupsApi");
         }
 
         public async Task<Result<List<EventResponse>>> GetAllEventsAsync()
         {
-            HttpResponseMessage response = await _http.GetAsync("api/events");
+            HttpResponseMessage response = await _httpClient.GetAsync("api/events");
             if (response.IsSuccessStatusCode)
             {
                 List<EventResponse>? events = await response.Content.ReadFromJsonAsync<List<EventResponse>>();
@@ -35,7 +36,7 @@ namespace CleanUps.Shared.ClientServices
 
         public async Task<Result<EventResponse>> GetEventByIdAsync(int id)
         {
-            HttpResponseMessage response = await _http.GetAsync($"api/events/{id}");
+            HttpResponseMessage response = await _httpClient.GetAsync($"api/events/{id}");
             if (response.IsSuccessStatusCode)
             {
                 EventResponse? eventDto = await response.Content.ReadFromJsonAsync<EventResponse>();
@@ -56,7 +57,7 @@ namespace CleanUps.Shared.ClientServices
 
         public async Task<Result<EventResponse>> CreateEventAsync(CreateEventRequest createRequest)
         {
-            HttpResponseMessage response = await _http.PostAsJsonAsync("api/events", createRequest);
+            HttpResponseMessage response = await _httpClient.PostAsJsonAsync("api/events", createRequest);
             if (response.IsSuccessStatusCode)
             {
                 EventResponse? createdEvent = await response.Content.ReadFromJsonAsync<EventResponse>();
@@ -75,7 +76,7 @@ namespace CleanUps.Shared.ClientServices
 
         public async Task<Result<EventResponse>> UpdateEventAsync(int id, UpdateEventRequest updateRequest)
         {
-            HttpResponseMessage response = await _http.PutAsJsonAsync($"api/events/{id}", updateRequest);
+            HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"api/events/{id}", updateRequest);
             if (response.IsSuccessStatusCode)
             {
                 EventResponse? updatedEvent = await response.Content.ReadFromJsonAsync<EventResponse>();
@@ -98,7 +99,7 @@ namespace CleanUps.Shared.ClientServices
 
         public async Task<Result<EventResponse>> DeleteEventAsync(int eventId)
         {
-            HttpResponseMessage response = await _http.DeleteAsync($"api/events/{eventId}");
+            HttpResponseMessage response = await _httpClient.DeleteAsync($"api/events/{eventId}");
             if (response.IsSuccessStatusCode)
             {
                 EventResponse? deletedEvent = await response.Content.ReadFromJsonAsync<EventResponse>();

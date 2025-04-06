@@ -10,7 +10,7 @@ namespace CleanUps.MAUI.Shared
 
             services.AddHttpClient("CleanupsApi", client =>
             {
-                client.BaseAddress = new Uri("https://cleanups-api-enbrcrevatgmhke7.canadacentral-01.azurewebsites.net");
+                client.BaseAddress = new Uri("https://cleanups-api-enbrcrevatgmhke7.canadacentral-01.azurewebsites.net/");
             });
 
             services.AddScoped<EventApiService>();

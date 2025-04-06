@@ -1,22 +1,23 @@
 ﻿using CleanUps.Shared.DTOs.Photos;
 using CleanUps.Shared.ErrorHandling;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Json;
 
 namespace CleanUps.Shared.ClientServices
 {
     public class PhotoApiService
     {
-        private readonly HttpClient _http;
+        private readonly HttpClient _httpClient;
 
-        public PhotoApiService(HttpClient http)
+        public PhotoApiService(IHttpClientFactory httpClientFactory)
         {
-            _http = http;
+            _httpClient = httpClientFactory.CreateClient("CleanupsApi");
         }
 
         public async Task<Result<List<PhotoResponse>>> GetAllPhotosAsync()
         {
-            HttpResponseMessage response = await _http.GetAsync("api/photos");
+            HttpResponseMessage response = await _httpClient.GetAsync("api/photos");
             if (response.IsSuccessStatusCode)
             {
                 List<PhotoResponse>? photos = await response.Content.ReadFromJsonAsync<List<PhotoResponse>>();
@@ -35,7 +36,7 @@ namespace CleanUps.Shared.ClientServices
 
         public async Task<Result<PhotoResponse>> GetPhotoByIdAsync(int id)
         {
-            HttpResponseMessage response = await _http.GetAsync($"api/photos/{id}");
+            HttpResponseMessage response = await _httpClient.GetAsync($"api/photos/{id}");
             if (response.IsSuccessStatusCode)
             {
                 PhotoResponse? photo = await response.Content.ReadFromJsonAsync<PhotoResponse>();
@@ -56,7 +57,7 @@ namespace CleanUps.Shared.ClientServices
 
         public async Task<Result<List<PhotoResponse>>> GetPhotosByEventIdAsync(int eventId)
         {
-            HttpResponseMessage response = await _http.GetAsync($"api/photos/events/{eventId}");
+            HttpResponseMessage response = await _httpClient.GetAsync($"api/photos/events/{eventId}");
             if (response.IsSuccessStatusCode)
             {
                 List<PhotoResponse>? photos = await response.Content.ReadFromJsonAsync<List<PhotoResponse>>();
@@ -77,7 +78,7 @@ namespace CleanUps.Shared.ClientServices
 
         public async Task<Result<PhotoResponse>> CreatePhotoAsync(CreatePhotoRequest createRequest)
         {
-            HttpResponseMessage response = await _http.PostAsJsonAsync("api/photos", createRequest);
+            HttpResponseMessage response = await _httpClient.PostAsJsonAsync("api/photos", createRequest);
             if (response.IsSuccessStatusCode)
             {
                 PhotoResponse? createdPhoto = await response.Content.ReadFromJsonAsync<PhotoResponse>();
@@ -96,7 +97,7 @@ namespace CleanUps.Shared.ClientServices
 
         public async Task<Result<PhotoResponse>> UpdatePhotoAsync(int id, UpdatePhotoRequest updateRequest)
         {
-            HttpResponseMessage response = await _http.PutAsJsonAsync($"api/photos/{id}", updateRequest);
+            HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"api/photos/{id}", updateRequest);
             if (response.IsSuccessStatusCode)
             {
                 PhotoResponse? updatedPhoto = await response.Content.ReadFromJsonAsync<PhotoResponse>();
@@ -119,7 +120,7 @@ namespace CleanUps.Shared.ClientServices
 
         public async Task<Result<PhotoResponse>> DeletePhotoAsync(int photoId)
         {
-            HttpResponseMessage response = await _http.DeleteAsync($"api/photos/{photoId}");
+            HttpResponseMessage response = await _httpClient.DeleteAsync($"api/photos/{photoId}");
             if (response.IsSuccessStatusCode)
             {
                 PhotoResponse? deletedPhoto = await response.Content.ReadFromJsonAsync<PhotoResponse>();
