@@ -28,17 +28,17 @@ namespace CleanUps.DataAccess.Repositories
                 return Result<List<User>>.Ok(users);
 
             }
-            catch (ArgumentNullException)
+            catch (ArgumentNullException ex)
             {
-                return Result<List<User>>.NoContent();
+                return Result<List<User>>.InternalServerError($"{ex.Message}");
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
-                return Result<List<User>>.InternalServerError("Operation Canceled. Refresh and retry");
+                return Result<List<User>>.InternalServerError($"{ex.Message}");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Result<List<User>>.InternalServerError("Something went wrong. Try again later");
+                return Result<List<User>>.InternalServerError($"{ex.Message}");
             }
         }
 
@@ -60,9 +60,9 @@ namespace CleanUps.DataAccess.Repositories
                     return Result<User>.Ok(retrievedUser);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Result<User>.InternalServerError("Something went wrong. Try again later");
+                return Result<User>.InternalServerError($"{ex.Message}");
             }
         }
 
@@ -86,22 +86,22 @@ namespace CleanUps.DataAccess.Repositories
 
                 return Result<User>.Created(userToBeCreated);
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
-                return Result<User>.InternalServerError("Operation Canceled. Refresh and retry");
+                return Result<User>.InternalServerError($"{ex.Message}");
             }
-            catch (DbUpdateException dbEx)
+            catch (DbUpdateException ex)
             {
                 // Check for unique constraint violation (e.g., email)
-                if (dbEx.InnerException != null && dbEx.InnerException.Message.Contains("UQ_Email"))
+                if (ex.InnerException != null && ex.InnerException.Message.Contains("UQ_Email"))
                 {
-                    return Result<User>.Conflict($"User with email {userToBeCreated.Email} already exists.");
+                    return Result<User>.Conflict($"User with email {userToBeCreated.Email} already exists.\n{ex.Message}");
                 }
-                return Result<User>.InternalServerError("Failed to create the user due to a database error. Try again later");
+                return Result<User>.InternalServerError($"{ex.Message}");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Result<User>.InternalServerError("Something went wrong. Try again later");
+                return Result<User>.InternalServerError($"{ex.Message}");
             }
         }
 
@@ -140,26 +140,26 @@ namespace CleanUps.DataAccess.Repositories
                 return Result<User>.Ok(userToBeUpdated);
 
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
-                return Result<User>.InternalServerError("Operation Canceled. Refresh and retry");
+                return Result<User>.InternalServerError($"{ex.Message}");
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                return Result<User>.Conflict("User was modified by another user. Refresh and retry");
+                return Result<User>.Conflict($"{ex.Message}");
             }
-            catch (DbUpdateException dbEx)
+            catch (DbUpdateException ex)
             {
                 // Check for unique constraint violation (e.g., email)
-                if (dbEx.InnerException != null && dbEx.InnerException.Message.Contains("UQ_Email"))
+                if (ex.InnerException != null && ex.InnerException.Message.Contains("UQ_Email"))
                 {
-                    return Result<User>.Conflict($"User with email {userToBeUpdated.Email} already exists.");
+                    return Result<User>.Conflict($"User with email {userToBeUpdated.Email} already exists.\n{ex.Message}");
                 }
-                return Result<User>.InternalServerError("Failed to update the user due to a database error. Try again later");
+                return Result<User>.InternalServerError($"{ex.Message}");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Result<User>.InternalServerError("Something went wrong. Try again later");
+                return Result<User>.InternalServerError($"{ex.Message}");
             }
         }
 
@@ -186,21 +186,21 @@ namespace CleanUps.DataAccess.Repositories
                     return Result<User>.Ok(userToDelete);
                 }
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
-                return Result<User>.InternalServerError("Operation Canceled. Refresh and retry");
+                return Result<User>.InternalServerError($"{ex.Message}");
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                return Result<User>.Conflict("Concurrency issue while deleting the user. Please refresh and try again.");
+                return Result<User>.Conflict($"{ex.Message}");
             }
-            catch (DbUpdateException)
+            catch (DbUpdateException ex)
             {
-                return Result<User>.InternalServerError("Failed to delete the user due to a database error. Try again later");
+                return Result<User>.InternalServerError($"{ex.Message}");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Result<User>.InternalServerError("Something went wrong. Try again later");
+                return Result<User>.InternalServerError($"{ex.Message}");
             }
         }
 

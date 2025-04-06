@@ -28,17 +28,17 @@ namespace CleanUps.DataAccess.Repositories
                     .ToListAsync();
                 return Result<List<EventAttendance>>.Ok(eventAttendances);
             }
-            catch (ArgumentNullException)
+            catch (ArgumentNullException ex)
             {
-                return Result<List<EventAttendance>>.NoContent();
+                return Result<List<EventAttendance>>.InternalServerError($"{ex.Message}");
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
-                return Result<List<EventAttendance>>.InternalServerError("Operation Canceled. Refresh and retry");
+                return Result<List<EventAttendance>>.InternalServerError($"{ex.Message}");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Result<List<EventAttendance>>.InternalServerError("Something went wrong. Try again later");
+                return Result<List<EventAttendance>>.InternalServerError($"{ex.Message}");
             }
         }
 
@@ -64,17 +64,17 @@ namespace CleanUps.DataAccess.Repositories
                 }
                 return Result<List<Event>>.Ok(events);
             }
-            catch (ArgumentNullException)
+            catch (ArgumentNullException ex)
             {
-                return Result<List<Event>>.NoContent();
+                return Result<List<Event>>.InternalServerError($"{ex.Message}");
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
-                return Result<List<Event>>.InternalServerError("Operation Canceled. Refresh and retry");
+                return Result<List<Event>>.InternalServerError($"{ex.Message}");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Result<List<Event>>.InternalServerError("Something went wrong. Try again later");
+                return Result<List<Event>>.InternalServerError($"{ex.Message}");
             }
         }
 
@@ -95,17 +95,17 @@ namespace CleanUps.DataAccess.Repositories
                 }
                 return Result<List<User>>.Ok(users);
             }
-            catch (ArgumentNullException)
+            catch (ArgumentNullException ex)
             {
-                return Result<List<User>>.NoContent();
+                return Result<List<User>>.InternalServerError($"{ex.Message}");
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
-                return Result<List<User>>.InternalServerError("Operation Canceled. Refresh and retry");
+                return Result<List<User>>.InternalServerError($"{ex.Message}");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Result<List<User>>.InternalServerError("Something went wrong. Try again later");
+                return Result<List<User>>.InternalServerError($"{ex.Message}");
             }
         }
 
@@ -126,17 +126,17 @@ namespace CleanUps.DataAccess.Repositories
                 await _context.SaveChangesAsync();
                 return Result<EventAttendance>.Created(eventAttendanceToBeCreated);
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
-                return Result<EventAttendance>.InternalServerError("Operation Canceled. Refresh and retry");
+                return Result<EventAttendance>.InternalServerError($"{ex.Message}");
             }
-            catch (DbUpdateException)
+            catch (DbUpdateException ex)
             {
-                return Result<EventAttendance>.InternalServerError("Failed to create the eventAttendance due to a database error. Try again later");
+                return Result<EventAttendance>.InternalServerError($"{ex.Message}");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Result<EventAttendance>.InternalServerError("Something went wrong. Try again later");
+                return Result<EventAttendance>.InternalServerError($"{ex.Message}");
             }
         }
 
@@ -162,21 +162,21 @@ namespace CleanUps.DataAccess.Repositories
                 await _context.SaveChangesAsync();
                 return Result<EventAttendance>.Ok(eventAttendanceToBeUpdated);
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
-                return Result<EventAttendance>.InternalServerError("Operation Canceled. Refresh and retry");
+                return Result<EventAttendance>.InternalServerError($"{ex.Message}");
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                return Result<EventAttendance>.Conflict("EventAttendance was modified by another user. Refresh and retry");
+                return Result<EventAttendance>.Conflict($"{ex.Message}");
             }
-            catch (DbUpdateException)
+            catch (DbUpdateException ex)
             {
-                return Result<EventAttendance>.InternalServerError("Failed to update the eventAttendance due to a database error. Try again later");
+                return Result<EventAttendance>.InternalServerError($"{ex.Message}");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Result<EventAttendance>.InternalServerError("Something went wrong. Try again later");
+                return Result<EventAttendance>.InternalServerError($"{ex.Message}");
             }
         }
 
@@ -198,21 +198,21 @@ namespace CleanUps.DataAccess.Repositories
                 await _context.SaveChangesAsync();
                 return Result<EventAttendance>.Ok(existingEventAttendance);
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
-                return Result<EventAttendance>.InternalServerError("Operation Canceled. Refresh and retry");
+                return Result<EventAttendance>.InternalServerError($"{ex.Message}");
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                return Result<EventAttendance>.Conflict("Concurrency issue while deleting the eventAttendance. Please refresh and try again.");
+                return Result<EventAttendance>.Conflict($"{ex.Message}");
             }
-            catch (DbUpdateException)
+            catch (DbUpdateException ex)
             {
-                return Result<EventAttendance>.InternalServerError("Failed to delete the eventAttendance due to a database error. Try again later");
+                return Result<EventAttendance>.InternalServerError($"{ex.Message}");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Result<EventAttendance>.InternalServerError("Something went wrong. Try again later");
+                return Result<EventAttendance>.InternalServerError($"{ex.Message}");
             }
         }
 

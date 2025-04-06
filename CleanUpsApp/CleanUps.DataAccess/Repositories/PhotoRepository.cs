@@ -28,17 +28,17 @@ namespace CleanUps.DataAccess.Repositories
                 return Result<List<Photo>>.Ok(photos);
 
             }
-            catch (ArgumentNullException)
+            catch (ArgumentNullException ex)
             {
-                return Result<List<Photo>>.NoContent();
+                return Result<List<Photo>>.InternalServerError($"{ex.Message}");
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
-                return Result<List<Photo>>.InternalServerError("Operation Canceled. Refresh and retry");
+                return Result<List<Photo>>.InternalServerError($"{ex.Message}");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Result<List<Photo>>.InternalServerError("Something went wrong. Try again later");
+                return Result<List<Photo>>.InternalServerError($"{ex.Message}");
             }
         }
 
@@ -60,9 +60,9 @@ namespace CleanUps.DataAccess.Repositories
                     return Result<Photo>.Ok(retrievedPhoto);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Result<Photo>.InternalServerError("Something went wrong. Try again later");
+                return Result<Photo>.InternalServerError($"{ex.Message}");
             }
         }
         public async Task<Result<List<Photo>>> GetPhotosByEventIdAsync(int eventId)
@@ -80,17 +80,17 @@ namespace CleanUps.DataAccess.Repositories
                 }
                 return Result<List<Photo>>.Ok(filteredPhotos);
             }
-            catch (ArgumentNullException)
+            catch (ArgumentNullException ex)
             {
-                return Result<List<Photo>>.NoContent();
+                return Result<List<Photo>>.InternalServerError($"{ex.Message}");
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
-                return Result<List<Photo>>.InternalServerError("Operation Canceled. Refresh and retry");
+                return Result<List<Photo>>.InternalServerError($"{ex.Message}");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Result<List<Photo>>.InternalServerError("Something went wrong. Try again later");
+                return Result<List<Photo>>.InternalServerError($"{ex.Message}");
             }
         }
 
@@ -103,17 +103,17 @@ namespace CleanUps.DataAccess.Repositories
 
                 return Result<Photo>.Created(photoToBeCreated);
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
-                return Result<Photo>.InternalServerError("Operation Canceled. Refresh and retry");
+                return Result<Photo>.InternalServerError($"{ex.Message}");
             }
-            catch (DbUpdateException)
+            catch (DbUpdateException ex)
             {
-                return Result<Photo>.InternalServerError("Failed to create the photo due to a database error. Try again later");
+                return Result<Photo>.InternalServerError($"{ex.Message}");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Result<Photo>.InternalServerError("Something went wrong. Try again later");
+                return Result<Photo>.InternalServerError($"{ex.Message}");
             }
         }
 
@@ -139,21 +139,21 @@ namespace CleanUps.DataAccess.Repositories
                     return Result<Photo>.Ok(photoToBeUpdated);
                 }
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
-                return Result<Photo>.InternalServerError("Operation Canceled. Refresh and retry");
+                return Result<Photo>.InternalServerError($"{ex.Message}");
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                return Result<Photo>.Conflict("Photo was modified by another user. Refresh and retry");
+                return Result<Photo>.Conflict($"{ex.Message}");
             }
-            catch (DbUpdateException)
+            catch (DbUpdateException ex)
             {
-                return Result<Photo>.InternalServerError("Failed to update the photo due to a database error. Try again later");
+                return Result<Photo>.InternalServerError($"{ex.Message}");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Result<Photo>.InternalServerError("Something went wrong. Try again later");
+                return Result<Photo>.InternalServerError($"{ex.Message}");
             }
         }
 
@@ -179,21 +179,21 @@ namespace CleanUps.DataAccess.Repositories
                     return Result<Photo>.Ok(photoToDelete);
                 }
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
-                return Result<Photo>.InternalServerError("Operation Canceled. Refresh and retry");
+                return Result<Photo>.InternalServerError($"{ex.Message}");
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                return Result<Photo>.Conflict("Concurrency issue while deleting the photo. Please refresh and try again.");
+                return Result<Photo>.Conflict($"{ex.Message}");
             }
-            catch (DbUpdateException)
+            catch (DbUpdateException ex)
             {
-                return Result<Photo>.InternalServerError("Failed to delete the photo due to a database error. Try again later");
+                return Result<Photo>.InternalServerError($"{ex.Message}");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Result<Photo>.InternalServerError("Something went wrong. Try again later");
+                return Result<Photo>.InternalServerError($"{ex.Message}");
             }
         }
     }
