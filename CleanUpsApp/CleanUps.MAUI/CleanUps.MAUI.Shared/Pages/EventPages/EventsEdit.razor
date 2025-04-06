@@ -37,6 +37,22 @@ else
             <InputDate id="endTime" @bind-Value="editModel.EndTime" class="form-control" />
         </div>
 
+        <div class="form-group">
+            <label for="trashCollected">Trash Collected</label>
+            <InputNumber id="trashCollected" @bind-Value="editModel.TrashCollected" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label for="satus">Status of the event</label>
+            <InputSelect id="status" @bind-Value="editModel.Status" class="form-select" aria-label="Status">
+                <option selected>@eventResult.Data.Status.ToString()</option>
+                <option value="@StatusDTO.Upcoming">Upcoming</option>
+                <option value="@StatusDTO.Ongoing">Ongoing</option>
+                <option value="@StatusDTO.Completed">Completed</option>
+                <option value="@StatusDTO.Canceled">Canceled</option>
+            </InputSelect>
+        </div>
+
         <div class="form-check">
             <InputCheckbox id="familyFriendly" @bind-Value="editModel.FamilyFriendly" class="form-check-input" />
             <label class="form-check-label" for="familyFriendly">Family Friendly</label>
@@ -54,7 +70,6 @@ else
     private Result<EventResponse> eventResult;
     private EditModel editModel;
     private string errorMessage;
-
     private class EditModel
     {
         public string Title { get; set; }
@@ -97,8 +112,8 @@ else
             editModel.StartTime,
             editModel.EndTime,
             editModel.FamilyFriendly,
-            1, //dummy data
-            StatusDTO.Ongoing, //dummy data
+            editModel.TrashCollected,
+            editModel.Status,
             Location: new UpdateLocationRequest(eventResult.Data.Location.LocationId, editModel.Latitude, editModel.Longitude)
     );
 

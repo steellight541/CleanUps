@@ -15,8 +15,8 @@ else if (user.IsSuccess)
         <p><strong>ID:</strong> @user.Data.UserId</p>
         <p><strong>Name:</strong> @user.Data.Name</p>
         <p><strong>Email:</strong> @user.Data.Email</p>
-        <p><strong>Email:</strong> @user.Data.Role.ToString()</p>
-        <p><strong>Email:</strong> @user.Data.CreatedDate</p>
+        <p><strong>Role:</strong> @user.Data.Role.ToString()</p>
+        <p><strong>CreatedDate:</strong> @user.Data.CreatedDate</p>
     </div>
     <button class="btn btn-secondary" @onclick="GoBack">Back</button>
 }

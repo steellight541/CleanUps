@@ -26,10 +26,20 @@ namespace CleanUps.BusinessLogic.Validators
                 return commonValidation;
             }
 
-            // Ensure DateAndTime is in the future
+            // Ensure Start time is in the future
             if (createRequest.StartTime <= DateTime.Now)
             {
-                return Result<bool>.BadRequest("Event Date and Time must be in the future.");
+                return Result<bool>.BadRequest("Start time must be in the future.");
+            }
+            // Ensure End time is in the future
+            if (createRequest.EndTime <= DateTime.Now)
+            {
+                return Result<bool>.BadRequest("End time must be in the future.");
+            }
+
+            if (createRequest.EndTime >= createRequest.StartTime)
+            {
+                return Result<bool>.BadRequest("End time cannot be before Start Time");
             }
 
             // Validate Location fields
