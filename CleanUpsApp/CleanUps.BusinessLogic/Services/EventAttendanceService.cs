@@ -92,6 +92,7 @@ namespace CleanUps.BusinessLogic.Services
             }
 
             EventAttendance attendanceModel = _attendanceConverter.ToModel(createRequest);
+            attendanceModel.CheckIn = DateTime.UtcNow;
             Result<EventAttendance> repoResult = await _repository.CreateAsync(attendanceModel);
             return repoResult.Transform(attendance => _attendanceConverter.ToResponse(attendance));
         }
