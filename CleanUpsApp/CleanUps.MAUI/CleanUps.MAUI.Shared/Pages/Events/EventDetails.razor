@@ -9,7 +9,7 @@
 
     <h3>Event Details</h3>
 
-    @if (eventResult == null || usersResult == null || attendeesResult == null)
+    @if (eventResult == null || usersResult == null)
     {
         <p>Loading...</p>
     }
@@ -30,24 +30,33 @@
             <p><strong>Location:</strong> Not implemented yet</p>
         </div>
 
-        <div class="form-group mt-3 mb-">
-            <label for="userSelect">Sign Up User:</label>
-            <select id="userSelect" class="form-control" @bind="selectedUserId">
-                <option value="0">Select a user</option>
-                @foreach (var user in usersResult.Data)
-                {
-                    bool isAlreadySignedUp = attendeesResult.Data?.Any(a => a.UserId == user.UserId) ?? false;
-                    <option value="@user.UserId" disabled="@isAlreadySignedUp">
-                        @user.Name @(isAlreadySignedUp ? "(Already Signed Up)" : "")
-                    </option>
-                }
-            </select>
-        </div>
+        @if (CurrentUserRole == RoleDTO.Organizer)
+        {   
+            <div class="form-group mt-3 mb-">
+                <label for="userSelect">Sign Up User:</label>
+                <select id="userSelect" class="form-control" @bind="selectedUserId">
+                    <option value="0">Select a user</option>
+                    @foreach (var user in usersResult.Data)
+                    {
+                        bool isAlreadySignedUp = attendeesResult.Data?.Any(a => a.UserId == user.UserId) ?? false;
+                        <option value="@user.UserId" disabled="@isAlreadySignedUp">
+                            @user.Name @(isAlreadySignedUp ? "(Already Signed Up)" : "")
+                        </option>
+                    }
+                </select>
+            </div>
 
-        <div class="mb-2">
-            <button class="btn btn-primary mt-2" @onclick="SubmitAttendance">Sign Up</button>
-            <button type="button" @onclick="Cancel">Back</button>
-        </div>
+            <div class="mb-2">
+                <button class="btn btn-primary mt-2" @onclick="SubmitAttendance">Sign Up</button>
+                <button type="button" @onclick="Cancel">Back</button>
+            </div>
+        }
+        else
+        {
+            <div class="mb-2">
+                <button type="button" @onclick="Cancel">Back</button>
+            </div>
+        }
 
         @if (!string.IsNullOrEmpty(message))
         {
@@ -66,6 +75,8 @@
     private int selectedUserId;
     private string message;
     private string messageClass;
+
+    private RoleDTO CurrentUserRole = RoleDTO.Volunteer;
 
     protected override async Task OnInitializedAsync()
     {

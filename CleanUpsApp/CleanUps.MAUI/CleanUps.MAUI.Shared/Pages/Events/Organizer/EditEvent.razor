@@ -3,6 +3,8 @@
 @inject NavigationManager _navigationManager
 @inject EventApiService _eventApiService
 
+@if (CurrentUserRole == RoleDTO.Organizer)
+{
 <div class="card shadow p-4">
 
     @if (eventResult == null)
@@ -70,7 +72,11 @@
 
     }
 </div>
-
+}
+else
+{
+    <p>Access denied</p>
+}
 @code {
     [Parameter]
     public int eventId { get; set; }
@@ -90,6 +96,8 @@
         public decimal Longitude { get; set; }
         public decimal Latitude { get; set; }
     }
+
+    private RoleDTO CurrentUserRole = RoleDTO.Volunteer;
 
     protected override async Task OnInitializedAsync()
     {

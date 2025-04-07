@@ -5,7 +5,7 @@
 @inject EventAttendanceApiService _eventAttendanceApiService
 <div class="card shadow p-4">
 
-    <h3>Events Management</h3>
+    <h3>Events List</h3>
 
     @if (events == null)
     {
@@ -47,8 +47,12 @@
                             <td>No location yet</td>
                             <td>
                                 <button class="btn btn-primary btn-sm" @onclick="() => ViewDetails(ev.EventId)">View</button>
-                                <button class="btn btn-secondary btn-sm" @onclick="() => EditEvent(ev.EventId)">Edit</button>
-                                <button class="btn btn-danger btn-sm" @onclick="() => DeleteEvent(ev.EventId)">Delete</button>
+                                @if (CurrentUserRole == RoleDTO.Organizer)
+                                {
+                                    <button class="btn btn-secondary btn-sm" @onclick="() => EditEvent(ev.EventId)">Edit</button>
+                                    <button class="btn btn-danger btn-sm" @onclick="() => DeleteEvent(ev.EventId)">Delete</button>
+                                }
+
                             </td>
                         </tr>
                     }
@@ -68,18 +72,24 @@
                         <p><strong>Participants:</strong> @(participantCounts.TryGetValue(ev.EventId, out var count) ? count : 0)</p>
                         <div class="d-flex flex-column gap-2">
                             <button class="btn btn-primary btn-sm" @onclick="() => ViewDetails(ev.EventId)">View</button>
-                            <button class="btn btn-secondary btn-sm" @onclick="() => EditEvent(ev.EventId)">Edit</button>
-                            <button class="btn btn-danger btn-sm" @onclick="() => DeleteEvent(ev.EventId)">Delete</button>
+                            @if (CurrentUserRole == RoleDTO.Organizer)
+                            {
+                                <button class="btn btn-secondary btn-sm" @onclick="() => EditEvent(ev.EventId)">Edit</button>
+                                <button class="btn btn-danger btn-sm" @onclick="() => DeleteEvent(ev.EventId)">Delete</button>
+                            }
                         </div>
                     </div>
                 }
             </div>
         </div>
 
-        <!-- Create New Event button -->
-        <div class="mb-2">
-            <button class="btn btn-success" @onclick="CreateNewEvent">Create New Event</button>
-        </div>
+        @if (CurrentUserRole == RoleDTO.Organizer)
+        {
+            <!-- Create New Event button -->
+            <div class="mb-2">
+                <button class="btn btn-success w-100 w-md-auto" @onclick="CreateNewEvent">Create New Event</button>
+            </div>
+        }
     }
     else
     {
@@ -97,6 +107,8 @@
     private Result<List<EventResponse>> events;
     private Dictionary<int, int> participantCounts = new Dictionary<int, int>();
     private string errorMessage;
+
+    private RoleDTO CurrentUserRole = RoleDTO.Volunteer;
 
     protected override async Task OnInitializedAsync()
     {
