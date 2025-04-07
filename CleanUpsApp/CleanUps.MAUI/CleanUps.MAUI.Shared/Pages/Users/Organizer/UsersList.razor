@@ -35,11 +35,11 @@
                                 <td>@user.Email</td>
                                 <td>@user.CreatedDate</td>
                                 <td>
-                                    <button class="btn btn-primary btn-sm" @onclick="() => ViewUser(user.UserId)">View</button>
+                                    <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewUser(user.UserId)">View</button>
                                     @if (CurrentUserRole == RoleDTO.Organizer)
                                     {
-                                        <button class="btn btn-secondary btn-sm" @onclick="() => EditUser(user.UserId)">Edit</button>
-                                        <button class="btn btn-danger btn-sm" @onclick="() => DeleteUser(user.UserId)">Delete</button>
+                                        <button class="btn btn-secondary btn-sm mt-2" @onclick="() => EditUser(user.UserId)">Edit</button>
+                                        <button class="btn btn-danger btn-sm mt-2" @onclick="() => DeleteUser(user.UserId)">Delete</button>
                                     }
                                 </td>
                             </tr>
@@ -58,9 +58,9 @@
                             <h5>@user.Name</h5>
                             <p><strong>Email:</strong> @user.Email</p>
                             <div class="d-flex flex-column gap-2">
-                                <button class="btn btn-primary btn-sm" @onclick="() => ViewUser(user.UserId)">View</button>
-                                <button class="btn btn-secondary btn-sm" @onclick="() => EditUser(user.UserId)">Edit</button>
-                                <button class="btn btn-danger btn-sm" @onclick="() => DeleteUser(user.UserId)">Delete</button>
+                                <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewUser(user.UserId)">View</button>
+                                <button class="btn btn-secondary btn-sm mt-2" @onclick="() => EditUser(user.UserId)">Edit</button>
+                                <button class="btn btn-danger btn-sm mt-2" @onclick="() => DeleteUser(user.UserId)">Delete</button>
 
                             </div>
                         </div>

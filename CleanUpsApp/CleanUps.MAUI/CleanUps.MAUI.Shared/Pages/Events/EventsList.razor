@@ -46,11 +46,11 @@
                             <td>@ev.Status.ToString()</td>
                             <td>No location yet</td>
                             <td>
-                                <button class="btn btn-primary btn-sm" @onclick="() => ViewDetails(ev.EventId)">View</button>
+                                <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewDetails(ev.EventId)">View</button>
                                 @if (CurrentUserRole == RoleDTO.Organizer)
                                 {
-                                    <button class="btn btn-secondary btn-sm" @onclick="() => EditEvent(ev.EventId)">Edit</button>
-                                    <button class="btn btn-danger btn-sm" @onclick="() => DeleteEvent(ev.EventId)">Delete</button>
+                                    <button class="btn btn-secondary btn-sm mt-2" @onclick="() => EditEvent(ev.EventId)">Edit</button>
+                                    <button class="btn btn-danger btn-sm mt-2" @onclick="() => DeleteEvent(ev.EventId)">Delete</button>
                                 }
 
                             </td>
@@ -71,11 +71,11 @@
                         <p><strong>End Time:</strong> @ev.EndTime.ToShortDateString()</p>
                         <p><strong>Participants:</strong> @(participantCounts.TryGetValue(ev.EventId, out var count) ? count : 0)</p>
                         <div class="d-flex flex-column gap-2">
-                            <button class="btn btn-primary btn-sm" @onclick="() => ViewDetails(ev.EventId)">View</button>
+                            <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewDetails(ev.EventId)">View</button>
                             @if (CurrentUserRole == RoleDTO.Organizer)
                             {
-                                <button class="btn btn-secondary btn-sm" @onclick="() => EditEvent(ev.EventId)">Edit</button>
-                                <button class="btn btn-danger btn-sm" @onclick="() => DeleteEvent(ev.EventId)">Delete</button>
+                                <button class="btn btn-secondary btn-sm mt-2" @onclick="() => EditEvent(ev.EventId)">Edit</button>
+                                <button class="btn btn-danger btn-sm mt-2" @onclick="() => DeleteEvent(ev.EventId)">Delete</button>
                             }
                         </div>
                     </div>
