@@ -63,7 +63,7 @@
         var result = await _userApiService.CreateUserAsync(newUser);
         if (result.IsSuccess)
         {
-            _navigationManager.NavigateTo("/events");
+            _navigationManager.NavigateTo("/users");
         }
         else
         {
@@ -73,7 +73,7 @@
 
     private void Cancel()
     {
-        _navigationManager.NavigateTo("/login");
+        _navigationManager.NavigateTo("/users");
     }
 
     private class SignUpModel
