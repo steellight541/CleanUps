@@ -37,7 +37,7 @@ namespace CleanUps.BusinessLogic.Validators
                 return Result<bool>.BadRequest("End time must be in the future.");
             }
 
-            if (createRequest.EndTime >= createRequest.StartTime)
+            if (createRequest.EndTime < createRequest.StartTime)
             {
                 return Result<bool>.BadRequest("End time cannot be before Start Time");
             }
