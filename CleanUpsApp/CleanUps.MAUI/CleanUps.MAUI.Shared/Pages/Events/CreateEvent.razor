@@ -1,41 +1,45 @@
 ﻿@page "/events/create"
 @inject NavigationManager _navigationManager
 @inject EventApiService _eventApiService
+<div class="card shadow p-4">
+    <h3>Create New Event</h3>
 
-<h3>Create New Event</h3>
+    <EditForm Model="eventCreateModel" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
 
-<EditForm Model="eventCreateModel" OnValidSubmit="HandleSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+        <div class="form-group mb-2">
+            <label for="title">Title</label>
+            <InputText id="title" @bind-Value="eventCreateModel.Title" class="form-control" />
+        </div>
 
-    <div class="form-group">
-        <label for="title">Title</label>
-        <InputText id="title" @bind-Value="eventCreateModel.Title" class="form-control" />
-    </div>
+        <div class="form-group mb-2">
+            <label for="description">Description</label>
+            <InputText id="description" @bind-Value="eventCreateModel.Description" class="form-control" />
+        </div>
 
-    <div class="form-group">
-        <label for="description">Description</label>
-        <InputText id="description" @bind-Value="eventCreateModel.Description" class="form-control" />
-    </div>
+        <div class="form-group mb-2">
+            <label for="startTime">Start Time of Event</label>
+            <InputDate id="startTime" @bind-Value="eventCreateModel.StartTime" class="form-control" />
+        </div>
 
-    <div class="form-group">
-        <label for="startTime">Start Time of Event</label>
-        <InputDate id="startTime" @bind-Value="eventCreateModel.StartTime" class="form-control" />
-    </div>
+        <div class="form-group mb-2">
+            <label for="endTime">End Time of Event</label>
+            <InputDate id="endTime" @bind-Value="eventCreateModel.EndTime" class="form-control" />
+        </div>
 
-    <div class="form-group">
-        <label for="endTime">End Time of Event</label>
-        <InputDate id="endTime" @bind-Value="eventCreateModel.EndTime" class="form-control" />
-    </div>
+        <div class="form-check mb-2">
+            <InputCheckbox id="familyFriendly" @bind-Value="eventCreateModel.FamilyFriendly" class="form-check-input" />
+            <label class="form-check-label" for="familyFriendly">Family Friendly</label>
+        </div>
 
-    <div class="form-check">
-        <InputCheckbox id="familyFriendly" @bind-Value="eventCreateModel.FamilyFriendly" class="form-check-input" />
-        <label class="form-check-label" for="familyFriendly">Family Friendly</label>
-    </div>
+        <div class="mb-2">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+        </div>
 
-    <button type="submit" class="btn btn-primary">Save</button>
-    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-</EditForm>
+    </EditForm>
+</div>
 
 @if (!string.IsNullOrEmpty(errorMessage))
 {

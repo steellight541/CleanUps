@@ -3,50 +3,44 @@
 @inject UserApiService _userApiService;
 @inject NavigationManager _navigationManager
 
-<h3>Sign Up</h3>
+<div class="card shadow p-4">
 
-<div class="mb-3">
-    <label for="exampleFormControlInput1" class="form-label">Email address</label>
-    <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com">
+    <h3>Sign Up</h3>
+
+    <EditForm Model="singUpModel" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group mb-2">
+            <label for="name">Name</label>
+            <InputText id="name" @bind-Value="singUpModel.Name" class="form-control" placeholder="Mirza Džaferadžović" />
+        </div>
+
+        <div class="form-group mb-2">
+            <label for="email">Email</label>
+            <InputText id="email" @bind-Value="singUpModel.Email" class="form-control" placeholder="office@zerowastemontenegro.me" />
+        </div>
+
+        <div class="form-group mb-2">
+            <label for="password">Password</label>
+            <InputText id="password" type="password" @bind-Value="singUpModel.Password" class="form-control" aria-describedby="passwordHelpBlock" />
+            <div id="passwordHelpBlock" class="form-text">
+                Your password must be 8-50 characters long, contain letters and numbers, and must not contain spaces, special characters, or emoji.
+            </div>
+        </div>
+
+        <div class="form-group mb-2">
+            <label for="confirmPassword">Confirm Password</label>
+            <InputText id="confirmPassword" type="password" @bind-Value="singUpModel.ConfirmPassword" class="form-control" />
+        </div>
+
+        <div class="mb-2">
+            <button type="submit" class="btn btn-primary btn-sm">Sign Up</button>
+            <button type="button" class="btn btn-dark btn-sm" @onclick="Cancel">Cancel</button>
+        </div>
+
+    </EditForm>
 </div>
-
-<div class="mb-3">
-    <label for="inputPassword5" class="form-label">Password</label>
-    <input type="password" id="inputPassword5" class="form-control" aria-describedby="passwordHelpBlock">
-    <div id="passwordHelpBlock" class="form-text">
-        Your password must be 8-20 characters long, contain letters and numbers, and must not contain spaces, special characters, or emoji.
-    </div>
-</div>
-
-
-<EditForm Model="singUpModel" OnValidSubmit="HandleSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-
-    <div class="form-group">
-        <label for="name">Name</label>
-        <InputText id="name" @bind-Value="singUpModel.Name" class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <label for="email">Email</label>
-        <InputText id="email" @bind-Value="singUpModel.Email" class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <label for="password">Password</label>
-        <InputText id="password" type="password" @bind-Value="singUpModel.Password" class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <label for="confirmPassword">Confirm Password</label>
-        <InputText id="confirmPassword" type="password" @bind-Value="singUpModel.ConfirmPassword" class="form-control" />
-    </div>
-
-    <button type="submit" class="btn btn-primary">Sign Up</button>
-    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-</EditForm>
-
 @if (!string.IsNullOrEmpty(errorMsg))
 {
     <p class="text-danger">@errorMsg</p>
@@ -84,10 +78,11 @@
 
         [Required(ErrorMessage = "Email is required.")]
         [EmailAddress(ErrorMessage = "Invalid email format.")]
+        [StringLength(255, ErrorMessage = "Email cannot exceed 255 characters.")]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Password is required.")]
-        [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be between 6 and 100 characters.")]
+        [StringLength(50, MinimumLength = 8, ErrorMessage = "Password must be between 8 and 50 characters.")]
         public string Password { get; set; }
 
         [Compare("Password", ErrorMessage = "Passwords do not match.")]

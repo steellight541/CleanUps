@@ -1,0 +1,32 @@
+﻿@page "/users/create"
+@inject NavigationManager _navigationManager
+
+<div class="card shadow p-4">
+
+    <h3>Create New User</h3>
+
+    <div class="mb-2 alert alert-danger" role="alert">
+        Page under construction
+    </div>
+
+    <br />
+
+    <div class="mb-2">
+        <p>Please visit <strong>Sign Up</strong> page to create a user</p>
+    </div>
+
+    <div class="mb-2">
+        <button class="btn btn-primary btn-sm" @onclick="SignUpPage">Sign Up</button>
+        <button class="btn btn-secondary btn-sm" @onclick="GoBack">Back</button>
+    </div>
+</div>
+@code {
+    private void SignUpPage()
+    {
+        _navigationManager.NavigateTo("/auth/signup");
+    }
+    private void GoBack()
+    {
+        _navigationManager.NavigateTo("/users");
+    }
+}   
