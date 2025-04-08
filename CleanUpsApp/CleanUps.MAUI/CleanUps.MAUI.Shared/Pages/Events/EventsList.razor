@@ -15,7 +15,7 @@
     {
         <!-- Table layout for larger screens -->
         <div class="d-none d-md-block mb-2">
-            <table class="table">
+            <table class="table table-striped table-hover">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -46,13 +46,14 @@
                             <td>@ev.Status.ToString()</td>
                             <td>No location yet</td>
                             <td>
-                                <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewDetails(ev.EventId)">View</button>
-                                @if (CurrentUserRole == RoleDTO.Organizer)
-                                {
-                                    <button class="btn btn-secondary btn-sm mt-2" @onclick="() => EditEvent(ev.EventId)">Edit</button>
-                                    <button class="btn btn-danger btn-sm mt-2" @onclick="() => DeleteEvent(ev.EventId)">Delete</button>
-                                }
-
+                                <div class="btn-group" role="group" aria-label="Basic example">
+                                    <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewDetails(ev.EventId)">View</button>
+                                    @if (CurrentUserRole == RoleDTO.Organizer)
+                                    {
+                                        <button class="btn btn-secondary btn-sm mt-2" @onclick="() => EditEvent(ev.EventId)">Edit</button>
+                                        <button class="btn btn-danger btn-sm mt-2" @onclick="() => DeleteEvent(ev.EventId)">Delete</button>
+                                    }
+                                </div>
                             </td>
                         </tr>
                     }
