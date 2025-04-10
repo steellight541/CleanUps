@@ -8,15 +8,28 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("CleanUps.Configuration")]
 namespace CleanUps.DataAccess.Repositories
 {
+    /// <summary>
+    /// Repository class for managing Photo entities in the database.
+    /// Implements CRUD operations and handles related data loading for Photos,
+    /// including associated Event data.
+    /// </summary>
     internal class PhotoRepository : IPhotoRepository
     {
         private readonly CleanUpsContext _context;
 
+        /// <summary>
+        /// Initializes a new instance of the PhotoRepository class.
+        /// </summary>
+        /// <param name="context">The database context used for Photo operations.</param>
         public PhotoRepository(CleanUpsContext context)
         {
             _context = context;
         }
 
+        /// <summary>
+        /// Retrieves all photos from the database, including their associated Event data.
+        /// </summary>
+        /// <returns>A Result containing a list of all photos if successful, or an error message if the operation fails.</returns>
         public async Task<Result<List<Photo>>> GetAllAsync()
         {
             try
@@ -42,6 +55,11 @@ namespace CleanUps.DataAccess.Repositories
             }
         }
 
+        /// <summary>
+        /// Retrieves a specific photo by its ID, including associated Event data.
+        /// </summary>
+        /// <param name="id">The ID of the photo to retrieve.</param>
+        /// <returns>A Result containing the requested photo if found, or an error message if not found or if the operation fails.</returns>
         public async Task<Result<Photo>> GetByIdAsync(int id)
         {
 
@@ -65,6 +83,11 @@ namespace CleanUps.DataAccess.Repositories
                 return Result<Photo>.InternalServerError($"{ex.Message}");
             }
         }
+        /// <summary>
+        /// Retrieves all photos associated with a specific event.
+        /// </summary>
+        /// <param name="eventId">The ID of the event whose photos to retrieve.</param>
+        /// <returns>A Result containing a list of photos if found, a NoContent result if no photos are found, or an error message if the operation fails.</returns>
         public async Task<Result<List<Photo>>> GetPhotosByEventIdAsync(int eventId)
         {
             try
@@ -94,6 +117,11 @@ namespace CleanUps.DataAccess.Repositories
             }
         }
 
+        /// <summary>
+        /// Creates a new photo in the database.
+        /// </summary>
+        /// <param name="photoToBeCreated">The photo entity to be created.</param>
+        /// <returns>A Result containing the created photo if successful, or an error message if the operation fails.</returns>
         public async Task<Result<Photo>> CreateAsync(Photo photoToBeCreated)
         {
             try
@@ -117,6 +145,12 @@ namespace CleanUps.DataAccess.Repositories
             }
         }
 
+        /// <summary>
+        /// Updates an existing photo in the database.
+        /// </summary>
+        /// <param name="photoToBeUpdated">The photo entity containing the updated data.</param>
+        /// <returns>A Result containing the updated photo if successful, or an error message if the photo is not found or if the operation fails.</returns>
+        /// <remarks>Currently, only the Caption property can be updated.</remarks>
         public async Task<Result<Photo>> UpdateAsync(Photo photoToBeUpdated)
         {
             try
@@ -157,6 +191,11 @@ namespace CleanUps.DataAccess.Repositories
             }
         }
 
+        /// <summary>
+        /// Deletes a photo from the database by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the photo to delete.</param>
+        /// <returns>A Result containing the deleted photo if successful, or an error message if the photo is not found or if the operation fails.</returns>
         public async Task<Result<Photo>> DeleteAsync(int id)
         {
             try

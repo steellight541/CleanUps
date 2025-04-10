@@ -1,3 +1,7 @@
+/// <summary>
+/// Entry point for the CleanUps API application.
+/// Configures services, middleware, and runs the web application.
+/// </summary>
 using CleanUps.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);

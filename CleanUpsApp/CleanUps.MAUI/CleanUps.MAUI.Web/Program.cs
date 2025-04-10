@@ -3,11 +3,19 @@ using CleanUps.MAUI.Web.Components;
 using CleanUps.MAUI.Web.Services;
 using CleanUps.MAUI.Shared;
 
-
 namespace CleanUps.MAUI
 {
+    /// <summary>
+    /// Entry point class for the ASP.NET Core web application.
+    /// Configures and runs the web server for the Blazor hybrid application.
+    /// </summary>
     public class Program
     {
+        /// <summary>
+        /// The main entry point for the web application.
+        /// Sets up the web host, configures services, middleware, and starts the application.
+        /// </summary>
+        /// <param name="args">Command line arguments passed to the application.</param>
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);

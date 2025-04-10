@@ -8,15 +8,27 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("CleanUps.Configuration")]
 namespace CleanUps.DataAccess.Repositories
 {
+    /// <summary>
+    /// Repository class for managing Event entities in the database.
+    /// Implements CRUD operations and handles related data loading for Events.
+    /// </summary>
     internal class EventRepository : IEventRepository
     {
         private readonly CleanUpsContext _context;
 
+        /// <summary>
+        /// Initializes a new instance of the EventRepository class.
+        /// </summary>
+        /// <param name="context">The database context used for Event operations.</param>
         public EventRepository(CleanUpsContext context)
         {
             _context = context;
         }
 
+        /// <summary>
+        /// Retrieves all events from the database, including their associated Location and Status data.
+        /// </summary>
+        /// <returns>A Result containing a list of all events if successful, or an error message if the operation fails.</returns>
         public async Task<Result<List<Event>>> GetAllAsync()
         {
             try
@@ -43,6 +55,11 @@ namespace CleanUps.DataAccess.Repositories
             }
         }
 
+        /// <summary>
+        /// Retrieves a specific event by its ID, including associated Location and Status data.
+        /// </summary>
+        /// <param name="id">The ID of the event to retrieve.</param>
+        /// <returns>A Result containing the requested event if found, or an error message if not found or if the operation fails.</returns>
         public async Task<Result<Event>> GetByIdAsync(int id)
         {
 
@@ -68,6 +85,11 @@ namespace CleanUps.DataAccess.Repositories
             }
         }
 
+        /// <summary>
+        /// Creates a new event in the database.
+        /// </summary>
+        /// <param name="eventToBeCreated">The event entity to be created.</param>
+        /// <returns>A Result containing the created event if successful, or an error message if the operation fails.</returns>
         public async Task<Result<Event>> CreateAsync(Event eventToBeCreated)
         {
             try
@@ -91,6 +113,22 @@ namespace CleanUps.DataAccess.Repositories
             }
         }
 
+        /// <summary>
+        /// Updates an existing event in the database.
+        /// </summary>
+        /// <param name="eventToBeUpdated">The event entity containing the updated data.</param>
+        /// <returns>A Result containing the updated event if successful, or an error message if the event is not found or if the operation fails.</returns>
+        /// <remarks>
+        /// This method updates the following properties:
+        /// - Title
+        /// - Description
+        /// - StartTime
+        /// - EndTime
+        /// - FamilyFriendly
+        /// - TrashCollected
+        /// - Status
+        /// - Location
+        /// </remarks>
         public async Task<Result<Event>> UpdateAsync(Event eventToBeUpdated)
         {
             try
@@ -140,6 +178,11 @@ namespace CleanUps.DataAccess.Repositories
             }
         }
 
+        /// <summary>
+        /// Deletes an event from the database by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the event to delete.</param>
+        /// <returns>A Result containing the deleted event if successful, or an error message if the event is not found or if the operation fails.</returns>
         public async Task<Result<Event>> DeleteAsync(int id)
         {
             try

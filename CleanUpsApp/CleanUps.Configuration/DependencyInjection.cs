@@ -1,5 +1,4 @@
-﻿
-using CleanUps.BusinessLogic.Converters;
+﻿using CleanUps.BusinessLogic.Converters;
 using CleanUps.BusinessLogic.Converters.Interfaces;
 using CleanUps.BusinessLogic.Repositories.Interfaces;
 using CleanUps.BusinessLogic.Services;
@@ -14,8 +13,27 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace CleanUps.Configuration
 {
+    /// <summary>
+    /// Provides extension methods for configuring the application's dependency injection container.
+    /// Contains centralized registration of all services, repositories, validators, and converters used
+    /// throughout the CleanUps application.
+    /// </summary>
     public static class DependencyInjection
     {
+        /// <summary>
+        /// Registers all application dependencies in the service collection.
+        /// </summary>
+        /// <param name="services">The IServiceCollection to add the services to.</param>
+        /// <param name="configuration">The application configuration containing connection strings and other settings.</param>
+        /// <returns>The same service collection instance with all dependencies registered.</returns>
+        /// <remarks>
+        /// This method registers the following components:
+        /// - Database context with SQL Server connection and retry policy
+        /// - Repository implementations
+        /// - Business logic services
+        /// - Data validators
+        /// - Data converters (DTO to model and vice versa)
+        /// </remarks>
         public static IServiceCollection AddAppDependencies(this IServiceCollection services, IConfiguration configuration)
         {
             // Register DbContext

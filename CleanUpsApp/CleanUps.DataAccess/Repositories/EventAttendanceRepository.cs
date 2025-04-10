@@ -9,15 +9,28 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("CleanUps.Configuration")]
 namespace CleanUps.DataAccess.Repositories
 {
+    /// <summary>
+    /// Repository class for managing EventAttendance entities in the database.
+    /// Implements CRUD operations and handles related data loading for EventAttendances,
+    /// including associated User and Event data.
+    /// </summary>
     internal class EventAttendanceRepository : IEventAttendanceRepository
     {
         private readonly CleanUpsContext _context;
 
+        /// <summary>
+        /// Initializes a new instance of the EventAttendanceRepository class.
+        /// </summary>
+        /// <param name="context">The database context used for EventAttendance operations.</param>
         public EventAttendanceRepository(CleanUpsContext context)
         {
             _context = context;
         }
 
+        /// <summary>
+        /// Retrieves all event attendances from the database, including their associated User and Event data.
+        /// </summary>
+        /// <returns>A Result containing a list of all event attendances if successful, or an error message if the operation fails.</returns>
         public async Task<Result<List<EventAttendance>>> GetAllAsync()
         {
             try
@@ -42,11 +55,22 @@ namespace CleanUps.DataAccess.Repositories
             }
         }
 
+        /// <summary>
+        /// Retrieves a specific event attendance by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the event attendance to retrieve.</param>
+        /// <returns>A Result indicating that this method is not implemented.</returns>
+        /// <remarks>This method is not implemented. Use other methods to retrieve event attendance data.</remarks>
         public async Task<Result<EventAttendance>> GetByIdAsync(int id)
         {
             return Result<EventAttendance>.InternalServerError("Repository: GetByIdAsync Method is not implemented, use another method.");
         }
 
+        /// <summary>
+        /// Retrieves all events that a specific user is attending.
+        /// </summary>
+        /// <param name="userId">The ID of the user whose events to retrieve.</param>
+        /// <returns>A Result containing a list of events if found, a NoContent result if no events are found, or an error message if the operation fails.</returns>
         public async Task<Result<List<Event>>> GetEventsByUserIdAsync(int userId)
         {
             try
@@ -78,6 +102,11 @@ namespace CleanUps.DataAccess.Repositories
             }
         }
 
+        /// <summary>
+        /// Retrieves all users attending a specific event.
+        /// </summary>
+        /// <param name="eventId">The ID of the event whose attendees to retrieve.</param>
+        /// <returns>A Result containing a list of users if found, a NoContent result if no users are found, or an error message if the operation fails.</returns>
         public async Task<Result<List<User>>> GetUsersByEventIdAsync(int eventId)
         {
             try
@@ -109,6 +138,11 @@ namespace CleanUps.DataAccess.Repositories
             }
         }
 
+        /// <summary>
+        /// Creates a new event attendance record in the database.
+        /// </summary>
+        /// <param name="eventAttendanceToBeCreated">The event attendance entity to be created.</param>
+        /// <returns>A Result containing the created event attendance if successful, or an error message if the event or user doesn't exist or if the operation fails.</returns>
         public async Task<Result<EventAttendance>> CreateAsync(EventAttendance eventAttendanceToBeCreated)
         {
             try
@@ -140,6 +174,12 @@ namespace CleanUps.DataAccess.Repositories
             }
         }
 
+        /// <summary>
+        /// Updates an existing event attendance record in the database.
+        /// </summary>
+        /// <param name="eventAttendanceToBeUpdated">The event attendance entity containing the updated data.</param>
+        /// <returns>A Result containing the updated event attendance if successful, or an error message if the record is not found or if the operation fails.</returns>
+        /// <remarks>Currently, only the CheckIn property can be updated.</remarks>
         public async Task<Result<EventAttendance>> UpdateAsync(EventAttendance eventAttendanceToBeUpdated)
         {
             try
@@ -180,6 +220,11 @@ namespace CleanUps.DataAccess.Repositories
             }
         }
 
+        /// <summary>
+        /// Deletes an event attendance record from the database using a DeleteEventAttendanceRequest.
+        /// </summary>
+        /// <param name="deleteRequest">The request containing the EventId and UserId of the attendance record to delete.</param>
+        /// <returns>A Result containing the deleted event attendance if successful, or an error message if the record is not found or if the operation fails.</returns>
         public async Task<Result<EventAttendance>> DeleteAsync(DeleteEventAttendanceRequest deleteRequest)
         {
             try
@@ -216,6 +261,11 @@ namespace CleanUps.DataAccess.Repositories
             }
         }
 
+        /// <summary>
+        /// Deletes an event attendance record from the database by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the event attendance to delete.</param>
+        /// <returns>A Result containing the deleted event attendance if successful, or an error message if the record is not found or if the operation fails.</returns>
         public async Task<Result<EventAttendance>> DeleteAsync(int id)
         {
             return Result<EventAttendance>.InternalServerError("Method: DeleteAsync(int id) is not supported for this Repository, please user another one");

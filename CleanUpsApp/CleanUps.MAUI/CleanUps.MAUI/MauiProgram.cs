@@ -5,8 +5,17 @@ using Microsoft.Extensions.Logging;
 
 namespace CleanUps.MAUI
 {
+    /// <summary>
+    /// Entry point class for the MAUI application.
+    /// Configures and creates the MAUI application instance.
+    /// </summary>
     public static class MauiProgram
     {
+        /// <summary>
+        /// Creates and configures the MAUI application.
+        /// Sets up services, fonts, and other application requirements.
+        /// </summary>
+        /// <returns>A configured MauiApp instance ready to run.</returns>
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();

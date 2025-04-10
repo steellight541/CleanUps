@@ -4,6 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CleanUps.API.Controllers
 {
+    /// <summary>
+    /// Controller responsible for handling HTTP requests related to Events.
+    /// Provides endpoints for CRUD operations on event resources.
+    /// </summary>
     [Route("api/events")]
     [ApiController]
     public class EventsController : ControllerBase
@@ -11,6 +15,11 @@ namespace CleanUps.API.Controllers
         private readonly IEventService _eventService;
         private readonly ILogger<EventsController> _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the EventsController class.
+        /// </summary>
+        /// <param name="eventService">The service for event operations.</param>
+        /// <param name="logger">The logger for recording diagnostic information.</param>
         public EventsController(IEventService eventService, ILogger<EventsController> logger)
         {
             _eventService = eventService;
@@ -18,6 +27,14 @@ namespace CleanUps.API.Controllers
         }
 
         //TODO: Allow Anonymous
+        /// <summary>
+        /// Retrieves all events from the system.
+        /// </summary>
+        /// <returns>
+        /// 200 OK with a list of events if found,
+        /// 204 No Content if no events exist,
+        /// 500 Internal Server Error if an error occurs during processing.
+        /// </returns>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -39,6 +56,16 @@ namespace CleanUps.API.Controllers
         }
 
         //TODO: Allow Anonymous
+        /// <summary>
+        /// Retrieves a specific event by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the event to retrieve.</param>
+        /// <returns>
+        /// 200 OK with the event data if found,
+        /// 400 Bad Request if the ID is invalid,
+        /// 404 Not Found if the event doesn't exist,
+        /// 500 Internal Server Error if an error occurs during processing.
+        /// </returns>
         [HttpGet()]
         [Route("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -64,6 +91,15 @@ namespace CleanUps.API.Controllers
         }
 
         //TODO: Allow Organizer
+        /// <summary>
+        /// Creates a new event in the system.
+        /// </summary>
+        /// <param name="createRequest">The event data for creating a new event.</param>
+        /// <returns>
+        /// 201 Created with the created event data and location,
+        /// 400 Bad Request if the request data is invalid,
+        /// 500 Internal Server Error if an error occurs during processing.
+        /// </returns>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -85,6 +121,18 @@ namespace CleanUps.API.Controllers
         }
 
         //TODO: Allow Organizer
+        /// <summary>
+        /// Updates an existing event in the system.
+        /// </summary>
+        /// <param name="id">The ID of the event to update.</param>
+        /// <param name="updateRequest">The updated event data.</param>
+        /// <returns>
+        /// 200 OK with the updated event data,
+        /// 400 Bad Request if the request data is invalid or IDs don't match,
+        /// 404 Not Found if the event doesn't exist,
+        /// 409 Conflict if there's a concurrency issue,
+        /// 500 Internal Server Error if an error occurs during processing.
+        /// </returns>
         [HttpPut]
         [Route("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -118,6 +166,17 @@ namespace CleanUps.API.Controllers
         }
 
         //TODO: Allow Organizer
+        /// <summary>
+        /// Deletes an event from the system.
+        /// </summary>
+        /// <param name="id">The ID of the event to delete.</param>
+        /// <returns>
+        /// 200 OK with the deleted event data,
+        /// 400 Bad Request if the ID is invalid,
+        /// 404 Not Found if the event doesn't exist,
+        /// 409 Conflict if there's a concurrency issue or if the event cannot be deleted,
+        /// 500 Internal Server Error if an error occurs during processing.
+        /// </returns>
         [HttpDelete]
         [Route("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
