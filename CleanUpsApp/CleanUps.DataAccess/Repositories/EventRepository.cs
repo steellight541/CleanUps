@@ -152,8 +152,8 @@ namespace CleanUps.DataAccess.Repositories
                     _context.Entry(eventToBeUpdated).Property(ev => ev.EndTime).IsModified = true;
                     _context.Entry(eventToBeUpdated).Property(ev => ev.FamilyFriendly).IsModified = true;
                     _context.Entry(eventToBeUpdated).Property(ev => ev.TrashCollected).IsModified = true;
-                    _context.Entry(eventToBeUpdated).Property(ev => ev.Status).IsModified = true;
-                    _context.Entry(eventToBeUpdated).Property(ev => ev.Location).IsModified = true;
+                    _context.Entry(eventToBeUpdated).Property(ev => ev.StatusId).IsModified = true;
+                    _context.Entry(eventToBeUpdated).Property(ev => ev.LocationId).IsModified = true;
 
                     await _context.SaveChangesAsync();
 
