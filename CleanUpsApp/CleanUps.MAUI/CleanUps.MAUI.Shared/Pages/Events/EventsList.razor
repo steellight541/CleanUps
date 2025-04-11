@@ -42,8 +42,7 @@
                             <td>@ev.EndTime.ToShortDateString()</td>
                             <td>@(ev.FamilyFriendly ? "Yes" : "No")</td>
                             <td>@ev.TrashCollected</td>
-                            <td>@(participantCounts.TryGetValue(ev.EventId, out var count) ? count : 0)</td>
-                            <td>@ev.Status.ToString()</td>
+                            <td>@ev.NumberOfAttendees</td>
                             <td>No location yet</td>
                             <td>
                                 <div class="btn-group" role="group" aria-label="Basic example">
@@ -70,7 +69,7 @@
                         <h5>@ev.Title</h5>
                         <p><strong>Start Time:</strong> @ev.StartTime.ToShortDateString()</p>
                         <p><strong>End Time:</strong> @ev.EndTime.ToShortDateString()</p>
-                        <p><strong>Participants:</strong> @(participantCounts.TryGetValue(ev.EventId, out var count) ? count : 0)</p>
+                        <p><strong>Participants:</strong> @ev.NumberOfAttendees</p>
                         <div class="d-flex flex-column gap-2">
                             <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewDetails(ev.EventId)">View</button>
                             @if (CurrentUserRole == RoleDTO.Organizer)
@@ -106,7 +105,6 @@
 @code {
     // Existing code remains unchanged
     private Result<List<EventResponse>> events;
-    private Dictionary<int, int> participantCounts = new Dictionary<int, int>();
     private string errorMessage;
 
     private RoleDTO CurrentUserRole = RoleDTO.Organizer;
@@ -114,17 +112,6 @@
     protected override async Task OnInitializedAsync()
     {
         events = await _eventApiService.GetAllEventsAsync();
-        if (events.IsSuccess)
-        {
-            var tasks = events.Data.Select(ev =>
-            {
-                int attendees = events.Data.Count;
-
-                return new { ev.EventId, Count = attendees };
-            });
-            var results = tasks;
-            participantCounts = results.ToDictionary(r => r.EventId, r => r.Count);
-        }
     }
 
     private void ViewDetails(int eventId)
@@ -143,13 +130,6 @@
         if (result.IsSuccess)
         {
             events = await _eventApiService.GetAllEventsAsync();
-            var tasks = events.Data.Select(ev =>
-            {
-                int attendees = events.Data.Count;
-                return new { ev.EventId, Count = attendees };
-            });
-            var results = tasks;
-            participantCounts = results.ToDictionary(r => r.EventId, r => r.Count);
         }
         else
         {

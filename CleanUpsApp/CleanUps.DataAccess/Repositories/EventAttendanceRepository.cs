@@ -4,6 +4,7 @@ using CleanUps.DataAccess.DatabaseHub;
 using CleanUps.Shared.DTOs.EventAttendances;
 using CleanUps.Shared.ErrorHandling;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("CleanUps.Configuration")]
@@ -75,9 +76,10 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
-                List<Event> events = await _context.EventAttendances
-                    .Where(ea => ea.UserId == userId)
-                    .Select(ea => ea.Event)
+                List<Event> events = await _context.Events
+                    .Where(existingEvent => _context.EventAttendances
+                    .Any(existinEventAttendance => existinEventAttendance.UserId == userId
+                     && existinEventAttendance.EventId == existingEvent.EventId))
                     .Include(existingEvent => existingEvent.Location)
                     .Include(existingEvent => existingEvent.Status)
                     .ToListAsync();
@@ -111,11 +113,10 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
-                List<User> users = await _context.EventAttendances
-                    .Where(ea => ea.EventId == eventId)
-                    .Select(ea => ea.User)
-                    .Include(existinUser => existinUser.Role)
-                    .ToListAsync();
+                List<User> users = await _context.Users
+                              .Where(existingUser => _context.EventAttendances.Any(existingEventAttendance => existingEventAttendance.EventId == eventId && existingEventAttendance.UserId == existingUser.UserId))
+                              .Include(existingUser => existingUser.Role)
+                              .ToListAsync();
 
                 if (users.Count == 0)
                 {
@@ -188,7 +189,7 @@ namespace CleanUps.DataAccess.Repositories
                     .Include(e => e.User)
                     .Include(e => e.Event)
                     .FirstOrDefaultAsync(ev => ev.EventId == eventAttendanceToBeUpdated.EventId && ev.UserId == eventAttendanceToBeUpdated.UserId);
-                
+
                 if (existingEventAttendance == null)
                 {
                     return Result<EventAttendance>.NotFound($"EventAttendance for event with Id-{eventAttendanceToBeUpdated.EventId} and user with Id-{eventAttendanceToBeUpdated.UserId} does not exist");
