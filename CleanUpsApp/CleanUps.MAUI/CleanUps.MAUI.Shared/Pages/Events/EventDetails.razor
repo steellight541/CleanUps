@@ -5,62 +5,63 @@
 @inject EventAttendanceApiService _eventAttendanceApiService
 @inject UserApiService _userApiService
 @inject NavigationManager _navigationManager
+
 <div class="card shadow p-4">
 
     <h3>Event Details</h3>
 
     @if (eventResult == null || usersResult == null || attendeesResult == null)
     {
-        <p>Loading...</p>
+            <p>Loading...</p>
     }
     else if (!eventResult.IsSuccess)
     {
-        <p class="text-danger">Error: @eventResult.ErrorMessage</p>
+            <p class="text-danger">Error: @eventResult.ErrorMessage</p>
     }
     else
     {
-        <div class="mb-3">
-            <h3>@eventResult.Data.Title</h3>
-            <h4>@eventResult.Data.Description</h4>
-            <p><strong>Event ID:</strong> @eventResult.Data.EventId</p>
-            <p><strong>Status:</strong> @eventResult.Data.Status</p>
-            <p><strong>Family Friendly:</strong> @(eventResult.Data.FamilyFriendly ? "Yes" : "No")</p>
-            <p><strong>Number of Attendees:</strong> @eventResult.Data.NumberOfAttendees</p>
-            <p><strong>Participants Signed Up:</strong> @(attendeesResult.Data?.Count ?? 0)</p>
-            <p><strong>Location:</strong> Not implemented yet</p>
-        </div>
+            <div class="mb-3">
+                <h3>@eventResult.Data.Title</h3>
+                <h4>@eventResult.Data.Description</h4>
+                <p><strong>Event ID:</strong> @eventResult.Data.EventId</p>
+                <p><strong>Status:</strong> @eventResult.Data.Status</p>
+                <p><strong>Family Friendly:</strong> @(eventResult.Data.FamilyFriendly ? "Yes" : "No")</p>
+                <p><strong>Number of Attendees:</strong> @eventResult.Data.NumberOfAttendees</p>
+                <p><strong>Participants Signed Up:</strong> @(attendeesResult.Data?.Count ?? 0)</p>
+                <p><strong>Location:</strong> Not implemented yet</p>
+            </div>
 
         @if (CurrentUserRole == RoleDTO.Organizer)
         {
-            <div class="dropdown mt-3 mb-3">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                    Manage Attendance
-                </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <input type="text" class="form-control mb-2" placeholder="Search users" @bind="searchTerm" @bind:event="oninput" />
-                    <div class="list-group" style="max-height: 250px; overflow-y: auto;">
+                    <div class="dropdown mt-3 mb-3">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                            Manage Attendance
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" data-bs-auto-close="false">
+                            <input type="text" class="form-control mb-2" placeholder="Search users" @bind="searchTerm" @bind:event="oninput" />
+                            <div class="list-group" style="max-height: 250px; overflow-y: auto;">
                         @foreach (var user in FilteredUsers)
                         {
                             bool isAttending = attendeesResult.Data?.Any(a => a.UserId == user.UserId) ?? false;
-                            <div class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>@user.Name</span>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" role="switch" checked="@isAttending" @onchange="@((ChangeEventArgs e) => ToggleAttendance(user.UserId, (bool)e.Value))" />
-                                </div>
-                            </div>
+                                        <div class="list-group-item d-flex justify-content-between align-items-center" key="@user.UserId">
+                                            <span>@user.Name - <span class="@(isAttending ? "text-success" : "text-danger")">@(isAttending ? "Going" : "Not Going")</span></span>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" role="switch" checked="@isAttending" @onchange="@((ChangeEventArgs e) => ToggleAttendance(user.UserId, (bool)e.Value))" />
+                                            </div>
+                                        </div>
                         }
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
         }
 
-        <div class="mb-2">
-            <button class="btn btn-secondary" @onclick="Cancel">Back</button>
-        </div>
+            <div class="mb-2">
+                <button class="btn btn-secondary" @onclick="Cancel">Back</button>
+            </div>
 
         @if (!string.IsNullOrEmpty(message))
         {
-            <p class="@messageClass">@message</p>
+                    <p class="@messageClass">@message</p>
         }
     }
 </div>
@@ -96,7 +97,12 @@
         {
             var attendance = new CreateEventAttendanceRequest(userId, eventId);
             var result = await _eventAttendanceApiService.CreateAttendanceAsync(attendance);
-            if (!result.IsSuccess)
+            if (result.IsSuccess)
+            {
+                message = "User signed up successfully.";
+                messageClass = "text-success";
+            }
+            else
             {
                 message = $"Error signing up user: {result.ErrorMessage}";
                 messageClass = "text-danger";
@@ -104,9 +110,13 @@
         }
         else
         {
-            // Note: DeleteAttendanceAsync is assumed; implement it in your API service if not present
             var result = await _eventAttendanceApiService.DeleteAttendanceAsync(userId, eventId);
-            if (!result.IsSuccess)
+            if (result.IsSuccess)
+            {
+                message = "User removed successfully.";
+                messageClass = "text-success";
+            }
+            else
             {
                 message = $"Error removing user: {result.ErrorMessage}";
                 messageClass = "text-danger";
@@ -114,6 +124,7 @@
         }
         // Refresh attendees list to update switch states
         attendeesResult = await _eventAttendanceApiService.GetUsersByEventIdAsync(eventId);
+        StateHasChanged(); // Ensure UI updates
     }
 
     private void Cancel()
