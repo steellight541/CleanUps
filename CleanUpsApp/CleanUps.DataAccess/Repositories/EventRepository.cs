@@ -36,6 +36,7 @@ namespace CleanUps.DataAccess.Repositories
                 List<Event> events = await _context.Events
                     .Include(existingEvent => existingEvent.Location)
                     .Include(existingEvent => existingEvent.Status)
+                    .Include(existingEvent => existingEvent.EventAttendances)
                     .ToListAsync();
 
                 return Result<List<Event>>.Ok(events);
@@ -68,6 +69,7 @@ namespace CleanUps.DataAccess.Repositories
                 Event? retrievedEvent = await _context.Events
                    .Include(existingEvent => existingEvent.Location)
                    .Include(existingEvent => existingEvent.Status)
+                   .Include(existingEvent => existingEvent.EventAttendances)
                    .FirstOrDefaultAsync(existingEvent => existingEvent.EventId == id);
 
                 if (retrievedEvent is null)
@@ -136,6 +138,7 @@ namespace CleanUps.DataAccess.Repositories
                 Event? retrievedEvent = await _context.Events
                     .Include(existingEvent => existingEvent.Location)
                     .Include(existingEvent => existingEvent.Status)
+                    .Include(existingEvent => existingEvent.EventAttendances)
                     .FirstOrDefaultAsync(existingEvent => existingEvent.EventId == eventToBeUpdated.EventId);
                 if (retrievedEvent is null)
                 {

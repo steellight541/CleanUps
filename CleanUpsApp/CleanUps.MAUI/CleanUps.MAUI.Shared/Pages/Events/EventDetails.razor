@@ -10,7 +10,7 @@
 
     <h3>Event Details</h3>
 
-    @if (eventResult == null || usersResult == null || attendeesResult == null)
+    @if (eventResult == null || usersResult == null || usersAttendingTheEvent == null)
     {
             <p>Loading...</p>
     }
@@ -27,7 +27,7 @@
                 <p><strong>Status:</strong> @eventResult.Data.Status</p>
                 <p><strong>Family Friendly:</strong> @(eventResult.Data.FamilyFriendly ? "Yes" : "No")</p>
                 <p><strong>Number of Attendees:</strong> @eventResult.Data.NumberOfAttendees</p>
-                <p><strong>Participants Signed Up:</strong> @(attendeesResult.Data?.Count ?? 0)</p>
+                <p><strong>Participants Signed Up:</strong> @(usersAttendingTheEvent.Data?.Count ?? 0)</p>
                 <p><strong>Location:</strong> Not implemented yet</p>
             </div>
 
@@ -42,7 +42,7 @@
                             <div class="list-group" style="max-height: 250px; overflow-y: auto;">
                         @foreach (var user in FilteredUsers)
                         {
-                            bool isAttending = attendeesResult.Data?.Any(a => a.UserId == user.UserId) ?? false;
+                            bool isAttending = usersAttendingTheEvent.Data?.Any(a => a.UserId == user.UserId) ?? false;
                                         <div class="list-group-item d-flex justify-content-between align-items-center" key="@user.UserId">
                                             <span>@user.Name - <span class="@(isAttending ? "text-success" : "text-danger")">@(isAttending ? "Going" : "Not Going")</span></span>
                                             <div class="form-check form-switch">
@@ -72,7 +72,7 @@
 
     private Result<EventResponse> eventResult;
     private Result<List<UserResponse>> usersResult;
-    private Result<List<UserResponse>> attendeesResult;
+    private Result<List<UserResponse>> usersAttendingTheEvent;
     private string searchTerm = string.Empty;
     private string message;
     private string messageClass;
@@ -88,7 +88,7 @@
     {
         eventResult = await _eventApiService.GetEventByIdAsync(eventId);
         usersResult = await _userApiService.GetAllUsersAsync();
-        attendeesResult = await _eventAttendanceApiService.GetUsersByEventIdAsync(eventId);
+        usersAttendingTheEvent = await _eventAttendanceApiService.GetUsersByEventIdAsync(eventId);
     }
 
     private async Task ToggleAttendance(int userId, bool isAttending)
@@ -123,7 +123,7 @@
             }
         }
         // Refresh attendees list to update switch states
-        attendeesResult = await _eventAttendanceApiService.GetUsersByEventIdAsync(eventId);
+        usersAttendingTheEvent = await _eventAttendanceApiService.GetUsersByEventIdAsync(eventId);
         StateHasChanged(); // Ensure UI updates
     }
 

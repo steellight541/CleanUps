@@ -26,7 +26,7 @@
                         <th>Family Friendly?</th>
                         <th>Trash Collected</th>
                         <th>Participants</th>
-                        <th>Satus</th>
+                        <th>Status</th>
                         <th>Location</th>
                         <th>Actions</th>
                     </tr>
@@ -112,6 +112,7 @@
     protected override async Task OnInitializedAsync()
     {
         events = await _eventApiService.GetAllEventsAsync();
+
     }
 
     private void ViewDetails(int eventId)
