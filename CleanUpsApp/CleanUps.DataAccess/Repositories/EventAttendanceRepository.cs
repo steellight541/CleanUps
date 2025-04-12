@@ -50,8 +50,20 @@ namespace CleanUps.DataAccess.Repositories
             {
                 return Result<List<EventAttendance>>.InternalServerError($"{ex.Message}");
             }
+            catch (DbUpdateException ex)
+            {
+                if (ex.InnerException != null)
+                {
+                    return Result<List<EventAttendance>>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                }
+                return Result<List<EventAttendance>>.InternalServerError($"{ex.Message}");
+            }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<List<EventAttendance>>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<List<EventAttendance>>.InternalServerError($"{ex.Message}");
             }
         }
@@ -98,8 +110,20 @@ namespace CleanUps.DataAccess.Repositories
             {
                 return Result<List<Event>>.InternalServerError($"{ex.Message}");
             }
+            catch (DbUpdateException ex)
+            {
+                if (ex.InnerException != null)
+                {
+                    return Result<List<Event>>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                }
+                return Result<List<Event>>.InternalServerError($"{ex.Message}");
+            }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<List<Event>>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<List<Event>>.InternalServerError($"{ex.Message}");
             }
         }
@@ -133,8 +157,20 @@ namespace CleanUps.DataAccess.Repositories
             {
                 return Result<List<User>>.InternalServerError($"{ex.Message}");
             }
+            catch (DbUpdateException ex)
+            {
+                if (ex.InnerException != null)
+                {
+                    return Result<List<User>>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                }
+                return Result<List<User>>.InternalServerError($"{ex.Message}");
+            }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<List<User>>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<List<User>>.InternalServerError($"{ex.Message}");
             }
         }
@@ -167,10 +203,35 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (DbUpdateException ex)
             {
+                if (ex.InnerException != null)
+                {
+                    // Check for primary key constraint violation
+                    if (ex.InnerException.Message.Contains("PK_EventAttendances"))
+                    {
+                        return Result<EventAttendance>.Conflict($"User already registered for this event.");
+                    }
+                    // Check for foreign key constraint violations
+                    else if (ex.InnerException.Message.Contains("FK_EventAttendances_Events_EventId"))
+                    {
+                        return Result<EventAttendance>.Conflict("The specified event does not exist.");
+                    }
+                    else if (ex.InnerException.Message.Contains("FK_EventAttendances_Users_UserId"))
+                    {
+                        return Result<EventAttendance>.Conflict("The specified user does not exist.");
+                    }
+                    else
+                    {
+                        return Result<EventAttendance>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                    }
+                }
                 return Result<EventAttendance>.InternalServerError($"{ex.Message}");
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<EventAttendance>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<EventAttendance>.InternalServerError($"{ex.Message}");
             }
         }
@@ -209,14 +270,38 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (DbUpdateConcurrencyException ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<EventAttendance>.Conflict($"DB InnerException: {ex.InnerException.Message}");
+                }
                 return Result<EventAttendance>.Conflict($"{ex.Message}");
             }
             catch (DbUpdateException ex)
             {
+                if (ex.InnerException != null)
+                {
+                    // Check for foreign key constraint violations
+                    if (ex.InnerException.Message.Contains("FK_EventAttendances_Events_EventId"))
+                    {
+                        return Result<EventAttendance>.Conflict("The specified event does not exist.");
+                    }
+                    else if (ex.InnerException.Message.Contains("FK_EventAttendances_Users_UserId"))
+                    {
+                        return Result<EventAttendance>.Conflict("The specified user does not exist.");
+                    }
+                    else
+                    {
+                        return Result<EventAttendance>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                    }
+                }
                 return Result<EventAttendance>.InternalServerError($"{ex.Message}");
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<EventAttendance>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<EventAttendance>.InternalServerError($"{ex.Message}");
             }
         }
@@ -250,14 +335,38 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (DbUpdateConcurrencyException ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<EventAttendance>.Conflict($"DB InnerException: {ex.InnerException.Message}");
+                }
                 return Result<EventAttendance>.Conflict($"{ex.Message}");
             }
             catch (DbUpdateException ex)
             {
+                if (ex.InnerException != null)
+                {
+                    // Check for foreign key constraint violations
+                    if (ex.InnerException.Message.Contains("FK_EventAttendances_Events_EventId"))
+                    {
+                        return Result<EventAttendance>.Conflict("The specified event does not exist.");
+                    }
+                    else if (ex.InnerException.Message.Contains("FK_EventAttendances_Users_UserId"))
+                    {
+                        return Result<EventAttendance>.Conflict("The specified user does not exist.");
+                    }
+                    else
+                    {
+                        return Result<EventAttendance>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                    }
+                }
                 return Result<EventAttendance>.InternalServerError($"{ex.Message}");
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<EventAttendance>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<EventAttendance>.InternalServerError($"{ex.Message}");
             }
         }

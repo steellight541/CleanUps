@@ -50,8 +50,20 @@ namespace CleanUps.DataAccess.Repositories
             {
                 return Result<List<Event>>.InternalServerError($"{ex.Message}");
             }
+            catch (DbUpdateException ex)
+            {
+                if (ex.InnerException != null)
+                {
+                    return Result<List<Event>>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                }
+                return Result<List<Event>>.InternalServerError($"{ex.Message}");
+            }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<List<Event>>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<List<Event>>.InternalServerError($"{ex.Message}");
             }
         }
@@ -83,6 +95,10 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<Event>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<Event>.InternalServerError($"{ex.Message}");
             }
         }
@@ -107,10 +123,34 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (DbUpdateException ex)
             {
+                if (ex.InnerException != null)
+                {
+                    // Check for foreign key constraint violation
+                    if (ex.InnerException.Message.Contains("FK_Events_Locations_LocationId"))
+                    {
+                        return Result<Event>.Conflict("The specified location does not exist.");
+                    }
+                    else if (ex.InnerException.Message.Contains("FK_Events_Statuses_StatusId"))
+                    {
+                        return Result<Event>.Conflict("The specified status does not exist.");
+                    }
+                    else if (ex.InnerException.Message.Contains("CHK_EndTimeAfterStartTime"))
+                    {
+                        return Result<Event>.BadRequest("The end time must be after the start time.");
+                    }
+                    else
+                    {
+                        return Result<Event>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                    }
+                }
                 return Result<Event>.InternalServerError($"{ex.Message}");
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<Event>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<Event>.InternalServerError($"{ex.Message}");
             }
         }
@@ -169,14 +209,42 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (DbUpdateConcurrencyException ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<Event>.Conflict($"DB InnerException: {ex.InnerException.Message}");
+                }
                 return Result<Event>.Conflict($"{ex.Message}");
             }
             catch (DbUpdateException ex)
             {
+                if (ex.InnerException != null)
+                {
+                    // Check for foreign key constraint violation
+                    if (ex.InnerException.Message.Contains("FK_Events_Locations_LocationId"))
+                    {
+                        return Result<Event>.Conflict("The specified location does not exist.");
+                    }
+                    else if (ex.InnerException.Message.Contains("FK_Events_Statuses_StatusId"))
+                    {
+                        return Result<Event>.Conflict("The specified status does not exist.");
+                    }
+                    else if (ex.InnerException.Message.Contains("CHK_EndTimeAfterStartTime"))
+                    {
+                        return Result<Event>.BadRequest("The end time must be after the start time.");
+                    }
+                    else
+                    {
+                        return Result<Event>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                    }
+                }
                 return Result<Event>.InternalServerError($"{ex.Message}");
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<Event>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<Event>.InternalServerError($"{ex.Message}");
             }
         }
@@ -219,10 +287,22 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (DbUpdateException ex)
             {
+                if (ex.InnerException != null && ex.InnerException.Message.Contains("FK_"))
+                {
+                    return Result<Event>.Conflict("Cannot delete event because it is referenced by other records (photos or attendances).");
+                }
+                else if (ex.InnerException != null)
+                {
+                    return Result<Event>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                }
                 return Result<Event>.InternalServerError($"{ex.Message}");
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<Event>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<Event>.InternalServerError($"{ex.Message}");
             }
         }

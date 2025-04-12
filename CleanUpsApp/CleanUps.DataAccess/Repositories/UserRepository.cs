@@ -50,8 +50,20 @@ namespace CleanUps.DataAccess.Repositories
             {
                 return Result<List<User>>.InternalServerError($"{ex.Message}");
             }
+            catch (DbUpdateException ex)
+            {
+                if (ex.InnerException != null)
+                {
+                    return Result<List<User>>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                }
+                return Result<List<User>>.InternalServerError($"{ex.Message}");
+            }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<List<User>>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<List<User>>.InternalServerError($"{ex.Message}");
             }
         }
@@ -67,7 +79,7 @@ namespace CleanUps.DataAccess.Repositories
             try
             {
                 User? retrievedUser = await _context.Users
-                    .Include(existinUser=> existinUser.Role)
+                    .Include(existinUser => existinUser.Role)
                     .FirstOrDefaultAsync(existinUser => existinUser.UserId == id);
 
                 if (retrievedUser is null)
@@ -81,6 +93,10 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<User>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<User>.InternalServerError($"{ex.Message}");
             }
         }
@@ -126,10 +142,25 @@ namespace CleanUps.DataAccess.Repositories
                 {
                     return Result<User>.Conflict($"User with email {userToBeCreated.Email} already exists.\n{ex.Message}");
                 }
-                return Result<User>.InternalServerError($"{ex.Message}");
+                else if (ex.InnerException != null && ex.InnerException.Message.Contains("FK_Users_Roles_RoleId"))
+                {
+                    return Result<User>.Conflict("The specified role does not exist.");
+                }
+                else if (ex.InnerException != null)
+                {
+                    return Result<User>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                }
+                else
+                {
+                    return Result<User>.InternalServerError($"{ex.Message}");
+                }
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<User>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<User>.InternalServerError($"{ex.Message}");
             }
         }
@@ -186,6 +217,10 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (DbUpdateConcurrencyException ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<User>.Conflict($"DB InnerException: {ex.InnerException.Message}");
+                }
                 return Result<User>.Conflict($"{ex.Message}");
             }
             catch (DbUpdateException ex)
@@ -195,10 +230,25 @@ namespace CleanUps.DataAccess.Repositories
                 {
                     return Result<User>.Conflict($"User with email {userToBeUpdated.Email} already exists.\n{ex.Message}");
                 }
-                return Result<User>.InternalServerError($"{ex.Message}");
+                else if (ex.InnerException != null && ex.InnerException.Message.Contains("FK_Users_Roles_RoleId"))
+                {
+                    return Result<User>.Conflict("The specified role does not exist.");
+                }
+                else if (ex.InnerException != null)
+                {
+                    return Result<User>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                }
+                else
+                {
+                    return Result<User>.InternalServerError($"{ex.Message}");
+                }
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<User>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<User>.InternalServerError($"{ex.Message}");
             }
         }
@@ -241,10 +291,22 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (DbUpdateException ex)
             {
+                if (ex.InnerException != null && ex.InnerException.Message.Contains("FK_"))
+                {
+                    return Result<User>.Conflict("Cannot delete user because it is referenced by other records.");
+                }
+                else if (ex.InnerException != null)
+                {
+                    return Result<User>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                }
                 return Result<User>.InternalServerError($"{ex.Message}");
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<User>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<User>.InternalServerError($"{ex.Message}");
             }
         }
