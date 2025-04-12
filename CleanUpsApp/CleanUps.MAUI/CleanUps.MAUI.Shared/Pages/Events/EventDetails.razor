@@ -7,8 +7,6 @@
 @inject NavigationManager _navigationManager
 
 <div class="card shadow p-4">
-    <h3>Event Details</h3>
-
     @if (eventResult == null || usersResult == null || usersAttendingTheEvent == null)
     {
         <p>Loading...</p>
@@ -32,11 +30,11 @@
 
         @if (CurrentUserRole == RoleDTO.Organizer)
         {
-            <div class="dropup mt-3 mb-3">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                    Manage Attendance
-                </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" data-bs-auto-close="false">
+            <button class="btn btn-secondary mt-3 mb-3" @onclick="ToggleManageAttendance">Manage Attendance</button>
+
+            @if (isManageAttendanceVisible)
+            {
+                <div class="card mt-2 p-3">
                     <input type="text" class="form-control mb-2" placeholder="Search users" @bind="searchTerm" @bind:event="oninput" />
                     <div class="list-group" style="max-height: 250px; overflow-y: auto;">
                         @foreach (var user in FilteredUsers)
@@ -50,8 +48,9 @@
                             </div>
                         }
                     </div>
+                    <button class="btn btn-secondary mt-2" @onclick="ToggleManageAttendance">Close</button>
                 </div>
-            </div>
+            }
         }
 
         <div class="mb-2">
@@ -82,6 +81,7 @@
     private string message;
     private string messageClass;
     private bool isLoading = false;
+    private bool isManageAttendanceVisible = false; // New flag to control visibility
 
     private RoleDTO CurrentUserRole = RoleDTO.Organizer;
 
@@ -135,6 +135,11 @@
         usersAttendingTheEvent = await _eventAttendanceApiService.GetUsersByEventIdAsync(eventId);
         isLoading = false;
         StateHasChanged(); // Update UI to hide loading and show updated data
+    }
+
+    private void ToggleManageAttendance()
+    {
+        isManageAttendanceVisible = !isManageAttendanceVisible; // Toggle visibility
     }
 
     private void Cancel()
