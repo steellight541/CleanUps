@@ -100,7 +100,7 @@ namespace CleanUps.BusinessLogic.Converters
                 model.EndTime,
                 model.FamilyFriendly,
                 model.TrashCollected,
-                model.EventAttendances.Count,
+                model.NumberOfAttendees,
                 (StatusDTO)model.StatusId,
                 new LocationResponse(
                     model.Location?.Id ?? 0,        //If model.Location is null, then set id to 0
