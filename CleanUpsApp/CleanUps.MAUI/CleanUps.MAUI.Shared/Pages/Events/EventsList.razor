@@ -2,6 +2,7 @@
 @using CleanUps.Shared.DTOs.Events
 @inject NavigationManager _navigationManager
 @inject EventApiService _eventApiService
+@inject EventAttendanceApiService _eventAttendanceApiService
 <div class="card shadow p-4">
 
     <h3>Events List</h3>
@@ -26,6 +27,7 @@
                         <th>Trash Collected</th>
                         <th>Status</th>
                         <th>Location</th>
+                        <th>Participants</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -41,6 +43,7 @@
                             <td>@(ev.FamilyFriendly ? "Yes" : "No")</td>
                             <td>@ev.TrashCollected</td>
                             <td>@ev.Status.ToString()</td>
+                            <td>@GetAttendeeCount(ev.EventId)</td>
                             <td>No location yet</td>
                             <td>
                                 <div class="btn-group" role="group" aria-label="Basic example">
@@ -82,6 +85,7 @@
                         <p><strong>Start Time:</strong> @ev.StartTime.ToShortDateString()</p>
                         <p><strong>End Time:</strong> @ev.EndTime.ToShortDateString()</p>
                         <p><strong>Status:</strong> @ev.Status.ToString()</p>
+                        <p><strong>Participants:</strong> @GetAttendeeCount(ev.EventId)</p>
                         <div class="d-flex flex-column gap-2">
                             <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewDetails(ev.EventId)">View</button>
                         </div>
@@ -113,10 +117,30 @@
     private Result<List<EventResponse>> events;
     private string errorMessage;
     private RoleDTO CurrentUserRole = RoleDTO.Organizer;
+    private Dictionary<int, int> eventAttendeeCount = new Dictionary<int, int>();
 
     protected override async Task OnInitializedAsync()
     {
         events = await _eventApiService.GetAllEventsAsync();
+        await LoadAttendeeCountsAsync();
+    }
+
+    private async Task LoadAttendeeCountsAsync()
+    {
+        if (events.IsSuccess && events.Data != null)
+        {
+            // Load attendance count for each event separately
+            foreach (var ev in events.Data)
+            {
+                var result = await _eventAttendanceApiService.GetUsersByEventIdAsync(ev.EventId);
+                eventAttendeeCount[ev.EventId] = result.IsSuccess && result.Data != null ? result.Data.Count : 0;
+            }
+        }
+    }
+
+    private int GetAttendeeCount(int eventId)
+    {
+        return eventAttendeeCount.ContainsKey(eventId) ? eventAttendeeCount[eventId] : 0;
     }
 
     private void ViewDetails(int eventId)
