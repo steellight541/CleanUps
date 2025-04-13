@@ -8,11 +8,11 @@
     <div class="card shadow p-4">
         <h3>Users Management</h3>
 
-        @if (users == null)
+        @if (loadedUsers == null)
         {
-            <p>Loading...</p>
+            <p>Loading users...</p>
         }
-        else if (users.IsSuccess)
+        else
         {
             <!-- Table layout for larger screens -->
             <div class="d-none d-md-block mb-2">
@@ -27,7 +27,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var user in users.Data)
+                        @foreach (var user in loadedUsers)
                         {
                             <tr>
                                 <td>@user.UserId</td>
@@ -46,7 +46,17 @@
                                 </td>
                             </tr>
                         }
-
+                        @if (isLoadingUsers)
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center">
+                                    <div class="spinner-border spinner-border-sm" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    Loading more users...
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>
@@ -54,7 +64,7 @@
             <!-- List-group for small screens -->
             <div class="d-block d-md-none mb-2">
                 <div class="list-group">
-                    @foreach (var user in users.Data)
+                    @foreach (var user in loadedUsers)
                     {
                         <div class="list-group-item">
                             <h5>@user.Name</h5>
@@ -63,8 +73,16 @@
                                 <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewUser(user.UserId)">View</button>
                                 <button class="btn btn-secondary btn-sm mt-2" @onclick="() => EditUser(user.UserId)">Edit</button>
                                 <button class="btn btn-danger btn-sm mt-2" @onclick="() => DeleteUser(user.UserId)">Delete</button>
-
                             </div>
+                        </div>
+                    }
+                    @if (isLoadingUsers)
+                    {
+                        <div class="list-group-item text-center">
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            Loading more users...
                         </div>
                     }
                 </div>
@@ -73,10 +91,11 @@
             <div class="mb-2">
                 <button class="btn btn-success w-100 w-md-auto" @onclick="CreateNewUser">Create New User</button>
             </div>
-        }
-        else
-        {
-            <p class="text-danger">Error: @users.ErrorMessage</p>
+            
+            @if (loadError != null)
+            {
+                <p class="text-danger">Error: @loadError</p>
+            }
         }
 
         @if (!string.IsNullOrEmpty(errorMessage))
@@ -91,12 +110,55 @@ else
 }
 @code {
     private Result<List<UserResponse>> users;
+    private List<UserResponse> loadedUsers = new List<UserResponse>();
     private string errorMessage;
+    private string loadError;
+    private bool isLoadingUsers = false;
     private RoleDTO CurrentUserRole = RoleDTO.Organizer;
 
     protected override async Task OnInitializedAsync()
     {
-        users = await _userApiService.GetAllUsersAsync();
+        await LoadUsersProgressivelyAsync();
+    }
+    
+    private async Task LoadUsersProgressivelyAsync()
+    {
+        try
+        {
+            isLoadingUsers = true;
+            loadedUsers = new List<UserResponse>();
+            StateHasChanged();
+            
+            users = await _userApiService.GetAllUsersAsync();
+            
+            if (users.IsSuccess && users.Data != null)
+            {
+                // Simulate progressive loading by adding users one by one with a small delay
+                foreach (var user in users.Data)
+                {
+                    loadedUsers.Add(user);
+                    
+                    // Update UI after each user is added
+                    StateHasChanged();
+                    
+                    // Optional: Small delay to show the progressive loading (remove in production)
+                    await Task.Delay(50);
+                }
+            }
+            else
+            {
+                loadError = users.ErrorMessage;
+            }
+        }
+        catch (Exception ex)
+        {
+            loadError = $"Error loading users: {ex.Message}";
+        }
+        finally
+        {
+            isLoadingUsers = false;
+            StateHasChanged();
+        }
     }
 
     private void ViewUser(int userId)
@@ -114,7 +176,7 @@ else
         var result = await _userApiService.DeleteUserAsync(userId);
         if (result.IsSuccess)
         {
-            users = await _userApiService.GetAllUsersAsync();
+            await LoadUsersProgressivelyAsync();
         }
         else
         {
