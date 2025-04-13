@@ -130,6 +130,10 @@ namespace CleanUps.DataAccess.Repositories
 
         /// <summary>
         /// Retrieves all users attending a specific event.
+        /// For historical events (older than 72 hours), soft-deleted users are still included
+        /// to maintain the historical record of attendances.
+        /// For events that are in the future or have ended within the last 72 hours,
+        /// soft-deleted users are excluded from the results.
         /// </summary>
         /// <param name="eventId">The ID of the event whose attendees to retrieve.</param>
         /// <returns>A Result containing a list of users if found, a NoContent result if no users are found, or an error message if the operation fails.</returns>
@@ -137,15 +141,38 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
-                List<User> users = await _context.Users
-                              .Where(existingUser => _context.EventAttendances.Any(existingEventAttendance => existingEventAttendance.EventId == eventId && existingEventAttendance.UserId == existingUser.UserId))
-                              .Include(existingUser => existingUser.Role)
-                              .ToListAsync();
+                // First, retrieve the event to check its end time
+                Event? theEvent = await _context.Events
+                    .FirstOrDefaultAsync(e => e.EventId == eventId);
+                
+                if (theEvent == null)
+                {
+                    return Result<List<User>>.NotFound($"Event with id: {eventId} does not exist");
+                }
+                
+                // Check if the event is in the future or ended within the last 72 hours
+                bool isRecentOrFutureEvent = theEvent.EndTime > DateTime.UtcNow.AddHours(-72);
+                
+                // Build the query to get users attending the event
+                var query = _context.Users
+                    .Where(existingUser => _context.EventAttendances.Any(
+                        existingEventAttendance => existingEventAttendance.EventId == eventId && 
+                        existingEventAttendance.UserId == existingUser.UserId));
+                
+                // For recent or future events, exclude deleted users
+                if (isRecentOrFutureEvent)
+                {
+                    query = query.Where(existingUser => !existingUser.isDeleted);
+                }
+                
+                // Include role data and execute the query
+                List<User> users = await query
+                    .Include(existingUser => existingUser.Role)
+                    .ToListAsync();
 
                 if (users.Count == 0)
                 {
                     return Result<List<User>>.NoContent();
-
                 }
                 return Result<List<User>>.Ok(users);
             }
