@@ -1,5 +1,6 @@
 ﻿using CleanUps.BusinessLogic.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace CleanUps.DataAccess.DatabaseHub;
 
@@ -27,12 +28,11 @@ public partial class CleanUpsContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        // Do nothing; configuration is handled via dependency injection in Program.cs
-        // Optionally, throw an exception if not configured for clarity
         if (!optionsBuilder.IsConfigured)
         {
-            throw new InvalidOperationException("DbContext has not been configured. Ensure that AddDbContext is called in Program.cs with a valid connection string.");
-        }
+            throw new InvalidOperationException("DbContext has not been configured. Ensure that AddDbContext is called in Program.cs with a valid connection string.");        }
+        
+        optionsBuilder.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -41,11 +41,13 @@ public partial class CleanUpsContext : DbContext
         {
             entity.HasOne(e => e.Location)           // Event has one Location
                 .WithMany()                          // Location can be referenced by many Events (adjust if needed)
-                .HasForeignKey(e => e.LocationId);   // Foreign key property
+                .HasForeignKey(e => e.LocationId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             entity.HasOne(e => e.Status)           // Event has one Status
                 .WithMany()                          // Status can be referenced by many Events (adjust if needed)
-                .HasForeignKey(e => e.StatusId);   // Foreign key property
+                .HasForeignKey(e => e.StatusId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             entity.Property(e => e.TrashCollected).HasColumnType("decimal(18, 0)");
             
@@ -56,6 +58,8 @@ public partial class CleanUpsContext : DbContext
             entity.Property(e => e.isDeleted)
                 .HasDefaultValue(false);
 
+            entity.ToTable(tb => tb.HasTrigger("TR_Events_InsteadOfDelete"));
+            entity.ToTable(t => t.HasCheckConstraint("CHK_EndTimeAfterStartTime", "EndTime > StartTime"));
         });
 
         modelBuilder.Entity<EventAttendance>(entity =>
@@ -70,15 +74,13 @@ public partial class CleanUpsContext : DbContext
 
             entity.HasOne(d => d.Event).WithMany(p => p.EventAttendances)
                 .HasForeignKey(d => d.EventId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_EventAttendancesEventId");
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_EventAttendances_Events_EventId");
 
             entity.HasOne(d => d.User).WithMany(p => p.EventAttendances)
                 .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_EventAttendancesUserId");
-
-            entity.ToTable(tb => tb.HasTrigger("TR_Events_InsteadOfDelete"));
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_EventAttendances_Users_UserId");
         });
 
         modelBuilder.Entity<Photo>(entity =>
@@ -87,8 +89,8 @@ public partial class CleanUpsContext : DbContext
 
             entity.HasOne(d => d.Event).WithMany(p => p.Photos)
                 .HasForeignKey(d => d.EventId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_PhotosId");
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK_Photos_Events_EventId");
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -108,9 +110,10 @@ public partial class CleanUpsContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.PasswordHash).HasMaxLength(50);
 
-            entity.HasOne(e => e.Role)            // User has one Role
-                 .WithMany()                      // Role can be referenced by many Users
-                 .HasForeignKey(e => e.RoleId);   // Foreign key property
+            entity.HasOne(e => e.Role)
+                .WithMany()
+                .HasForeignKey(e => e.RoleId)
+                .OnDelete(DeleteBehavior.NoAction);
                  
             entity.ToTable(tb => tb.HasTrigger("TR_Users_InsteadOfDelete"));
         });
