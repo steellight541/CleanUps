@@ -15,9 +15,9 @@ namespace CleanUps.Shared.DTOs.Events
     /// <param name="EndTime">The date and time when the event ends.</param>
     /// <param name="FamilyFriendly">Indicates whether the event is suitable for families with children.</param>
     /// <param name="TrashCollected">The amount of trash collected during the event, in kilograms.</param>
-    /// <param name="NumberOfAttendees">The total number of people attending the event.</param>
     /// <param name="Status">The current status of the event (e.g., Planned, Active, Completed).</param>
     /// <param name="Location">Detailed information about the event's location.</param>
+    /// <param name="CreatedDate">The date when the event was created.</param>
     public record EventResponse(
         int EventId,
         string Title,
@@ -26,7 +26,7 @@ namespace CleanUps.Shared.DTOs.Events
         DateTime EndTime,
         bool FamilyFriendly,
         decimal TrashCollected,
-        int NumberOfAttendees,
         StatusDTO Status,
-        LocationResponse Location) : Response;
+        LocationResponse Location,
+        DateTime CreatedDate) : Response;
 }

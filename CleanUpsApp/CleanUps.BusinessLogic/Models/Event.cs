@@ -51,12 +51,6 @@ public partial class Event : EntityFrameworkModel
     public decimal TrashCollected { get; set; } = 0;
 
     /// <summary>
-    /// Gets or sets the count of people who attended the event.
-    /// </summary>
-    /// <value>An <see cref="int"/> representing the number of attendees.</value>
-    public int NumberOfAttendees { get; set; } = 0;
-
-    /// <summary>
     /// Gets or sets the ID of the event's current status.
     /// </summary>
     /// <value>An <see cref="int"/> representing the foreign key to the Status table.</value>
@@ -67,6 +61,18 @@ public partial class Event : EntityFrameworkModel
     /// </summary>
     /// <value>An <see cref="int"/> representing the foreign key to the Location table.</value>
     public int LocationId { get; set; } // Foreign key to Location
+
+    /// <summary>
+    /// Gets or sets the creation date of the event.
+    /// </summary>
+    /// <value>A <see cref="DateTime"/> representing when the event was created.</value>
+    public DateTime CreatedDate { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the event is deleted.
+    /// </summary>
+    /// <value>A <see cref="bool"/> indicating if the event is deleted.</value>
+    public bool isDeleted { get; set; }
 
     /// <summary>
     /// Gets or sets the status of the event.

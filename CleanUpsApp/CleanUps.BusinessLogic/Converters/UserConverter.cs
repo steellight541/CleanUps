@@ -38,7 +38,10 @@ namespace CleanUps.BusinessLogic.Converters
             return new User
             {
                 Name = createRequest.Name,
-                Email = createRequest.Email
+                Email = createRequest.Email,
+                CreatedDate = DateTime.UtcNow,
+                RoleId = 2,
+                isDeleted = false
             };
         }
 

@@ -2,7 +2,6 @@
 @using CleanUps.Shared.DTOs.Events
 @inject NavigationManager _navigationManager
 @inject EventApiService _eventApiService
-@inject EventAttendanceApiService _eventAttendanceApiService
 <div class="card shadow p-4">
 
     <h3>Events List</h3>
@@ -25,7 +24,6 @@
                         <th>End time</th>
                         <th>Family Friendly?</th>
                         <th>Trash Collected</th>
-                        <th>Participants</th>
                         <th>Status</th>
                         <th>Location</th>
                         <th>Actions</th>
@@ -42,7 +40,6 @@
                             <td>@ev.EndTime.ToShortDateString()</td>
                             <td>@(ev.FamilyFriendly ? "Yes" : "No")</td>
                             <td>@ev.TrashCollected</td>
-                            <td>@ev.NumberOfAttendees</td>
                             <td>@ev.Status.ToString()</td>
                             <td>No location yet</td>
                             <td>
@@ -84,7 +81,7 @@
                         </div>
                         <p><strong>Start Time:</strong> @ev.StartTime.ToShortDateString()</p>
                         <p><strong>End Time:</strong> @ev.EndTime.ToShortDateString()</p>
-                        <p><strong>Participants:</strong> @ev.NumberOfAttendees</p>
+                        <p><strong>Status:</strong> @ev.Status.ToString()</p>
                         <div class="d-flex flex-column gap-2">
                             <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewDetails(ev.EventId)">View</button>
                         </div>

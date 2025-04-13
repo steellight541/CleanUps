@@ -23,8 +23,8 @@
             <p><strong>Event ID:</strong> @eventResult.Data.EventId</p>
             <p><strong>Status:</strong> @eventResult.Data.Status</p>
             <p><strong>Family Friendly:</strong> @(eventResult.Data.FamilyFriendly ? "Yes" : "No")</p>
-            <p><strong>Number of Attendees:</strong> @eventResult.Data.NumberOfAttendees</p>
             <p><strong>Participants Signed Up:</strong> @(usersAttendingTheEvent.Data?.Count ?? 0)</p>
+            <p><strong>Created Date:</strong> @eventResult.Data.CreatedDate.ToShortDateString()</p>
             <p><strong>Location:</strong> Not implemented yet</p>
         </div>
 

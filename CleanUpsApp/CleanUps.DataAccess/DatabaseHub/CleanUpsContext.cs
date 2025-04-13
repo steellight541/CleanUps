@@ -48,6 +48,13 @@ public partial class CleanUpsContext : DbContext
                 .HasForeignKey(e => e.StatusId);   // Foreign key property
 
             entity.Property(e => e.TrashCollected).HasColumnType("decimal(18, 0)");
+            
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasColumnType("datetime2");
+                
+            entity.Property(e => e.isDeleted)
+                .HasDefaultValue(false);
 
         });
 
@@ -56,6 +63,10 @@ public partial class CleanUpsContext : DbContext
             entity.HasKey(e => new { e.EventId, e.UserId });
 
             entity.Property(e => e.CheckIn).HasColumnType("datetime");
+            
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasColumnType("datetime2");
 
             entity.HasOne(d => d.Event).WithMany(p => p.EventAttendances)
                 .HasForeignKey(d => d.EventId)
@@ -67,8 +78,7 @@ public partial class CleanUpsContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_EventAttendancesUserId");
 
-            entity.ToTable(tb => tb.HasTrigger("TR_Update_NumberOfAttendees_For_Event_After_Insert_On_EventAttendances"));
-            entity.ToTable(tb => tb.HasTrigger("TR_Update_NumberOfAttendees_For_Future_Events_After_Delete_On_EventAttendances"));
+            entity.ToTable(tb => tb.HasTrigger("TR_Events_InsteadOfDelete"));
         });
 
         modelBuilder.Entity<Photo>(entity =>
@@ -90,13 +100,19 @@ public partial class CleanUpsContext : DbContext
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getutcdate())")
                 .HasColumnType("datetime");
+                
+            entity.Property(e => e.isDeleted)
+                .HasDefaultValue(false);
+                
             entity.Property(e => e.Email).HasMaxLength(255);
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.PasswordHash).HasMaxLength(50);
 
-            entity.HasOne(e => e.Role)            // Event has one Status
-                 .WithMany()                      // Status can be referenced by many Events (adjust if needed)
+            entity.HasOne(e => e.Role)            // User has one Role
+                 .WithMany()                      // Role can be referenced by many Users
                  .HasForeignKey(e => e.RoleId);   // Foreign key property
+                 
+            entity.ToTable(tb => tb.HasTrigger("TR_Users_InsteadOfDelete"));
         });
 
         modelBuilder.Entity<Location>(entity =>

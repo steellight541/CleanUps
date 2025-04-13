@@ -28,8 +28,8 @@ namespace CleanUps.BusinessLogic.Converters
                 EndTime = response.EndTime,
                 FamilyFriendly = response.FamilyFriendly,
                 TrashCollected = response.TrashCollected,
-                NumberOfAttendees = response.NumberOfAttendees,
                 StatusId = (int)response.Status,
+                CreatedDate = response.CreatedDate,
                 Location = new Location
                 {
                     Latitude = response.Location.Latitude,
@@ -52,6 +52,8 @@ namespace CleanUps.BusinessLogic.Converters
                 StartTime = createRequest.StartTime,
                 EndTime = createRequest.EndTime,
                 FamilyFriendly = createRequest.FamilyFriendly,
+                CreatedDate = DateTime.UtcNow,
+                isDeleted = false,
                 Location = new Location
                 {
                     Latitude = createRequest.Location.Latitude,
@@ -100,12 +102,12 @@ namespace CleanUps.BusinessLogic.Converters
                 model.EndTime,
                 model.FamilyFriendly,
                 model.TrashCollected,
-                model.NumberOfAttendees,
                 (StatusDTO)model.StatusId,
                 new LocationResponse(
                     model.Location?.Id ?? 0,        //If model.Location is null, then set id to 0
                     model.Location?.Longitude ?? 0, //If model.Location is null, then set Longitude to 0
-                    model.Location?.Latitude ?? 0)  //If model.Location is null, then set Latitude to 0
+                    model.Location?.Latitude ?? 0),  //If model.Location is null, then set Latitude to 0
+                model.CreatedDate
             );
         }
 

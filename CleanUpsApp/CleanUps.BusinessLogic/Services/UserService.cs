@@ -73,8 +73,7 @@ namespace CleanUps.BusinessLogic.Services
             User userModel = _converter.ToModel(createRequest);
 
             userModel.PasswordHash = BCrypt.Net.BCrypt.HashPassword(createRequest.Password);
-            userModel.CreatedDate = DateTime.UtcNow;
-            userModel.RoleId = 2;
+
             var repoResult = await _repository.CreateAsync(userModel);
 
             return repoResult.Transform(user => _converter.ToResponse(user));
