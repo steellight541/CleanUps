@@ -28,6 +28,7 @@ namespace CleanUps.DataAccess.Repositories
         /// <summary>
         /// Retrieves all events from the database, including their associated Location and Status data.
         /// Only returns events that are not marked as deleted.
+        /// Event attendances from soft-deleted users are filtered out after loading the data.
         /// </summary>
         /// <returns>A Result containing a list of all events if successful, or an error message if the operation fails.</returns>
         public async Task<Result<List<Event>>> GetAllAsync()
@@ -40,8 +41,15 @@ namespace CleanUps.DataAccess.Repositories
                     .Include(existingEvent => existingEvent.Status)
                     .Include(existingEvent => existingEvent.EventAttendances)
                         .ThenInclude(ea => ea.User)
-                        .ThenInclude(u => !u.isDeleted) // Only include non-deleted users
                     .ToListAsync();
+
+                // Filter out soft-deleted users from event attendances
+                foreach (var eventItem in events)
+                {
+                    eventItem.EventAttendances = eventItem.EventAttendances
+                        .Where(ea => ea.User != null && !ea.User.isDeleted)
+                        .ToList();
+                }
 
                 return Result<List<Event>>.Ok(events);
 
@@ -75,6 +83,7 @@ namespace CleanUps.DataAccess.Repositories
         /// <summary>
         /// Retrieves a specific event by its ID, including associated Location and Status data.
         /// Only returns the event if it is not marked as deleted.
+        /// Event attendances from soft-deleted users are filtered out after loading the data.
         /// </summary>
         /// <param name="id">The ID of the event to retrieve.</param>
         /// <returns>A Result containing the requested event if found, or an error message if not found or if the operation fails.</returns>
@@ -89,7 +98,6 @@ namespace CleanUps.DataAccess.Repositories
                    .Include(existingEvent => existingEvent.Status)
                    .Include(existingEvent => existingEvent.EventAttendances)
                         .ThenInclude(ea => ea.User)
-                        .ThenInclude(u => !u.isDeleted) // Only include non-deleted users
                    .FirstOrDefaultAsync(existingEvent => existingEvent.EventId == id);
 
                 if (retrievedEvent is null)
@@ -98,6 +106,14 @@ namespace CleanUps.DataAccess.Repositories
                 }
                 else
                 {
+                    // Filter out soft-deleted users from event attendances
+                    if (retrievedEvent.EventAttendances != null)
+                    {
+                        retrievedEvent.EventAttendances = retrievedEvent.EventAttendances
+                            .Where(ea => ea.User != null && !ea.User.isDeleted)
+                            .ToList();
+                    }
+                    
                     return Result<Event>.Ok(retrievedEvent);
                 }
             }
