@@ -66,6 +66,9 @@ public partial class CleanUpsContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_EventAttendancesUserId");
+
+            entity.ToTable(tb => tb.HasTrigger("TR_Update_NumberOfAttendees_For_Event_After_Insert_On_EventAttendances"));
+            entity.ToTable(tb => tb.HasTrigger("TR_Update_NumberOfAttendees_For_Future_Events_After_Delete_On_EventAttendances"));
         });
 
         modelBuilder.Entity<Photo>(entity =>
