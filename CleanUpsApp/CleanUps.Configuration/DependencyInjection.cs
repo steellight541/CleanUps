@@ -59,6 +59,7 @@ namespace CleanUps.Configuration
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IPhotoService, PhotoService>();
             services.AddScoped<IEventAttendanceService, EventAttendanceService>();
+            services.AddScoped<IAuthService, AuthService>();
 
             // Register Validators
             services.AddScoped<IEventValidator, EventValidator>();

@@ -1,6 +1,11 @@
 ﻿@page "/auth/signup"
-@using CleanUps.Shared.DTOs.Users
+@using CleanUps.MAUI.Shared.Services;
+@using CleanUps.MAUI.Shared.Services.Interfaces;
+@using CleanUps.Shared.DTOs.Users;
+@using System.ComponentModel.DataAnnotations;
+@using System.Text.Json;
 @inject UserApiService _userApiService;
+@inject IAccessService _accessService;
 @inject NavigationManager _navigationManager
 
 <div class="card shadow p-4">
@@ -39,6 +44,9 @@
             <button type="button" class="btn btn-dark btn-sm" @onclick="Cancel">Cancel</button>
         </div>
 
+        <div class="mb-2">
+            <a href="/auth/login">Already have an account? Log in</a>
+        </div>
     </EditForm>
 </div>
 @if (!string.IsNullOrEmpty(errorMsg))
@@ -50,6 +58,15 @@
     private SignUpModel singUpModel = new SignUpModel();
     private string errorMsg = string.Empty;
 
+    protected override async Task OnInitializedAsync()
+    {
+        // If user is already logged in, redirect to home
+        if (await _accessService.IsUserLoggedInAsync())
+        {
+            _navigationManager.NavigateTo("/");
+        }
+    }
+
     private async Task HandleSubmit()
     {
         CreateUserRequest newUser = new CreateUserRequest(singUpModel.Name, singUpModel.Email, singUpModel.Password);
@@ -57,7 +74,69 @@
         var result = await _userApiService.CreateUserAsync(newUser);
         if (result.IsSuccess)
         {
-            _navigationManager.NavigateTo("/users");
+            try
+            {
+                // The API now automatically logs in the user after signup
+                // We need to extract the authentication info from the response
+                // Since the result from CreateUserAsync could be a complex object from auto-login
+                var jsonContent = result.Data.ToString();
+                if (!string.IsNullOrEmpty(jsonContent))
+                {
+                    try
+                    {
+                        // Try to deserialize as JsonElement to get Auth information
+                        var responseDoc = JsonDocument.Parse(jsonContent);
+                        var root = responseDoc.RootElement;
+                        
+                        if (root.TryGetProperty("Auth", out var authElement))
+                        {
+                            // Create user session from Auth property
+                            var userSession = new UserSessionInfo
+                            {
+                                UserId = authElement.GetProperty("UserId").GetInt32(),
+                                Name = authElement.GetProperty("Name").GetString() ?? string.Empty,
+                                Email = authElement.GetProperty("Email").GetString() ?? string.Empty,
+                                Role = (CleanUps.Shared.DTOs.Enums.RoleDTO)authElement.GetProperty("Role").GetInt32()
+                            };
+                            
+                            // Save the session
+                            await _accessService.SetUserSessionAsync(userSession);
+                            
+                            // Redirect to home
+                            _navigationManager.NavigateTo("/", forceLoad: false);
+                            return;
+                        }
+                    }
+                    catch
+                    {
+                        // Fallback if auto-login data extraction fails
+                        // Try to use the UserResponse directly if it's available
+                        if (result.Data is UserResponse userResponse)
+                        {
+                            var userSession = new UserSessionInfo
+                            {
+                                UserId = userResponse.UserId,
+                                Name = userResponse.Name,
+                                Email = userResponse.Email,
+                                Role = userResponse.Role
+                            };
+                            
+                            await _accessService.SetUserSessionAsync(userSession);
+                            _navigationManager.NavigateTo("/", forceLoad: false);
+                            return;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Fallback if any auto-login attempt fails
+                _navigationManager.NavigateTo("/auth/login");
+                return;
+            }
+            
+            // If we get here, the signup worked but the auto-login did not
+            _navigationManager.NavigateTo("/auth/login");
         }
         else
         {
@@ -67,7 +146,7 @@
 
     private void Cancel()
     {
-        _navigationManager.NavigateTo("/users");
+        _navigationManager.NavigateTo("/");
     }
 
     private class SignUpModel

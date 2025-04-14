@@ -1,4 +1,6 @@
-﻿using CleanUps.Shared.ClientServices;
+﻿using CleanUps.MAUI.Shared.Services;
+using CleanUps.MAUI.Shared.Services.Interfaces;
+using CleanUps.Shared.ClientServices;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CleanUps.MAUI.Shared
@@ -22,10 +24,14 @@ namespace CleanUps.MAUI.Shared
                 client.BaseAddress = new Uri("https://cleanups-api-enbrcrevatgmhke7.canadacentral-01.azurewebsites.net/");
             });
 
+            // Add simplified session services
+            services.AddScoped<ISessionService, LocalStorageSessionService>();
+
             services.AddScoped<EventApiService>();
             services.AddScoped<EventAttendanceApiService>();
             services.AddScoped<PhotoApiService>();
             services.AddScoped<UserApiService>();
+            services.AddScoped<IAccessService, AccessService>();
         }
     }
 }

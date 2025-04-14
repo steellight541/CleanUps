@@ -132,7 +132,7 @@ namespace CleanUps.DataAccess.Repositories
 
                 // Ensure new users are not created as deleted
                 userToBeCreated.isDeleted = false;
-                
+
                 await _context.Users.AddAsync(userToBeCreated);
                 await _context.SaveChangesAsync();
 
@@ -202,7 +202,7 @@ namespace CleanUps.DataAccess.Repositories
                 //Below says: If the retrievedUser.Email does not match userToBeupdated.Email, then perhaps... maybem.. userToBeupdated changed their email.... but then it also says:
                 //If there is an existingUser with the same email as the userToBeupdated and the existing userId is not the same as the userToBeUpdated
                 //then it must mean the userToBeUpdated is trying to use another users email (email is unique in the db)
-                if (retrievedUser.Email != userToBeUpdated.Email && 
+                if (retrievedUser.Email != userToBeUpdated.Email &&
                     await _context.Users
                         .Where(u => !u.isDeleted) // Only check against non-deleted users
                         .AnyAsync(existingUser => existingUser.Email == userToBeUpdated.Email && existingUser.UserId != userToBeUpdated.UserId))
@@ -212,7 +212,7 @@ namespace CleanUps.DataAccess.Repositories
 
                 // Preserve the current isDeleted state - don't allow changing via normal update
                 userToBeUpdated.isDeleted = retrievedUser.isDeleted;
-                
+
                 _context.Entry(retrievedUser).State = EntityState.Detached;
                 _context.Users.Attach(userToBeUpdated);
                 _context.Entry(userToBeUpdated).Property(u => u.Name).IsModified = true;
@@ -286,8 +286,48 @@ namespace CleanUps.DataAccess.Repositories
                 {
                     // Instead of removing from the database, set the isDeleted flag
                     retrievedUser.isDeleted = true;
-                    
+
                     await _context.SaveChangesAsync();
+                    return Result<User>.Ok(retrievedUser);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex.InnerException != null)
+                {
+                    return Result<User>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
+                return Result<User>.InternalServerError($"{ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Retrieves a user by their email address, including their associated Role data.
+        /// Only returns the user if they are not marked as deleted.
+        /// </summary>
+        /// <param name="email">The email address of the user to retrieve.</param>
+        /// <returns>A Result containing the requested user if found, or an error message if not found or if the operation fails.</returns>
+        public async Task<Result<User>> GetByEmailAsync(string email)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(email))
+                {
+                    return Result<User>.BadRequest("Email cannot be null or empty");
+                }
+
+                User? retrievedUser = await _context.Users
+                    .Where(u => !u.isDeleted)
+                    .Where(u => u.Email.ToLower() == email.ToLower())
+                    .Include(u => u.Role)
+                    .FirstOrDefaultAsync();
+
+                if (retrievedUser is null)
+                {
+                    return Result<User>.NotFound($"User with email: {email} does not exist");
+                }
+                else
+                {
                     return Result<User>.Ok(retrievedUser);
                 }
             }

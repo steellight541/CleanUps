@@ -1,55 +1,71 @@
-﻿@page "/users/{userId:int}/profile"
-@using CleanUps.Shared.DTOs.Users
+﻿@page "/users/profile"
+@using CleanUps.MAUI.Shared.Pages.Auth
+@using CleanUps.MAUI.Shared.Services
+@using CleanUps.MAUI.Shared.Services.Interfaces
+@inject IAccessService _accessService
 @inject NavigationManager _navigationManager
-@inject UserApiService _userApiService
 
-<div class="card shadow p-4">
+<h3>My Profile</h3>
 
-    <div class="mb-2 mx-auto d-block">
-        <h1>Profile</h1>
+<div class="card">
+    <div class="card-body">
+        @if (isLoading)
+        {
+            <p>Loading profile...</p>
+        }
+        else
+        {
+            <h4>@userName</h4>
+            <p>Email: @userEmail</p>
+            <p>Role: @userRole</p>
+            
+            <button class="btn btn-primary" @onclick="Logout">Logout</button>
+        }
     </div>
-    @if (user == null)
-    {
-        <p>Loading...</p>
-    }
-    else if (user.IsSuccess)
-    {
-        <div class="mb-2">
-            <h2>@user.Data.Name</h2>
-        </div>
-
-        <div class="mb-2">
-            <p><strong>ID:</strong> @user.Data.UserId</p>
-            <p><strong>Name:</strong> @user.Data.Name</p>
-            <p><strong>Email:</strong> @user.Data.Email</p>
-            <p><strong>Role:</strong> @user.Data.Role.ToString()</p>
-            <p><strong>CreatedDate:</strong> @user.Data.CreatedDate</p>
-        </div>
-
-        <div class="mb-2">
-            <button class="btn btn-secondary" @onclick="GoBack">Back</button>
-        </div>
-
-    }
-    else
-    {
-        <p class="text-danger">Error: @user.ErrorMessage</p>
-    }
 </div>
 
 @code {
-    [Parameter]
-    public int userId { get; set; }
-
-    private Result<UserResponse> user;
+    private bool isLoading = true;
+    private string userName = string.Empty;
+    private string userEmail = string.Empty;
+    private string userRole = string.Empty;
+    private bool isLoggedIn = false;
 
     protected override async Task OnInitializedAsync()
     {
-        user = await _userApiService.GetUserByIdAsync(userId);
+        // Check if user is logged in (volunteers and organizers)
+        try
+        {
+            isLoggedIn = await _accessService.IsUserLoggedInAsync();
+            AccessControl.CheckVolunteerAccess(isLoggedIn, _navigationManager);
+            
+            // Load profile information
+            await LoadProfileData();
+        }
+        catch
+        {
+            // In case of errors, redirect to login
+            _navigationManager.NavigateTo("/auth/login");
+        }
     }
-
-    private void GoBack()
+    
+    private async Task LoadProfileData()
     {
-        _navigationManager.NavigateTo("/users");
+        isLoading = true;
+        
+        // Get user info from AccessService
+        userName = await _accessService.GetLoggedUserNameAsync() ?? "Unknown";
+        userEmail = await _accessService.GetLoggedUserEmailAsync() ?? "Unknown";
+        
+        var role = await _accessService.GetLoggedUserRoleAsync();
+        userRole = role?.ToString() ?? "Unknown";
+        
+        isLoading = false;
+    }
+    
+    private async Task Logout()
+    {
+        await _accessService.ClearUserSessionAsync();
+        _navigationManager.NavigateTo("/events");
     }
 }

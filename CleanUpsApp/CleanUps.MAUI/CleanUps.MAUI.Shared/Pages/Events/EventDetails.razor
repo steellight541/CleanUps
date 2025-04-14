@@ -1,72 +1,97 @@
 ﻿@page "/events/{eventId:int}/details"
+@using CleanUps.MAUI.Shared.Pages.Auth
+@using CleanUps.MAUI.Shared.Services.Interfaces
+@using CleanUps.Shared.DTOs.Enums
 @using CleanUps.Shared.DTOs.Events
 @using CleanUps.Shared.DTOs.Users
-@inject EventApiService _eventApiService
-@inject EventAttendanceApiService _eventAttendanceApiService
-@inject UserApiService _userApiService
 @inject NavigationManager _navigationManager
+@inject EventApiService _eventApiService 
+@inject EventAttendanceApiService _eventAttendanceApiService
+@inject IAccessService _accessService
 
 <div class="card shadow p-4">
-    @if (eventResult == null || usersResult == null || usersAttendingTheEvent == null)
+    <h3>Event Details</h3>
+
+    @if (eventResult == null)
     {
         <p>Loading...</p>
     }
-    else if (!eventResult.IsSuccess)
+    else if (eventResult.IsSuccess && eventResult.Data != null)
     {
-        <p class="text-danger">Error: @eventResult.ErrorMessage</p>
+        var ev = eventResult.Data;
+        
+        <div class="mb-4">
+            <h4>@ev.Title</h4>
+            <p>@ev.Description</p>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <p><strong>Start Time:</strong> @ev.StartTime.ToString("g")</p>
+                <p><strong>End Time:</strong> @ev.EndTime.ToString("g")</p>
+                <p><strong>Status:</strong> @ev.Status</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Family Friendly:</strong> @(ev.FamilyFriendly ? "Yes" : "No")</p>
+                <p><strong>Trash Collected:</strong> @ev.TrashCollected kg</p>
+                <p><strong>Participants:</strong> @(attendees?.Count ?? 0)</p>
+            </div>
+        </div>
+
+        @if (ev.Location != null)
+        {
+            <div class="mb-4">
+                <h5>Location</h5>
+                <p>Latitude: @ev.Location.Latitude, Longitude: @ev.Location.Longitude</p>
+            </div>
+        }
+
+        @if (attendees != null && attendees.Count > 0)
+        {
+            <div class="mb-4">
+                <h5>Attendees</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in attendees)
+                            {
+                                <tr>
+                                    <td>@user.Name</td>
+                                    <td>@user.Email</td>
+                                    <td>@user.Role</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+
+        <div class="d-flex gap-2 mb-2">
+            <button class="btn btn-secondary" @onclick="GoBack">Back</button>
+            
+            @if (isOrganizer)
+            {
+                <button class="btn btn-primary" @onclick="() => EditEvent(ev.EventId)">Edit</button>
+                <button class="btn btn-danger" @onclick="() => DeleteEvent(ev.EventId)">Delete</button>
+            }
+        </div>
     }
     else
     {
-        <div class="mb-3">
-            <h3>@eventResult.Data.Title</h3>
-            <h4>@eventResult.Data.Description</h4>
-            <p><strong>Event ID:</strong> @eventResult.Data.EventId</p>
-            <p><strong>Status:</strong> @eventResult.Data.Status</p>
-            <p><strong>Family Friendly:</strong> @(eventResult.Data.FamilyFriendly ? "Yes" : "No")</p>
-            <p><strong>Participants Signed Up:</strong> @(usersAttendingTheEvent.Data?.Count ?? 0)</p>
-            <p><strong>Created Date:</strong> @eventResult.Data.CreatedDate.ToShortDateString()</p>
-            <p><strong>Location:</strong> Not implemented yet</p>
-        </div>
+        <p class="text-danger">Error: @eventResult.ErrorMessage</p>
+    }
 
-        @if (CurrentUserRole == RoleDTO.Organizer)
-        {
-            <button class="btn btn-primary mt-3 mb-3" @onclick="ToggleManageAttendance">Manage Attendance</button>
-
-            @if (isManageAttendanceVisible)
-            {
-                <div class="card mt-2 p-3">
-                    <input type="text" class="form-control mb-2" placeholder="Search users" @bind="searchTerm" @bind:event="oninput" />
-                    <div class="list-group" style="max-height: 250px; overflow-y: auto;">
-                        @foreach (var user in FilteredUsers)
-                        {
-                            bool isAttending = usersAttendingTheEvent.Data?.Any(a => a.UserId == user.UserId) ?? false;
-                            <div class="list-group-item d-flex justify-content-between align-items-center" key="@user.UserId">
-                                <span>@user.Name - <span class="@(isAttending ? "text-success" : "text-danger")">@(isAttending ? "Going" : "Not Going")</span></span>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" role="switch" checked="@isAttending" @onchange="@((ChangeEventArgs e) => ToggleAttendance(user.UserId, (bool)e.Value))" disabled="@isLoading" />
-                                </div>
-                            </div>
-                        }
-                    </div>
-                    <button class="btn btn-dark  mt-2" @onclick="ToggleManageAttendance">Close</button>
-                </div>
-            }
-        }
-
-        <div class="mb-2">
-            <button class="btn btn-secondary" @onclick="Cancel">Back</button>
-        </div>
-
-        @if (!string.IsNullOrEmpty(message))
-        {
-            <p class="@messageClass">@message</p>
-        }
-        @if (isLoading)
-        {
-            <div class="spinner-border text-warning" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        }
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <p class="text-danger">@errorMessage</p>
     }
 </div>
 
@@ -75,75 +100,67 @@
     public int eventId { get; set; }
 
     private Result<EventResponse> eventResult;
-    private Result<List<UserResponse>> usersResult;
-    private Result<List<UserResponse>> usersAttendingTheEvent;
-    private string searchTerm = string.Empty;
-    private string message;
-    private string messageClass;
-    private bool isLoading = false;
-    private bool isManageAttendanceVisible = false; // New flag to control visibility
-
-    private RoleDTO CurrentUserRole = RoleDTO.Organizer;
-
-    private IEnumerable<UserResponse> FilteredUsers => usersResult.Data?.Where(u =>
-        string.IsNullOrEmpty(searchTerm) ||
-        u.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
-        ?? Enumerable.Empty<UserResponse>();
+    private List<UserResponse> attendees;
+    private string errorMessage = string.Empty;
+    private bool isLoggedIn = false;
+    private bool isOrganizer = false;
 
     protected override async Task OnInitializedAsync()
     {
+        try
+        {
+            // Check if user is logged in (volunteers and organizers)
+            isLoggedIn = await _accessService.IsUserLoggedInAsync();
+            AccessControl.CheckVolunteerAccess(isLoggedIn, _navigationManager);
+            
+            // Check if user is an organizer (for UI controls)
+            isOrganizer = await _accessService.IsOrganizerAsync();
+            
+            // Load event data
+            await LoadEventData();
+        }
+        catch
+        {
+            // In case of errors, redirect to login
+            _navigationManager.NavigateTo("/auth/login");
+        }
+    }
+    
+    private async Task LoadEventData()
+    {
         eventResult = await _eventApiService.GetEventByIdAsync(eventId);
-        usersResult = await _userApiService.GetAllUsersAsync();
-        usersAttendingTheEvent = await _eventAttendanceApiService.GetUsersByEventIdAsync(eventId);
+        
+        if (eventResult.IsSuccess && eventResult.Data != null)
+        {
+            // Load attendees
+            var attendeesResult = await _eventAttendanceApiService.GetUsersByEventIdAsync(eventId);
+            if (attendeesResult.IsSuccess)
+            {
+                attendees = attendeesResult.Data;
+            }
+        }
     }
 
-    private async Task ToggleAttendance(int userId, bool isAttending)
+    private void GoBack()
     {
-        isLoading = true;
-        StateHasChanged(); // Update UI to show loading
+        _navigationManager.NavigateTo("/events");
+    }
 
-        if (isAttending)
+    private void EditEvent(int eventId)
+    {
+        _navigationManager.NavigateTo($"/events/{eventId}/edit");
+    }
+
+    private async Task DeleteEvent(int eventId)
+    {
+        var result = await _eventApiService.DeleteEventAsync(eventId);
+        if (result.IsSuccess)
         {
-            var attendance = new CreateEventAttendanceRequest(userId, eventId);
-            var result = await _eventAttendanceApiService.CreateAttendanceAsync(attendance);
-            if (result.IsSuccess)
-            {
-                message = "User signed up successfully.";
-                messageClass = "text-success";
-            }
-            else
-            {
-                message = $"Error signing up user: {result.ErrorMessage}";
-                messageClass = "text-danger";
-            }
+            _navigationManager.NavigateTo("/events");
         }
         else
         {
-            var result = await _eventAttendanceApiService.DeleteAttendanceAsync(userId, eventId);
-            if (result.IsSuccess)
-            {
-                message = "User removed successfully.";
-                messageClass = "text-success";
-            }
-            else
-            {
-                message = $"Error removing user: {result.ErrorMessage}";
-                messageClass = "text-danger";
-            }
+            errorMessage = result.ErrorMessage ?? "An error occurred while deleting the event.";
         }
-        // Refresh attendees list to update switch states
-        usersAttendingTheEvent = await _eventAttendanceApiService.GetUsersByEventIdAsync(eventId);
-        isLoading = false;
-        StateHasChanged(); // Update UI to hide loading and show updated data
-    }
-
-    private void ToggleManageAttendance()
-    {
-        isManageAttendanceVisible = !isManageAttendanceVisible; // Toggle visibility
-    }
-
-    private void Cancel()
-    {
-        _navigationManager.NavigateTo("/events");
     }
 }

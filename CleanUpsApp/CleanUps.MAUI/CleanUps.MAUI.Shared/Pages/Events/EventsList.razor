@@ -1,8 +1,10 @@
 ﻿@page "/events"
 @using CleanUps.Shared.DTOs.Events
+@using CleanUps.MAUI.Shared.Services.Interfaces
 @inject NavigationManager _navigationManager
 @inject EventApiService _eventApiService
 @inject EventAttendanceApiService _eventAttendanceApiService
+@inject IAccessService _accessService
 <div class="card shadow p-4">
 
     <h3>Events List</h3>
@@ -48,7 +50,7 @@
                             <td>
                                 <div class="btn-group" role="group" aria-label="Basic example">
                                     <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewDetails(ev.EventId)">View</button>
-                                    @if (CurrentUserRole == RoleDTO.Organizer)
+                                    @if (isOrganizer)
                                     {
                                         <button class="btn btn-secondary btn-sm mt-2" @onclick="() => EditEvent(ev.EventId)">Edit</button>
                                         <button class="btn btn-danger btn-sm mt-2" @onclick="() => DeleteEvent(ev.EventId)">Delete</button>
@@ -60,7 +62,12 @@
                     @if (isLoadingEvents)
                     {
                         <tr>
-                            <td colspan="11" class="text-center">Loading more events...</td>
+                            <td colspan="11" class="text-center">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                Loading more events...
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -80,7 +87,7 @@
                                     Actions
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-@ev.EventId">
-                                    @if (CurrentUserRole == RoleDTO.Organizer)
+                                    @if (isOrganizer)
                                     {
                                         <li><button class="dropdown-item btn-secondary" @onclick="() => EditEvent(ev.EventId)">Edit</button></li>
                                         <li><button class="dropdown-item btn-danger" @onclick="() => DeleteEvent(ev.EventId)">Delete</button></li>
@@ -100,6 +107,9 @@
                 @if (isLoadingEvents)
                 {
                     <div class="list-group-item text-center">
+                        <div class="spinner-border spinner-border-sm" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
                         Loading more events...
                     </div>
                 }
@@ -111,7 +121,7 @@
             <p class="text-danger">Error: @loadError</p>
         }
 
-        @if (CurrentUserRole == RoleDTO.Organizer)
+        @if (isOrganizer)
         {
             <!-- Create New Event button -->
             <div class="mb-2">
@@ -131,19 +141,29 @@
     private List<EventResponse> loadedEvents = new List<EventResponse>();
     private string errorMessage;
     private string loadError;
-    private RoleDTO CurrentUserRole = RoleDTO.Organizer;
+    private bool isOrganizer = false;
     private Dictionary<int, int> eventAttendeeCount = new Dictionary<int, int>();
     private bool isLoadingAttendees = false;
     private bool isLoadingEvents = false;
 
     protected override async Task OnInitializedAsync()
     {
-        // Start loading immediately
-        loadedEvents = new List<EventResponse>();
-        await LoadEventsAsync();
+        // First load the events
+        await LoadEvents();
+        
+        // Check if user is an organizer to show/hide certain UI elements
+        try
+        {
+            isOrganizer = await _accessService.IsOrganizerAsync();
+        }
+        catch
+        {
+            // In case of errors, assume not organizer
+            isOrganizer = false;
+        }
     }
 
-    private async Task LoadEventsAsync()
+    private async Task LoadEvents()
     {
         try
         {
@@ -163,7 +183,7 @@
                     StateHasChanged();
                     
                     // Optional: Small delay to show the progressive loading (remove in production)
-                    await Task.Delay(100); 
+                    await Task.Delay(20);
                 }
                 
                 // Now load the attendance counts
@@ -229,7 +249,7 @@
         {
             // Reload events after deletion
             loadedEvents.Clear();
-            await LoadEventsAsync();
+            await LoadEvents();
         }
         else
         {

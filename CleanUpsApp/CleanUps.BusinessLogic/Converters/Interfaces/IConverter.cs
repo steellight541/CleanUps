@@ -23,14 +23,14 @@ namespace CleanUps.BusinessLogic.Converters.Interfaces
         /// <param name="dto">The response DTO to convert.</param>
         /// <returns>A new or updated model entity.</returns>
         ModelClass ToModel(TResponse dto);
-        
+
         /// <summary>
         /// Converts a create request DTO to a model entity.
         /// </summary>
         /// <param name="dto">The create request DTO to convert.</param>
         /// <returns>A new model entity.</returns>
         ModelClass ToModel(TCreateRequest dto);
-        
+
         /// <summary>
         /// Converts an update request DTO to a model entity.
         /// </summary>
@@ -44,14 +44,14 @@ namespace CleanUps.BusinessLogic.Converters.Interfaces
         /// <param name="model">The model entity to convert.</param>
         /// <returns>A response DTO representing the model.</returns>
         TResponse ToResponse(ModelClass model);
-        
+
         /// <summary>
         /// Converts a model entity to a create request DTO.
         /// </summary>
         /// <param name="model">The model entity to convert.</param>
         /// <returns>A create request DTO representing the model.</returns>
         TCreateRequest ToCreateRequest(ModelClass model);
-        
+
         /// <summary>
         /// Converts a model entity to an update request DTO.
         /// </summary>
@@ -65,7 +65,7 @@ namespace CleanUps.BusinessLogic.Converters.Interfaces
         /// <param name="listOfModels">The list of model entities to convert.</param>
         /// <returns>A list of response DTOs.</returns>
         List<TResponse> ToResponseList(List<ModelClass> listOfModels);
-        
+
         /// <summary>
         /// Converts a list of response DTOs to a list of model entities.
         /// </summary>

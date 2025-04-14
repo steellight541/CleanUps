@@ -11,7 +11,7 @@
         /// Organizers can create and manage events, users, and other system resources.
         /// </summary>
         Organizer = 1,
-        
+
         /// <summary>
         /// Represents a volunteer role with standard user capabilities.
         /// Volunteers can participate in events but have limited administrative access.

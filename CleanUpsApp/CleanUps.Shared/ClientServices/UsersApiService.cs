@@ -1,7 +1,6 @@
 ﻿using CleanUps.Shared.DTOs.Users;
 using CleanUps.Shared.ErrorHandling;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -263,6 +262,56 @@ namespace CleanUps.Shared.ClientServices
             catch (Exception ex)
             {
                 return Result<UserResponse>.InternalServerError($"Unexpected error: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Logs in a user with the provided credentials.
+        /// </summary>
+        /// <param name="loginRequest">The login credentials.</param>
+        /// <returns>
+        /// A Result containing the logged-in user information if successful,
+        /// a BadRequest result if the request data is invalid,
+        /// an Unauthorized result if the credentials are invalid,
+        /// or an error message if the operation fails.
+        /// </returns>
+        public async Task<Result<LoginResponse>> LoginAsync(LoginRequest loginRequest)
+        {
+            try
+            {
+                HttpResponseMessage response = await _httpClient.PostAsJsonAsync("api/auth/login", loginRequest);
+                if (response.IsSuccessStatusCode)
+                {
+                    LoginResponse? loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
+                    return loginResponse != null ? Result<LoginResponse>.Ok(loginResponse) : Result<LoginResponse>.InternalServerError("Failed to deserialize login response");
+                }
+
+                string errorMessage = await response.Content.ReadAsStringAsync();
+                switch (response.StatusCode)
+                {
+                    case HttpStatusCode.BadRequest:
+                        return Result<LoginResponse>.BadRequest(errorMessage);
+                    case HttpStatusCode.Unauthorized:
+                        return Result<LoginResponse>.Unauthorized(errorMessage);
+                    default:
+                        return Result<LoginResponse>.InternalServerError(errorMessage);
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                return Result<LoginResponse>.InternalServerError($"Network error: {ex.Message}");
+            }
+            catch (JsonException ex)
+            {
+                return Result<LoginResponse>.BadRequest($"Invalid JSON format: {ex.Message}");
+            }
+            catch (TaskCanceledException)
+            {
+                return Result<LoginResponse>.InternalServerError("Request timed out");
+            }
+            catch (Exception ex)
+            {
+                return Result<LoginResponse>.InternalServerError($"Unexpected error: {ex.Message}");
             }
         }
     }

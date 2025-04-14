@@ -1,6 +1,16 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@using CleanUps.MAUI.Shared.Services.Interfaces
+@implements IDisposable
+@inject IAccessService _accessService
+@inject NavigationManager _navigationManager
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">CleanUps.MAUI</a>
+        <a class="navbar-brand" href="">CleanUps</a>
+        @if (isLoggedIn)
+        {
+            <span class="text-light me-2">Hello, @userName</span>
+            <a href="/auth/logout" class="btn btn-outline-light btn-sm">Logout</a>
+        }
     </div>
 </div>
 
@@ -8,29 +18,118 @@
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
+        @if (isLoggedIn)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                    <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                </NavLink>
+            </div>
+        }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="auth/signup">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Sign Up
-            </NavLink>
-        </div>
-
+        <!-- Always visible - Public access -->
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="events">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Events
+                <span class="bi bi-calendar-event" aria-hidden="true"></span> Events
             </NavLink>
         </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="users">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Users
-            </NavLink>
-        </div>
+        @if (isLoggedIn)
+        {
+            <!-- Volunteers and Organizers -->
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="users/profile">
+                    <span class="bi bi-person" aria-hidden="true"></span> My Profile
+                </NavLink>
+            </div>
+            
+            @if (isOrganizer)
+            {
+                <!-- Organizer only -->
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="users">
+                        <span class="bi bi-people" aria-hidden="true"></span> Manage Users
+                    </NavLink>
+                </div>
+
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="events/create">
+                        <span class="bi bi-plus-circle" aria-hidden="true"></span> Create Event
+                    </NavLink>
+                </div>
+            }
+        }
+        else
+        {
+            <!-- Not logged in -->
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="auth/login">
+                    <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span> Login
+                </NavLink>
+            </div>
+            
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="auth/signup">
+                    <span class="bi bi-person-plus" aria-hidden="true"></span> Sign Up
+                </NavLink>
+            </div>
+        }
     </nav>
 </div>
+
+@code {
+    private bool isLoggedIn = false;
+    private bool isOrganizer = false;
+    private string userName = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Subscribe to navigation events to detect login/logout
+        _navigationManager.LocationChanged += OnLocationChanged;
+        
+        // Initial loading of auth state
+        await UpdateAuthState();
+    }
+
+    private async void OnLocationChanged(object sender, LocationChangedEventArgs e)
+    {
+        // When navigation occurs, refresh the auth state
+        await InvokeAsync(async () => {
+            await UpdateAuthState();
+            StateHasChanged();
+        });
+    }
+
+    private async Task UpdateAuthState()
+    {
+        try
+        {
+            // Check if user is logged in and get basic info
+            isLoggedIn = await _accessService.IsUserLoggedInAsync();
+            if (isLoggedIn)
+            {
+                isOrganizer = await _accessService.IsOrganizerAsync();
+                userName = await _accessService.GetLoggedUserNameAsync() ?? "User";
+            }
+            else
+            {
+                isOrganizer = false;
+                userName = string.Empty;
+            }
+        }
+        catch
+        {
+            // Handle exceptions gracefully - assume not logged in if errors occur
+            isLoggedIn = false;
+            isOrganizer = false;
+            userName = string.Empty;
+        }
+    }
+
+    public void Dispose()
+    {
+        // Clean up event handler when component is disposed
+        _navigationManager.LocationChanged -= OnLocationChanged;
+    }
+}
 

@@ -30,8 +30,9 @@ public partial class CleanUpsContext : DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
-            throw new InvalidOperationException("DbContext has not been configured. Ensure that AddDbContext is called in Program.cs with a valid connection string.");        }
-        
+            throw new InvalidOperationException("DbContext has not been configured. Ensure that AddDbContext is called in Program.cs with a valid connection string.");
+        }
+
         optionsBuilder.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
     }
 
@@ -50,11 +51,11 @@ public partial class CleanUpsContext : DbContext
                 .OnDelete(DeleteBehavior.NoAction);
 
             entity.Property(e => e.TrashCollected).HasColumnType("decimal(18, 0)");
-            
+
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getutcdate())")
                 .HasColumnType("datetime2");
-                
+
             entity.Property(e => e.isDeleted)
                 .HasDefaultValue(false);
 
@@ -67,7 +68,7 @@ public partial class CleanUpsContext : DbContext
             entity.HasKey(e => new { e.EventId, e.UserId });
 
             entity.Property(e => e.CheckIn).HasColumnType("datetime");
-            
+
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getutcdate())")
                 .HasColumnType("datetime2");
@@ -102,10 +103,10 @@ public partial class CleanUpsContext : DbContext
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getutcdate())")
                 .HasColumnType("datetime");
-                
+
             entity.Property(e => e.isDeleted)
                 .HasDefaultValue(false);
-                
+
             entity.Property(e => e.Email).HasMaxLength(255);
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.PasswordHash).HasMaxLength(50);
@@ -114,7 +115,7 @@ public partial class CleanUpsContext : DbContext
                 .WithMany()
                 .HasForeignKey(e => e.RoleId)
                 .OnDelete(DeleteBehavior.NoAction);
-                 
+
             entity.ToTable(tb => tb.HasTrigger("TR_Users_InsteadOfDelete"));
         });
 

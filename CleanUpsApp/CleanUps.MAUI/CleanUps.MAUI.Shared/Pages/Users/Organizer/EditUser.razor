@@ -2,10 +2,13 @@
 @using CleanUps.Shared.DTOs.AbstractDTOs
 @using CleanUps.Shared.DTOs.Enums
 @using CleanUps.Shared.DTOs.Users
+@using CleanUps.MAUI.Shared.Pages.Auth
+@using CleanUps.MAUI.Shared.Services.Interfaces
 @inject NavigationManager _navigationManager
 @inject UserApiService _userApiService
+@inject IAccessService _accessService
 
-@if (CurrentUserRole == RoleDTO.Organizer)
+@if (isOrganizer)
 {
     <div class="card shadow p-4">
 
@@ -61,10 +64,30 @@ else
     private Result<UserResponse> userResult;
     private UserEditModel editModel;
     private string errorMessage;
-
-    private RoleDTO CurrentUserRole = RoleDTO.Organizer;
+    
+    private bool isLoggedIn = false;
+    private bool isOrganizer = false;
 
     protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Check if user is an organizer
+            isLoggedIn = await _accessService.IsUserLoggedInAsync();
+            isOrganizer = await _accessService.IsOrganizerAsync();
+            AccessControl.CheckOrganizerAccess(isLoggedIn, isOrganizer, _navigationManager);
+            
+            // Load user data after access check
+            await LoadUser();
+        }
+        catch
+        {
+            // In case of errors, redirect to login
+            _navigationManager.NavigateTo("/auth/login");
+        }
+    }
+
+    private async Task LoadUser()
     {
         userResult = await _userApiService.GetUserByIdAsync(userId);
         if (userResult.IsSuccess)

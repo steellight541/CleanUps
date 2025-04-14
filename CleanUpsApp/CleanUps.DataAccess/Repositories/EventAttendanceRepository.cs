@@ -4,7 +4,6 @@ using CleanUps.DataAccess.DatabaseHub;
 using CleanUps.Shared.DTOs.EventAttendances;
 using CleanUps.Shared.ErrorHandling;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("CleanUps.Configuration")]
@@ -144,27 +143,27 @@ namespace CleanUps.DataAccess.Repositories
                 // First, retrieve the event to check its end time
                 Event? theEvent = await _context.Events
                     .FirstOrDefaultAsync(e => e.EventId == eventId);
-                
+
                 if (theEvent == null)
                 {
                     return Result<List<User>>.NotFound($"Event with id: {eventId} does not exist");
                 }
-                
+
                 // Check if the event is in the future or ended within the last 72 hours
                 bool isRecentOrFutureEvent = theEvent.EndTime > DateTime.UtcNow.AddHours(-72);
-                
+
                 // Build the query to get users attending the event
                 var query = _context.Users
                     .Where(existingUser => _context.EventAttendances.Any(
-                        existingEventAttendance => existingEventAttendance.EventId == eventId && 
+                        existingEventAttendance => existingEventAttendance.EventId == eventId &&
                         existingEventAttendance.UserId == existingUser.UserId));
-                
+
                 // For recent or future events, exclude deleted users
                 if (isRecentOrFutureEvent)
                 {
                     query = query.Where(existingUser => !existingUser.isDeleted);
                 }
-                
+
                 // Include role data and execute the query
                 List<User> users = await query
                     .Include(existingUser => existingUser.Role)

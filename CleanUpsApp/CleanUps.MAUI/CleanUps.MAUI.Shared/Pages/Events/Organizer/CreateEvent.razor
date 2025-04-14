@@ -1,8 +1,12 @@
 ﻿@page "/events/create"
+@using CleanUps.MAUI.Shared.Pages.Auth
+@using CleanUps.MAUI.Shared.Services.Interfaces
+@using CleanUps.Shared.DTOs.Events
 @inject NavigationManager _navigationManager
 @inject EventApiService _eventApiService
+@inject IAccessService _accessService
 
-@if (CurrentUserRole == RoleDTO.Organizer)
+@if (isOrganizer)
 {
     <div class="card shadow p-4">
         <h3>Create New Event</h3>
@@ -56,7 +60,24 @@ else
 @code {
     private EventCreateModel eventCreateModel = new EventCreateModel();
     private string errorMessage;
-    private RoleDTO CurrentUserRole = RoleDTO.Organizer;
+    private bool isLoggedIn = false;
+    private bool isOrganizer = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Check if user is an organizer
+        try
+        {
+            isLoggedIn = await _accessService.IsUserLoggedInAsync();
+            isOrganizer = await _accessService.IsOrganizerAsync();
+            AccessControl.CheckOrganizerAccess(isLoggedIn, isOrganizer, _navigationManager);
+        }
+        catch
+        {
+            // In case of errors, redirect to login
+            _navigationManager.NavigateTo("/auth/login");
+        }
+    }
 
     private async Task HandleSubmit()
     {
