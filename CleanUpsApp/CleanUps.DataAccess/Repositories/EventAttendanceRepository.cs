@@ -4,6 +4,7 @@ using CleanUps.DataAccess.DatabaseHub;
 using CleanUps.Shared.DTOs.EventAttendances;
 using CleanUps.Shared.ErrorHandling;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("CleanUps.Configuration")]
@@ -49,8 +50,20 @@ namespace CleanUps.DataAccess.Repositories
             {
                 return Result<List<EventAttendance>>.InternalServerError($"{ex.Message}");
             }
+            catch (DbUpdateException ex)
+            {
+                if (ex.InnerException != null)
+                {
+                    return Result<List<EventAttendance>>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                }
+                return Result<List<EventAttendance>>.InternalServerError($"{ex.Message}");
+            }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<List<EventAttendance>>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<List<EventAttendance>>.InternalServerError($"{ex.Message}");
             }
         }
@@ -75,9 +88,10 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
-                List<Event> events = await _context.EventAttendances
-                    .Where(ea => ea.UserId == userId)
-                    .Select(ea => ea.Event)
+                List<Event> events = await _context.Events
+                    .Where(existingEvent => _context.EventAttendances
+                    .Any(existinEventAttendance => existinEventAttendance.UserId == userId
+                     && existinEventAttendance.EventId == existingEvent.EventId))
                     .Include(existingEvent => existingEvent.Location)
                     .Include(existingEvent => existingEvent.Status)
                     .ToListAsync();
@@ -96,14 +110,30 @@ namespace CleanUps.DataAccess.Repositories
             {
                 return Result<List<Event>>.InternalServerError($"{ex.Message}");
             }
+            catch (DbUpdateException ex)
+            {
+                if (ex.InnerException != null)
+                {
+                    return Result<List<Event>>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                }
+                return Result<List<Event>>.InternalServerError($"{ex.Message}");
+            }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<List<Event>>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<List<Event>>.InternalServerError($"{ex.Message}");
             }
         }
 
         /// <summary>
         /// Retrieves all users attending a specific event.
+        /// For historical events (older than 72 hours), soft-deleted users are still included
+        /// to maintain the historical record of attendances.
+        /// For events that are in the future or have ended within the last 72 hours,
+        /// soft-deleted users are excluded from the results.
         /// </summary>
         /// <param name="eventId">The ID of the event whose attendees to retrieve.</param>
         /// <returns>A Result containing a list of users if found, a NoContent result if no users are found, or an error message if the operation fails.</returns>
@@ -111,16 +141,38 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
-                List<User> users = await _context.EventAttendances
-                    .Where(ea => ea.EventId == eventId)
-                    .Select(ea => ea.User)
-                    .Include(existinUser => existinUser.Role)
+                // First, retrieve the event to check its end time
+                Event? theEvent = await _context.Events
+                    .FirstOrDefaultAsync(e => e.EventId == eventId);
+                
+                if (theEvent == null)
+                {
+                    return Result<List<User>>.NotFound($"Event with id: {eventId} does not exist");
+                }
+                
+                // Check if the event is in the future or ended within the last 72 hours
+                bool isRecentOrFutureEvent = theEvent.EndTime > DateTime.UtcNow.AddHours(-72);
+                
+                // Build the query to get users attending the event
+                var query = _context.Users
+                    .Where(existingUser => _context.EventAttendances.Any(
+                        existingEventAttendance => existingEventAttendance.EventId == eventId && 
+                        existingEventAttendance.UserId == existingUser.UserId));
+                
+                // For recent or future events, exclude deleted users
+                if (isRecentOrFutureEvent)
+                {
+                    query = query.Where(existingUser => !existingUser.isDeleted);
+                }
+                
+                // Include role data and execute the query
+                List<User> users = await query
+                    .Include(existingUser => existingUser.Role)
                     .ToListAsync();
 
                 if (users.Count == 0)
                 {
                     return Result<List<User>>.NoContent();
-
                 }
                 return Result<List<User>>.Ok(users);
             }
@@ -132,8 +184,20 @@ namespace CleanUps.DataAccess.Repositories
             {
                 return Result<List<User>>.InternalServerError($"{ex.Message}");
             }
+            catch (DbUpdateException ex)
+            {
+                if (ex.InnerException != null)
+                {
+                    return Result<List<User>>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                }
+                return Result<List<User>>.InternalServerError($"{ex.Message}");
+            }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<List<User>>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<List<User>>.InternalServerError($"{ex.Message}");
             }
         }
@@ -166,10 +230,35 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (DbUpdateException ex)
             {
+                if (ex.InnerException != null)
+                {
+                    // Check for primary key constraint violation
+                    if (ex.InnerException.Message.Contains("PK_EventAttendances"))
+                    {
+                        return Result<EventAttendance>.Conflict($"User already registered for this event.");
+                    }
+                    // Check for foreign key constraint violations
+                    else if (ex.InnerException.Message.Contains("FK_EventAttendances_Events_EventId"))
+                    {
+                        return Result<EventAttendance>.Conflict("The specified event does not exist.");
+                    }
+                    else if (ex.InnerException.Message.Contains("FK_EventAttendances_Users_UserId"))
+                    {
+                        return Result<EventAttendance>.Conflict("The specified user does not exist.");
+                    }
+                    else
+                    {
+                        return Result<EventAttendance>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                    }
+                }
                 return Result<EventAttendance>.InternalServerError($"{ex.Message}");
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<EventAttendance>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<EventAttendance>.InternalServerError($"{ex.Message}");
             }
         }
@@ -188,7 +277,7 @@ namespace CleanUps.DataAccess.Repositories
                     .Include(e => e.User)
                     .Include(e => e.Event)
                     .FirstOrDefaultAsync(ev => ev.EventId == eventAttendanceToBeUpdated.EventId && ev.UserId == eventAttendanceToBeUpdated.UserId);
-                
+
                 if (existingEventAttendance == null)
                 {
                     return Result<EventAttendance>.NotFound($"EventAttendance for event with Id-{eventAttendanceToBeUpdated.EventId} and user with Id-{eventAttendanceToBeUpdated.UserId} does not exist");
@@ -208,14 +297,38 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (DbUpdateConcurrencyException ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<EventAttendance>.Conflict($"DB InnerException: {ex.InnerException.Message}");
+                }
                 return Result<EventAttendance>.Conflict($"{ex.Message}");
             }
             catch (DbUpdateException ex)
             {
+                if (ex.InnerException != null)
+                {
+                    // Check for foreign key constraint violations
+                    if (ex.InnerException.Message.Contains("FK_EventAttendances_Events_EventId"))
+                    {
+                        return Result<EventAttendance>.Conflict("The specified event does not exist.");
+                    }
+                    else if (ex.InnerException.Message.Contains("FK_EventAttendances_Users_UserId"))
+                    {
+                        return Result<EventAttendance>.Conflict("The specified user does not exist.");
+                    }
+                    else
+                    {
+                        return Result<EventAttendance>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                    }
+                }
                 return Result<EventAttendance>.InternalServerError($"{ex.Message}");
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<EventAttendance>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<EventAttendance>.InternalServerError($"{ex.Message}");
             }
         }
@@ -249,14 +362,38 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (DbUpdateConcurrencyException ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<EventAttendance>.Conflict($"DB InnerException: {ex.InnerException.Message}");
+                }
                 return Result<EventAttendance>.Conflict($"{ex.Message}");
             }
             catch (DbUpdateException ex)
             {
+                if (ex.InnerException != null)
+                {
+                    // Check for foreign key constraint violations
+                    if (ex.InnerException.Message.Contains("FK_EventAttendances_Events_EventId"))
+                    {
+                        return Result<EventAttendance>.Conflict("The specified event does not exist.");
+                    }
+                    else if (ex.InnerException.Message.Contains("FK_EventAttendances_Users_UserId"))
+                    {
+                        return Result<EventAttendance>.Conflict("The specified user does not exist.");
+                    }
+                    else
+                    {
+                        return Result<EventAttendance>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                    }
+                }
                 return Result<EventAttendance>.InternalServerError($"{ex.Message}");
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<EventAttendance>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<EventAttendance>.InternalServerError($"{ex.Message}");
             }
         }

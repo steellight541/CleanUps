@@ -21,7 +21,8 @@ namespace CleanUps.BusinessLogic.Converters
             {
                 EventId = response.EventId,
                 UserId = response.UserId,
-                CheckIn = response.CheckIn
+                CheckIn = response.CheckIn,
+                CreatedDate = response.CreatedDate
             };
         }
 
@@ -36,6 +37,7 @@ namespace CleanUps.BusinessLogic.Converters
             {
                 EventId = createRequest.EventId,
                 UserId = createRequest.UserId,
+                CreatedDate = DateTime.UtcNow
             };
         }
 
@@ -61,7 +63,12 @@ namespace CleanUps.BusinessLogic.Converters
         /// <returns>A new EventAttendanceResponse DTO populated with data from the model.</returns>
         public EventAttendanceResponse ToResponse(EventAttendance model)
         {
-            return new EventAttendanceResponse(model.UserId, model.EventId, model.CheckIn);
+            return new EventAttendanceResponse(
+                model.UserId, 
+                model.EventId, 
+                model.CheckIn,
+                model.CreatedDate
+            );
         }
 
         /// <summary>

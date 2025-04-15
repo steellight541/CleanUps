@@ -49,8 +49,20 @@ namespace CleanUps.DataAccess.Repositories
             {
                 return Result<List<Photo>>.InternalServerError($"{ex.Message}");
             }
+            catch (DbUpdateException ex)
+            {
+                if (ex.InnerException != null)
+                {
+                    return Result<List<Photo>>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                }
+                return Result<List<Photo>>.InternalServerError($"{ex.Message}");
+            }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<List<Photo>>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<List<Photo>>.InternalServerError($"{ex.Message}");
             }
         }
@@ -80,6 +92,10 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<Photo>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<Photo>.InternalServerError($"{ex.Message}");
             }
         }
@@ -111,8 +127,20 @@ namespace CleanUps.DataAccess.Repositories
             {
                 return Result<List<Photo>>.InternalServerError($"{ex.Message}");
             }
+            catch (DbUpdateException ex)
+            {
+                if (ex.InnerException != null)
+                {
+                    return Result<List<Photo>>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                }
+                return Result<List<Photo>>.InternalServerError($"{ex.Message}");
+            }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<List<Photo>>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<List<Photo>>.InternalServerError($"{ex.Message}");
             }
         }
@@ -137,10 +165,26 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (DbUpdateException ex)
             {
+                if (ex.InnerException != null)
+                {
+                    // Check for foreign key constraint violation
+                    if (ex.InnerException.Message.Contains("FK_Photos_Events_EventId"))
+                    {
+                        return Result<Photo>.Conflict("The specified event does not exist.");
+                    }
+                    else
+                    {
+                        return Result<Photo>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                    }
+                }
                 return Result<Photo>.InternalServerError($"{ex.Message}");
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<Photo>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<Photo>.InternalServerError($"{ex.Message}");
             }
         }
@@ -179,14 +223,34 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (DbUpdateConcurrencyException ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<Photo>.Conflict($"DB InnerException: {ex.InnerException.Message}");
+                }
                 return Result<Photo>.Conflict($"{ex.Message}");
             }
             catch (DbUpdateException ex)
             {
+                if (ex.InnerException != null)
+                {
+                    // Check for foreign key constraint violation
+                    if (ex.InnerException.Message.Contains("FK_Photos_Events_EventId"))
+                    {
+                        return Result<Photo>.Conflict("The specified event does not exist.");
+                    }
+                    else
+                    {
+                        return Result<Photo>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                    }
+                }
                 return Result<Photo>.InternalServerError($"{ex.Message}");
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<Photo>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<Photo>.InternalServerError($"{ex.Message}");
             }
         }
@@ -224,14 +288,30 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (DbUpdateConcurrencyException ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<Photo>.Conflict($"DB InnerException: {ex.InnerException.Message}");
+                }
                 return Result<Photo>.Conflict($"{ex.Message}");
             }
             catch (DbUpdateException ex)
             {
+                if (ex.InnerException != null && ex.InnerException.Message.Contains("FK_"))
+                {
+                    return Result<Photo>.Conflict("Cannot delete photo because it is referenced by other records.");
+                }
+                else if (ex.InnerException != null)
+                {
+                    return Result<Photo>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                }
                 return Result<Photo>.InternalServerError($"{ex.Message}");
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<Photo>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<Photo>.InternalServerError($"{ex.Message}");
             }
         }

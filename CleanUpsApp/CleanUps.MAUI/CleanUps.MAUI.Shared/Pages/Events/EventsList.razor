@@ -7,11 +7,11 @@
 
     <h3>Events List</h3>
 
-    @if (events == null)
+    @if (loadedEvents == null)
     {
-        <p>Loading...</p>
+        <p>Loading events...</p>
     }
-    else if (events.IsSuccess)
+    else 
     {
         <!-- Table layout for larger screens -->
         <div class="d-none d-md-block mb-2">
@@ -25,14 +25,14 @@
                         <th>End time</th>
                         <th>Family Friendly?</th>
                         <th>Trash Collected</th>
-                        <th>Participants</th>
-                        <th>Satus</th>
+                        <th>Status</th>
                         <th>Location</th>
+                        <th>Participants</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var ev in events.Data)
+                    @foreach (var ev in loadedEvents)
                     {
                         <tr>
                             <td>@ev.EventId</td>
@@ -42,9 +42,9 @@
                             <td>@ev.EndTime.ToShortDateString()</td>
                             <td>@(ev.FamilyFriendly ? "Yes" : "No")</td>
                             <td>@ev.TrashCollected</td>
-                            <td>@(participantCounts.TryGetValue(ev.EventId, out var count) ? count : 0)</td>
                             <td>@ev.Status.ToString()</td>
                             <td>No location yet</td>
+                            <td>@GetAttendeeCount(ev.EventId)</td>
                             <td>
                                 <div class="btn-group" role="group" aria-label="Basic example">
                                     <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewDetails(ev.EventId)">View</button>
@@ -57,32 +57,59 @@
                             </td>
                         </tr>
                     }
+                    @if (isLoadingEvents)
+                    {
+                        <tr>
+                            <td colspan="11" class="text-center">Loading more events...</td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
 
-        <!-- List-group layout for small screens -->
+        <!-- List-group layout for small screens with dropdown -->
         <div class="d-block d-md-none mb-2">
             <div class="list-group">
-                @foreach (var ev in events.Data)
+                @foreach (var ev in loadedEvents)
                 {
                     <div class="list-group-item">
-                        <h5>@ev.Title</h5>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">@ev.Title</h5>
+                            <div class="dropdown">
+                                <button class="btn btn-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuButton-@ev.EventId" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Actions
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-@ev.EventId">
+                                    @if (CurrentUserRole == RoleDTO.Organizer)
+                                    {
+                                        <li><button class="dropdown-item btn-secondary" @onclick="() => EditEvent(ev.EventId)">Edit</button></li>
+                                        <li><button class="dropdown-item btn-danger" @onclick="() => DeleteEvent(ev.EventId)">Delete</button></li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
                         <p><strong>Start Time:</strong> @ev.StartTime.ToShortDateString()</p>
                         <p><strong>End Time:</strong> @ev.EndTime.ToShortDateString()</p>
-                        <p><strong>Participants:</strong> @(participantCounts.TryGetValue(ev.EventId, out var count) ? count : 0)</p>
+                        <p><strong>Status:</strong> @ev.Status.ToString()</p>
+                        <p><strong>Participants:</strong> @GetAttendeeCount(ev.EventId)</p>
                         <div class="d-flex flex-column gap-2">
                             <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewDetails(ev.EventId)">View</button>
-                            @if (CurrentUserRole == RoleDTO.Organizer)
-                            {
-                                <button class="btn btn-secondary btn-sm mt-2" @onclick="() => EditEvent(ev.EventId)">Edit</button>
-                                <button class="btn btn-danger btn-sm mt-2" @onclick="() => DeleteEvent(ev.EventId)">Delete</button>
-                            }
                         </div>
+                    </div>
+                }
+                @if (isLoadingEvents)
+                {
+                    <div class="list-group-item text-center">
+                        Loading more events...
                     </div>
                 }
             </div>
         </div>
+
+        @if (loadError != null)
+        {
+            <p class="text-danger">Error: @loadError</p>
+        }
 
         @if (CurrentUserRole == RoleDTO.Organizer)
         {
@@ -92,10 +119,6 @@
             </div>
         }
     }
-    else
-    {
-        <p class="text-danger">Error: @events.ErrorMessage</p>
-    }
 
     @if (!string.IsNullOrEmpty(errorMessage))
     {
@@ -104,27 +127,89 @@
 </div>
 
 @code {
-    // Existing code remains unchanged
     private Result<List<EventResponse>> events;
-    private Dictionary<int, int> participantCounts = new Dictionary<int, int>();
+    private List<EventResponse> loadedEvents = new List<EventResponse>();
     private string errorMessage;
-
+    private string loadError;
     private RoleDTO CurrentUserRole = RoleDTO.Organizer;
+    private Dictionary<int, int> eventAttendeeCount = new Dictionary<int, int>();
+    private bool isLoadingAttendees = false;
+    private bool isLoadingEvents = false;
 
     protected override async Task OnInitializedAsync()
     {
-        events = await _eventApiService.GetAllEventsAsync();
-        if (events.IsSuccess)
-        {
-            var tasks = events.Data.Select(ev =>
-            {
-                int attendees = events.Data.Count;
+        // Start loading immediately
+        loadedEvents = new List<EventResponse>();
+        await LoadEventsAsync();
+    }
 
-                return new { ev.EventId, Count = attendees };
-            });
-            var results = tasks;
-            participantCounts = results.ToDictionary(r => r.EventId, r => r.Count);
+    private async Task LoadEventsAsync()
+    {
+        try
+        {
+            isLoadingEvents = true;
+            StateHasChanged();
+            
+            events = await _eventApiService.GetAllEventsAsync();
+            
+            if (events.IsSuccess && events.Data != null)
+            {
+                // Simulate progressive loading by adding events one by one with a small delay
+                foreach (var ev in events.Data)
+                {
+                    loadedEvents.Add(ev);
+                    
+                    // Update UI after each event is added
+                    StateHasChanged();
+                    
+                    // Optional: Small delay to show the progressive loading (remove in production)
+                    await Task.Delay(100); 
+                }
+                
+                // Now load the attendance counts
+                await LoadAttendeeCountsAsync();
+            }
+            else
+            {
+                loadError = events.ErrorMessage;
+            }
         }
+        catch (Exception ex)
+        {
+            loadError = $"Error loading events: {ex.Message}";
+        }
+        finally
+        {
+            isLoadingEvents = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadAttendeeCountsAsync()
+    {
+        if (loadedEvents != null && loadedEvents.Count > 0)
+        {
+            isLoadingAttendees = true;
+            StateHasChanged();
+            
+            foreach (var ev in loadedEvents)
+            {
+                var result = await _eventAttendanceApiService.GetUsersByEventIdAsync(ev.EventId);
+                eventAttendeeCount[ev.EventId] = result.IsSuccess && result.Data != null ? result.Data.Count : 0;
+                StateHasChanged();
+            }
+            
+            isLoadingAttendees = false;
+        }
+    }
+
+    private string GetAttendeeCount(int eventId)
+    {
+        if (isLoadingAttendees && !eventAttendeeCount.ContainsKey(eventId))
+        {
+            return "Loading...";
+        }
+        return eventAttendeeCount.ContainsKey(eventId) ? eventAttendeeCount[eventId].ToString() : "0";
     }
 
     private void ViewDetails(int eventId)
@@ -142,14 +227,9 @@
         var result = await _eventApiService.DeleteEventAsync(eventId);
         if (result.IsSuccess)
         {
-            events = await _eventApiService.GetAllEventsAsync();
-            var tasks = events.Data.Select(ev =>
-            {
-                int attendees = events.Data.Count;
-                return new { ev.EventId, Count = attendees };
-            });
-            var results = tasks;
-            participantCounts = results.ToDictionary(r => r.EventId, r => r.Count);
+            // Reload events after deletion
+            loadedEvents.Clear();
+            await LoadEventsAsync();
         }
         else
         {

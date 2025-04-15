@@ -27,6 +27,8 @@ namespace CleanUps.DataAccess.Repositories
 
         /// <summary>
         /// Retrieves all events from the database, including their associated Location and Status data.
+        /// Only returns events that are not marked as deleted.
+        /// Event attendances from soft-deleted users are filtered out after loading the data.
         /// </summary>
         /// <returns>A Result containing a list of all events if successful, or an error message if the operation fails.</returns>
         public async Task<Result<List<Event>>> GetAllAsync()
@@ -34,9 +36,20 @@ namespace CleanUps.DataAccess.Repositories
             try
             {
                 List<Event> events = await _context.Events
+                    .Where(e => !e.isDeleted)
                     .Include(existingEvent => existingEvent.Location)
                     .Include(existingEvent => existingEvent.Status)
+                    .Include(existingEvent => existingEvent.EventAttendances)
+                        .ThenInclude(ea => ea.User)
                     .ToListAsync();
+
+                // Filter out soft-deleted users from event attendances
+                foreach (var eventItem in events)
+                {
+                    eventItem.EventAttendances = eventItem.EventAttendances
+                        .Where(ea => ea.User != null && !ea.User.isDeleted)
+                        .ToList();
+                }
 
                 return Result<List<Event>>.Ok(events);
 
@@ -49,14 +62,28 @@ namespace CleanUps.DataAccess.Repositories
             {
                 return Result<List<Event>>.InternalServerError($"{ex.Message}");
             }
+            catch (DbUpdateException ex)
+            {
+                if (ex.InnerException != null)
+                {
+                    return Result<List<Event>>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                }
+                return Result<List<Event>>.InternalServerError($"{ex.Message}");
+            }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<List<Event>>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<List<Event>>.InternalServerError($"{ex.Message}");
             }
         }
 
         /// <summary>
         /// Retrieves a specific event by its ID, including associated Location and Status data.
+        /// Only returns the event if it is not marked as deleted.
+        /// Event attendances from soft-deleted users are filtered out after loading the data.
         /// </summary>
         /// <param name="id">The ID of the event to retrieve.</param>
         /// <returns>A Result containing the requested event if found, or an error message if not found or if the operation fails.</returns>
@@ -66,8 +93,11 @@ namespace CleanUps.DataAccess.Repositories
             try
             {
                 Event? retrievedEvent = await _context.Events
+                   .Where(e => !e.isDeleted)
                    .Include(existingEvent => existingEvent.Location)
                    .Include(existingEvent => existingEvent.Status)
+                   .Include(existingEvent => existingEvent.EventAttendances)
+                        .ThenInclude(ea => ea.User)
                    .FirstOrDefaultAsync(existingEvent => existingEvent.EventId == id);
 
                 if (retrievedEvent is null)
@@ -76,11 +106,23 @@ namespace CleanUps.DataAccess.Repositories
                 }
                 else
                 {
+                    // Filter out soft-deleted users from event attendances
+                    if (retrievedEvent.EventAttendances != null)
+                    {
+                        retrievedEvent.EventAttendances = retrievedEvent.EventAttendances
+                            .Where(ea => ea.User != null && !ea.User.isDeleted)
+                            .ToList();
+                    }
+                    
                     return Result<Event>.Ok(retrievedEvent);
                 }
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<Event>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<Event>.InternalServerError($"{ex.Message}");
             }
         }
@@ -94,6 +136,9 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
+                // Ensure new events are not created as deleted
+                eventToBeCreated.isDeleted = false;
+                
                 await _context.Events.AddAsync(eventToBeCreated);
                 await _context.SaveChangesAsync();
 
@@ -105,16 +150,40 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (DbUpdateException ex)
             {
+                if (ex.InnerException != null)
+                {
+                    // Check for foreign key constraint violation
+                    if (ex.InnerException.Message.Contains("FK_Events_Locations_LocationId"))
+                    {
+                        return Result<Event>.Conflict("The specified location does not exist.");
+                    }
+                    else if (ex.InnerException.Message.Contains("FK_Events_Statuses_StatusId"))
+                    {
+                        return Result<Event>.Conflict("The specified status does not exist.");
+                    }
+                    else if (ex.InnerException.Message.Contains("CHK_EndTimeAfterStartTime"))
+                    {
+                        return Result<Event>.BadRequest("The end time must be after the start time.");
+                    }
+                    else
+                    {
+                        return Result<Event>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                    }
+                }
                 return Result<Event>.InternalServerError($"{ex.Message}");
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<Event>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<Event>.InternalServerError($"{ex.Message}");
             }
         }
 
         /// <summary>
-        /// Updates an existing event in the database.
+        /// Updates an existing event in the database. Only allows updating non-deleted events.
         /// </summary>
         /// <param name="eventToBeUpdated">The event entity containing the updated data.</param>
         /// <returns>A Result containing the updated event if successful, or an error message if the event is not found or if the operation fails.</returns>
@@ -134,9 +203,12 @@ namespace CleanUps.DataAccess.Repositories
             try
             {
                 Event? retrievedEvent = await _context.Events
+                    .Where(e => !e.isDeleted)
                     .Include(existingEvent => existingEvent.Location)
                     .Include(existingEvent => existingEvent.Status)
+                    .Include(existingEvent => existingEvent.EventAttendances)
                     .FirstOrDefaultAsync(existingEvent => existingEvent.EventId == eventToBeUpdated.EventId);
+                    
                 if (retrievedEvent is null)
                 {
                     return Result<Event>.NotFound($"Event with id: {eventToBeUpdated.EventId} does not exist");
@@ -144,6 +216,9 @@ namespace CleanUps.DataAccess.Repositories
 
                 else
                 {
+                    // Preserve the current isDeleted state - don't allow changing via normal update
+                    eventToBeUpdated.isDeleted = retrievedEvent.isDeleted;
+                    
                     _context.Entry(retrievedEvent).State = EntityState.Detached;
                     _context.Events.Attach(eventToBeUpdated);
                     _context.Entry(eventToBeUpdated).Property(ev => ev.Title).IsModified = true;
@@ -152,8 +227,8 @@ namespace CleanUps.DataAccess.Repositories
                     _context.Entry(eventToBeUpdated).Property(ev => ev.EndTime).IsModified = true;
                     _context.Entry(eventToBeUpdated).Property(ev => ev.FamilyFriendly).IsModified = true;
                     _context.Entry(eventToBeUpdated).Property(ev => ev.TrashCollected).IsModified = true;
-                    _context.Entry(eventToBeUpdated).Property(ev => ev.Status).IsModified = true;
-                    _context.Entry(eventToBeUpdated).Property(ev => ev.Location).IsModified = true;
+                    _context.Entry(eventToBeUpdated).Property(ev => ev.StatusId).IsModified = true;
+                    _context.Entry(eventToBeUpdated).Property(ev => ev.LocationId).IsModified = true;
 
                     await _context.SaveChangesAsync();
 
@@ -166,20 +241,48 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (DbUpdateConcurrencyException ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<Event>.Conflict($"DB InnerException: {ex.InnerException.Message}");
+                }
                 return Result<Event>.Conflict($"{ex.Message}");
             }
             catch (DbUpdateException ex)
             {
+                if (ex.InnerException != null)
+                {
+                    // Check for foreign key constraint violation
+                    if (ex.InnerException.Message.Contains("FK_Events_Locations_LocationId"))
+                    {
+                        return Result<Event>.Conflict("The specified location does not exist.");
+                    }
+                    else if (ex.InnerException.Message.Contains("FK_Events_Statuses_StatusId"))
+                    {
+                        return Result<Event>.Conflict("The specified status does not exist.");
+                    }
+                    else if (ex.InnerException.Message.Contains("CHK_EndTimeAfterStartTime"))
+                    {
+                        return Result<Event>.BadRequest("The end time must be after the start time.");
+                    }
+                    else
+                    {
+                        return Result<Event>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                    }
+                }
                 return Result<Event>.InternalServerError($"{ex.Message}");
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<Event>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<Event>.InternalServerError($"{ex.Message}");
             }
         }
 
         /// <summary>
-        /// Deletes an event from the database by its ID.
+        /// Soft-deletes an event by setting its isDeleted flag to true.
         /// </summary>
         /// <param name="id">The ID of the event to delete.</param>
         /// <returns>A Result containing the deleted event if successful, or an error message if the event is not found or if the operation fails.</returns>
@@ -187,39 +290,29 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
-                //Tries to get an existing event in the database
-                //FindAsync returns either an Event or Null
-                Event? eventToDelete = await _context.Events
-                    .Include(existingEvent => existingEvent.Location)
-                    .Include(existingEvent => existingEvent.Status)
+                Event? retrievedEvent = await _context.Events
+                    .Where(e => !e.isDeleted)
                     .FirstOrDefaultAsync(existingEvent => existingEvent.EventId == id);
 
-                if (eventToDelete is null)
+                if (retrievedEvent is null)
                 {
                     return Result<Event>.NotFound($"Event with id: {id} does not exist");
                 }
                 else
                 {
-                    _context.Events.Remove(eventToDelete);
+                    // Instead of removing from the database, set the isDeleted flag
+                    retrievedEvent.isDeleted = true;
+                    
                     await _context.SaveChangesAsync();
-
-                    return Result<Event>.Ok(eventToDelete);
+                    return Result<Event>.Ok(retrievedEvent);
                 }
-            }
-            catch (OperationCanceledException ex)
-            {
-                return Result<Event>.InternalServerError($"{ex.Message}");
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                return Result<Event>.Conflict($"{ex.Message}");
-            }
-            catch (DbUpdateException ex)
-            {
-                return Result<Event>.InternalServerError($"{ex.Message}");
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<Event>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<Event>.InternalServerError($"{ex.Message}");
             }
         }

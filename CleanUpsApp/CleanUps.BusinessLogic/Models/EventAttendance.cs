@@ -27,6 +27,12 @@ public partial class EventAttendance : EntityFrameworkModel
     public DateTime CheckIn { get; set; }
 
     /// <summary>
+    /// Gets or sets the date when the event attendance record was created.
+    /// </summary>
+    /// <value>A <see cref="DateTime"/> representing when the attendance was recorded.</value>
+    public DateTime CreatedDate { get; set; }
+
+    /// <summary>
     /// Gets or sets the event that the user attended.
     /// </summary>
     /// <value>An <see cref="Event"/> object representing the attended event.</value>

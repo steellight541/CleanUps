@@ -51,6 +51,12 @@ public partial class User : EntityFrameworkModel
     public DateTime CreatedDate { get; set; }
 
     /// <summary>
+    /// Gets or sets whether the user is deleted.
+    /// </summary>
+    /// <value>A <see cref="bool"/> indicating if the user is deleted.</value>
+    public bool isDeleted { get; set; }
+
+    /// <summary>
     /// Gets or sets the collection of events this user has attended or registered for.
     /// </summary>
     /// <value>An <see cref="ICollection{EventAttendance}"/> containing the user's event participation records.</value>

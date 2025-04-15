@@ -28,6 +28,7 @@ namespace CleanUps.DataAccess.Repositories
 
         /// <summary>
         /// Retrieves all users from the database, including their associated Role data.
+        /// Only returns users that are not marked as deleted.
         /// </summary>
         /// <returns>A Result containing a list of all users if successful, or an error message if the operation fails.</returns>
         public async Task<Result<List<User>>> GetAllAsync()
@@ -36,6 +37,7 @@ namespace CleanUps.DataAccess.Repositories
             {
                 List<User> users = new List<User>();
                 users = await _context.Users
+                    .Where(u => !u.isDeleted)
                     .Include(existinUser => existinUser.Role)
                     .ToListAsync();
 
@@ -50,14 +52,27 @@ namespace CleanUps.DataAccess.Repositories
             {
                 return Result<List<User>>.InternalServerError($"{ex.Message}");
             }
+            catch (DbUpdateException ex)
+            {
+                if (ex.InnerException != null)
+                {
+                    return Result<List<User>>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                }
+                return Result<List<User>>.InternalServerError($"{ex.Message}");
+            }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<List<User>>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<List<User>>.InternalServerError($"{ex.Message}");
             }
         }
 
         /// <summary>
         /// Retrieves a specific user by their ID, including associated Role data.
+        /// Only returns the user if they are not marked as deleted.
         /// </summary>
         /// <param name="id">The ID of the user to retrieve.</param>
         /// <returns>A Result containing the requested user if found, or an error message if not found or if the operation fails.</returns>
@@ -67,7 +82,8 @@ namespace CleanUps.DataAccess.Repositories
             try
             {
                 User? retrievedUser = await _context.Users
-                    .Include(existinUser=> existinUser.Role)
+                    .Where(u => !u.isDeleted)
+                    .Include(existinUser => existinUser.Role)
                     .FirstOrDefaultAsync(existinUser => existinUser.UserId == id);
 
                 if (retrievedUser is null)
@@ -81,6 +97,10 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<User>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<User>.InternalServerError($"{ex.Message}");
             }
         }
@@ -99,7 +119,7 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
-                if (await _context.Users.AnyAsync(u => u.Email == userToBeCreated.Email))
+                if (await _context.Users.Where(u => !u.isDeleted).AnyAsync(u => u.Email == userToBeCreated.Email))
                 {
                     return Result<User>.Conflict($"User with email {userToBeCreated.Email} already exists.");
                 }
@@ -110,6 +130,9 @@ namespace CleanUps.DataAccess.Repositories
                     return Result<User>.InternalServerError("Password hash was not provided for user creation.");
                 }
 
+                // Ensure new users are not created as deleted
+                userToBeCreated.isDeleted = false;
+                
                 await _context.Users.AddAsync(userToBeCreated);
                 await _context.SaveChangesAsync();
 
@@ -126,16 +149,31 @@ namespace CleanUps.DataAccess.Repositories
                 {
                     return Result<User>.Conflict($"User with email {userToBeCreated.Email} already exists.\n{ex.Message}");
                 }
-                return Result<User>.InternalServerError($"{ex.Message}");
+                else if (ex.InnerException != null && ex.InnerException.Message.Contains("FK_Users_Roles_RoleId"))
+                {
+                    return Result<User>.Conflict("The specified role does not exist.");
+                }
+                else if (ex.InnerException != null)
+                {
+                    return Result<User>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                }
+                else
+                {
+                    return Result<User>.InternalServerError($"{ex.Message}");
+                }
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<User>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<User>.InternalServerError($"{ex.Message}");
             }
         }
 
         /// <summary>
-        /// Updates an existing user in the database.
+        /// Updates an existing user in the database. Only allows updating non-deleted users.
         /// </summary>
         /// <param name="userToBeUpdated">The user entity containing the updated data.</param>
         /// <returns>A Result containing the updated user if successful, or an error message if the user is not found, email conflict occurs, or if the operation fails.</returns>
@@ -150,6 +188,7 @@ namespace CleanUps.DataAccess.Repositories
             try
             {
                 User? retrievedUser = await _context.Users
+                    .Where(u => !u.isDeleted)
                     .AsNoTracking()
                     .Include(existinUser => existinUser.Role)
                     .FirstOrDefaultAsync(u => u.UserId == userToBeUpdated.UserId);
@@ -163,13 +202,17 @@ namespace CleanUps.DataAccess.Repositories
                 //Below says: If the retrievedUser.Email does not match userToBeupdated.Email, then perhaps... maybem.. userToBeupdated changed their email.... but then it also says:
                 //If there is an existingUser with the same email as the userToBeupdated and the existing userId is not the same as the userToBeUpdated
                 //then it must mean the userToBeUpdated is trying to use another users email (email is unique in the db)
-                if (retrievedUser.Email != userToBeUpdated.Email && await _context.Users.AnyAsync(existingUser => existingUser.Email == userToBeUpdated.Email && existingUser.UserId != userToBeUpdated.UserId))
+                if (retrievedUser.Email != userToBeUpdated.Email && 
+                    await _context.Users
+                        .Where(u => !u.isDeleted) // Only check against non-deleted users
+                        .AnyAsync(existingUser => existingUser.Email == userToBeUpdated.Email && existingUser.UserId != userToBeUpdated.UserId))
                 {
-
-
                     return Result<User>.Conflict($"Another user with email {userToBeUpdated.Email} already exists.");
                 }
 
+                // Preserve the current isDeleted state - don't allow changing via normal update
+                userToBeUpdated.isDeleted = retrievedUser.isDeleted;
+                
                 _context.Entry(retrievedUser).State = EntityState.Detached;
                 _context.Users.Attach(userToBeUpdated);
                 _context.Entry(userToBeUpdated).Property(u => u.Name).IsModified = true;
@@ -186,6 +229,10 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (DbUpdateConcurrencyException ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<User>.Conflict($"DB InnerException: {ex.InnerException.Message}");
+                }
                 return Result<User>.Conflict($"{ex.Message}");
             }
             catch (DbUpdateException ex)
@@ -195,16 +242,31 @@ namespace CleanUps.DataAccess.Repositories
                 {
                     return Result<User>.Conflict($"User with email {userToBeUpdated.Email} already exists.\n{ex.Message}");
                 }
-                return Result<User>.InternalServerError($"{ex.Message}");
+                else if (ex.InnerException != null && ex.InnerException.Message.Contains("FK_Users_Roles_RoleId"))
+                {
+                    return Result<User>.Conflict("The specified role does not exist.");
+                }
+                else if (ex.InnerException != null)
+                {
+                    return Result<User>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                }
+                else
+                {
+                    return Result<User>.InternalServerError($"{ex.Message}");
+                }
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<User>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<User>.InternalServerError($"{ex.Message}");
             }
         }
 
         /// <summary>
-        /// Deletes a user from the database by their ID.
+        /// Soft-deletes a user by setting their isDeleted flag to true.
         /// </summary>
         /// <param name="id">The ID of the user to delete.</param>
         /// <returns>A Result containing the deleted user if successful, or an error message if the user is not found or if the operation fails.</returns>
@@ -212,39 +274,29 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
+                User? retrievedUser = await _context.Users
+                    .Where(u => !u.isDeleted)
+                    .FirstOrDefaultAsync(existingUser => existingUser.UserId == id);
 
-                //Tries to get an existing user in the database
-                //FindAsync returns either an User or Null
-                User? userToDelete = await _context.Users
-                    .Include(existinUser => existinUser.Role)
-                    .FirstOrDefaultAsync(existinUser => existinUser.UserId == id);
-
-                if (userToDelete is null)
+                if (retrievedUser is null)
                 {
                     return Result<User>.NotFound($"User with id: {id} does not exist");
                 }
                 else
                 {
-                    _context.Users.Remove(userToDelete);
+                    // Instead of removing from the database, set the isDeleted flag
+                    retrievedUser.isDeleted = true;
+                    
                     await _context.SaveChangesAsync();
-
-                    return Result<User>.Ok(userToDelete);
+                    return Result<User>.Ok(retrievedUser);
                 }
-            }
-            catch (OperationCanceledException ex)
-            {
-                return Result<User>.InternalServerError($"{ex.Message}");
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                return Result<User>.Conflict($"{ex.Message}");
-            }
-            catch (DbUpdateException ex)
-            {
-                return Result<User>.InternalServerError($"{ex.Message}");
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return Result<User>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
                 return Result<User>.InternalServerError($"{ex.Message}");
             }
         }
