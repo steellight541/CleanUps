@@ -3,6 +3,7 @@
 @using CleanUps.MAUI.Shared.Services.Interfaces;
 @using CleanUps.Shared.DTOs.Users;
 @using System.ComponentModel.DataAnnotations;
+@using System.Text.Json
 @inject UserApiService _userApiService
 @inject IAccessService _accessService
 @inject NavigationManager _navigationManager
@@ -55,29 +56,32 @@
 
     private async Task HandleSubmit()
     {
-        errorMsg = string.Empty;
-        
         // Create login request from model
         LoginRequest request = new LoginRequest(loginModel.Email, loginModel.Password);
-        
+
         // Attempt to login
         var result = await _userApiService.LoginAsync(request);
-        
+
         if (result.IsSuccess)
         {
-            // Store user session
-            var userSession = new UserSessionInfo
+            if (result.Data is LoginResponse loginResponse)
             {
-                UserId = result.Data.UserId,
-                Name = result.Data.Name,
-                Email = result.Data.Email,
-                Role = result.Data.Role
-            };
-            
-            await _accessService.SetUserSessionAsync(userSession);
-            
-            // Force a location change to trigger navbar update
-            _navigationManager.NavigateTo("/", forceLoad: false);
+                UserSessionInfo userSession = new UserSessionInfo
+                    {
+                        UserId = loginResponse.UserId,
+                        Name = loginResponse.Name,
+                        Email = loginResponse.Email,
+                        Role = loginResponse.Role
+                    };
+
+                await _accessService.SetUserSessionAsync(userSession);
+                _navigationManager.NavigateTo("/events", forceLoad: false);
+            }
+            else
+            {
+                // If we get here, the signup worked but the auto-login did not
+                _navigationManager.NavigateTo("/auth/login");
+            }
         }
         else
         {

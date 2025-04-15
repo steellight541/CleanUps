@@ -40,7 +40,7 @@ namespace CleanUps.BusinessLogic.Converters
                 Name = createRequest.Name,
                 Email = createRequest.Email,
                 CreatedDate = DateTime.UtcNow,
-                RoleId = 2,
+                RoleId = 1,
                 isDeleted = false
             };
         }

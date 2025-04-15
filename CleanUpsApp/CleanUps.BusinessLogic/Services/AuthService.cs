@@ -15,17 +15,15 @@ namespace CleanUps.BusinessLogic.Services
     internal class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepository;
-        private readonly IUserConverter _userConverter;
 
         /// <summary>
         /// Initializes a new instance of the AuthService class.
         /// </summary>
         /// <param name="userRepository">The repository for user data access.</param>
         /// <param name="userConverter">The converter for transforming between User models and DTOs.</param>
-        public AuthService(IUserRepository userRepository, IUserConverter userConverter)
+        public AuthService(IUserRepository userRepository)
         {
             _userRepository = userRepository;
-            _userConverter = userConverter;
         }
 
         /// <summary>

@@ -13,8 +13,19 @@
     {
         <p>Loading events...</p>
     }
-    else 
+    else
     {
+        @if (isOrganizer)
+        {
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <button class="btn btn-success w-100 w-md-auto" @onclick="CreateNewEvent">Create New Event</button>
+                </div>
+            </div>
+
+        }
+
         <!-- Table layout for larger screens -->
         <div class="d-none d-md-block mb-2">
             <table class="table table-striped table-hover">
@@ -121,13 +132,6 @@
             <p class="text-danger">Error: @loadError</p>
         }
 
-        @if (isOrganizer)
-        {
-            <!-- Create New Event button -->
-            <div class="mb-2">
-                <button class="btn btn-success w-100 w-md-auto" @onclick="CreateNewEvent">Create New Event</button>
-            </div>
-        }
     }
 
     @if (!string.IsNullOrEmpty(errorMessage))
@@ -150,7 +154,7 @@
     {
         // First load the events
         await LoadEvents();
-        
+
         // Check if user is an organizer to show/hide certain UI elements
         try
         {
@@ -169,23 +173,23 @@
         {
             isLoadingEvents = true;
             StateHasChanged();
-            
+
             events = await _eventApiService.GetAllEventsAsync();
-            
+
             if (events.IsSuccess && events.Data != null)
             {
                 // Simulate progressive loading by adding events one by one with a small delay
                 foreach (var ev in events.Data)
                 {
                     loadedEvents.Add(ev);
-                    
+
                     // Update UI after each event is added
                     StateHasChanged();
-                    
+
                     // Optional: Small delay to show the progressive loading (remove in production)
                     await Task.Delay(20);
                 }
-                
+
                 // Now load the attendance counts
                 await LoadAttendeeCountsAsync();
             }
@@ -211,14 +215,14 @@
         {
             isLoadingAttendees = true;
             StateHasChanged();
-            
+
             foreach (var ev in loadedEvents)
             {
                 var result = await _eventAttendanceApiService.GetUsersByEventIdAsync(ev.EventId);
                 eventAttendeeCount[ev.EventId] = result.IsSuccess && result.Data != null ? result.Data.Count : 0;
                 StateHasChanged();
             }
-            
+
             isLoadingAttendees = false;
         }
     }
