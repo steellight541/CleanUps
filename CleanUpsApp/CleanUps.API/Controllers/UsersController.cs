@@ -116,23 +116,7 @@ namespace CleanUps.API.Controllers
             switch (result.StatusCode)
             {
                 case 201:
-                    // Auto-login after successful registration
-                    var loginResult = await _authService.LoginByIdAsync(result.Data.UserId);
-                    if (loginResult.IsSuccess)
-                    {
-                        // Return both the created user and login information
-                        var response = new
-                        {
-                            User = result.Data,
-                            Auth = loginResult.Data
-                        };
-                        return Created("api/users/" + result.Data.UserId, response);
-                    }
-                    else
-                    {
-                        // Fallback to just returning the user if auto-login fails
-                        return Created("api/users/" + result.Data.UserId, result.Data);
-                    }
+                    return Created("api/users/" + result.Data.UserId, result.Data);
                 case 400:
                     return BadRequest(result.ErrorMessage);
                 default:

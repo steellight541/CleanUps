@@ -1,10 +1,10 @@
 ﻿@page "/events"
-@using CleanUps.Shared.DTOs.Events
-@using CleanUps.MAUI.Shared.Services.Interfaces
+
 @inject NavigationManager _navigationManager
-@inject EventApiService _eventApiService
-@inject EventAttendanceApiService _eventAttendanceApiService
+@inject IEventApiService _eventApiService
+@inject IEventAttendanceApiService _eventAttendanceApiService
 @inject IAccessService _accessService
+
 <div class="card shadow p-4">
 
     <h3>Events List</h3>
@@ -20,9 +20,10 @@
 
             <div class="row">
                 <div class="col-md-4 mb-3">
-                    <button class="btn btn-success w-100 w-md-auto" @onclick="CreateNewEvent">Create New Event</button>
+                    <button class="btn btn-success" @onclick="CreateNewEvent">Create New Event</button>
                 </div>
             </div>
+
 
         }
 
@@ -152,10 +153,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // First load the events
-        await LoadEvents();
-
-        // Check if user is an organizer to show/hide certain UI elements
         try
         {
             isOrganizer = await _accessService.IsOrganizerAsync();
@@ -165,6 +162,11 @@
             // In case of errors, assume not organizer
             isOrganizer = false;
         }
+
+        // First load the events
+        await LoadEvents();
+
+        // Check if user is an organizer to show/hide certain UI elements
     }
 
     private async Task LoadEvents()
@@ -174,7 +176,7 @@
             isLoadingEvents = true;
             StateHasChanged();
 
-            events = await _eventApiService.GetAllEventsAsync();
+            events = await _eventApiService.GetAllAsync();
 
             if (events.IsSuccess && events.Data != null)
             {
@@ -248,7 +250,7 @@
 
     private async Task DeleteEvent(int eventId)
     {
-        var result = await _eventApiService.DeleteEventAsync(eventId);
+        var result = await _eventApiService.DeleteAsync(new DeleteEventRequest(eventId));
         if (result.IsSuccess)
         {
             // Reload events after deletion

@@ -1,4 +1,5 @@
-﻿using CleanUps.Shared.DTOs.Users;
+﻿using CleanUps.Shared.ClientServices.Interfaces;
+using CleanUps.Shared.DTOs.Users;
 using CleanUps.Shared.ErrorHandling;
 using System.Net;
 using System.Net.Http.Json;
@@ -10,7 +11,7 @@ namespace CleanUps.Shared.ClientServices
     /// Client service for interacting with the Users API.
     /// Provides methods for performing CRUD operations on users through HTTP requests.
     /// </summary>
-    public class UserApiService
+    public class UserApiService : IUserApiService
     {
         private readonly HttpClient _httpClient;
 
@@ -31,7 +32,7 @@ namespace CleanUps.Shared.ClientServices
         /// a NoContent result if no users exist,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<List<UserResponse>>> GetAllUsersAsync()
+        public async Task<Result<List<UserResponse>>> GetAllAsync()
         {
             try
             {
@@ -77,7 +78,7 @@ namespace CleanUps.Shared.ClientServices
         /// a BadRequest result if the ID is invalid,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<UserResponse>> GetUserByIdAsync(int id)
+        public async Task<Result<UserResponse>> GetByIdAsync(int id)
         {
             try
             {
@@ -122,7 +123,7 @@ namespace CleanUps.Shared.ClientServices
         /// a BadRequest result if the request data is invalid,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<UserResponse>> CreateUserAsync(CreateUserRequest createRequest)
+        public async Task<Result<UserResponse>> CreateAsync(CreateUserRequest createRequest)
         {
             try
             {
@@ -174,11 +175,11 @@ namespace CleanUps.Shared.ClientServices
         /// a Conflict result if there's a concurrency issue or email conflict,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<UserResponse>> UpdateUserAsync(int id, UpdateUserRequest updateRequest)
+        public async Task<Result<UserResponse>> UpdateAsync(UpdateUserRequest updateRequest)
         {
             try
             {
-                HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"api/users/{id}", updateRequest);
+                HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"api/users/{updateRequest.UserId}", updateRequest);
                 if (response.IsSuccessStatusCode)
                 {
                     UserResponse? updatedUser = await response.Content.ReadFromJsonAsync<UserResponse>();
@@ -227,11 +228,11 @@ namespace CleanUps.Shared.ClientServices
         /// a Conflict result if the user cannot be deleted,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<UserResponse>> DeleteUserAsync(int userId)
+        public async Task<Result<UserResponse>> DeleteAsync(DeleteUserRequest deleteRequest)
         {
             try
             {
-                HttpResponseMessage response = await _httpClient.DeleteAsync($"api/users/{userId}");
+                HttpResponseMessage response = await _httpClient.DeleteAsync($"api/users/{deleteRequest.Id}");
                 if (response.IsSuccessStatusCode)
                 {
                     UserResponse? deletedUser = await response.Content.ReadFromJsonAsync<UserResponse>();
@@ -262,56 +263,6 @@ namespace CleanUps.Shared.ClientServices
             catch (Exception ex)
             {
                 return Result<UserResponse>.InternalServerError($"Unexpected error: {ex.Message}");
-            }
-        }
-
-        /// <summary>
-        /// Logs in a user with the provided credentials.
-        /// </summary>
-        /// <param name="loginRequest">The login credentials.</param>
-        /// <returns>
-        /// A Result containing the logged-in user information if successful,
-        /// a BadRequest result if the request data is invalid,
-        /// an Unauthorized result if the credentials are invalid,
-        /// or an error message if the operation fails.
-        /// </returns>
-        public async Task<Result<LoginResponse>> LoginAsync(LoginRequest loginRequest)
-        {
-            try
-            {
-                HttpResponseMessage response = await _httpClient.PostAsJsonAsync("api/auth/login", loginRequest);
-                if (response.IsSuccessStatusCode)
-                {
-                    LoginResponse? loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
-                    return loginResponse != null ? Result<LoginResponse>.Ok(loginResponse) : Result<LoginResponse>.InternalServerError("Failed to deserialize login response");
-                }
-
-                string errorMessage = await response.Content.ReadAsStringAsync();
-                switch (response.StatusCode)
-                {
-                    case HttpStatusCode.BadRequest:
-                        return Result<LoginResponse>.BadRequest(errorMessage);
-                    case HttpStatusCode.Unauthorized:
-                        return Result<LoginResponse>.Unauthorized(errorMessage);
-                    default:
-                        return Result<LoginResponse>.InternalServerError(errorMessage);
-                }
-            }
-            catch (HttpRequestException ex)
-            {
-                return Result<LoginResponse>.InternalServerError($"Network error: {ex.Message}");
-            }
-            catch (JsonException ex)
-            {
-                return Result<LoginResponse>.BadRequest($"Invalid JSON format: {ex.Message}");
-            }
-            catch (TaskCanceledException)
-            {
-                return Result<LoginResponse>.InternalServerError("Request timed out");
-            }
-            catch (Exception ex)
-            {
-                return Result<LoginResponse>.InternalServerError($"Unexpected error: {ex.Message}");
             }
         }
     }

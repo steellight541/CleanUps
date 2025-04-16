@@ -1,9 +1,7 @@
 ﻿@page "/events/create"
-@using CleanUps.MAUI.Shared.Pages.Auth
-@using CleanUps.MAUI.Shared.Services.Interfaces
-@using CleanUps.Shared.DTOs.Events
+
 @inject NavigationManager _navigationManager
-@inject EventApiService _eventApiService
+@inject IEventApiService _eventApiService
 @inject IAccessService _accessService
 
 @if (isOrganizer)
@@ -90,7 +88,7 @@ else
             Location: new CreateLocationRequest(eventCreateModel.Longitude, eventCreateModel.Latitude)
     );
 
-        var result = await _eventApiService.CreateEventAsync(newEvent);
+        var result = await _eventApiService.CreateAsync(newEvent);
         if (result.IsSuccess)
         {
             _navigationManager.NavigateTo("/events");

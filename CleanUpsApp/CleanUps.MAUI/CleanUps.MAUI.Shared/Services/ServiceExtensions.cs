@@ -1,9 +1,11 @@
-﻿using CleanUps.MAUI.Shared.Services;
-using CleanUps.MAUI.Shared.Services.Interfaces;
+﻿
+using CleanUps.MAUI.Shared.AuthServices.AuthInterfaces;
+using CleanUps.MAUI.Shared.AuthServices;
 using CleanUps.Shared.ClientServices;
+using CleanUps.Shared.ClientServices.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace CleanUps.MAUI.Shared
+namespace CleanUps.MAUI.Shared.Services
 {
     /// <summary>
     /// Provides extension methods for configuring services in the MAUI application.
@@ -26,12 +28,13 @@ namespace CleanUps.MAUI.Shared
 
             // Add simplified session services
             services.AddScoped<ISessionService, LocalStorageSessionService>();
-
-            services.AddScoped<EventApiService>();
-            services.AddScoped<EventAttendanceApiService>();
-            services.AddScoped<PhotoApiService>();
-            services.AddScoped<UserApiService>();
             services.AddScoped<IAccessService, AccessService>();
+
+            services.AddScoped<IAuthApiService, AuthApiService>();
+            services.AddScoped<IEventApiService, EventApiService>();
+            services.AddScoped<IEventAttendanceApiService, EventAttendanceApiService>();
+            services.AddScoped<IPhotoApiService, PhotoApiService>();
+            services.AddScoped<IUserApiService, UserApiService>();
         }
     }
 }

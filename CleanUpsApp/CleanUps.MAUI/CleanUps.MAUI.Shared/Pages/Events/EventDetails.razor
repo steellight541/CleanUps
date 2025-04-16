@@ -1,12 +1,8 @@
 ﻿@page "/events/{eventId:int}/details"
-@using CleanUps.MAUI.Shared.Pages.Auth
-@using CleanUps.MAUI.Shared.Services.Interfaces
-@using CleanUps.Shared.DTOs.Enums
-@using CleanUps.Shared.DTOs.Events
-@using CleanUps.Shared.DTOs.Users
+
 @inject NavigationManager _navigationManager
-@inject EventApiService _eventApiService 
-@inject EventAttendanceApiService _eventAttendanceApiService
+@inject IEventApiService _eventApiService 
+@inject IEventAttendanceApiService _eventAttendanceApiService
 @inject IAccessService _accessService
 
 <div class="card shadow p-4">
@@ -19,7 +15,7 @@
     else if (eventResult.IsSuccess && eventResult.Data != null)
     {
         var ev = eventResult.Data;
-        
+
         <div class="mb-4">
             <h4>@ev.Title</h4>
             <p>@ev.Description</p>
@@ -76,7 +72,7 @@
 
         <div class="d-flex gap-2 mb-2">
             <button class="btn btn-secondary" @onclick="GoBack">Back</button>
-            
+
             @if (isOrganizer)
             {
                 <button class="btn btn-primary" @onclick="() => EditEvent(ev.EventId)">Edit</button>
@@ -112,10 +108,10 @@
             // Check if user is logged in (volunteers and organizers)
             isLoggedIn = await _accessService.IsUserLoggedInAsync();
             AccessControl.CheckVolunteerAccess(isLoggedIn, _navigationManager);
-            
+
             // Check if user is an organizer (for UI controls)
             isOrganizer = await _accessService.IsOrganizerAsync();
-            
+
             // Load event data
             await LoadEventData();
         }
@@ -125,11 +121,11 @@
             _navigationManager.NavigateTo("/auth/login");
         }
     }
-    
+
     private async Task LoadEventData()
     {
-        eventResult = await _eventApiService.GetEventByIdAsync(eventId);
-        
+        eventResult = await _eventApiService.GetByIdAsync(eventId);
+
         if (eventResult.IsSuccess && eventResult.Data != null)
         {
             // Load attendees
@@ -153,7 +149,7 @@
 
     private async Task DeleteEvent(int eventId)
     {
-        var result = await _eventApiService.DeleteEventAsync(eventId);
+        var result = await _eventApiService.DeleteAsync(new DeleteEventRequest(eventId));
         if (result.IsSuccess)
         {
             _navigationManager.NavigateTo("/events");

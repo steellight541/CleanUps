@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace CleanUps.MAUI.Shared.Pages.Auth
+namespace CleanUps.MAUI.Shared.AuthServices
 {
     /// <summary>
     /// Helper class for page access control based on user roles

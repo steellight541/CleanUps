@@ -1,4 +1,5 @@
-﻿using CleanUps.Shared.DTOs.EventAttendances;
+﻿using CleanUps.Shared.ClientServices.Interfaces;
+using CleanUps.Shared.DTOs.EventAttendances;
 using CleanUps.Shared.DTOs.Events;
 using CleanUps.Shared.DTOs.Users;
 using CleanUps.Shared.ErrorHandling;
@@ -12,7 +13,7 @@ namespace CleanUps.Shared.ClientServices
     /// Client service for interacting with the Event Attendance API.
     /// Provides methods for managing the relationship between users and the events they attend.
     /// </summary>
-    public class EventAttendanceApiService
+    public class EventAttendanceApiService : IEventAttendanceApiService
     {
         private readonly HttpClient _httpClient;
 
@@ -33,7 +34,7 @@ namespace CleanUps.Shared.ClientServices
         /// a NoContent result if no attendances exist,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<List<EventAttendanceResponse>>> GetAllAttendancesAsync()
+        public async Task<Result<List<EventAttendanceResponse>>> GetAllAsync()
         {
             try
             {
@@ -169,7 +170,7 @@ namespace CleanUps.Shared.ClientServices
         /// a NotFound result if the user or event doesn't exist,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<EventAttendanceResponse>> CreateAttendanceAsync(CreateEventAttendanceRequest newEventAttendance)
+        public async Task<Result<EventAttendanceResponse>> CreateAsync(CreateEventAttendanceRequest newEventAttendance)
         {
             try
             {
@@ -220,7 +221,7 @@ namespace CleanUps.Shared.ClientServices
         /// a Conflict result if there's a concurrency issue,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<EventAttendanceResponse>> UpdateAttendanceAsync(UpdateEventAttendanceRequest attendanceToUpdate)
+        public async Task<Result<EventAttendanceResponse>> UpdateAsync(UpdateEventAttendanceRequest attendanceToUpdate)
         {
             try
             {
@@ -274,11 +275,11 @@ namespace CleanUps.Shared.ClientServices
         /// a Conflict result if the attendance record cannot be deleted,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<EventAttendanceResponse>> DeleteAttendanceAsync(int userId, int eventId)
+        public async Task<Result<EventAttendanceResponse>> DeleteAsync(DeleteEventAttendanceRequest deleteRequest)
         {
             try
             {
-                HttpResponseMessage response = await _httpClient.DeleteAsync($"api/eventattendances/user/{userId}/event/{eventId}");
+                HttpResponseMessage response = await _httpClient.DeleteAsync($"api/eventattendances/user/{deleteRequest.UserId}/event/{deleteRequest.EventId}");
                 if (response.IsSuccessStatusCode)
                 {
                     EventAttendanceResponse? eventAttendance = await response.Content.ReadFromJsonAsync<EventAttendanceResponse>();
@@ -310,6 +311,11 @@ namespace CleanUps.Shared.ClientServices
             {
                 return Result<EventAttendanceResponse>.InternalServerError($"Unexpected error: {ex.Message}");
             }
+        }
+
+        public async Task<Result<EventAttendanceResponse>> GetByIdAsync(int id)
+        {
+            return Result<EventAttendanceResponse>.BadRequest("GetByIdAsync is not implemented in this API");
         }
     }
 }

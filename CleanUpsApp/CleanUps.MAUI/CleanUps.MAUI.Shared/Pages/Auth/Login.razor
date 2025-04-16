@@ -1,54 +1,58 @@
 ﻿@page "/auth/login"
-@using CleanUps.MAUI.Shared.Services;
-@using CleanUps.MAUI.Shared.Services.Interfaces;
-@using CleanUps.Shared.DTOs.Users;
-@using System.ComponentModel.DataAnnotations;
-@using System.Text.Json
-@inject UserApiService _userApiService
+
+@inject IAuthApiService _authApiService
 @inject IAccessService _accessService
 @inject NavigationManager _navigationManager
 
-<div class="card shadow p-4">
-    <h3>Login</h3>
-
-    <EditForm Model="loginModel" OnValidSubmit="HandleSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-
-        <div class="form-group mb-2">
-            <label for="email">Email</label>
-            <InputText id="email" @bind-Value="loginModel.Email" class="form-control" placeholder="office@zerowastemontenegro.me" />
-        </div>
-
-        <div class="form-group mb-2">
-            <label for="password">Password</label>
-            <InputText id="password" type="password" @bind-Value="loginModel.Password" class="form-control" />
-        </div>
-
-        <div class="mb-2">
-            <button type="submit" class="btn btn-primary btn-sm">Login</button>
-            <button type="button" class="btn btn-dark btn-sm" @onclick="Cancel">Cancel</button>
-        </div>
-
-        <div class="mb-2">
-            <a href="/auth/signup">Don't have an account? Sign up</a>
-        </div>
-    </EditForm>
-</div>
-
-@if (!string.IsNullOrEmpty(errorMsg))
+@if (loggedIn is true)
 {
-    <p class="text-danger">@errorMsg</p>
+    <p>Loading...</p>
 }
+else
+{
+    <div class="card shadow p-4">
+        <h3>Login</h3>
 
+        <EditForm Model="loginModel" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group mb-2">
+                <label for="email">Email</label>
+                <InputText id="email" @bind-Value="loginModel.Email" class="form-control" placeholder="office@zerowastemontenegro.me" />
+            </div>
+
+            <div class="form-group mb-2">
+                <label for="password">Password</label>
+                <InputText id="password" type="password" @bind-Value="loginModel.Password" class="form-control" />
+            </div>
+
+            <div class="mb-2">
+                <button type="submit" class="btn btn-primary btn-sm">Login</button>
+                <button type="button" class="btn btn-dark btn-sm" @onclick="Cancel">Cancel</button>
+            </div>
+
+            <div class="mb-2">
+                <a href="/auth/signup">Don't have an account? Sign up</a>
+            </div>
+        </EditForm>
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMsg))
+    {
+        <p class="text-danger">@errorMsg</p>
+    }
+}
 @code {
     private LoginModel loginModel = new LoginModel();
     private string errorMsg = string.Empty;
+    private bool loggedIn = true;
 
     protected override async Task OnInitializedAsync()
     {
+        loggedIn = await _accessService.IsUserLoggedInAsync();
         // If user is already logged in, redirect to home
-        if (await _accessService.IsUserLoggedInAsync())
+        if (loggedIn)
         {
             _navigationManager.NavigateTo("/");
         }
@@ -60,7 +64,7 @@
         LoginRequest request = new LoginRequest(loginModel.Email, loginModel.Password);
 
         // Attempt to login
-        var result = await _userApiService.LoginAsync(request);
+        var result = await _authApiService.LoginAsync(request);
 
         if (result.IsSuccess)
         {

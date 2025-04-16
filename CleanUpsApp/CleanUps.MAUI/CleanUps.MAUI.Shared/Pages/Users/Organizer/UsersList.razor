@@ -1,12 +1,9 @@
 ﻿@page "/users"
-@using CleanUps.MAUI.Shared.Pages.Auth 
-@using CleanUps.MAUI.Shared.Services.Interfaces
-@using CleanUps.Shared.DTOs.Enums
-@using CleanUps.Shared.DTOs.Users
+
 @inject NavigationManager _navigationManager
-@inject UserApiService _userApiService
+@inject IUserApiService _userApiService
 @inject IAccessService _accessService
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 @if (isOrganizer)
 {
     <div class="card shadow p-4">
@@ -150,7 +147,7 @@ else
             loadedUsers = new List<UserResponse>();
             StateHasChanged();
             
-            users = await _userApiService.GetAllUsersAsync();
+            users = await _userApiService.GetAllAsync();
             
             if (users.IsSuccess && users.Data != null)
             {
@@ -194,7 +191,7 @@ else
 
     private async Task DeleteUser(int userId)
     {
-        var result = await _userApiService.DeleteUserAsync(userId);
+        var result = await _userApiService.DeleteAsync(new DeleteUserRequest(userId));
         if (result.IsSuccess)
         {
             await LoadUsers();

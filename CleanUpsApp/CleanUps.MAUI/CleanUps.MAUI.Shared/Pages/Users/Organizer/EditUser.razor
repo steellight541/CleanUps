@@ -1,11 +1,7 @@
 ﻿@page "/users/{userId:int}/edit"
-@using CleanUps.Shared.DTOs.AbstractDTOs
-@using CleanUps.Shared.DTOs.Enums
-@using CleanUps.Shared.DTOs.Users
-@using CleanUps.MAUI.Shared.Pages.Auth
-@using CleanUps.MAUI.Shared.Services.Interfaces
+
 @inject NavigationManager _navigationManager
-@inject UserApiService _userApiService
+@inject IUserApiService _userApiService
 @inject IAccessService _accessService
 
 @if (isOrganizer)
@@ -89,7 +85,7 @@ else
 
     private async Task LoadUser()
     {
-        userResult = await _userApiService.GetUserByIdAsync(userId);
+        userResult = await _userApiService.GetByIdAsync(userId);
         if (userResult.IsSuccess)
         {
             editModel = new UserEditModel
@@ -104,7 +100,7 @@ else
     {
         var updatedUser = new UpdateUserRequest(userId, editModel.Name, editModel.Email);
 
-        var result = await _userApiService.UpdateUserAsync(userId, updatedUser);
+        var result = await _userApiService.UpdateAsync(updatedUser);
         if (result.IsSuccess)
         {
             _navigationManager.NavigateTo("/users");

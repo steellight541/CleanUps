@@ -1,7 +1,7 @@
-using CleanUps.MAUI.Shared.Services.Interfaces;
+using CleanUps.MAUI.Shared.AuthServices.AuthInterfaces;
 using Microsoft.JSInterop;
 
-namespace CleanUps.MAUI.Shared.Services
+namespace CleanUps.MAUI.Shared.AuthServices
 {
     /// <summary>
     /// Simple session service implementation using browser localStorage

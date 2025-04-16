@@ -1,10 +1,7 @@
 ﻿@page "/events/{eventId:int}/edit"
-@using CleanUps.MAUI.Shared.Pages.Auth
-@using CleanUps.MAUI.Shared.Services.Interfaces
-@using CleanUps.Shared.DTOs.Events
-@using CleanUps.Shared.DTOs.Enums
+
 @inject NavigationManager _navigationManager
-@inject EventApiService _eventApiService 
+@inject IEventApiService _eventApiService 
 @inject IAccessService _accessService
 
 @if (isOrganizer)
@@ -116,7 +113,7 @@ else
 
     private async Task LoadEvent()
     {
-        eventResult = await _eventApiService.GetEventByIdAsync(eventId);
+        eventResult = await _eventApiService.GetByIdAsync(eventId);
 
         if (eventResult.IsSuccess && eventResult.Data != null)
         {
@@ -145,7 +142,7 @@ else
             Location: new UpdateLocationRequest(0, 0, 0)
         );
 
-        var result = await _eventApiService.UpdateEventAsync(eventId, updateEvent);
+        var result = await _eventApiService.UpdateAsync(updateEvent);
         if (result.IsSuccess)
         {
             _navigationManager.NavigateTo("/events");

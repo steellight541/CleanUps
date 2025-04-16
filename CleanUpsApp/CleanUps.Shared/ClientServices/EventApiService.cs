@@ -1,4 +1,5 @@
-﻿using CleanUps.Shared.DTOs.Events;
+﻿using CleanUps.Shared.ClientServices.Interfaces;
+using CleanUps.Shared.DTOs.Events;
 using CleanUps.Shared.ErrorHandling;
 using System.Net;
 using System.Net.Http.Json;
@@ -11,7 +12,7 @@ namespace CleanUps.Shared.ClientServices
     /// Provides methods for performing CRUD operations on events through HTTP requests.
     /// Implements error handling with Result pattern instead of throwing exceptions.
     /// </summary>
-    public class EventApiService
+    public class EventApiService : IEventApiService
     {
         private readonly HttpClient _httpClient;
 
@@ -32,7 +33,7 @@ namespace CleanUps.Shared.ClientServices
         /// a NoContent result if no events exist,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<List<EventResponse>>> GetAllEventsAsync()
+        public async Task<Result<List<EventResponse>>> GetAllAsync()
         {
             try
             {
@@ -79,7 +80,7 @@ namespace CleanUps.Shared.ClientServices
         /// a BadRequest result if the ID is invalid,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<EventResponse>> GetEventByIdAsync(int id)
+        public async Task<Result<EventResponse>> GetByIdAsync(int id)
         {
             try
             {
@@ -127,7 +128,7 @@ namespace CleanUps.Shared.ClientServices
         /// a BadRequest result if the request data is invalid,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<EventResponse>> CreateEventAsync(CreateEventRequest createRequest)
+        public async Task<Result<EventResponse>> CreateAsync(CreateEventRequest createRequest)
         {
             try
             {
@@ -180,11 +181,11 @@ namespace CleanUps.Shared.ClientServices
         /// a Conflict result if there's a concurrency issue,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<EventResponse>> UpdateEventAsync(int id, UpdateEventRequest updateRequest)
+        public async Task<Result<EventResponse>> UpdateAsync(UpdateEventRequest updateRequest)
         {
             try
             {
-                HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"api/events/{id}", updateRequest);
+                HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"api/events/{updateRequest.EventId}", updateRequest);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -236,11 +237,11 @@ namespace CleanUps.Shared.ClientServices
         /// a Conflict result if the event cannot be deleted,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<EventResponse>> DeleteEventAsync(int eventId)
+        public async Task<Result<EventResponse>> DeleteAsync(DeleteEventRequest deleteRequest)
         {
             try
             {
-                HttpResponseMessage response = await _httpClient.DeleteAsync($"api/events/{eventId}");
+                HttpResponseMessage response = await _httpClient.DeleteAsync($"api/events/{deleteRequest.EventId}");
 
                 if (response.IsSuccessStatusCode)
                 {

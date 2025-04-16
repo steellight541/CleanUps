@@ -1,4 +1,4 @@
-namespace CleanUps.MAUI.Shared.Services.Interfaces
+namespace CleanUps.MAUI.Shared.AuthServices.AuthInterfaces
 {
     /// <summary>
     /// Interface for a simple session storage service
