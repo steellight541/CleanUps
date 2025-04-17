@@ -4,59 +4,50 @@
 @inject IAccessService _accessService
 @inject NavigationManager _navigationManager
 
-@if (loggedIn is true)
+<div class="card shadow p-4">
+    <h3>Login</h3>
+
+    <EditForm Model="loginModel" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group mb-2">
+            <label for="email">Email</label>
+            <InputText id="email" @bind-Value="loginModel.Email" class="form-control" placeholder="office@zerowastemontenegro.me" />
+        </div>
+
+        <div class="form-group mb-2">
+            <label for="password">Password</label>
+            <InputText id="password" type="password" @bind-Value="loginModel.Password" class="form-control" />
+        </div>
+
+        <div class="mb-2">
+            <button type="submit" class="btn btn-primary btn-sm">Login</button>
+            <button type="button" class="btn btn-dark btn-sm" @onclick="Cancel">Cancel</button>
+        </div>
+
+        <div class="mb-2">
+            <a href="/auth/signup">Don't have an account? Sign up</a>
+        </div>
+
+        <div class="mb-2">
+            <a class="dropdown-item" href="/auth/password-reset">Forgot password?</a>
+        </div>
+    </EditForm>
+</div>
+
+@if (!string.IsNullOrEmpty(errorMsg))
 {
-    <p>Loading...</p>
-}
-else
-{
-    <div class="card shadow p-4">
-        <h3>Login</h3>
-
-        <EditForm Model="loginModel" OnValidSubmit="HandleSubmit">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-
-            <div class="form-group mb-2">
-                <label for="email">Email</label>
-                <InputText id="email" @bind-Value="loginModel.Email" class="form-control" placeholder="office@zerowastemontenegro.me" />
-            </div>
-
-            <div class="form-group mb-2">
-                <label for="password">Password</label>
-                <InputText id="password" type="password" @bind-Value="loginModel.Password" class="form-control" />
-            </div>
-
-            <div class="mb-2">
-                <button type="submit" class="btn btn-primary btn-sm">Login</button>
-                <button type="button" class="btn btn-dark btn-sm" @onclick="Cancel">Cancel</button>
-            </div>
-
-            <div class="mb-2">
-                <a href="/auth/signup">Don't have an account? Sign up</a>
-            </div>
-
-            <div class="mb-2">
-                <a class="dropdown-item" href="#">Forgot password?</a>
-            </div>
-        </EditForm>
-    </div>
-
-    @if (!string.IsNullOrEmpty(errorMsg))
-    {
-        <p class="text-danger">@errorMsg</p>
-    }
+    <p class="text-danger">@errorMsg</p>
 }
 @code {
     private LoginModel loginModel = new LoginModel();
     private string errorMsg = string.Empty;
-    private bool loggedIn = true;
 
     protected override async Task OnInitializedAsync()
     {
-        loggedIn = await _accessService.IsUserLoggedInAsync();
         // If user is already logged in, redirect to home
-        if (loggedIn)
+        if (await _accessService.IsUserLoggedInAsync())
         {
             _navigationManager.NavigateTo("/");
         }
@@ -72,24 +63,17 @@ else
 
         if (result.IsSuccess)
         {
-            if (result.Data is LoginResponse loginResponse)
-            {
-                UserSessionInfo userSession = new UserSessionInfo
-                    {
-                        UserId = loginResponse.UserId,
-                        Name = loginResponse.Name,
-                        Email = loginResponse.Email,
-                        Role = loginResponse.Role
-                    };
+            UserSessionInfo userSession = new UserSessionInfo
+                {
+                    UserId = result.Data.UserId,
+                    Name = result.Data.Name,
+                    Email = result.Data.Email,
+                    Role = result.Data.Role
+                };
 
-                await _accessService.SetUserSessionAsync(userSession);
-                _navigationManager.NavigateTo("/events", forceLoad: false);
-            }
-            else
-            {
-                // If we get here, the signup worked but the auto-login did not
-                _navigationManager.NavigateTo("/auth/login");
-            }
+            //Set the logged in user session
+            await _accessService.SetUserSessionAsync(userSession);
+            _navigationManager.NavigateTo("/events");
         }
         else
         {
@@ -99,7 +83,7 @@ else
 
     private void Cancel()
     {
-        _navigationManager.NavigateTo("/");
+        _navigationManager.NavigateTo("/"); //Homepage
     }
 
     private class LoginModel

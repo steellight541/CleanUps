@@ -5,65 +5,60 @@
 @inject IAccessService _accessService;
 @inject NavigationManager _navigationManager
 
-@if (!loggedIn)
+<div class="card shadow p-4">
+
+    <h3>Sign Up</h3>
+
+    <EditForm Model="singUpModel" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group mb-2">
+            <label for="name">Name</label>
+            <InputText id="name" @bind-Value="singUpModel.Name" class="form-control" placeholder="Mirza Džaferadžović" />
+        </div>
+
+        <div class="form-group mb-2">
+            <label for="email">Email</label>
+            <InputText id="email" @bind-Value="singUpModel.Email" class="form-control" placeholder="office@zerowastemontenegro.me" />
+        </div>
+
+        <div class="form-group mb-2">
+            <label for="password">Password</label>
+            <InputText id="password" type="password" @bind-Value="singUpModel.Password" class="form-control" aria-describedby="passwordHelpBlock" />
+            <div id="passwordHelpBlock" class="form-text">
+                Your password must be 8-50 characters long, contain letters and numbers, and must not contain spaces, special characters, or emoji.
+            </div>
+        </div>
+
+        <div class="form-group mb-2">
+            <label for="confirmPassword">Confirm Password</label>
+            <InputText id="confirmPassword" type="password" @bind-Value="singUpModel.ConfirmPassword" class="form-control" />
+        </div>
+
+        <div class="mb-2">
+            <button type="submit" class="btn btn-primary btn-sm">Sign Up</button>
+            <button type="button" class="btn btn-dark btn-sm" @onclick="Cancel">Cancel</button>
+        </div>
+
+        <div class="mb-2">
+            <a href="/auth/login">Already have an account? Log in</a>
+        </div>
+    </EditForm>
+</div>
+@if (!string.IsNullOrEmpty(errorMsg))
 {
-    <div class="card shadow p-4">
-
-        <h3>Sign Up</h3>
-
-        <EditForm Model="singUpModel" OnValidSubmit="HandleSubmit">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-
-            <div class="form-group mb-2">
-                <label for="name">Name</label>
-                <InputText id="name" @bind-Value="singUpModel.Name" class="form-control" placeholder="Mirza Džaferadžović" />
-            </div>
-
-            <div class="form-group mb-2">
-                <label for="email">Email</label>
-                <InputText id="email" @bind-Value="singUpModel.Email" class="form-control" placeholder="office@zerowastemontenegro.me" />
-            </div>
-
-            <div class="form-group mb-2">
-                <label for="password">Password</label>
-                <InputText id="password" type="password" @bind-Value="singUpModel.Password" class="form-control" aria-describedby="passwordHelpBlock" />
-                <div id="passwordHelpBlock" class="form-text">
-                    Your password must be 8-50 characters long, contain letters and numbers, and must not contain spaces, special characters, or emoji.
-                </div>
-            </div>
-
-            <div class="form-group mb-2">
-                <label for="confirmPassword">Confirm Password</label>
-                <InputText id="confirmPassword" type="password" @bind-Value="singUpModel.ConfirmPassword" class="form-control" />
-            </div>
-
-            <div class="mb-2">
-                <button type="submit" class="btn btn-primary btn-sm">Sign Up</button>
-                <button type="button" class="btn btn-dark btn-sm" @onclick="Cancel">Cancel</button>
-            </div>
-
-            <div class="mb-2">
-                <a href="/auth/login">Already have an account? Log in</a>
-            </div>
-        </EditForm>
-    </div>
-    @if (!string.IsNullOrEmpty(errorMsg))
-    {
-        <p class="text-danger">@errorMsg</p>
-    }
+    <p class="text-danger">@errorMsg</p>
 }
 
 @code {
     private SignUpModel singUpModel = new SignUpModel();
     private string errorMsg = string.Empty;
-    private bool loggedIn = false;
 
     protected override async Task OnInitializedAsync()
     {
-        loggedIn = await _accessService.IsUserLoggedInAsync();
         // If user is already logged in, redirect to home
-        if (loggedIn)
+        if (await _accessService.IsUserLoggedInAsync())
         {
             _navigationManager.NavigateTo("/");
         }
@@ -73,10 +68,10 @@
     {
         CreateUserRequest newUser = new CreateUserRequest(singUpModel.Name, singUpModel.Email, singUpModel.Password);
 
-        var result = await _userApiService.CreateAsync(newUser);
-        if (result.IsSuccess)
+        var createResult = await _userApiService.CreateAsync(newUser);
+        if (createResult.IsSuccess)
         {
-            // Create login request from model
+            // new login request from signup model
             LoginRequest request = new LoginRequest(singUpModel.Email, singUpModel.Password);
 
             // Attempt to login
@@ -84,33 +79,26 @@
 
             if (loginResult.IsSuccess)
             {
-                if (loginResult.Data is LoginResponse loginResponse)
-                {
-                    UserSessionInfo userSession = new UserSessionInfo
-                        {
-                            UserId = loginResponse.UserId,
-                            Name = loginResponse.Name,
-                            Email = loginResponse.Email,
-                            Role = loginResponse.Role
-                        };
+                UserSessionInfo userSession = new UserSessionInfo
+                    {
+                        UserId = loginResult.Data.UserId,
+                        Name = loginResult.Data.Name,
+                        Email = loginResult.Data.Email,
+                        Role = loginResult.Data.Role
+                    };
 
-                    await _accessService.SetUserSessionAsync(userSession);
-                    _navigationManager.NavigateTo("/events", forceLoad: false);
-                }
-                else
-                {
-                    // If we get here, the signup worked but the auto-login did not
-                    _navigationManager.NavigateTo("/auth/login");
-                }
+                await _accessService.SetUserSessionAsync(userSession);
+                _navigationManager.NavigateTo("/events", forceLoad: false);
             }
             else
             {
-                errorMsg = loginResult.ErrorMessage ?? "Invalid email or password.";
+                // If we get here, the signup worked but the auto-login did not
+                _navigationManager.NavigateTo("/auth/login");
             }
         }
         else
         {
-            errorMsg = result.ErrorMessage ?? "An error occurred while signing up.";
+            errorMsg = createResult.ErrorMessage ?? "An error occurred while signing up.";
         }
     }
 

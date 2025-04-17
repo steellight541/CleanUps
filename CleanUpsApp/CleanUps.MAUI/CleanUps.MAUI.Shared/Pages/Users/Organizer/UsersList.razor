@@ -4,8 +4,6 @@
 @inject IUserApiService _userApiService
 @inject IAccessService _accessService
 
-@if (isOrganizer)
-{
     <div class="card shadow p-4">
         <h3>Users</h3>
 
@@ -34,20 +32,20 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var user in loadedUsers)
+                        @foreach (UserResponse loadedUser in loadedUsers)
                         {
                             <tr>
-                                <td>@user.UserId</td>
-                                <td>@user.Name</td>
-                                <td>@user.Email</td>
-                                <td>@user.CreatedDate</td>
+                                <td>@loadedUser.UserId</td>
+                                <td>@loadedUser.Name</td>
+                                <td>@loadedUser.Email</td>
+                                <td>@loadedUser.CreatedDate</td>
                                 <td>
                                     <div class="btn-group" role="group" aria-label="Basic example">
-                                        <button class="btn btn-primary btn-sm" @onclick="() => ViewUser(user.UserId)">View</button>
+                                        <button class="btn btn-primary btn-sm" @onclick="() => ViewUser(loadedUser.UserId)">View</button>
                                         @if (isOrganizer)
                                         {
-                                            <button class="btn btn-secondary btn-sm" @onclick="() => EditUser(user.UserId)">Edit</button>
-                                            <button class="btn btn-danger btn-sm" @onclick="() => DeleteUser(user.UserId)">Delete</button>
+                                            <button class="btn btn-secondary btn-sm" @onclick="() => EditUser(loadedUser.UserId)">Edit</button>
+                                            <button class="btn btn-danger btn-sm" @onclick="() => DeleteUser(loadedUser.UserId)">Delete</button>
                                         }
                                     </div>
                                 </td>
@@ -71,28 +69,28 @@
             <!-- List-group for small screens -->
             <div class="d-block d-md-none mb-2">
                 <div class="list-group">
-                    @foreach (var user in loadedUsers)
+                @foreach (UserResponse loadedUser in loadedUsers)
                     {
                         <div class="list-group-item">
                             <div class="d-flex justify-content-between align-items-center">
 
-                            <h5>@user.Name</h5>
+                            <h5>@loadedUser.Name</h5>
                             @if (isOrganizer)
                             {
                                 <div class="dropdown">
-                                    <button class="btn btn-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuButton-@user.UserId" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <button class="btn btn-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuButton-@loadedUser.UserId" data-bs-toggle="dropdown" aria-expanded="false">
                                         Actions
                                     </button>
-                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-@user.UserId">
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-@loadedUser.UserId">
 
                                         <li>
-                                            <button class="dropdown-item text-secondary" @onclick="() => EditUser(user.UserId)">
+                                            <button class="dropdown-item text-secondary" @onclick="() => EditUser(loadedUser.UserId)">
                                                 <i class="bi bi-pencil-fill me-2"></i>Edit
                                             </button>
                                         </li>
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
-                                            <button class="dropdown-item text-danger" @onclick="() => DeleteUser(user.UserId)">
+                                            <button class="dropdown-item text-danger" @onclick="() => DeleteUser(loadedUser.UserId)">
                                                 <i class="bi bi-trash-fill me-2"></i>Delete
                                             </button>
                                         </li>
@@ -100,9 +98,9 @@
                                 </div>
                             }
                             </div>
-                            <p><strong>Email:</strong> @user.Email</p>
+                            <p><strong>Email:</strong> @loadedUser.Email</p>
                             <div class="d-flex flex-column gap-2">
-                                <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewUser(user.UserId)">View</button>
+                                <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewUser(loadedUser.UserId)">View</button>
                             </div>
                         </div>
                     }
@@ -129,13 +127,9 @@
             <p class="text-danger">@errorMessage</p>
         }
     </div>
-}
-else
-{
-    <p>Access denied</p>
-}
+
 @code {
-    private Result<List<UserResponse>> users;
+    private Result<List<UserResponse>> getAllUsersResponse;
     private List<UserResponse> loadedUsers = new List<UserResponse>();
     private string errorMessage;
     private string loadError;
@@ -147,9 +141,13 @@ else
     {
         try
         {
-            // Check if user is an organizer
+            // Check if user is logged in
             isLoggedIn = await _accessService.IsUserLoggedInAsync();
+
+            // Check if user is an organizer
             isOrganizer = await _accessService.IsOrganizerAsync();
+
+            //Allow only organizer to view the page - redirect elsewhere otherwise
             RoleBasedRedirector.CheckOrganizerAccess(isLoggedIn, isOrganizer, _navigationManager);
 
             // Load users after access check
@@ -170,14 +168,14 @@ else
             loadedUsers = new List<UserResponse>();
             StateHasChanged();
 
-            users = await _userApiService.GetAllAsync();
+            getAllUsersResponse = await _userApiService.GetAllAsync();
 
-            if (users.IsSuccess && users.Data != null)
+            if (getAllUsersResponse.IsSuccess && getAllUsersResponse.Data != null)
             {
                 // Simulate progressive loading by adding users one by one with a small delay
-                foreach (var user in users.Data)
+                foreach (UserResponse userResponse in getAllUsersResponse.Data)
                 {
-                    loadedUsers.Add(user);
+                    loadedUsers.Add(userResponse);
 
                     // Update UI after each user is added
                     StateHasChanged();
@@ -188,7 +186,7 @@ else
             }
             else
             {
-                loadError = users.ErrorMessage;
+                loadError = getAllUsersResponse.ErrorMessage;
             }
         }
         catch (Exception ex)
@@ -214,14 +212,14 @@ else
 
     private async Task DeleteUser(int userId)
     {
-        var result = await _userApiService.DeleteAsync(new DeleteUserRequest(userId));
-        if (result.IsSuccess)
+        var deleteResult = await _userApiService.DeleteAsync(new DeleteUserRequest(userId));
+        if (deleteResult.IsSuccess)
         {
             await LoadUsers();
         }
         else
         {
-            errorMessage = result.ErrorMessage ?? "An error occurred while deleting the user.";
+            errorMessage = deleteResult.ErrorMessage ?? "An error occurred while deleting the user.";
         }
     }
 

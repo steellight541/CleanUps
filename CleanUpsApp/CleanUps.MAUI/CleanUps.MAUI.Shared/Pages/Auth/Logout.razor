@@ -9,6 +9,6 @@
         await _accessService.ClearUserSessionAsync();
         
         // Use forceLoad: false to ensure the navigation triggers LocationChanged event
-        _navigationManager.NavigateTo("/auth/login", forceLoad: false);
+        _navigationManager.NavigateTo("/auth/login");
     }
 }

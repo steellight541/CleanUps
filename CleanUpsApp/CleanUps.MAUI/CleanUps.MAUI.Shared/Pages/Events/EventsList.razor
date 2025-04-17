@@ -46,26 +46,26 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var ev in loadedEvents)
+                    @foreach (EventResponse loadedEvent in loadedEvents)
                     {
                         <tr>
-                            <td>@ev.EventId</td>
-                            <td>@ev.Title</td>
-                            <td>@ev.Description</td>
-                            <td>@ev.StartTime.ToShortDateString()</td>
-                            <td>@ev.EndTime.ToShortDateString()</td>
-                            <td>@(ev.FamilyFriendly ? "Yes" : "No")</td>
-                            <td>@ev.TrashCollected</td>
-                            <td>@ev.Status.ToString()</td>
+                            <td>@loadedEvent.EventId</td>
+                            <td>@loadedEvent.Title</td>
+                            <td>@loadedEvent.Description</td>
+                            <td>@loadedEvent.StartTime.ToShortDateString()</td>
+                            <td>@loadedEvent.EndTime.ToShortDateString()</td>
+                            <td>@(loadedEvent.FamilyFriendly ? "Yes" : "No")</td>
+                            <td>@loadedEvent.TrashCollected</td>
+                            <td>@loadedEvent.Status.ToString()</td>
                             <td>No location yet</td>
-                            <td>@GetAttendeeCount(ev.EventId)</td>
+                            <td>@GetAttendeeCount(loadedEvent.EventId)</td>
                             <td>
                                 <div class="btn-group" role="group" aria-label="Basic example">
-                                    <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewDetails(ev.EventId)">View</button>
+                                    <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewDetails(loadedEvent.EventId)">View</button>
                                     @if (isOrganizer)
                                     {
-                                        <button class="btn btn-secondary btn-sm mt-2" @onclick="() => EditEvent(ev.EventId)">Edit</button>
-                                        <button class="btn btn-danger btn-sm mt-2" @onclick="() => DeleteEvent(ev.EventId)">Delete</button>
+                                        <button class="btn btn-secondary btn-sm mt-2" @onclick="() => EditEvent(loadedEvent.EventId)">Edit</button>
+                                        <button class="btn btn-danger btn-sm mt-2" @onclick="() => DeleteEvent(loadedEvent.EventId)">Delete</button>
                                     }
                                 </div>
                             </td>
@@ -89,27 +89,27 @@
         <!-- List-group layout for small screens with dropdown -->
         <div class="d-block d-md-none mb-2">
             <div class="list-group">
-                @foreach (var ev in loadedEvents)
+                @foreach (EventResponse loadedEvent in loadedEvents)
                 {
                     <div class="list-group-item">
                         <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">@ev.Title</h5>
+                            <h5 class="mb-0">@loadedEvent.Title</h5>
                             @if (isOrganizer)
                             {
                                 <div class="dropdown">
-                                    <button class="btn btn-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuButton-@ev.EventId" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <button class="btn btn-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuButton-@loadedEvent.EventId" data-bs-toggle="dropdown" aria-expanded="false">
                                         Actions
                                     </button>
-                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-@ev.EventId">
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-@loadedEvent.EventId">
 
                                         <li>
-                                            <button class="dropdown-item text-secondary" @onclick="() => EditEvent(ev.EventId)">
+                                            <button class="dropdown-item text-secondary" @onclick="() => EditEvent(loadedEvent.EventId)">
                                                 <i class="bi bi-pencil-fill me-2"></i>Edit
                                             </button>
                                         </li>
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
-                                            <button class="dropdown-item text-danger" @onclick="() => DeleteEvent(ev.EventId)">
+                                            <button class="dropdown-item text-danger" @onclick="() => DeleteEvent(loadedEvent.EventId)">
                                                 <i class="bi bi-trash-fill me-2"></i>Delete
                                             </button>
                                         </li>
@@ -117,12 +117,12 @@
                                 </div>
                             }
                         </div>
-                        <p><strong>Start Time:</strong> @ev.StartTime.ToShortDateString()</p>
-                        <p><strong>End Time:</strong> @ev.EndTime.ToShortDateString()</p>
-                        <p><strong>Status:</strong> @ev.Status.ToString()</p>
-                        <p><strong>Participants:</strong> @GetAttendeeCount(ev.EventId)</p>
+                        <p><strong>Start Time:</strong> @loadedEvent.StartTime.ToShortDateString()</p>
+                        <p><strong>End Time:</strong> @loadedEvent.EndTime.ToShortDateString()</p>
+                        <p><strong>Status:</strong> @loadedEvent.Status.ToString()</p>
+                        <p><strong>Participants:</strong> @GetAttendeeCount(loadedEvent.EventId)</p>
                         <div class="d-flex flex-column gap-2">
-                            <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewDetails(ev.EventId)">View</button>
+                            <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewDetails(loadedEvent.EventId)">View</button>
                         </div>
                     </div>
                 }
@@ -152,7 +152,7 @@
 </div>
 
 @code {
-    private Result<List<EventResponse>> events;
+    private Result<List<EventResponse>> eventsResult;
     private List<EventResponse> loadedEvents = new List<EventResponse>();
     private string errorMessage;
     private string loadError;
@@ -163,20 +163,18 @@
 
     protected override async Task OnInitializedAsync()
     {
-        try
+
+        if (await _accessService.IsOrganizerAsync()) //check if logged in user is an organizer
         {
-            isOrganizer = await _accessService.IsOrganizerAsync();
+            isOrganizer = true;
         }
-        catch
+        else
         {
-            // In case of errors, assume not organizer
             isOrganizer = false;
         }
 
         // First load the events
         await LoadEvents();
-
-        // Check if user is an organizer to show/hide certain UI elements
     }
 
     private async Task LoadEvents()
@@ -186,28 +184,28 @@
             isLoadingEvents = true;
             StateHasChanged();
 
-            events = await _eventApiService.GetAllAsync();
+            eventsResult = await _eventApiService.GetAllAsync();
 
-            if (events.IsSuccess && events.Data != null)
+            if (eventsResult.IsSuccess && eventsResult.Data != null)
             {
                 // Simulate progressive loading by adding events one by one with a small delay
-                foreach (var ev in events.Data)
+                foreach (EventResponse eventResponse in eventsResult.Data)
                 {
-                    loadedEvents.Add(ev);
+                    loadedEvents.Add(eventResponse);
 
                     // Update UI after each event is added
                     StateHasChanged();
 
-                    // Optional: Small delay to show the progressive loading (remove in production)
+                    // Optional: Small delay to show the progressive loading
                     await Task.Delay(20);
                 }
 
-                // Now load the attendance counts
+                // Now load the attendance counts - look below for method
                 await LoadAttendeeCountsAsync();
             }
             else
             {
-                loadError = events.ErrorMessage;
+                loadError = eventsResult.ErrorMessage;
             }
         }
         catch (Exception ex)
@@ -228,10 +226,10 @@
             isLoadingAttendees = true;
             StateHasChanged();
 
-            foreach (var ev in loadedEvents)
+            foreach (EventResponse eventResponse in loadedEvents)
             {
-                var result = await _eventAttendanceApiService.GetUsersByEventIdAsync(ev.EventId);
-                eventAttendeeCount[ev.EventId] = result.IsSuccess && result.Data != null ? result.Data.Count : 0;
+                var getUserResult = await _eventAttendanceApiService.GetUsersByEventIdAsync(eventResponse.EventId);
+                eventAttendeeCount[eventResponse.EventId] = getUserResult.IsSuccess && getUserResult.Data != null ? getUserResult.Data.Count : 0;
                 StateHasChanged();
             }
 
@@ -260,8 +258,8 @@
 
     private async Task DeleteEvent(int eventId)
     {
-        var result = await _eventApiService.DeleteAsync(new DeleteEventRequest(eventId));
-        if (result.IsSuccess)
+        var deleteResult = await _eventApiService.DeleteAsync(new DeleteEventRequest(eventId));
+        if (deleteResult.IsSuccess)
         {
             // Reload events after deletion
             loadedEvents.Clear();
@@ -269,7 +267,7 @@
         }
         else
         {
-            errorMessage = result.ErrorMessage ?? "An error occurred while deleting the event.";
+            errorMessage = deleteResult.ErrorMessage ?? "An error occurred while deleting the event.";
         }
     }
 

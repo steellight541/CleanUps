@@ -1,85 +1,79 @@
 ﻿@page "/events/{eventId:int}/edit"
 
 @inject NavigationManager _navigationManager
-@inject IEventApiService _eventApiService 
+@inject IEventApiService _eventApiService
 @inject IAccessService _accessService
 
-@if (isOrganizer)
-{
-    <div class="card shadow p-4">
-        <h3>Edit Event</h3>
+<div class="card shadow p-4">
+    <h3>Edit Event</h3>
 
-        @if (eventResult == null)
-        {
-            <p>Loading...</p>
-        }
-        else if (eventResult.IsSuccess && eventResult.Data != null)
-        {
-            <EditForm Model="eventEditModel" OnValidSubmit="HandleSubmit">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
-
-                <div class="form-group mb-2">
-                    <label for="title">Title</label>
-                    <InputText id="title" @bind-Value="eventEditModel.Title" class="form-control" />
-                </div>
-
-                <div class="form-group mb-2">
-                    <label for="description">Description</label>
-                    <InputText id="description" @bind-Value="eventEditModel.Description" class="form-control" />
-                </div>
-
-                <div class="form-group mb-2">
-                    <label for="startTime">Start Time of Event</label>
-                    <InputDate id="startTime" @bind-Value="eventEditModel.StartTime" class="form-control" />
-                </div>
-
-                <div class="form-group mb-2">
-                    <label for="endTime">End Time of Event</label>
-                    <InputDate id="endTime" @bind-Value="eventEditModel.EndTime" class="form-control" />
-                </div>
-
-                <div class="form-check mb-2">
-                    <InputCheckbox id="familyFriendly" @bind-Value="eventEditModel.FamilyFriendly" class="form-check-input" />
-                    <label class="form-check-label" for="familyFriendly">Family Friendly</label>
-                </div>
-
-                <!-- Only show status change if the event's status is not Completed -->
-                @if (eventResult.Data.Status != StatusDTO.Completed)
-                {
-                    <div class="form-group mb-2">
-                        <label for="status">Event Status</label>
-                        <InputSelect id="status" @bind-Value="eventEditModel.Status" class="form-control">
-                            @foreach (var status in Enum.GetValues(typeof(StatusDTO)))
-                            {
-                                <option value="@status">@status</option>
-                            }
-                        </InputSelect>
-                    </div>
-                }
-
-                <div class="mb-2">
-                    <button type="submit" class="btn btn-primary">Save</button>
-                    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-                </div>
-
-            </EditForm>
-        }
-        else
-        {
-            <p class="text-danger">Error: @eventResult.ErrorMessage</p>
-        }
-    </div>
-
-    @if (!string.IsNullOrEmpty(errorMessage))
+    @if (eventResult == null)
     {
-        <p class="text-danger">@errorMessage</p>
+        <p>Loading...</p>
     }
-}
-else
+    else if (eventResult.IsSuccess && eventResult.Data != null)
+    {
+        <EditForm Model="eventEditModel" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group mb-2">
+                <label for="title">Title</label>
+                <InputText id="title" @bind-Value="eventEditModel.Title" class="form-control" />
+            </div>
+
+            <div class="form-group mb-2">
+                <label for="description">Description</label>
+                <InputText id="description" @bind-Value="eventEditModel.Description" class="form-control" />
+            </div>
+
+            <div class="form-group mb-2">
+                <label for="startTime">Start Time of Event</label>
+                <InputDate id="startTime" @bind-Value="eventEditModel.StartTime" class="form-control" />
+            </div>
+
+            <div class="form-group mb-2">
+                <label for="endTime">End Time of Event</label>
+                <InputDate id="endTime" @bind-Value="eventEditModel.EndTime" class="form-control" />
+            </div>
+
+            <div class="form-check mb-2">
+                <InputCheckbox id="familyFriendly" @bind-Value="eventEditModel.FamilyFriendly" class="form-check-input" />
+                <label class="form-check-label" for="familyFriendly">Family Friendly</label>
+            </div>
+
+            <!-- Only show status change if the event's status is not Completed -->
+            @if (eventResult.Data.Status != StatusDTO.Completed)
+            {
+                <div class="form-group mb-2">
+                    <label for="status">Event Status</label>
+                    <InputSelect id="status" @bind-Value="eventEditModel.Status" class="form-control">
+                        @foreach (var status in Enum.GetValues(typeof(StatusDTO)))
+                        {
+                            <option value="@status">@status</option>
+                        }
+                    </InputSelect>
+                </div>
+            }
+
+            <div class="mb-2">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+            </div>
+
+        </EditForm>
+    }
+    else
+    {
+        <p class="text-danger">Error: @eventResult.ErrorMessage</p>
+    }
+</div>
+
+@if (!string.IsNullOrEmpty(errorMessage))
 {
-    <p>Access denied</p>
+    <p class="text-danger">@errorMessage</p>
 }
+
 
 @code {
     [Parameter]
@@ -88,7 +82,7 @@ else
     private Result<EventResponse> eventResult;
     private EventEditModel eventEditModel = new EventEditModel();
     private string errorMessage;
-    
+
     private bool isLoggedIn = false;
     private bool isOrganizer = false;
 
@@ -97,10 +91,13 @@ else
         // Check if user is an organizer
         try
         {
+            // Check if user is logged in
             isLoggedIn = await _accessService.IsUserLoggedInAsync();
+            // Check if user is an organizer
             isOrganizer = await _accessService.IsOrganizerAsync();
+            //Allow only organizer to view the page - redirect elsewhere otherwise
             RoleBasedRedirector.CheckOrganizerAccess(isLoggedIn, isOrganizer, _navigationManager);
-            
+
             // Load event data after access check
             await LoadEvent();
         }
@@ -117,39 +114,39 @@ else
 
         if (eventResult.IsSuccess && eventResult.Data != null)
         {
-            var data = eventResult.Data;
-            eventEditModel.Title = data.Title;
-            eventEditModel.Description = data.Description;
-            eventEditModel.StartTime = data.StartTime;
-            eventEditModel.EndTime = data.EndTime;
-            eventEditModel.FamilyFriendly = data.FamilyFriendly;
-            eventEditModel.Status = data.Status;
-            eventEditModel.TrashCollected = data.TrashCollected;
+            eventEditModel.Title = eventResult.Data.Title;
+            eventEditModel.Description = eventResult.Data.Description;
+            eventEditModel.StartTime = eventResult.Data.StartTime;
+            eventEditModel.EndTime = eventResult.Data.EndTime;
+            eventEditModel.FamilyFriendly = eventResult.Data.FamilyFriendly;
+            eventEditModel.Status = eventResult.Data.Status;
+            eventEditModel.TrashCollected = eventResult.Data.TrashCollected;
         }
     }
 
     private async Task HandleSubmit()
     {
-        var updateEvent = new UpdateEventRequest(
-            EventId: eventId,
-            Title: eventEditModel.Title,
-            Description: eventEditModel.Description,
-            StartTime: eventEditModel.StartTime,
-            EndTime: eventEditModel.EndTime,
-            FamilyFriendly: eventEditModel.FamilyFriendly,
-            TrashCollected: eventEditModel.TrashCollected,
-            Status: eventEditModel.Status,
-            Location: new UpdateLocationRequest(0, 0, 0)
+        UpdateEventRequest updateEvent = new UpdateEventRequest(
+            eventId,
+            eventEditModel.Title,
+            eventEditModel.Description,
+            eventEditModel.StartTime,
+            eventEditModel.EndTime,
+            eventEditModel.FamilyFriendly,
+            eventEditModel.TrashCollected,
+            eventEditModel.Status,
+            new UpdateLocationRequest(0, 0, 0)
         );
 
-        var result = await _eventApiService.UpdateAsync(updateEvent);
-        if (result.IsSuccess)
+        var updateResult = await _eventApiService.UpdateAsync(updateEvent);
+        if (updateResult.IsSuccess)
         {
             _navigationManager.NavigateTo("/events");
         }
         else
         {
-            errorMessage = result.ErrorMessage ?? "An error occurred while updating the event.";
+            //If updating was not successful, set the errorMessage from the createResult. If the createResult is empty then set the errorMessage to be the written below
+            errorMessage = updateResult.ErrorMessage ?? "An error occurred while updating the event.";
         }
     }
 

@@ -4,57 +4,52 @@
 @inject IEventApiService _eventApiService
 @inject IAccessService _accessService
 
-@if (isOrganizer)
+
+<div class="card shadow p-4">
+    <h3>Create New Event</h3>
+
+    <EditForm Model="eventCreateModel" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group mb-2">
+            <label for="title">Title</label>
+            <InputText id="title" @bind-Value="eventCreateModel.Title" class="form-control" />
+        </div>
+
+        <div class="form-group mb-2">
+            <label for="description">Description</label>
+            <InputText id="description" @bind-Value="eventCreateModel.Description" class="form-control" />
+        </div>
+
+        <div class="form-group mb-2">
+            <label for="startTime">Start Time of Event</label>
+            <InputDate id="startTime" @bind-Value="eventCreateModel.StartTime" class="form-control" />
+        </div>
+
+        <div class="form-group mb-2">
+            <label for="endTime">End Time of Event</label>
+            <InputDate id="endTime" @bind-Value="eventCreateModel.EndTime" class="form-control" />
+        </div>
+
+        <div class="form-check mb-2">
+            <InputCheckbox id="familyFriendly" @bind-Value="eventCreateModel.FamilyFriendly" class="form-check-input" />
+            <label class="form-check-label" for="familyFriendly">Family Friendly</label>
+        </div>
+
+        <div class="mb-2">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+        </div>
+
+    </EditForm>
+</div>
+
+@if (!string.IsNullOrEmpty(errorMessage))
 {
-    <div class="card shadow p-4">
-        <h3>Create New Event</h3>
-
-        <EditForm Model="eventCreateModel" OnValidSubmit="HandleSubmit">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-
-            <div class="form-group mb-2">
-                <label for="title">Title</label>
-                <InputText id="title" @bind-Value="eventCreateModel.Title" class="form-control" />
-            </div>
-
-            <div class="form-group mb-2">
-                <label for="description">Description</label>
-                <InputText id="description" @bind-Value="eventCreateModel.Description" class="form-control" />
-            </div>
-
-            <div class="form-group mb-2">
-                <label for="startTime">Start Time of Event</label>
-                <InputDate id="startTime" @bind-Value="eventCreateModel.StartTime" class="form-control" />
-            </div>
-
-            <div class="form-group mb-2">
-                <label for="endTime">End Time of Event</label>
-                <InputDate id="endTime" @bind-Value="eventCreateModel.EndTime" class="form-control" />
-            </div>
-
-            <div class="form-check mb-2">
-                <InputCheckbox id="familyFriendly" @bind-Value="eventCreateModel.FamilyFriendly" class="form-check-input" />
-                <label class="form-check-label" for="familyFriendly">Family Friendly</label>
-            </div>
-
-            <div class="mb-2">
-                <button type="submit" class="btn btn-primary">Save</button>
-                <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-            </div>
-
-        </EditForm>
-    </div>
-
-    @if (!string.IsNullOrEmpty(errorMessage))
-    {
-        <p class="text-danger">@errorMessage</p>
-    }
+    <p class="text-danger">@errorMessage</p>
 }
-else
-{
-    <p>Access denied</p>
-}
+
 @code {
     private EventCreateModel eventCreateModel = new EventCreateModel();
     private string errorMessage;
@@ -66,8 +61,13 @@ else
         // Check if user is an organizer
         try
         {
+            // Check if user is logged in
             isLoggedIn = await _accessService.IsUserLoggedInAsync();
+
+            // Check if user is an organizer
             isOrganizer = await _accessService.IsOrganizerAsync();
+
+            //Allow only organizer to view the page - redirect elsewhere otherwise
             RoleBasedRedirector.CheckOrganizerAccess(isLoggedIn, isOrganizer, _navigationManager);
         }
         catch
@@ -79,23 +79,24 @@ else
 
     private async Task HandleSubmit()
     {
-        var newEvent = new CreateEventRequest(
-            Title: eventCreateModel.Title,
-            Description: eventCreateModel.Description,
-            StartTime: eventCreateModel.StartTime,
-            EndTime: eventCreateModel.EndTime,
-            FamilyFriendly: eventCreateModel.FamilyFriendly,
-            Location: new CreateLocationRequest(eventCreateModel.Longitude, eventCreateModel.Latitude)
+        CreateEventRequest newEvent = new CreateEventRequest(
+            eventCreateModel.Title,
+            eventCreateModel.Description,
+            eventCreateModel.StartTime,
+            eventCreateModel.EndTime,
+            eventCreateModel.FamilyFriendly,
+            new CreateLocationRequest(eventCreateModel.Longitude, eventCreateModel.Latitude)
     );
 
-        var result = await _eventApiService.CreateAsync(newEvent);
-        if (result.IsSuccess)
+        var createResult = await _eventApiService.CreateAsync(newEvent);
+        if (createResult.IsSuccess)
         {
             _navigationManager.NavigateTo("/events");
         }
         else
         {
-            errorMessage = result.ErrorMessage ?? "An error occurred while creating the event.";
+            //If creating was not successful, set the errorMessage from the createResult. If the createResult is empty then set the errorMessage to be the written below
+            errorMessage = createResult.ErrorMessage ?? "An error occurred while creating the event.";
         }
     }
 

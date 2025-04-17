@@ -16,7 +16,7 @@
             <h4>@userName</h4>
             <p>Email: @userEmail</p>
             <p>Role: @userRole</p>
-            
+
             <button class="btn btn-primary" @onclick="Logout">Logout</button>
         }
     </div>
@@ -36,7 +36,7 @@
         {
             isLoggedIn = await _accessService.IsUserLoggedInAsync();
             RoleBasedRedirector.CheckVolunteerAccess(isLoggedIn, _navigationManager);
-            
+
             // Load profile information
             await LoadProfileData();
         }
@@ -46,17 +46,25 @@
             _navigationManager.NavigateTo("/auth/login");
         }
     }
-    
+
     private async Task LoadProfileData()
     {
         isLoading = true;
-        
+
         // Get user info from AccessService
         userName = await _accessService.GetLoggedUserNameAsync() ?? "Unknown";
         userEmail = await _accessService.GetLoggedUserEmailAsync() ?? "Unknown";
-        
-        var role = await _accessService.GetLoggedUserRoleAsync();
-        userRole = role?.ToString() ?? "Unknown";
+
+        RoleDTO? role = await _accessService.GetLoggedUserRoleAsync();
+
+        if (role is null)
+        {
+            userRole = "Unknown";
+        }
+        else
+        {
+            role.ToString();
+        }
         
         isLoading = false;
     }

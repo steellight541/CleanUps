@@ -30,7 +30,7 @@
             <div class="col-md-6">
                 <p><strong>Family Friendly:</strong> @(ev.FamilyFriendly ? "Yes" : "No")</p>
                 <p><strong>Trash Collected:</strong> @ev.TrashCollected kg</p>
-                <p><strong>Participants:</strong> @(attendees?.Count ?? 0)</p>
+                <p><strong>Participants:</strong> @(eventAttendees?.Count ?? 0)</p>
             </div>
         </div>
 
@@ -42,7 +42,7 @@
             </div>
         }
 
-        @if (attendees != null && attendees.Count > 0)
+        @if (eventAttendees != null && eventAttendees.Count > 0)
         {
             <div class="mb-4">
                 <h5>Attendees</h5>
@@ -56,7 +56,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var user in attendees)
+                            @foreach (var user in eventAttendees)
                             {
                                 <tr>
                                     <td>@user.Name</td>
@@ -96,7 +96,7 @@
     public int eventId { get; set; }
 
     private Result<EventResponse> eventResult;
-    private List<UserResponse> attendees;
+    private List<UserResponse> eventAttendees;
     private string errorMessage = string.Empty;
     private bool isLoggedIn = false;
     private bool isOrganizer = false;
@@ -105,11 +105,12 @@
     {
         try
         {
-            // Check if user is logged in (volunteers and organizers)
+            // Check if user is logged in
             isLoggedIn = await _accessService.IsUserLoggedInAsync();
+            //Redirect if not loggedin
             RoleBasedRedirector.CheckVolunteerAccess(isLoggedIn, _navigationManager);
 
-            // Check if user is an organizer (for UI controls)
+            // Check if user is an organizer
             isOrganizer = await _accessService.IsOrganizerAsync();
 
             // Load event data
@@ -124,15 +125,16 @@
 
     private async Task LoadEventData()
     {
+        //Load event data
         eventResult = await _eventApiService.GetByIdAsync(eventId);
 
         if (eventResult.IsSuccess && eventResult.Data != null)
         {
-            // Load attendees
-            var attendeesResult = await _eventAttendanceApiService.GetUsersByEventIdAsync(eventId);
-            if (attendeesResult.IsSuccess)
+            // Load eventAttendance data
+            var eventAttendanceResult = await _eventAttendanceApiService.GetUsersByEventIdAsync(eventId);
+            if (eventAttendanceResult.IsSuccess)
             {
-                attendees = attendeesResult.Data;
+                eventAttendees = eventAttendanceResult.Data;
             }
         }
     }
@@ -149,14 +151,14 @@
 
     private async Task DeleteEvent(int eventId)
     {
-        var result = await _eventApiService.DeleteAsync(new DeleteEventRequest(eventId));
-        if (result.IsSuccess)
+        var deleteResult = await _eventApiService.DeleteAsync(new DeleteEventRequest(eventId));
+        if (deleteResult.IsSuccess)
         {
             _navigationManager.NavigateTo("/events");
         }
         else
         {
-            errorMessage = result.ErrorMessage ?? "An error occurred while deleting the event.";
+            errorMessage = deleteResult.ErrorMessage ?? "An error occurred while deleting the event.";
         }
     }
 }

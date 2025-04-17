@@ -3,25 +3,20 @@
 @inject NavigationManager _navigationManager
 @inject IAccessService _accessService
 
-@if (isOrganizer)
-{
-    <div class="card shadow p-4">
-        <h3>Create New User</h3>
 
-        <div class="mb-2">
-            <p>Please visit <strong>Sign Up</strong> page to create a user</p>
-        </div>
+<div class="card shadow p-4">
+    <h3>Create New User</h3>
 
-        <div class="mb-2">
-            <button class="btn btn-primary btn-sm" @onclick="SignUpPage">Sign Up</button>
-            <button class="btn btn-secondary btn-sm" @onclick="GoBack">Back</button>
-        </div>
+    <div class="mb-2">
+        <p>Please visit <strong>Sign Up</strong> page to create a user</p>
     </div>
-}
-else
-{
-    <p>Access denied</p>
-}
+
+    <div class="mb-2">
+        <button class="btn btn-primary btn-sm" @onclick="SignUpPage">Sign Up</button>
+        <button class="btn btn-secondary btn-sm" @onclick="GoBack">Back</button>
+    </div>
+</div>
+
 @code {
     private bool isLoggedIn = false;
     private bool isOrganizer = false;
@@ -30,9 +25,11 @@ else
     {
         try
         {
-            // Check if user is an organizer
+            // Check if user is logged in
             isLoggedIn = await _accessService.IsUserLoggedInAsync();
+            // Check if user is an organizer
             isOrganizer = await _accessService.IsOrganizerAsync();
+            //Allow only organizer to view the page - redirect elsewhere otherwise
             RoleBasedRedirector.CheckOrganizerAccess(isLoggedIn, isOrganizer, _navigationManager);
         }
         catch
@@ -46,7 +43,7 @@ else
     {
         _navigationManager.NavigateTo("/auth/signup");
     }
-    
+
     private void GoBack()
     {
         _navigationManager.NavigateTo("/users");
