@@ -5,6 +5,8 @@
 @inject IEventAttendanceApiService _eventAttendanceApiService
 @inject IAccessService _accessService
 
+@using CleanUps.Shared.DTOs.EventAttendances
+
 <div class="card shadow p-4">
     <h3>Event Details</h3>
 
@@ -42,41 +44,52 @@
             </div>
         }
 
-        @if (eventAttendees != null && eventAttendees.Count > 0)
-        {
-            <div class="mb-4">
-                <h5>Attendees</h5>
-                <div class="table-responsive">
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var user in eventAttendees)
-                            {
-                                <tr>
-                                    <td>@user.Name</td>
-                                    <td>@user.Email</td>
-                                    <td>@user.Role</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        }
-
         <div class="d-flex gap-2 mb-2">
             <button class="btn btn-secondary" @onclick="GoBack">Back</button>
 
+            @* --- Attendance Button Logic (Visible to Volunteers & Organizers) --- *@
+            @if (eventResult?.Data != null)
+            {
+                @if (eventResult.Data.EndTime < DateTime.Now) // Event is in the past
+                {
+                    @if (isCurrentUserAttending)
+                    {
+                        <button class="btn btn-success disabled" disabled>Attended</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-secondary disabled" disabled>Did not attend</button>
+                    }
+                }
+                else // Event is in the future or ongoing
+                {
+                    @if (isAttendanceActionLoading)
+                    {
+                        <button class="btn btn-info disabled" disabled>
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Loading...
+                        </button>
+                    }
+                    else
+                    {
+                        @if (isCurrentUserAttending)
+                        {
+                            <button class="btn btn-warning" @onclick="UnregisterFromEvent">Not Going</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-success" @onclick="SignUpForEvent">Going</button>
+                        }
+                    }
+                }
+            }
+
+            @* --- Organizer-Specific Buttons --- *@
             @if (isOrganizer)
             {
-                <button class="btn btn-primary" @onclick="() => EditEvent(ev.EventId)">Edit</button>
-                <button class="btn btn-danger" @onclick="() => DeleteEvent(ev.EventId)">Delete</button>
+                 // Disable organizer buttons while attendance action is happening
+                <button class="btn btn-primary" @onclick="() => EditEvent(ev.EventId)" disabled="@isAttendanceActionLoading">Edit</button>
+                <button class="btn btn-danger" @onclick="() => DeleteEvent(ev.EventId)" disabled="@isAttendanceActionLoading">Delete</button>
             }
         </div>
     }
@@ -98,45 +111,115 @@
     private Result<EventResponse> eventResult;
     private List<UserResponse> eventAttendees;
     private string errorMessage = string.Empty;
-    private bool isLoggedIn = false;
+    private bool isLoadingEvent = true;
+    private bool isAttendanceActionLoading = false;
+
+    private int? currentUserId;
+    private RoleDTO? currentUserRole;
+    private bool isCurrentUserAttending = false;
     private bool isOrganizer = false;
 
     protected override async Task OnInitializedAsync()
     {
+        isLoadingEvent = true;
         try
         {
-            // Check if user is logged in
-            isLoggedIn = await _accessService.IsUserLoggedInAsync();
-            //Redirect if not loggedin
-            RoleBasedRedirector.CheckVolunteerAccess(isLoggedIn, _navigationManager);
+            currentUserId = await _accessService.GetLoggedUserIdAsync();
+            currentUserRole = await _accessService.GetLoggedUserRoleAsync();
 
-            // Check if user is an organizer
-            isOrganizer = await _accessService.IsOrganizerAsync();
+            if (currentUserId == null || currentUserRole == null)
+            {
+                _navigationManager.NavigateTo("/auth/login");
+                return;
+            }
 
-            // Load event data
+            isOrganizer = currentUserRole == RoleDTO.Organizer;
+
             await LoadEventData();
         }
-        catch
+        catch(Exception ex)
         {
-            // In case of errors, redirect to login
-            _navigationManager.NavigateTo("/auth/login");
+            errorMessage = $"An error occurred during initialization: {ex.Message}";
+        }
+        finally
+        {
+             isLoadingEvent = false;
         }
     }
 
     private async Task LoadEventData()
     {
-        //Load event data
+        errorMessage = string.Empty;
+        eventAttendees = new List<UserResponse>();
+        isCurrentUserAttending = false;
+
         eventResult = await _eventApiService.GetByIdAsync(eventId);
 
         if (eventResult.IsSuccess && eventResult.Data != null)
         {
+            bool isPastEvent = eventResult.Data.EndTime < DateTime.Now;
+
             // Load eventAttendance data
             var eventAttendanceResult = await _eventAttendanceApiService.GetUsersByEventIdAsync(eventId);
             if (eventAttendanceResult.IsSuccess)
             {
-                eventAttendees = eventAttendanceResult.Data;
+                eventAttendees = eventAttendanceResult.Data ?? new List<UserResponse>();
+                if (currentUserId != null)
+                {
+                    isCurrentUserAttending = eventAttendees.Any(u => u.UserId == currentUserId.Value);
+                }
+            }
+            else
+            {
+                errorMessage = $"Could not load attendee list: {eventAttendanceResult.ErrorMessage}";
             }
         }
+    }
+
+    private async Task SignUpForEvent()
+    {
+        if (currentUserId == null) return;
+        isAttendanceActionLoading = true;
+        errorMessage = string.Empty;
+        StateHasChanged();
+
+        var request = new CreateEventAttendanceRequest(currentUserId.Value, eventId);
+        var result = await _eventAttendanceApiService.CreateAsync(request);
+
+        if (result.IsSuccess)
+        {
+            await LoadEventData();
+        }
+        else
+        {
+            errorMessage = result.ErrorMessage ?? "Failed to sign up for the event.";
+        }
+
+        isAttendanceActionLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task UnregisterFromEvent()
+    {
+         if (currentUserId == null) return;
+        isAttendanceActionLoading = true;
+        errorMessage = string.Empty;
+        StateHasChanged();
+
+        var request = new DeleteEventAttendanceRequest(currentUserId.Value, eventId);
+        var result = await _eventAttendanceApiService.DeleteAsync(request);
+
+        if (result.IsSuccess)
+        {
+            await LoadEventData();
+        }
+        else
+        {
+             errorMessage = result.ErrorMessage ?? "Failed to unregister from the event.";
+        }
+
+        isAttendanceActionLoading = false;
+        StateHasChanged();
     }
 
     private void GoBack()
@@ -151,6 +234,10 @@
 
     private async Task DeleteEvent(int eventId)
     {
+        isAttendanceActionLoading = true;
+        errorMessage = string.Empty;
+        StateHasChanged();
+
         var deleteResult = await _eventApiService.DeleteAsync(new DeleteEventRequest(eventId));
         if (deleteResult.IsSuccess)
         {
@@ -160,5 +247,7 @@
         {
             errorMessage = deleteResult.ErrorMessage ?? "An error occurred while deleting the event.";
         }
+        isAttendanceActionLoading = false;
+        StateHasChanged();
     }
 }

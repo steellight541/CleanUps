@@ -47,22 +47,17 @@ namespace CleanUps.BusinessLogic.Validators
                 return Result<bool>.BadRequest("EventAttendanceDTO cannot be null.");
             }
 
-            // Validate userId and eventId
-            if (updateRequest.UserId <= 0)
-            {
-                return Result<bool>.BadRequest("User Id must be greater than zero.");
-            }
-
-            if (updateRequest.EventId <= 0)
-            {
-                return Result<bool>.BadRequest("Event Id must be greater than zero.");
-            }
-
-            // Validate common fields
+            // Validate common fields (checks UserId > 0 and EventId > 0)
             var commonValidation = ValidateCommonFields(updateRequest.UserId, updateRequest.EventId);
             if (!commonValidation.IsSuccess)
             {
                 return commonValidation;
+            }
+
+            // Ensure CheckIn is not the default value
+            if (updateRequest.CheckIn == default)
+            {
+                return Result<bool>.BadRequest("Check-In time must be provided.");
             }
 
             // Ensure CheckIn is not in the future

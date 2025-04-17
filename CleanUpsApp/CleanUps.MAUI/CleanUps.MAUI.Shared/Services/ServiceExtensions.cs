@@ -1,4 +1,4 @@
-﻿using CleanUps.MAUI.Shared.AuthServices;
+using CleanUps.MAUI.Shared.AuthServices;
 using CleanUps.Shared.ClientServices;
 using CleanUps.Shared.ClientServices.Interfaces;
 using Microsoft.Extensions.DependencyInjection;

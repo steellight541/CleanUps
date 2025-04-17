@@ -129,12 +129,23 @@ namespace CleanUps.Shared.ClientServices
             try
             {
                 HttpResponseMessage response = await _httpClient.GetAsync($"api/eventattendances/event/{eventId}/users");
-                if (response.IsSuccessStatusCode)
+                
+                // Handle 204 No Content specifically
+                if (response.StatusCode == HttpStatusCode.NoContent)
                 {
-                    List<UserResponse>? eventAttendance = await response.Content.ReadFromJsonAsync<List<UserResponse>>();
-                    return eventAttendance != null ? Result<List<UserResponse>>.Ok(eventAttendance) : Result<List<UserResponse>>.InternalServerError("Failed to deserialize user");
+                    // API indicated no attendees, return success with an empty list
+                    return Result<List<UserResponse>>.Ok(new List<UserResponse>()); 
                 }
 
+                if (response.IsSuccessStatusCode) // Handles 200 OK
+                {
+                    // Use JsonSerializer to handle potential null response content gracefully
+                    string jsonContent = await response.Content.ReadAsStringAsync();
+                    List<UserResponse>? users = JsonSerializer.Deserialize<List<UserResponse>>(jsonContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    return Result<List<UserResponse>>.Ok(users ?? new List<UserResponse>());
+                }
+
+                // Handle other non-success status codes
                 string errorMessage = await response.Content.ReadAsStringAsync();
                 switch (response.StatusCode)
                 {
@@ -142,13 +153,18 @@ namespace CleanUps.Shared.ClientServices
                         return Result<List<UserResponse>>.BadRequest(errorMessage);
                     case HttpStatusCode.NotFound:
                         return Result<List<UserResponse>>.NotFound(errorMessage);
+                    // No default needed as IsSuccessStatusCode and NoContent were handled
                     default:
-                        return Result<List<UserResponse>>.InternalServerError(errorMessage);
+                         return Result<List<UserResponse>>.InternalServerError($"API Error: {response.StatusCode} - {errorMessage}");
                 }
             }
             catch (HttpRequestException ex)
             {
                 return Result<List<UserResponse>>.InternalServerError($"Network error: {ex.Message}");
+            }
+            catch (JsonException ex) // Catch potential deserialization errors
+            {
+                return Result<List<UserResponse>>.InternalServerError($"Failed to deserialize response: {ex.Message}");
             }
             catch (TaskCanceledException)
             {
