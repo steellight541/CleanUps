@@ -17,7 +17,7 @@ namespace CleanUps.BusinessLogic.Services.Interfaces
         /// <param name="userId">The ID of the user to retrieve events for.</param>
         /// <returns>A <see cref="Result{T}"/> containing a list of <see cref="EventResponse"/> objects if successful, or an error message if the operation fails.</returns>
         Task<Result<List<EventResponse>>> GetEventsByUserIdAsync(int userId);
-        
+
         /// <summary>
         /// Retrieves all users who have attended or registered for a specific event.
         /// </summary>

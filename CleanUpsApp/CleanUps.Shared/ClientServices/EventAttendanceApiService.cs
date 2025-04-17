@@ -1,9 +1,9 @@
-﻿using CleanUps.Shared.DTOs.EventAttendances;
+﻿using CleanUps.Shared.ClientServices.Interfaces;
+using CleanUps.Shared.DTOs.EventAttendances;
 using CleanUps.Shared.DTOs.Events;
 using CleanUps.Shared.DTOs.Users;
 using CleanUps.Shared.ErrorHandling;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -13,7 +13,7 @@ namespace CleanUps.Shared.ClientServices
     /// Client service for interacting with the Event Attendance API.
     /// Provides methods for managing the relationship between users and the events they attend.
     /// </summary>
-    public class EventAttendanceApiService
+    public class EventAttendanceApiService : IEventAttendanceApiService
     {
         private readonly HttpClient _httpClient;
 
@@ -34,7 +34,7 @@ namespace CleanUps.Shared.ClientServices
         /// a NoContent result if no attendances exist,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<List<EventAttendanceResponse>>> GetAllAttendancesAsync()
+        public async Task<Result<List<EventAttendanceResponse>>> GetAllAsync()
         {
             try
             {
@@ -129,12 +129,23 @@ namespace CleanUps.Shared.ClientServices
             try
             {
                 HttpResponseMessage response = await _httpClient.GetAsync($"api/eventattendances/event/{eventId}/users");
-                if (response.IsSuccessStatusCode)
+                
+                // Handle 204 No Content specifically
+                if (response.StatusCode == HttpStatusCode.NoContent)
                 {
-                    List<UserResponse>? eventAttendance = await response.Content.ReadFromJsonAsync<List<UserResponse>>();
-                    return eventAttendance != null ? Result<List<UserResponse>>.Ok(eventAttendance) : Result<List<UserResponse>>.InternalServerError("Failed to deserialize user");
+                    // API indicated no attendees, return success with an empty list
+                    return Result<List<UserResponse>>.Ok(new List<UserResponse>()); 
                 }
 
+                if (response.IsSuccessStatusCode) // Handles 200 OK
+                {
+                    // Use JsonSerializer to handle potential null response content gracefully
+                    string jsonContent = await response.Content.ReadAsStringAsync();
+                    List<UserResponse>? users = JsonSerializer.Deserialize<List<UserResponse>>(jsonContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    return Result<List<UserResponse>>.Ok(users ?? new List<UserResponse>());
+                }
+
+                // Handle other non-success status codes
                 string errorMessage = await response.Content.ReadAsStringAsync();
                 switch (response.StatusCode)
                 {
@@ -142,13 +153,18 @@ namespace CleanUps.Shared.ClientServices
                         return Result<List<UserResponse>>.BadRequest(errorMessage);
                     case HttpStatusCode.NotFound:
                         return Result<List<UserResponse>>.NotFound(errorMessage);
+                    // No default needed as IsSuccessStatusCode and NoContent were handled
                     default:
-                        return Result<List<UserResponse>>.InternalServerError(errorMessage);
+                         return Result<List<UserResponse>>.InternalServerError($"API Error: {response.StatusCode} - {errorMessage}");
                 }
             }
             catch (HttpRequestException ex)
             {
                 return Result<List<UserResponse>>.InternalServerError($"Network error: {ex.Message}");
+            }
+            catch (JsonException ex) // Catch potential deserialization errors
+            {
+                return Result<List<UserResponse>>.InternalServerError($"Failed to deserialize response: {ex.Message}");
             }
             catch (TaskCanceledException)
             {
@@ -158,7 +174,7 @@ namespace CleanUps.Shared.ClientServices
             {
                 return Result<List<UserResponse>>.InternalServerError($"Unexpected error: {ex.Message}");
             }
-        }      
+        }
 
         /// <summary>
         /// Creates a new event attendance record through the API.
@@ -170,7 +186,7 @@ namespace CleanUps.Shared.ClientServices
         /// a NotFound result if the user or event doesn't exist,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<EventAttendanceResponse>> CreateAttendanceAsync(CreateEventAttendanceRequest newEventAttendance)
+        public async Task<Result<EventAttendanceResponse>> CreateAsync(CreateEventAttendanceRequest newEventAttendance)
         {
             try
             {
@@ -221,7 +237,7 @@ namespace CleanUps.Shared.ClientServices
         /// a Conflict result if there's a concurrency issue,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<EventAttendanceResponse>> UpdateAttendanceAsync(UpdateEventAttendanceRequest attendanceToUpdate)
+        public async Task<Result<EventAttendanceResponse>> UpdateAsync(UpdateEventAttendanceRequest attendanceToUpdate)
         {
             try
             {
@@ -275,11 +291,11 @@ namespace CleanUps.Shared.ClientServices
         /// a Conflict result if the attendance record cannot be deleted,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<EventAttendanceResponse>> DeleteAttendanceAsync(int userId, int eventId)
+        public async Task<Result<EventAttendanceResponse>> DeleteAsync(DeleteEventAttendanceRequest deleteRequest)
         {
             try
             {
-                HttpResponseMessage response = await _httpClient.DeleteAsync($"api/eventattendances/user/{userId}/event/{eventId}");
+                HttpResponseMessage response = await _httpClient.DeleteAsync($"api/eventattendances/user/{deleteRequest.UserId}/event/{deleteRequest.EventId}");
                 if (response.IsSuccessStatusCode)
                 {
                     EventAttendanceResponse? eventAttendance = await response.Content.ReadFromJsonAsync<EventAttendanceResponse>();
@@ -311,6 +327,11 @@ namespace CleanUps.Shared.ClientServices
             {
                 return Result<EventAttendanceResponse>.InternalServerError($"Unexpected error: {ex.Message}");
             }
+        }
+
+        public async Task<Result<EventAttendanceResponse>> GetByIdAsync(int id)
+        {
+            return Result<EventAttendanceResponse>.BadRequest("GetByIdAsync is not implemented in this API");
         }
     }
 }

@@ -118,11 +118,12 @@ namespace CleanUps.API.Controllers
                 case 200:
                     return Ok(result.Data);
                 case 204:
+                    _logger.LogInformation("No users found attending event {EventId}, returning 204 NoContent.", eventId);
                     return NoContent();
                 case 400:
                     return BadRequest(result.ErrorMessage);
                 default:
-                    _logger.LogError("Error getting users: {StatusCode} - {Message}", result.StatusCode, result.ErrorMessage);
+                    _logger.LogError("Error getting users for event {EventId}: {StatusCode} - {Message}", eventId, result.StatusCode, result.ErrorMessage);
                     return StatusCode(result.StatusCode, result.ErrorMessage);
             }
         }

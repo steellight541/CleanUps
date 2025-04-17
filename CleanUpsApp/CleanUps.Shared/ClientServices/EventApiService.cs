@@ -1,7 +1,7 @@
-﻿using CleanUps.Shared.DTOs.Events;
+﻿using CleanUps.Shared.ClientServices.Interfaces;
+using CleanUps.Shared.DTOs.Events;
 using CleanUps.Shared.ErrorHandling;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -12,7 +12,7 @@ namespace CleanUps.Shared.ClientServices
     /// Provides methods for performing CRUD operations on events through HTTP requests.
     /// Implements error handling with Result pattern instead of throwing exceptions.
     /// </summary>
-    public class EventApiService
+    public class EventApiService : IEventApiService
     {
         private readonly HttpClient _httpClient;
 
@@ -33,17 +33,17 @@ namespace CleanUps.Shared.ClientServices
         /// a NoContent result if no events exist,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<List<EventResponse>>> GetAllEventsAsync()
+        public async Task<Result<List<EventResponse>>> GetAllAsync()
         {
             try
             {
                 HttpResponseMessage response = await _httpClient.GetAsync("api/events");
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     List<EventResponse>? events = await response.Content.ReadFromJsonAsync<List<EventResponse>>();
-                    return events != null 
-                        ? Result<List<EventResponse>>.Ok(events) 
+                    return events != null
+                        ? Result<List<EventResponse>>.Ok(events)
                         : Result<List<EventResponse>>.InternalServerError("Failed to deserialize events");
                 }
 
@@ -80,17 +80,17 @@ namespace CleanUps.Shared.ClientServices
         /// a BadRequest result if the ID is invalid,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<EventResponse>> GetEventByIdAsync(int id)
+        public async Task<Result<EventResponse>> GetByIdAsync(int id)
         {
             try
             {
                 HttpResponseMessage response = await _httpClient.GetAsync($"api/events/{id}");
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     EventResponse? eventDto = await response.Content.ReadFromJsonAsync<EventResponse>();
-                    return eventDto != null 
-                        ? Result<EventResponse>.Ok(eventDto) 
+                    return eventDto != null
+                        ? Result<EventResponse>.Ok(eventDto)
                         : Result<EventResponse>.InternalServerError("Failed to deserialize event");
                 }
 
@@ -128,17 +128,17 @@ namespace CleanUps.Shared.ClientServices
         /// a BadRequest result if the request data is invalid,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<EventResponse>> CreateEventAsync(CreateEventRequest createRequest)
+        public async Task<Result<EventResponse>> CreateAsync(CreateEventRequest createRequest)
         {
             try
             {
                 HttpResponseMessage response = await _httpClient.PostAsJsonAsync("api/events", createRequest);
-                
+
                 if (response.IsSuccessStatusCode)
                 {
                     EventResponse? createdEvent = await response.Content.ReadFromJsonAsync<EventResponse>();
-                    return createdEvent != null 
-                        ? Result<EventResponse>.Created(createdEvent) 
+                    return createdEvent != null
+                        ? Result<EventResponse>.Created(createdEvent)
                         : Result<EventResponse>.InternalServerError("Failed to deserialize event");
                 }
 
@@ -181,17 +181,17 @@ namespace CleanUps.Shared.ClientServices
         /// a Conflict result if there's a concurrency issue,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<EventResponse>> UpdateEventAsync(int id, UpdateEventRequest updateRequest)
+        public async Task<Result<EventResponse>> UpdateAsync(UpdateEventRequest updateRequest)
         {
             try
             {
-                HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"api/events/{id}", updateRequest);
-                
+                HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"api/events/{updateRequest.EventId}", updateRequest);
+
                 if (response.IsSuccessStatusCode)
                 {
                     EventResponse? updatedEvent = await response.Content.ReadFromJsonAsync<EventResponse>();
-                    return updatedEvent != null 
-                        ? Result<EventResponse>.Ok(updatedEvent) 
+                    return updatedEvent != null
+                        ? Result<EventResponse>.Ok(updatedEvent)
                         : Result<EventResponse>.InternalServerError("Failed to deserialize event");
                 }
 
@@ -237,17 +237,17 @@ namespace CleanUps.Shared.ClientServices
         /// a Conflict result if the event cannot be deleted,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<EventResponse>> DeleteEventAsync(int eventId)
+        public async Task<Result<EventResponse>> DeleteAsync(DeleteEventRequest deleteRequest)
         {
             try
             {
-                HttpResponseMessage response = await _httpClient.DeleteAsync($"api/events/{eventId}");
-                
+                HttpResponseMessage response = await _httpClient.DeleteAsync($"api/events/{deleteRequest.EventId}");
+
                 if (response.IsSuccessStatusCode)
                 {
                     EventResponse? deletedEvent = await response.Content.ReadFromJsonAsync<EventResponse>();
-                    return deletedEvent != null 
-                        ? Result<EventResponse>.Ok(deletedEvent) 
+                    return deletedEvent != null
+                        ? Result<EventResponse>.Ok(deletedEvent)
                         : Result<EventResponse>.InternalServerError("Failed to deserialize event");
                 }
 

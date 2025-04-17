@@ -1,4 +1,5 @@
 ﻿using CleanUps.BusinessLogic.Validators.Interfaces;
+using CleanUps.Shared.DTOs.Enums;
 using CleanUps.Shared.DTOs.Events;
 using CleanUps.Shared.ErrorHandling;
 
@@ -20,26 +21,16 @@ namespace CleanUps.BusinessLogic.Validators
             }
 
             // Validate common fields
-            var commonValidation = ValidateCommonFields(createRequest.Title, createRequest.Description, createRequest.StartTime);
+            var commonValidation = ValidateCommonFields(createRequest.Title, createRequest.Description, createRequest.StartTime, createRequest.EndTime);
             if (!commonValidation.IsSuccess)
             {
                 return commonValidation;
             }
 
-            // Ensure Start time is in the future
-            if (createRequest.StartTime <= DateTime.Now)
+            // Check EndTime > StartTime
+            if (createRequest.EndTime <= createRequest.StartTime)
             {
-                return Result<bool>.BadRequest("Start time must be in the future.");
-            }
-            // Ensure End time is in the future
-            if (createRequest.EndTime <= DateTime.Now)
-            {
-                return Result<bool>.BadRequest("End time must be in the future.");
-            }
-
-            if (createRequest.EndTime < createRequest.StartTime)
-            {
-                return Result<bool>.BadRequest("End time cannot be before Start Time");
+                return Result<bool>.BadRequest("End time cannot be before or same as Start Time");
             }
 
             // Validate Location fields
@@ -81,10 +72,22 @@ namespace CleanUps.BusinessLogic.Validators
             }
 
             // Validate common fields
-            var commonValidation = ValidateCommonFields(updateRequest.Title, updateRequest.Description, updateRequest.StartTime);
+            var commonValidation = ValidateCommonFields(updateRequest.Title, updateRequest.Description, updateRequest.StartTime, updateRequest.EndTime);
             if (!commonValidation.IsSuccess)
             {
                 return commonValidation;
+            }
+
+            // Add check: EndTime > StartTime
+            if (updateRequest.EndTime <= updateRequest.StartTime)
+            {
+                return Result<bool>.BadRequest("End time must be after start time.");
+            }
+
+            // Validate Status enum
+            if (!Enum.IsDefined(typeof(StatusDTO), updateRequest.Status))
+            {
+                return Result<bool>.BadRequest("Invalid status value provided.");
             }
 
             // Validate TrashCollected
@@ -131,10 +134,10 @@ namespace CleanUps.BusinessLogic.Validators
         /// </summary>
         /// <param name="title">The event title</param>
         /// <param name="description">The event description</param>
-        /// <param name="dateAndTime">The event date and time</param>
-        /// <param name="location">The event location</param>
+        /// <param name="startTime">The event start time</param>
+        /// <param name="endTime">The event end time</param>
         /// <returns>A Result indicating success or failure with an error message</returns>
-        private Result<bool> ValidateCommonFields(string title, string description, DateTime dateAndTime)
+        private Result<bool> ValidateCommonFields(string title, string description, DateTime startTime, DateTime endTime)
         {
             if (string.IsNullOrWhiteSpace(title))
             {
@@ -146,9 +149,15 @@ namespace CleanUps.BusinessLogic.Validators
                 return Result<bool>.BadRequest("Description is required.");
             }
 
-            if (dateAndTime == default)
+            if (startTime == default)
             {
-                return Result<bool>.BadRequest("Date and Time is required.");
+                return Result<bool>.BadRequest("Start Time is required.");
+            }
+
+            // Add check for EndTime default value
+            if (endTime == default)
+            {
+                return Result<bool>.BadRequest("End Time is required.");
             }
 
             return Result<bool>.Ok(true);

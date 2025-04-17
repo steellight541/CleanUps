@@ -1,7 +1,7 @@
-﻿using CleanUps.Shared.DTOs.Photos;
+﻿using CleanUps.Shared.ClientServices.Interfaces;
+using CleanUps.Shared.DTOs.Photos;
 using CleanUps.Shared.ErrorHandling;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -11,7 +11,7 @@ namespace CleanUps.Shared.ClientServices
     /// Client service for interacting with the Photos API.
     /// Provides methods for performing CRUD operations on photos through HTTP requests.
     /// </summary>
-    public class PhotoApiService
+    public class PhotoApiService : IPhotoApiService
     {
         private readonly HttpClient _httpClient;
 
@@ -32,7 +32,7 @@ namespace CleanUps.Shared.ClientServices
         /// a NoContent result if no photos exist,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<List<PhotoResponse>>> GetAllPhotosAsync()
+        public async Task<Result<List<PhotoResponse>>> GetAllAsync()
         {
             try
             {
@@ -76,7 +76,7 @@ namespace CleanUps.Shared.ClientServices
         /// a BadRequest result if the ID is invalid,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<PhotoResponse>> GetPhotoByIdAsync(int id)
+        public async Task<Result<PhotoResponse>> GetByIdAsync(int id)
         {
             try
             {
@@ -167,7 +167,7 @@ namespace CleanUps.Shared.ClientServices
         /// a BadRequest result if the request data is invalid,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<PhotoResponse>> CreatePhotoAsync(CreatePhotoRequest createRequest)
+        public async Task<Result<PhotoResponse>> CreateAsync(CreatePhotoRequest createRequest)
         {
             try
             {
@@ -217,11 +217,11 @@ namespace CleanUps.Shared.ClientServices
         /// a Conflict result if there's a concurrency issue,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<PhotoResponse>> UpdatePhotoAsync(int id, UpdatePhotoRequest updateRequest)
+        public async Task<Result<PhotoResponse>> UpdateAsync(UpdatePhotoRequest updateRequest)
         {
             try
             {
-                HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"api/photos/{id}", updateRequest);
+                HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"api/photos/{updateRequest.PhotoId}", updateRequest);
                 if (response.IsSuccessStatusCode)
                 {
                     PhotoResponse? updatedPhoto = await response.Content.ReadFromJsonAsync<PhotoResponse>();
@@ -270,11 +270,11 @@ namespace CleanUps.Shared.ClientServices
         /// a Conflict result if the photo cannot be deleted,
         /// or an error message if the operation fails.
         /// </returns>
-        public async Task<Result<PhotoResponse>> DeletePhotoAsync(int photoId)
+        public async Task<Result<PhotoResponse>> DeleteAsync(DeletePhotoRequest deleteRequest)
         {
             try
             {
-                HttpResponseMessage response = await _httpClient.DeleteAsync($"api/photos/{photoId}");
+                HttpResponseMessage response = await _httpClient.DeleteAsync($"api/photos/{deleteRequest.PhotoId}");
                 if (response.IsSuccessStatusCode)
                 {
                     PhotoResponse? deletedPhoto = await response.Content.ReadFromJsonAsync<PhotoResponse>();

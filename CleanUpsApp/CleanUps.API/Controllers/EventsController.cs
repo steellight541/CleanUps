@@ -50,7 +50,6 @@ namespace CleanUps.API.Controllers
                 case 204:
                     return NoContent();
                 default:
-                    _logger.LogError("Error getting events: {StatusCode} - {Message}", result.StatusCode, result.ErrorMessage);
                     return StatusCode(result.StatusCode, result.ErrorMessage);
             }
         }

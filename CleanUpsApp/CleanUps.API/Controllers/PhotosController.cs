@@ -5,15 +5,15 @@ using Microsoft.AspNetCore.Mvc;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace CleanUps.API.Controllers
+{
+    /// <summary>
+    /// Controller responsible for handling HTTP requests related to Photos.
+    /// Provides endpoints for CRUD operations on photo resources.
+    /// </summary>
+    [Route("api/photos")]
+    [ApiController]
+    public class PhotosController : ControllerBase
     {
-        /// <summary>
-        /// Controller responsible for handling HTTP requests related to Photos.
-        /// Provides endpoints for CRUD operations on photo resources.
-        /// </summary>
-        [Route("api/photos")]
-        [ApiController]
-        public class PhotosController : ControllerBase
-        {
         private readonly IPhotoService _photoService;
         private readonly ILogger<PhotosController> _logger;
 

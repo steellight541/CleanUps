@@ -1,23 +1,20 @@
 ﻿@page "/users/{userId:int}/edit"
-@using CleanUps.Shared.DTOs.AbstractDTOs
-@using CleanUps.Shared.DTOs.Enums
-@using CleanUps.Shared.DTOs.Users
-@inject NavigationManager _navigationManager
-@inject UserApiService _userApiService
 
-@if (CurrentUserRole == RoleDTO.Organizer)
-{
+@inject NavigationManager _navigationManager
+@inject IUserApiService _userApiService
+@inject IAccessService _accessService
+
     <div class="card shadow p-4">
 
         <h3>Edit User</h3>
 
-        @if (userResult == null)
+        @if (getUserResult == null)
         {
             <p>Loading...</p>
         }
-        else if (!userResult.IsSuccess)
+        else if (!getUserResult.IsSuccess)
         {
-            <p class="text-danger">Error: @userResult.ErrorMessage</p>
+            <p class="text-danger">Error: @getUserResult.ErrorMessage</p>
         }
         else
         {
@@ -49,46 +46,64 @@
             }
         }
     </div>
-}
-else
-{
-    <p>Access denied</p>
-}
+
 @code {
     [Parameter]
     public int userId { get; set; }
 
-    private Result<UserResponse> userResult;
+    private Result<UserResponse> getUserResult;
     private UserEditModel editModel;
     private string errorMessage;
-
-    private RoleDTO CurrentUserRole = RoleDTO.Organizer;
+    
+    private bool isLoggedIn = false;
+    private bool isOrganizer = false;
 
     protected override async Task OnInitializedAsync()
     {
-        userResult = await _userApiService.GetUserByIdAsync(userId);
-        if (userResult.IsSuccess)
+        try
+        {
+            // Check if user is logged in
+            isLoggedIn = await _accessService.IsUserLoggedInAsync();
+
+            // Check if user is an organizer
+            isOrganizer = await _accessService.IsOrganizerAsync();
+            RoleBasedRedirector.CheckOrganizerAccess(isLoggedIn, isOrganizer, _navigationManager);
+            
+            // Load user data after access check
+            await LoadUser();
+        }
+        catch
+        {
+            // In case of errors, redirect to login
+            _navigationManager.NavigateTo("/auth/login");
+        }
+    }
+
+    private async Task LoadUser()
+    {
+        getUserResult = await _userApiService.GetByIdAsync(userId);
+        if (getUserResult.IsSuccess)
         {
             editModel = new UserEditModel
                 {
-                    Name = userResult.Data.Name,
-                    Email = userResult.Data.Email
+                    Name = getUserResult.Data.Name,
+                    Email = getUserResult.Data.Email
                 };
         }
     }
 
     private async Task HandleSubmit()
     {
-        var updatedUser = new UpdateUserRequest(userId, editModel.Name, editModel.Email);
+        UpdateUserRequest updateRequest = new UpdateUserRequest(userId, editModel.Name, editModel.Email);
 
-        var result = await _userApiService.UpdateUserAsync(userId, updatedUser);
-        if (result.IsSuccess)
+        var updateResonse = await _userApiService.UpdateAsync(updateRequest);
+        if (updateResonse.IsSuccess)
         {
             _navigationManager.NavigateTo("/users");
         }
         else
         {
-            errorMessage = result.ErrorMessage ?? "An error occurred while updating the user.";
+            errorMessage = updateResonse.ErrorMessage ?? "An error occurred while updating the user.";
         }
     }
 
@@ -99,7 +114,13 @@ else
 
     private class UserEditModel
     {
+        [Required(ErrorMessage = "Name is required.")]
+        [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
         public string Name { get; set; }
+
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Invalid email format.")]
+        [StringLength(255, ErrorMessage = "Email cannot exceed 255 characters.")]
         public string Email { get; set; }
     }
 }

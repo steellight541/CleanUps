@@ -113,7 +113,7 @@ namespace CleanUps.DataAccess.Repositories
                             .Where(ea => ea.User != null && !ea.User.isDeleted)
                             .ToList();
                     }
-                    
+
                     return Result<Event>.Ok(retrievedEvent);
                 }
             }
@@ -138,7 +138,7 @@ namespace CleanUps.DataAccess.Repositories
             {
                 // Ensure new events are not created as deleted
                 eventToBeCreated.isDeleted = false;
-                
+
                 await _context.Events.AddAsync(eventToBeCreated);
                 await _context.SaveChangesAsync();
 
@@ -208,7 +208,7 @@ namespace CleanUps.DataAccess.Repositories
                     .Include(existingEvent => existingEvent.Status)
                     .Include(existingEvent => existingEvent.EventAttendances)
                     .FirstOrDefaultAsync(existingEvent => existingEvent.EventId == eventToBeUpdated.EventId);
-                    
+
                 if (retrievedEvent is null)
                 {
                     return Result<Event>.NotFound($"Event with id: {eventToBeUpdated.EventId} does not exist");
@@ -218,7 +218,7 @@ namespace CleanUps.DataAccess.Repositories
                 {
                     // Preserve the current isDeleted state - don't allow changing via normal update
                     eventToBeUpdated.isDeleted = retrievedEvent.isDeleted;
-                    
+
                     _context.Entry(retrievedEvent).State = EntityState.Detached;
                     _context.Events.Attach(eventToBeUpdated);
                     _context.Entry(eventToBeUpdated).Property(ev => ev.Title).IsModified = true;
@@ -302,7 +302,7 @@ namespace CleanUps.DataAccess.Repositories
                 {
                     // Instead of removing from the database, set the isDeleted flag
                     retrievedEvent.isDeleted = true;
-                    
+
                     await _context.SaveChangesAsync();
                     return Result<Event>.Ok(retrievedEvent);
                 }

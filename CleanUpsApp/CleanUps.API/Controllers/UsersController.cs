@@ -15,16 +15,19 @@ namespace CleanUps.API.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IAuthService _authService;
         private readonly ILogger<UsersController> _logger;
 
         /// <summary>
         /// Initializes a new instance of the UsersController class.
         /// </summary>
         /// <param name="userService">The service for user operations.</param>
+        /// <param name="authService">The service for authentication operations.</param>
         /// <param name="logger">The logger for recording diagnostic information.</param>
-        public UsersController(IUserService userService, ILogger<UsersController> logger)
+        public UsersController(IUserService userService, IAuthService authService, ILogger<UsersController> logger)
         {
             _userService = userService;
+            _authService = authService;
             _logger = logger;
         }
 
@@ -94,11 +97,11 @@ namespace CleanUps.API.Controllers
 
         //TODO: Allow anonymous
         /// <summary>
-        /// Creates a new user in the system (registers a new user).
+        /// Creates a new user in the system (registers a new user) and automatically logs them in.
         /// </summary>
         /// <param name="createRequest">The user data for creating a new user.</param>
         /// <returns>
-        /// 201 Created with the created user data and location,
+        /// 201 Created with the created user data and location, as well as login information,
         /// 400 Bad Request if the request data is invalid,
         /// 500 Internal Server Error if an error occurs during processing.
         /// </returns>

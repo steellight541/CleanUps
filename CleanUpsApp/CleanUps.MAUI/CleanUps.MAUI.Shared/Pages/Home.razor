@@ -1,6 +1,10 @@
 ﻿@page "/"
-@using CleanUps.MAUI.Shared.Services
+
+@using CleanUps.MAUI.Shared.Services;
+
 @inject IFormFactor FormFactor
+@inject IAccessService _accessService
+@inject NavigationManager _navigationManager
 
 <PageTitle>Home</PageTitle>
 
@@ -11,4 +15,20 @@ Welcome to your new app running on <em>@factor</em> using <em>@platform</em>.
 @code {
     private string factor => FormFactor.GetFormFactor();
     private string platform => FormFactor.GetPlatform();
+    private bool isLoggedIn = false;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        try 
+        {
+            // Check if user is logged in, if not redirect to events page
+            isLoggedIn = await _accessService.IsUserLoggedInAsync();
+            RoleBasedRedirector.RedirectPublicToEvents(isLoggedIn, _navigationManager);
+        }
+        catch
+        {
+            // In case of error, assume not logged in and redirect
+            _navigationManager.NavigateTo("/events");
+        }
+    }
 }

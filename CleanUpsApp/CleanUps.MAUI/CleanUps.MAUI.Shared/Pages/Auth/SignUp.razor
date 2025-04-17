@@ -1,6 +1,8 @@
 ﻿@page "/auth/signup"
-@using CleanUps.Shared.DTOs.Users
-@inject UserApiService _userApiService;
+
+@inject IUserApiService _userApiService;
+@inject IAuthApiService _authApiService;
+@inject IAccessService _accessService;
 @inject NavigationManager _navigationManager
 
 <div class="card shadow p-4">
@@ -39,6 +41,9 @@
             <button type="button" class="btn btn-dark btn-sm" @onclick="Cancel">Cancel</button>
         </div>
 
+        <div class="mb-2">
+            <a href="/auth/login">Already have an account? Log in</a>
+        </div>
     </EditForm>
 </div>
 @if (!string.IsNullOrEmpty(errorMsg))
@@ -50,24 +55,56 @@
     private SignUpModel singUpModel = new SignUpModel();
     private string errorMsg = string.Empty;
 
+    protected override async Task OnInitializedAsync()
+    {
+        // If user is already logged in, redirect to home
+        if (await _accessService.IsUserLoggedInAsync())
+        {
+            _navigationManager.NavigateTo("/");
+        }
+    }
+
     private async Task HandleSubmit()
     {
         CreateUserRequest newUser = new CreateUserRequest(singUpModel.Name, singUpModel.Email, singUpModel.Password);
 
-        var result = await _userApiService.CreateUserAsync(newUser);
-        if (result.IsSuccess)
+        var createResult = await _userApiService.CreateAsync(newUser);
+        if (createResult.IsSuccess)
         {
-            _navigationManager.NavigateTo("/users");
+            // new login request from signup model
+            LoginRequest request = new LoginRequest(singUpModel.Email, singUpModel.Password);
+
+            // Attempt to login
+            var loginResult = await _authApiService.LoginAsync(request);
+
+            if (loginResult.IsSuccess)
+            {
+                UserSessionInfo userSession = new UserSessionInfo
+                    {
+                        UserId = loginResult.Data.UserId,
+                        Name = loginResult.Data.Name,
+                        Email = loginResult.Data.Email,
+                        Role = loginResult.Data.Role
+                    };
+
+                await _accessService.SetUserSessionAsync(userSession);
+                _navigationManager.NavigateTo("/events", forceLoad: false);
+            }
+            else
+            {
+                // If we get here, the signup worked but the auto-login did not
+                _navigationManager.NavigateTo("/auth/login");
+            }
         }
         else
         {
-            errorMsg = result.ErrorMessage ?? "An error occurred while signing up.";
+            errorMsg = createResult.ErrorMessage ?? "An error occurred while signing up.";
         }
     }
 
     private void Cancel()
     {
-        _navigationManager.NavigateTo("/users");
+        _navigationManager.NavigateTo("/");
     }
 
     private class SignUpModel

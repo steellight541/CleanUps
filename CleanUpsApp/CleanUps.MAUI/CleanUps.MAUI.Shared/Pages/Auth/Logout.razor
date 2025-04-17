@@ -1,7 +1,14 @@
 ﻿@page "/auth/logout"
 
-<h3>Logout</h3>
+@inject IAccessService _accessService
+@inject NavigationManager _navigationManager
 
 @code {
-
+    protected override async Task OnInitializedAsync()
+    {
+        await _accessService.ClearUserSessionAsync();
+        
+        // Use forceLoad: false to ensure the navigation triggers LocationChanged event
+        _navigationManager.NavigateTo("/auth/login");
+    }
 }

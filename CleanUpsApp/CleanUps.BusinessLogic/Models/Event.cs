@@ -31,12 +31,12 @@ public partial class Event : EntityFrameworkModel
     /// </summary>
     /// <value>A <see cref="DateTime"/> representing when the event begins.</value>
     public DateTime StartTime { get; set; }
-    
+
     /// <summary>
     /// Gets or sets the ending time of the event.
     /// </summary>
     /// <value>A <see cref="DateTime"/> representing when the event ends.</value>
-    public DateTime EndTime{ get; set; }
+    public DateTime EndTime { get; set; }
 
     /// <summary>
     /// Gets or sets whether the event is suitable for families with children.

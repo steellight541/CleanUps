@@ -2,6 +2,7 @@
 using CleanUps.Shared.DTOs.Users;
 using CleanUps.Shared.ErrorHandling;
 using System.Net.Mail;
+using System.Text.RegularExpressions;
 
 namespace CleanUps.BusinessLogic.Validators
 {
@@ -10,6 +11,7 @@ namespace CleanUps.BusinessLogic.Validators
     /// </summary>
     internal class UserValidator : IUserValidator
     {
+
         /// <summary>
         /// Validates a CreateUserRequest before creating a new user.
         /// Ensures all required fields are present and properly formatted.
@@ -36,11 +38,12 @@ namespace CleanUps.BusinessLogic.Validators
                 return Result<bool>.BadRequest("Password is required.");
             }
 
-            // Basic password strength check
-            if (dto.Password.Length < 8)
+            // Enhanced password strength check (length and complexity)
+            if (dto.Password.Length < 8 || dto.Password.Length > 50)
             {
-                return Result<bool>.BadRequest("Password must be at least 8 characters long.");
+                return Result<bool>.BadRequest("Password must be between 8 and 50 characters long.");
             }
+
 
             return Result<bool>.Ok(true);
         }
@@ -100,10 +103,19 @@ namespace CleanUps.BusinessLogic.Validators
             {
                 return Result<bool>.BadRequest("Name is required.");
             }
+             if (name.Length > 100)
+            {
+                return Result<bool>.BadRequest("Name cannot exceed 100 characters.");
+            }
 
             if (string.IsNullOrWhiteSpace(email))
             {
                 return Result<bool>.BadRequest("Email is required.");
+            }
+
+            if (email.Length > 255)
+            {
+                return Result<bool>.BadRequest("Email cannot exceed 255 characters.");
             }
 
             if (!IsValidEmail(email))

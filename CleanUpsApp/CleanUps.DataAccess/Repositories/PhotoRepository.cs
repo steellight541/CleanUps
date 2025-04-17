@@ -79,8 +79,8 @@ namespace CleanUps.DataAccess.Repositories
             {
                 Photo? retrievedPhoto = await _context.Photos
                     .Include(existinPhoto => existinPhoto.Event)
-                    .FirstOrDefaultAsync(existingPhoto => existingPhoto.PhotoId == id); 
-                
+                    .FirstOrDefaultAsync(existingPhoto => existingPhoto.PhotoId == id);
+
                 if (retrievedPhoto is null)
                 {
                     return Result<Photo>.NotFound($"Photo with id: {id} does not exist");
@@ -110,7 +110,7 @@ namespace CleanUps.DataAccess.Repositories
             {
                 List<Photo> filteredPhotos = await _context.Photos
                                                    .Where(p => p.EventId == eventId)
-                                                   .Include(existinPhoto => existinPhoto.Event) 
+                                                   .Include(existinPhoto => existinPhoto.Event)
                                                    .ToListAsync();
                 if (filteredPhotos.Count == 0)
                 {
