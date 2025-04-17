@@ -4,75 +4,77 @@
 @inject IUserApiService _userApiService
 @inject IAccessService _accessService
 
-    <div class="card shadow p-4">
-        <h3>Users</h3>
+<div class="card shadow p-4">
+    <h3>Users</h3>
 
-        <div class="row">
-            <div class="col-md-4 mb-3">
-                <button class="btn btn-success" @onclick="CreateNewUser">Create New User</button>
-            </div>
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <button class="btn btn-success" @onclick="CreateNewUser">Create New User</button>
+        </div>
+    </div>
+
+    @if (loadedUsers == null)
+    {
+        <p>Loading users...</p>
+    }
+    else
+    {
+        <!-- Table layout for larger screens -->
+        <div class="d-none d-md-block mb-2">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Created Date</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (UserResponse loadedUser in loadedUsers)
+                    {
+                        <tr>
+                            <td>@loadedUser.UserId</td>
+                            <td>@loadedUser.Name</td>
+                            <td>@loadedUser.Email</td>
+                            <td>@loadedUser.CreatedDate</td>
+                            <td>@loadedUser.Role.ToString()</td>
+                            <td>
+                                <div class="btn-group" role="group" aria-label="Basic example">
+                                    <button class="btn btn-primary btn-sm" @onclick="() => ViewUser(loadedUser.UserId)">View</button>
+                                    @if (isOrganizer)
+                                    {
+                                        <button class="btn btn-secondary btn-sm" @onclick="() => EditUser(loadedUser.UserId)">Edit</button>
+                                        <button class="btn btn-danger btn-sm" @onclick="() => DeleteUser(loadedUser.UserId)">Delete</button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (isLoadingUsers)
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                Loading more users...
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
 
-        @if (loadedUsers == null)
-        {
-            <p>Loading users...</p>
-        }
-        else
-        {
-            <!-- Table layout for larger screens -->
-            <div class="d-none d-md-block mb-2">
-                <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Created Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (UserResponse loadedUser in loadedUsers)
-                        {
-                            <tr>
-                                <td>@loadedUser.UserId</td>
-                                <td>@loadedUser.Name</td>
-                                <td>@loadedUser.Email</td>
-                                <td>@loadedUser.CreatedDate</td>
-                                <td>
-                                    <div class="btn-group" role="group" aria-label="Basic example">
-                                        <button class="btn btn-primary btn-sm" @onclick="() => ViewUser(loadedUser.UserId)">View</button>
-                                        @if (isOrganizer)
-                                        {
-                                            <button class="btn btn-secondary btn-sm" @onclick="() => EditUser(loadedUser.UserId)">Edit</button>
-                                            <button class="btn btn-danger btn-sm" @onclick="() => DeleteUser(loadedUser.UserId)">Delete</button>
-                                        }
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                        @if (isLoadingUsers)
-                        {
-                            <tr>
-                                <td colspan="5" class="text-center">
-                                    <div class="spinner-border spinner-border-sm" role="status">
-                                        <span class="visually-hidden">Loading...</span>
-                                    </div>
-                                    Loading more users...
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- List-group for small screens -->
-            <div class="d-block d-md-none mb-2">
-                <div class="list-group">
+        <!-- List-group for small screens -->
+        <div class="d-block d-md-none mb-2">
+            <div class="list-group">
                 @foreach (UserResponse loadedUser in loadedUsers)
-                    {
-                        <div class="list-group-item">
-                            <div class="d-flex justify-content-between align-items-center">
+                {
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
 
                             <h5>@loadedUser.Name</h5>
                             @if (isOrganizer)
@@ -97,36 +99,38 @@
                                     </ul>
                                 </div>
                             }
-                            </div>
-                            <p><strong>Email:</strong> @loadedUser.Email</p>
-                            <div class="d-flex flex-column gap-2">
-                                <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewUser(loadedUser.UserId)">View</button>
-                            </div>
                         </div>
-                    }
-                    @if (isLoadingUsers)
-                    {
-                        <div class="list-group-item text-center">
-                            <div class="spinner-border spinner-border-sm" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                            Loading more users...
+                        <p><strong>Email:</strong> @loadedUser.Email</p>
+                        <p><strong>Role:</strong> @loadedUser.Role.ToString()</p>
+
+                        <div class="d-flex flex-column gap-2">
+                            <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewUser(loadedUser.UserId)">View</button>
                         </div>
-                    }
-                </div>
+                    </div>
+                }
+                @if (isLoadingUsers)
+                {
+                    <div class="list-group-item text-center">
+                        <div class="spinner-border spinner-border-sm" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        Loading more users...
+                    </div>
+                }
             </div>
+        </div>
 
-            @if (loadError != null)
-            {
-                <p class="text-danger">Error: @loadError</p>
-            }
-        }
-
-        @if (!string.IsNullOrEmpty(errorMessage))
+        @if (loadError != null)
         {
-            <p class="text-danger">@errorMessage</p>
+            <p class="text-danger">Error: @loadError</p>
         }
-    </div>
+    }
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <p class="text-danger">@errorMessage</p>
+    }
+</div>
 
 @code {
     private Result<List<UserResponse>> getAllUsersResponse;
