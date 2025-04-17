@@ -8,10 +8,10 @@
 {
     <div class="card shadow p-4">
         <h3>Users</h3>
-        
+
         <div class="row">
             <div class="col-md-4 mb-3">
-                <button class="btn btn-primary" @onclick="CreateNewUser">Create New User</button>
+                <button class="btn btn-success" @onclick="CreateNewUser">Create New User</button>
             </div>
         </div>
 
@@ -74,12 +74,35 @@
                     @foreach (var user in loadedUsers)
                     {
                         <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+
                             <h5>@user.Name</h5>
+                            @if (isOrganizer)
+                            {
+                                <div class="dropdown">
+                                    <button class="btn btn-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuButton-@user.UserId" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Actions
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-@user.UserId">
+
+                                        <li>
+                                            <button class="dropdown-item text-secondary" @onclick="() => EditUser(user.UserId)">
+                                                <i class="bi bi-pencil-fill me-2"></i>Edit
+                                            </button>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <button class="dropdown-item text-danger" @onclick="() => DeleteUser(user.UserId)">
+                                                <i class="bi bi-trash-fill me-2"></i>Delete
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            }
+                            </div>
                             <p><strong>Email:</strong> @user.Email</p>
                             <div class="d-flex flex-column gap-2">
                                 <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewUser(user.UserId)">View</button>
-                                <button class="btn btn-secondary btn-sm mt-2" @onclick="() => EditUser(user.UserId)">Edit</button>
-                                <button class="btn btn-danger btn-sm mt-2" @onclick="() => DeleteUser(user.UserId)">Delete</button>
                             </div>
                         </div>
                     }
@@ -127,8 +150,8 @@ else
             // Check if user is an organizer
             isLoggedIn = await _accessService.IsUserLoggedInAsync();
             isOrganizer = await _accessService.IsOrganizerAsync();
-            AccessControl.CheckOrganizerAccess(isLoggedIn, isOrganizer, _navigationManager);
-            
+            RoleBasedRedirector.CheckOrganizerAccess(isLoggedIn, isOrganizer, _navigationManager);
+
             // Load users after access check
             await LoadUsers();
         }
@@ -138,7 +161,7 @@ else
             _navigationManager.NavigateTo("/auth/login");
         }
     }
-    
+
     private async Task LoadUsers()
     {
         try
@@ -146,19 +169,19 @@ else
             isLoadingUsers = true;
             loadedUsers = new List<UserResponse>();
             StateHasChanged();
-            
+
             users = await _userApiService.GetAllAsync();
-            
+
             if (users.IsSuccess && users.Data != null)
             {
                 // Simulate progressive loading by adding users one by one with a small delay
                 foreach (var user in users.Data)
                 {
                     loadedUsers.Add(user);
-                    
+
                     // Update UI after each user is added
                     StateHasChanged();
-                    
+
                     // Optional: Small delay to show the progressive loading (remove in production)
                     await Task.Delay(20);
                 }

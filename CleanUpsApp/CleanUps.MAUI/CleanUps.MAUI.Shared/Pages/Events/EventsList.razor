@@ -7,7 +7,7 @@
 
 <div class="card shadow p-4">
 
-    <h3>Events List</h3>
+    <h3>Events</h3>
 
     @if (loadedEvents == null)
     {
@@ -94,18 +94,28 @@
                     <div class="list-group-item">
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">@ev.Title</h5>
-                            <div class="dropdown">
-                                <button class="btn btn-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuButton-@ev.EventId" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Actions
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-@ev.EventId">
-                                    @if (isOrganizer)
-                                    {
-                                        <li><button class="dropdown-item btn-secondary" @onclick="() => EditEvent(ev.EventId)">Edit</button></li>
-                                        <li><button class="dropdown-item btn-danger" @onclick="() => DeleteEvent(ev.EventId)">Delete</button></li>
-                                    }
-                                </ul>
-                            </div>
+                            @if (isOrganizer)
+                            {
+                                <div class="dropdown">
+                                    <button class="btn btn-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuButton-@ev.EventId" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Actions
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-@ev.EventId">
+
+                                        <li>
+                                            <button class="dropdown-item text-secondary" @onclick="() => EditEvent(ev.EventId)">
+                                                <i class="bi bi-pencil-fill me-2"></i>Edit
+                                            </button>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <button class="dropdown-item text-danger" @onclick="() => DeleteEvent(ev.EventId)">
+                                                <i class="bi bi-trash-fill me-2"></i>Delete
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            }
                         </div>
                         <p><strong>Start Time:</strong> @ev.StartTime.ToShortDateString()</p>
                         <p><strong>End Time:</strong> @ev.EndTime.ToShortDateString()</p>

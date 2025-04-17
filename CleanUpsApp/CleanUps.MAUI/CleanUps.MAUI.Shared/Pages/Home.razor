@@ -23,7 +23,7 @@ Welcome to your new app running on <em>@factor</em> using <em>@platform</em>.
         {
             // Check if user is logged in, if not redirect to events page
             isLoggedIn = await _accessService.IsUserLoggedInAsync();
-            AccessControl.RedirectPublicToEvents(isLoggedIn, _navigationManager);
+            RoleBasedRedirector.RedirectPublicToEvents(isLoggedIn, _navigationManager);
         }
         catch
         {
