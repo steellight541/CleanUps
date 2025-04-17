@@ -1,5 +1,6 @@
 using CleanUps.MAUI.Shared.Authorization.AuthDTOs;
 using CleanUps.Shared.DTOs.Enums;
+using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.MAUI.Shared.Authorization.AuthInterfaces
 {
@@ -62,5 +63,12 @@ namespace CleanUps.MAUI.Shared.Authorization.AuthInterfaces
         /// </summary>
         /// <returns>A task that represents the asynchronous operation.</returns>
         Task ClearUserSessionAsync();
+
+        /// <summary>
+        /// Changes the password for the currently logged-in user.
+        /// </summary>
+        /// <param name="newPassword">The new password.</param>
+        /// <returns>A Result indicating success or failure.</returns>
+        Task<Result<bool>> ChangePasswordAsync(string newPassword);
     }
 }

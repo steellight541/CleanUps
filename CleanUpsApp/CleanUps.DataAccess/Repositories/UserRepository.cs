@@ -341,9 +341,60 @@ namespace CleanUps.DataAccess.Repositories
             }
         }
 
-        //public async Task<Result<User>> UpdatePasswordAsync(string currentPassword, string newPassword)
-        //{
-        //    
-        //}
+        /// <summary>
+        /// Updates the password hash for a specified user.
+        /// </summary>
+        /// <param name="userId">The ID of the user whose password hash needs to be updated.</param>
+        /// <param name="newPasswordHash">The new hashed password.</param>
+        /// <returns>A Result indicating success (true) or failure (false) with an error message.</returns>
+        public async Task<Result<bool>> UpdatePasswordAsync(int userId, string newPasswordHash)
+        {
+            try
+            {
+                // Find the non-deleted user by ID
+                User? userToUpdate = await _context.Users
+                    .Where(u => !u.isDeleted)
+                    .FirstOrDefaultAsync(u => u.UserId == userId);
+
+                if (userToUpdate is null)
+                {
+                    return Result<bool>.NotFound($"User with id: {userId} does not exist or is deleted.");
+                }
+
+                // Update only the password hash
+                userToUpdate.PasswordHash = newPasswordHash;
+
+                // Mark the entity as modified (specifically the PasswordHash property)
+                _context.Entry(userToUpdate).Property(u => u.PasswordHash).IsModified = true;
+
+                // Save changes to the database
+                await _context.SaveChangesAsync();
+
+                return Result<bool>.Ok(true); // Indicate success
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                // Handle potential concurrency issues if necessary
+                return Result<bool>.Conflict($"Concurrency error updating password: {ex.Message}");
+            }
+            catch (DbUpdateException ex)
+            {
+                // Handle potential database update errors
+                if (ex.InnerException != null)
+                {
+                    return Result<bool>.InternalServerError($"DB error updating password: {ex.InnerException.Message}");
+                }
+                return Result<bool>.InternalServerError($"DB error updating password: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                // Handle other potential errors
+                if (ex.InnerException != null)
+                {
+                    return Result<bool>.InternalServerError($"Error updating password: {ex.InnerException.Message}");
+                }
+                return Result<bool>.InternalServerError($"Error updating password: {ex.Message}");
+            }
+        }
     }
 }

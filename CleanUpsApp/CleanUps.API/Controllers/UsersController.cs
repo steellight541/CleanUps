@@ -1,6 +1,7 @@
 ﻿using CleanUps.BusinessLogic.Services.Interfaces;
 using CleanUps.Shared.DTOs.Users;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization; // Potentially needed for [Authorize]
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -204,6 +205,57 @@ namespace CleanUps.API.Controllers
                     return Conflict(result.ErrorMessage);
                 default:
                     _logger.LogError("Error deleting user {UserId}: {StatusCode} - {Message}", id, result.StatusCode, result.ErrorMessage);
+                    return StatusCode(result.StatusCode, result.ErrorMessage);
+            }
+        }
+
+        // TODO: Add Authorization - Should only allow authenticated users to change their OWN password.
+        /// <summary>
+        /// Changes the password for a specified user.
+        /// </summary>
+        /// <param name="changeRequest">The details for the password change.</param>
+        /// <returns>
+        /// 204 No Content if successful,
+        /// 400 Bad Request if the request data is invalid,
+        /// 401 Unauthorized if the user is not logged in,
+        /// 403 Forbidden if the user tries to change another user's password (if ID comes from token),
+        /// 404 Not Found if the user doesn't exist,
+        /// 500 Internal Server Error if an error occurs during processing.
+        /// </returns>
+        [HttpPut]
+        [Route("{id}/password")]
+        // [Authorize] // Add appropriate authorization policy here
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ChangePasswordAsync(int id, [FromBody] ChangePasswordRequest changeRequest)
+        {
+            if (id != changeRequest.UserId)
+            {
+                return BadRequest("ID mismatch between route parameter and user data.");
+            }
+            
+            // Ideal scenario: Get UserId from ClaimsPrincipal (User.Identity)
+            // var currentUserId = ... get ID from token/claims ...
+            // if (currentUserId != changeRequest.UserId) return Forbid();
+
+            // Calling the service layer method (to be created next)
+            var result = await _userService.ChangePasswordAsync(changeRequest);
+
+            switch (result.StatusCode)
+            {
+                case 200:
+                    return Ok(); // Success
+                case 400:
+                    return BadRequest(result.ErrorMessage);
+                case 404:
+                    return NotFound(result.ErrorMessage);
+                case 409:
+                    return Conflict(result.ErrorMessage);
+                default:
+                    _logger.LogError("Error changing password for user {UserId}: {StatusCode} - {Message}", changeRequest.UserId, result.StatusCode, result.ErrorMessage);
                     return StatusCode(result.StatusCode, result.ErrorMessage);
             }
         }

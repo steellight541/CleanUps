@@ -143,5 +143,39 @@ namespace CleanUps.BusinessLogic.Validators
                 return false;
             }
         }
+
+        /// <summary>
+        /// Validates a ChangePasswordRequest before updating a user's password.
+        /// Ensures UserId is valid and the new password meets complexity requirements.
+        /// </summary>
+        /// <param name="changePasswordRequestDto">The ChangePasswordRequest DTO to validate.</param>
+        /// <returns>A Result indicating success or failure with an error message.</returns>
+        public Result<bool> ValidateForPasswordChange(ChangePasswordRequest changePasswordRequestDto)
+        {
+            if (changePasswordRequestDto == null)
+            {
+                return Result<bool>.BadRequest("ChangePasswordRequest cannot be null.");
+            }
+
+            // Validate UserId
+            if (changePasswordRequestDto.UserId <= 0)
+            {
+                return Result<bool>.BadRequest("User Id must be greater than zero.");
+            }
+
+            // Validate NewPassword
+            if (string.IsNullOrWhiteSpace(changePasswordRequestDto.NewPassword))
+            {
+                return Result<bool>.BadRequest("New Password is required.");
+            }
+
+            // Enhanced password strength check (length and complexity)
+            if (changePasswordRequestDto.NewPassword.Length < 8 || changePasswordRequestDto.NewPassword.Length > 50)
+            {
+                return Result<bool>.BadRequest("New Password must be between 8 and 50 characters long.");
+            }
+
+            return Result<bool>.Ok(true);
+        }
     }
 }

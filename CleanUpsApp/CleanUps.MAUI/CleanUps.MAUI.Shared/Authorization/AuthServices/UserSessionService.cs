@@ -1,6 +1,9 @@
 using CleanUps.MAUI.Shared.Authorization.AuthDTOs;
 using CleanUps.MAUI.Shared.Authorization.AuthInterfaces;
+using CleanUps.Shared.ClientServices.Interfaces;
 using CleanUps.Shared.DTOs.Enums;
+using CleanUps.Shared.DTOs.Users;
+using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.MAUI.Shared.AuthServices
 {
@@ -14,13 +17,15 @@ namespace CleanUps.MAUI.Shared.AuthServices
         private const string USER_EMAIL_KEY = "CleanUps.Email";
         private const string USER_ROLE_KEY = "CleanUps.Role";
         private readonly ISessionService _sessionService;
+        private readonly IUserApiService _userApiService;
 
         /// <summary>
         /// Initializes a new instance of the AccessService class.
         /// </summary>
-        public UserSessionService(ISessionService sessionService)
+        public UserSessionService(ISessionService sessionService, IUserApiService userApiService)
         {
             _sessionService = sessionService;
+            _userApiService = userApiService;
         }
 
         /// <summary>
@@ -114,6 +119,26 @@ namespace CleanUps.MAUI.Shared.AuthServices
         public async Task ClearUserSessionAsync()
         {
             await _sessionService.Clear();
+        }
+
+        /// <summary>
+        /// Changes the password for the currently logged-in user.
+        /// </summary>
+        /// <param name="newPassword">The new password.</param>
+        /// <returns>A Result indicating success or failure.</returns>
+        public async Task<Result<bool>> ChangePasswordAsync(string newPassword)
+        {
+            int? userId = await GetLoggedUserIdAsync();
+            if (!userId.HasValue)
+            {
+                return Result<bool>.Unauthorized("User is not logged in.");
+            }
+
+            ChangePasswordRequest request = new ChangePasswordRequest(userId.Value, newPassword);
+
+            var changePasswordResult = await _userApiService.ChangePasswordAsync(request);
+
+            return changePasswordResult;
         }
     }
 }

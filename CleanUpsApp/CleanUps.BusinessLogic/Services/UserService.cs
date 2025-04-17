@@ -116,5 +116,25 @@ namespace CleanUps.BusinessLogic.Services
 
             return repoResult.Transform(user => _converter.ToResponse(user));
         }
+
+        /// <summary>
+        /// Changes the password for a specified user.
+        /// </summary>
+        /// <param name="changeRequest">The request containing the user ID and new password.</param>
+        /// <returns>A Result indicating success or failure.</returns>
+        public async Task<Result<bool>> ChangePasswordAsync(ChangePasswordRequest changeRequest)
+        {
+            var validationResult = _validator.ValidateForPasswordChange(changeRequest);
+            if (!validationResult.IsSuccess)
+            {
+                return Result<bool>.BadRequest(validationResult.ErrorMessage);
+            }
+
+            string newPasswordHash = BCrypt.Net.BCrypt.HashPassword(changeRequest.NewPassword);
+
+            var repoResult = await _repository.UpdatePasswordAsync(changeRequest.UserId, newPasswordHash);
+
+            return repoResult;
+        }
     }
 }

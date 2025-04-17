@@ -265,5 +265,55 @@ namespace CleanUps.Shared.ClientServices
                 return Result<UserResponse>.InternalServerError($"Unexpected error: {ex.Message}");
             }
         }
+
+        /// <summary>
+        /// Sends a request to the API to change the user's password.
+        /// </summary>
+        /// <param name="changeRequest">The password change request details.</param>
+        /// <returns>A Result indicating success or failure.</returns>
+        public async Task<Result<bool>> ChangePasswordAsync(ChangePasswordRequest changeRequest)
+        {
+            try
+            {
+                // Using PUT for password change, adjust route as needed
+                HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"api/users/{changeRequest.UserId}/password", changeRequest);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return Result<bool>.Ok(true);
+                }
+
+                string errorMessage = await response.Content.ReadAsStringAsync();
+                switch (response.StatusCode)
+                {
+                    case HttpStatusCode.BadRequest:
+                        return Result<bool>.BadRequest(errorMessage);
+                    case HttpStatusCode.NotFound:
+                        return Result<bool>.NotFound(errorMessage); // e.g., User ID not found
+                    case HttpStatusCode.Conflict:
+                        return Result<bool>.Conflict(errorMessage); // e.g., Concurrent update issue
+                    case HttpStatusCode.Unauthorized:
+                        return Result<bool>.Unauthorized(errorMessage);
+                    default:
+                        return Result<bool>.InternalServerError(errorMessage);
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                return Result<bool>.InternalServerError($"Network error: {ex.Message}");
+            }
+            catch (JsonException ex)
+            {
+                return Result<bool>.BadRequest($"Invalid JSON format: {ex.Message}");
+            }
+            catch (TaskCanceledException)
+            {
+                return Result<bool>.InternalServerError("Request timed out");
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.InternalServerError($"Unexpected error: {ex.Message}");
+            }
+        }
     }
 }
