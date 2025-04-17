@@ -52,7 +52,7 @@ namespace CleanUps.Configuration
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPhotoRepository, PhotoRepository>();
             services.AddScoped<IEventAttendanceRepository, EventAttendanceRepository>();
-
+            services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
 
             // Register services
             services.AddScoped<IEventService, EventService>();
@@ -66,8 +66,7 @@ namespace CleanUps.Configuration
             services.AddScoped<IUserValidator, UserValidator>();
             services.AddScoped<IPhotoValidator, PhotoValidator>();
             services.AddScoped<IEventAttendanceValidator, EventAttendanceValidator>();
-
-
+            
             // Register Converters
             services.AddSingleton<IEventConverter, EventConverter>();
             services.AddSingleton<IEventAttendanceConverter, EventAttendanceConverter>();
