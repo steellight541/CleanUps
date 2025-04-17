@@ -22,7 +22,7 @@ namespace CleanUps.BusinessLogic.Converters
             {
                 UserId = response.UserId,
                 Name = response.Name,
-                Email = response.Email.ToLower(),
+                Email = response.Email,
                 RoleId = (int)response.Role,
                 CreatedDate = response.CreatedDate
             };
@@ -38,7 +38,7 @@ namespace CleanUps.BusinessLogic.Converters
             return new User
             {
                 Name = createRequest.Name,
-                Email = createRequest.Email.ToLower(),
+                Email = createRequest.Email,
                 CreatedDate = DateTime.UtcNow,
                 RoleId = 1,
                 isDeleted = false
@@ -55,7 +55,7 @@ namespace CleanUps.BusinessLogic.Converters
             return new User
             {
                 UserId = updateRquest.UserId,
-                Name = updateRquest.Name.ToLower(),
+                Name = updateRquest.Name,
                 Email = updateRquest.Email
             };
         }
@@ -70,7 +70,7 @@ namespace CleanUps.BusinessLogic.Converters
             return new UserResponse(
                 model.UserId,
                 model.Name,
-                model.Email.ToLower(),
+                model.Email,
                 model.Role is not null ? (RoleDTO)model.Role.Id : RoleDTO.Volunteer,
                 model.CreatedDate
             );
@@ -85,7 +85,7 @@ namespace CleanUps.BusinessLogic.Converters
         {
             return new CreateUserRequest(
                 model.Name,
-                model.Email.ToLower(),
+                model.Email,
                 "hidden"
                 );
         }
@@ -100,7 +100,7 @@ namespace CleanUps.BusinessLogic.Converters
             return new UpdateUserRequest(
                 model.UserId,
                 model.Name,
-                model.Email.ToLower());
+                model.Email);
         }
 
         /// <summary>
