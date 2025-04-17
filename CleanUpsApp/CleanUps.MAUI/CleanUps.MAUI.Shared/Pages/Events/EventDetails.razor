@@ -128,19 +128,25 @@
                                 bool isAttending = eventAttendees?.Any(a => a.UserId == user.UserId) ?? false;
                                 <div class="list-group-item d-flex justify-content-between align-items-center" key="@user.UserId">
                                     <div>
-                                        @user.Name (@user.Email) -
-                                        <span class="@(isAttending ? "text-success fw-bold" : "text-muted")">@(isAttending ? "Going" : "Not Going")</span>
+                                        @{ 
+                                            bool isPastEvent = eventResult?.Data?.EndTime < DateTime.Now; 
+                                        }
+                                         @user.Name (@user.Email) - 
+                                         <span class="@(isAttending ? "text-success fw-bold" : "text-muted")">
+                                             @(isAttending ? (isPastEvent ? "Attended" : "Going") : "Not Going")
+                                         </span>
                                     </div>
                                     <div class="form-check form-switch">
                                         @{
                                             bool isLoadingThisUser = manageAttendanceLoadingUserId == user.UserId;
+                                            bool isPastEventForDisable = eventResult?.Data?.EndTime < DateTime.Now;
                                         }
                                         <input class="form-check-input"
                                                type="checkbox"
                                                role="switch"
                                                checked="@isAttending"
                                                @onchange="@(e => ToggleUserAttendance(user.Name, user.UserId, (bool)e.Value))"
-                                               disabled="@isLoadingThisUser" />
+                                               disabled="@(isLoadingThisUser || isPastEventForDisable)" />
                                         @if (isLoadingThisUser)
                                         {
                                             <span class="spinner-border spinner-border-sm text-secondary" role="status" aria-hidden="true"></span>
@@ -194,12 +200,40 @@
     private int? manageAttendanceLoadingUserId = null;
 
     // Filtered user list for organizer management
-    private IEnumerable<UserResponse> FilteredUsers =>
-        allUsersResult?.Data?.Where(u =>
-            string.IsNullOrEmpty(searchTerm) ||
-            u.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-            u.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
-        ?? Enumerable.Empty<UserResponse>();
+    private IEnumerable<UserResponse> FilteredUsers 
+    {
+        get 
+        {
+            if (allUsersResult?.Data == null) return Enumerable.Empty<UserResponse>();
+
+            IEnumerable<UserResponse> baseList;
+            bool isPastEvent = eventResult?.Data?.EndTime < DateTime.Now;
+
+            if (isPastEvent)
+            {
+                // For past events, show only users who attended
+                var attendeeIds = eventAttendees?.Select(a => a.UserId).ToHashSet() ?? new HashSet<int>();
+                baseList = allUsersResult.Data.Where(u => attendeeIds.Contains(u.UserId));
+            }
+            else
+            {
+                // For future events, show all users
+                baseList = allUsersResult.Data;
+            }
+
+            // Apply search term
+            if (string.IsNullOrEmpty(searchTerm))
+            {
+                return baseList;
+            }
+            else
+            {
+                return baseList.Where(u => 
+                    u.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    u.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+            }
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -355,7 +389,16 @@
 
     private async Task ToggleUserAttendance(string userName, int userIdToToggle, bool shouldAttend)
     {
-        if (!isOrganizer) return;
+        // Prevent action if event is in the past
+        if (eventResult?.Data?.EndTime < DateTime.Now)
+        {
+            manageAttendanceMessage = "Cannot modify attendance for past events.";
+            manageAttendanceMessageClass = "text-warning";
+            StateHasChanged();
+            return; 
+        }
+
+        if (!isOrganizer) return; 
 
         manageAttendanceLoadingUserId = userIdToToggle;
         manageAttendanceMessage = string.Empty;
@@ -375,13 +418,13 @@
 
         if (result != null && result.IsSuccess)
         {
-            manageAttendanceMessage = $"Attendance updated successfully for user {userName}.";
+            manageAttendanceMessage = $"Attendance updated successfully for {userName}.";
             manageAttendanceMessageClass = "text-success";
             await LoadEventData();
         }
         else
         {
-            manageAttendanceMessage = $"Error updating attendance for user {userName}: {result?.ErrorMessage ?? "Unknown error"}";
+            manageAttendanceMessage = $"Error updating attendance for {userName}: {result?.ErrorMessage ?? "Unknown error"}";
             manageAttendanceMessageClass = "text-danger";
         }
 
