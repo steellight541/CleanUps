@@ -1,6 +1,7 @@
+using CleanUps.MAUI.Shared.Authorization.AuthDTOs;
 using CleanUps.Shared.DTOs.Enums;
 
-namespace CleanUps.MAUI.Shared.AuthServices.AuthInterfaces
+namespace CleanUps.MAUI.Shared.Authorization.AuthInterfaces
 {
     /// <summary>
     /// Interface for managing user authentication state and session data.

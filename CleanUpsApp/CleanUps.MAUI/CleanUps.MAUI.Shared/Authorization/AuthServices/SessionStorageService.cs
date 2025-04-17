@@ -1,12 +1,12 @@
-using CleanUps.MAUI.Shared.AuthServices.AuthInterfaces;
+using CleanUps.MAUI.Shared.Authorization.AuthInterfaces;
 using Microsoft.JSInterop;
 
-namespace CleanUps.MAUI.Shared.AuthServices
+namespace CleanUps.MAUI.Shared.Authorization.AuthServices
 {
     /// <summary>
     /// Simple session service implementation using browser localStorage
     /// </summary>
-    public class LocalStorageSessionService : ISessionService
+    public class SessionStorageService : ISessionService
     {
         private readonly IJSRuntime _jsRuntime;
 
@@ -14,7 +14,7 @@ namespace CleanUps.MAUI.Shared.AuthServices
         /// Initialize a new instance of the LocalStorageSessionService
         /// </summary>
         /// <param name="jsRuntime">JS runtime for accessing localStorage</param>
-        public LocalStorageSessionService(IJSRuntime jsRuntime)
+        public SessionStorageService(IJSRuntime jsRuntime)
         {
             _jsRuntime = jsRuntime;
         }

@@ -71,7 +71,7 @@ else
             // Check if user is an organizer
             isLoggedIn = await _accessService.IsUserLoggedInAsync();
             isOrganizer = await _accessService.IsOrganizerAsync();
-            AccessControl.CheckOrganizerAccess(isLoggedIn, isOrganizer, _navigationManager);
+            RoleBasedRedirector.CheckOrganizerAccess(isLoggedIn, isOrganizer, _navigationManager);
             
             // Load user data after access check
             await LoadUser();

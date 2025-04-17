@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Components;
 
-namespace CleanUps.MAUI.Shared.AuthServices
+namespace CleanUps.MAUI.Shared.Authorization.AuthServices
 {
     /// <summary>
     /// Helper class for page access control based on user roles
     /// </summary>
-    public static class AccessControl
+    public static class RoleBasedRedirector
     {
         /// <summary>
         /// Checks if the current user has access to a page requiring volunteer or organizer role

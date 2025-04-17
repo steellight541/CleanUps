@@ -107,7 +107,7 @@
         {
             // Check if user is logged in (volunteers and organizers)
             isLoggedIn = await _accessService.IsUserLoggedInAsync();
-            AccessControl.CheckVolunteerAccess(isLoggedIn, _navigationManager);
+            RoleBasedRedirector.CheckVolunteerAccess(isLoggedIn, _navigationManager);
 
             // Check if user is an organizer (for UI controls)
             isOrganizer = await _accessService.IsOrganizerAsync();

@@ -1,4 +1,5 @@
-using CleanUps.MAUI.Shared.AuthServices.AuthInterfaces;
+using CleanUps.MAUI.Shared.Authorization.AuthDTOs;
+using CleanUps.MAUI.Shared.Authorization.AuthInterfaces;
 using CleanUps.Shared.DTOs.Enums;
 
 namespace CleanUps.MAUI.Shared.AuthServices
@@ -6,7 +7,7 @@ namespace CleanUps.MAUI.Shared.AuthServices
     /// <summary>
     /// Service for managing user authentication state and session data.
     /// </summary>
-    public class AccessService : IAccessService
+    public class UserSessionService : IAccessService
     {
         private const string USER_ID_KEY = "CleanUps.UserId";
         private const string USER_NAME_KEY = "CleanUps.Name";
@@ -17,7 +18,7 @@ namespace CleanUps.MAUI.Shared.AuthServices
         /// <summary>
         /// Initializes a new instance of the AccessService class.
         /// </summary>
-        public AccessService(ISessionService sessionService)
+        public UserSessionService(ISessionService sessionService)
         {
             _sessionService = sessionService;
         }
@@ -114,31 +115,5 @@ namespace CleanUps.MAUI.Shared.AuthServices
         {
             await _sessionService.Clear();
         }
-    }
-
-    /// <summary>
-    /// Data class for storing user session information.
-    /// </summary>
-    public class UserSessionInfo
-    {
-        /// <summary>
-        /// Gets or sets the user's ID.
-        /// </summary>
-        public int UserId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the user's name.
-        /// </summary>
-        public string Name { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Gets or sets the user's email.
-        /// </summary>
-        public string Email { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Gets or sets the user's role.
-        /// </summary>
-        public RoleDTO Role { get; set; }
     }
 }

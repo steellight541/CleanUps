@@ -1,9 +1,9 @@
-﻿
-using CleanUps.MAUI.Shared.AuthServices.AuthInterfaces;
-using CleanUps.MAUI.Shared.AuthServices;
+﻿using CleanUps.MAUI.Shared.AuthServices;
 using CleanUps.Shared.ClientServices;
 using CleanUps.Shared.ClientServices.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
+using CleanUps.MAUI.Shared.Authorization.AuthInterfaces;
+using CleanUps.MAUI.Shared.Authorization.AuthServices;
 
 namespace CleanUps.MAUI.Shared.Services
 {
@@ -27,8 +27,8 @@ namespace CleanUps.MAUI.Shared.Services
             });
 
             // Add simplified session services
-            services.AddScoped<ISessionService, LocalStorageSessionService>();
-            services.AddScoped<IAccessService, AccessService>();
+            services.AddScoped<ISessionService, SessionStorageService>();
+            services.AddScoped<IAccessService, UserSessionService>();
 
             services.AddScoped<IAuthApiService, AuthApiService>();
             services.AddScoped<IEventApiService, EventApiService>();
