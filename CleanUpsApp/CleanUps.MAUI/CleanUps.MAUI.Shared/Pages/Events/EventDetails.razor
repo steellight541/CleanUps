@@ -1,9 +1,10 @@
 ﻿@page "/events/{eventId:int}/details"
 
 @inject NavigationManager _navigationManager
-@inject IEventApiService _eventApiService 
+@inject IEventApiService _eventApiService
 @inject IEventAttendanceApiService _eventAttendanceApiService
 @inject IAccessService _accessService
+@inject IUserApiService _userApiService
 
 @using CleanUps.Shared.DTOs.EventAttendances
 
@@ -87,11 +88,76 @@
             @* --- Organizer-Specific Buttons --- *@
             @if (isOrganizer)
             {
-                 // Disable organizer buttons while attendance action is happening
+                // Disable organizer buttons while attendance action is happening
                 <button class="btn btn-primary" @onclick="() => EditEvent(ev.EventId)" disabled="@isAttendanceActionLoading">Edit</button>
                 <button class="btn btn-danger" @onclick="() => DeleteEvent(ev.EventId)" disabled="@isAttendanceActionLoading">Delete</button>
+                <button class="btn btn-info" @onclick="ToggleManageAttendance">
+                    @(isManageAttendanceVisible ? "Hide" : "Show") User Attendance Management
+                </button>
             }
         </div>
+
+        @* --- Organizer Management Section --- *@
+        @if (isOrganizer)
+        {
+            @if (isManageAttendanceVisible)
+            {
+                <div class="card bg-light p-3 mb-3">
+                    <h5>Manage User Attendance</h5>
+                    <div class="mb-2">
+                        <input type="text" class="form-control" placeholder="Search users by name or email..." @bind="searchTerm" @bind:event="oninput" />
+                    </div>
+
+                    @if (allUsersResult == null)
+                    {
+                        <p><em>Loading users...</em></p>
+                    }
+                    else if (!allUsersResult.IsSuccess)
+                    {
+                        <p class="text-danger">Could not load users: @allUsersResult.ErrorMessage</p>
+                    }
+                    else if (!FilteredUsers.Any())
+                    {
+                        <p><em>No matching users found.</em></p>
+                    }
+                    else
+                    {
+                        <div class="list-group mb-2" style="max-height: 300px; overflow-y: auto;">
+                            @foreach (var user in FilteredUsers)
+                            {
+                                bool isAttending = eventAttendees?.Any(a => a.UserId == user.UserId) ?? false;
+                                <div class="list-group-item d-flex justify-content-between align-items-center" key="@user.UserId">
+                                    <div>
+                                        @user.Name (@user.Email) -
+                                        <span class="@(isAttending ? "text-success fw-bold" : "text-muted")">@(isAttending ? "Going" : "Not Going")</span>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        @{
+                                            bool isLoadingThisUser = manageAttendanceLoadingUserId == user.UserId;
+                                        }
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               role="switch"
+                                               checked="@isAttending"
+                                               @onchange="@(e => ToggleUserAttendance(user.Name, user.UserId, (bool)e.Value))"
+                                               disabled="@isLoadingThisUser" />
+                                        @if (isLoadingThisUser)
+                                        {
+                                            <span class="spinner-border spinner-border-sm text-secondary" role="status" aria-hidden="true"></span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(manageAttendanceMessage))
+                    {
+                        <p class="@manageAttendanceMessageClass mt-2">@manageAttendanceMessage</p>
+                    }
+                </div>
+            }
+        }
+        @* --- End Organizer Management Section --- *@
     }
     else
     {
@@ -119,6 +185,22 @@
     private bool isCurrentUserAttending = false;
     private bool isOrganizer = false;
 
+    // Organizer Manage Attendance State
+    private Result<List<UserResponse>>? allUsersResult;
+    private bool isManageAttendanceVisible = false;
+    private string searchTerm = string.Empty;
+    private string manageAttendanceMessage = string.Empty;
+    private string manageAttendanceMessageClass = string.Empty;
+    private int? manageAttendanceLoadingUserId = null;
+
+    // Filtered user list for organizer management
+    private IEnumerable<UserResponse> FilteredUsers =>
+        allUsersResult?.Data?.Where(u =>
+            string.IsNullOrEmpty(searchTerm) ||
+            u.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+            u.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+        ?? Enumerable.Empty<UserResponse>();
+
     protected override async Task OnInitializedAsync()
     {
         isLoadingEvent = true;
@@ -136,14 +218,24 @@
             isOrganizer = currentUserRole == RoleDTO.Organizer;
 
             await LoadEventData();
+
+            if (isOrganizer)
+            {
+                allUsersResult = await _userApiService.GetAllAsync();
+                if (!allUsersResult.IsSuccess)
+                {
+                    manageAttendanceMessage = $"Could not load all users for management: {allUsersResult.ErrorMessage}";
+                    manageAttendanceMessageClass = "text-danger";
+                }
+            }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             errorMessage = $"An error occurred during initialization: {ex.Message}";
         }
         finally
         {
-             isLoadingEvent = false;
+            isLoadingEvent = false;
         }
     }
 
@@ -201,7 +293,7 @@
 
     private async Task UnregisterFromEvent()
     {
-         if (currentUserId == null) return;
+        if (currentUserId == null) return;
         isAttendanceActionLoading = true;
         errorMessage = string.Empty;
         StateHasChanged();
@@ -215,7 +307,7 @@
         }
         else
         {
-             errorMessage = result.ErrorMessage ?? "Failed to unregister from the event.";
+            errorMessage = result.ErrorMessage ?? "Failed to unregister from the event.";
         }
 
         isAttendanceActionLoading = false;
@@ -248,6 +340,52 @@
             errorMessage = deleteResult.ErrorMessage ?? "An error occurred while deleting the event.";
         }
         isAttendanceActionLoading = false;
+        StateHasChanged();
+    }
+
+    private void ToggleManageAttendance()
+    {
+        isManageAttendanceVisible = !isManageAttendanceVisible;
+        if (!isManageAttendanceVisible)
+        {
+            searchTerm = string.Empty;
+            manageAttendanceMessage = string.Empty;
+        }
+    }
+
+    private async Task ToggleUserAttendance(string userName, int userIdToToggle, bool shouldAttend)
+    {
+        if (!isOrganizer) return;
+
+        manageAttendanceLoadingUserId = userIdToToggle;
+        manageAttendanceMessage = string.Empty;
+        StateHasChanged();
+
+        Result<EventAttendanceResponse>? result = null;
+        if (shouldAttend)
+        {
+            var request = new CreateEventAttendanceRequest(userIdToToggle, eventId);
+            result = await _eventAttendanceApiService.CreateAsync(request);
+        }
+        else
+        {
+            var request = new DeleteEventAttendanceRequest(userIdToToggle, eventId);
+            result = await _eventAttendanceApiService.DeleteAsync(request);
+        }
+
+        if (result != null && result.IsSuccess)
+        {
+            manageAttendanceMessage = $"Attendance updated successfully for user {userName}.";
+            manageAttendanceMessageClass = "text-success";
+            await LoadEventData();
+        }
+        else
+        {
+            manageAttendanceMessage = $"Error updating attendance for user {userName}: {result?.ErrorMessage ?? "Unknown error"}";
+            manageAttendanceMessageClass = "text-danger";
+        }
+
+        manageAttendanceLoadingUserId = null;
         StateHasChanged();
     }
 }
