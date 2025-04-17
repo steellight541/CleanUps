@@ -15,7 +15,6 @@ namespace CleanUps.API.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
-        private readonly IAuthService _authService;
         private readonly ILogger<UsersController> _logger;
 
         /// <summary>
@@ -24,10 +23,9 @@ namespace CleanUps.API.Controllers
         /// <param name="userService">The service for user operations.</param>
         /// <param name="authService">The service for authentication operations.</param>
         /// <param name="logger">The logger for recording diagnostic information.</param>
-        public UsersController(IUserService userService, IAuthService authService, ILogger<UsersController> logger)
+        public UsersController(IUserService userService, ILogger<UsersController> logger)
         {
             _userService = userService;
-            _authService = authService;
             _logger = logger;
         }
 

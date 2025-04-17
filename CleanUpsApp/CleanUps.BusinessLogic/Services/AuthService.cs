@@ -74,38 +74,5 @@ namespace CleanUps.BusinessLogic.Services
 
             return Result<LoginResponse>.Ok(loginResponse);
         }
-
-        /// <summary>
-        /// Authenticates a user based on their ID after registration.
-        /// </summary>
-        /// <param name="userId">The ID of the user to authenticate.</param>
-        /// <returns>A Result containing the logged-in user information if successful, or an error message if authentication fails.</returns>
-        public async Task<Result<LoginResponse>> LoginByIdAsync(int userId)
-        {
-            if (userId <= 0)
-            {
-                return Result<LoginResponse>.BadRequest("Invalid user ID");
-            }
-
-            // Get the user by ID
-            var userResult = await _userRepository.GetByIdAsync(userId);
-
-            if (!userResult.IsSuccess)
-            {
-                return Result<LoginResponse>.NotFound("User not found");
-            }
-
-            var user = userResult.Data;
-
-            // Create and return the login response
-            var loginResponse = new LoginResponse(
-                user.UserId,
-                user.Name,
-                user.Email,
-                user.Role is not null ? (RoleDTO)user.Role.Id : RoleDTO.Volunteer
-            );
-
-            return Result<LoginResponse>.Ok(loginResponse);
-        }
     }
 }
