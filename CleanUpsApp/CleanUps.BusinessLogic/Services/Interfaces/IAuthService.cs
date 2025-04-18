@@ -1,7 +1,6 @@
 using CleanUps.Shared.DTOs.Auth;
 using CleanUps.Shared.ErrorHandling;
 using System.Runtime.CompilerServices;
-using CleanUps.Shared.DTOs.Users;
 
 [assembly: InternalsVisibleTo("CleanUps.Configuration")]
 namespace CleanUps.BusinessLogic.Services.Interfaces

@@ -1,4 +1,5 @@
-﻿using CleanUps.Shared.DTOs.Users;
+﻿using CleanUps.Shared.DTOs.Auth;
+using CleanUps.Shared.DTOs.Users;
 using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.BusinessLogic.Services.Interfaces

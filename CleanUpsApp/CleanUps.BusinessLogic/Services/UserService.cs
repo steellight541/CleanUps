@@ -4,6 +4,7 @@ using CleanUps.BusinessLogic.Models;
 using CleanUps.BusinessLogic.Repositories.Interfaces;
 using CleanUps.BusinessLogic.Services.Interfaces;
 using CleanUps.BusinessLogic.Validators.Interfaces;
+using CleanUps.Shared.DTOs.Auth;
 using CleanUps.Shared.DTOs.Users;
 using CleanUps.Shared.ErrorHandling;
 using System.Runtime.CompilerServices;

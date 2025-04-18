@@ -1,8 +1,8 @@
 using CleanUps.MAUI.Shared.Authorization.AuthDTOs;
 using CleanUps.MAUI.Shared.Authorization.AuthInterfaces;
 using CleanUps.Shared.ClientServices.Interfaces;
+using CleanUps.Shared.DTOs.Auth;
 using CleanUps.Shared.DTOs.Enums;
-using CleanUps.Shared.DTOs.Users;
 using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.MAUI.Shared.AuthServices

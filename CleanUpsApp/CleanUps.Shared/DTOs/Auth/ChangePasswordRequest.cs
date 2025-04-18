@@ -1,5 +1,3 @@
-using CleanUps.Shared.DTOs.AbstractDTOs;
-
 namespace CleanUps.Shared.DTOs.Auth
 {
     /// <summary>

@@ -1,5 +1,4 @@
 using CleanUps.Shared.DTOs.Auth;
-using CleanUps.Shared.DTOs.Users;
 using CleanUps.Shared.ErrorHandling;
 using System.Runtime.CompilerServices;
 

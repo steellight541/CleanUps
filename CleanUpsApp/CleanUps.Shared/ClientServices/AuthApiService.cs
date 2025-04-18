@@ -1,5 +1,4 @@
-﻿using CleanUps.Shared.DTOs.Users;
-using CleanUps.Shared.ErrorHandling;
+﻿using CleanUps.Shared.ErrorHandling;
 using System.Net.Http.Json;
 using System.Net;
 using System.Text.Json;

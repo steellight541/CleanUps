@@ -1,7 +1,7 @@
 ﻿using CleanUps.BusinessLogic.Services.Interfaces;
+using CleanUps.Shared.DTOs.Auth;
 using CleanUps.Shared.DTOs.Users;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization; // Potentially needed for [Authorize]
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 

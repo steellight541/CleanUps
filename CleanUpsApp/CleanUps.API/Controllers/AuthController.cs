@@ -1,8 +1,6 @@
 using CleanUps.BusinessLogic.Services.Interfaces;
-using CleanUps.Shared.DTOs.Users;
 using CleanUps.Shared.DTOs.Auth;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace CleanUps.API.Controllers
 {

@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options; // Added
 using System.Net;
 using System.Net.Mail;
-using System.Threading.Tasks;
 
 namespace CleanUps.BusinessLogic.Services
 {

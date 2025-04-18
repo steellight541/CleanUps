@@ -1,8 +1,8 @@
 ﻿using CleanUps.BusinessLogic.Validators.Interfaces;
+using CleanUps.Shared.DTOs.Auth;
 using CleanUps.Shared.DTOs.Users;
 using CleanUps.Shared.ErrorHandling;
 using System.Net.Mail;
-using System.Text.RegularExpressions;
 
 namespace CleanUps.BusinessLogic.Validators
 {

@@ -5,11 +5,9 @@ using CleanUps.BusinessLogic.Services.Interfaces;
 using CleanUps.BusinessLogic.Validators.Interfaces;
 using CleanUps.Shared.DTOs.Auth;
 using CleanUps.Shared.DTOs.Enums;
-using CleanUps.Shared.DTOs.Users;
 using CleanUps.Shared.ErrorHandling;
 using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
-using System.Text;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("CleanUps.Configuration")]

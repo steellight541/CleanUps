@@ -1,5 +1,3 @@
-using System.Threading.Tasks;
-
 namespace CleanUps.BusinessLogic.Services.Interfaces
 {
     /// <summary>

@@ -1,6 +1,5 @@
 using CleanUps.BusinessLogic.Validators.Interfaces;
 using CleanUps.Shared.DTOs.Auth;
-using CleanUps.Shared.DTOs.Users; // Added for LoginRequest
 using CleanUps.Shared.ErrorHandling;
 using System.Net.Mail; // For email validation
 
