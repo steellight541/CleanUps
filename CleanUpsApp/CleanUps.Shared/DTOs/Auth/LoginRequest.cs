@@ -1,4 +1,4 @@
-namespace CleanUps.Shared.DTOs.Users
+namespace CleanUps.Shared.DTOs.Auth
 {
     /// <summary>
     /// Data Transfer Object for user login requests.

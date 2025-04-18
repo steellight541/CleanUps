@@ -35,6 +35,7 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
+                // Step 1: Query non-deleted events from the database.
                 List<Event> events = await _context.Events
                     .Where(e => !e.isDeleted)
                     .Include(existingEvent => existingEvent.Location)
@@ -43,7 +44,7 @@ namespace CleanUps.DataAccess.Repositories
                         .ThenInclude(ea => ea.User)
                     .ToListAsync();
 
-                // Filter out soft-deleted users from event attendances
+                // Step 2: Filter out soft-deleted users from event attendances.
                 foreach (var eventItem in events)
                 {
                     eventItem.EventAttendances = eventItem.EventAttendances
@@ -51,19 +52,23 @@ namespace CleanUps.DataAccess.Repositories
                         .ToList();
                 }
 
+                // Step 3: Return successful result with the filtered events.
                 return Result<List<Event>>.Ok(events);
 
             }
             catch (ArgumentNullException ex)
             {
+                // Step 4: Handle argument null errors.
                 return Result<List<Event>>.InternalServerError($"{ex.Message}");
             }
             catch (OperationCanceledException ex)
             {
+                // Step 5: Handle operation canceled errors.
                 return Result<List<Event>>.InternalServerError($"{ex.Message}");
             }
             catch (DbUpdateException ex)
             {
+                // Step 6: Handle database update errors.
                 if (ex.InnerException != null)
                 {
                     return Result<List<Event>>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
@@ -72,6 +77,7 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (Exception ex)
             {
+                // Step 7: Handle any other unexpected errors.
                 if (ex.InnerException != null)
                 {
                     return Result<List<Event>>.InternalServerError($"InnerException: {ex.InnerException.Message}");
@@ -92,6 +98,7 @@ namespace CleanUps.DataAccess.Repositories
 
             try
             {
+                // Step 1: Query the database for the specific non-deleted event by ID.
                 Event? retrievedEvent = await _context.Events
                    .Where(e => !e.isDeleted)
                    .Include(existingEvent => existingEvent.Location)
@@ -100,13 +107,14 @@ namespace CleanUps.DataAccess.Repositories
                         .ThenInclude(ea => ea.User)
                    .FirstOrDefaultAsync(existingEvent => existingEvent.EventId == id);
 
+                // Step 2: Check if event exists. If not, return NotFound result.
                 if (retrievedEvent is null)
                 {
                     return Result<Event>.NotFound($"Event with id: {id} does not exist");
                 }
                 else
                 {
-                    // Filter out soft-deleted users from event attendances
+                    // Step 3: Filter out soft-deleted users from event attendances.
                     if (retrievedEvent.EventAttendances != null)
                     {
                         retrievedEvent.EventAttendances = retrievedEvent.EventAttendances
@@ -114,11 +122,13 @@ namespace CleanUps.DataAccess.Repositories
                             .ToList();
                     }
 
+                    // Step 4: Return successful result with the retrieved event.
                     return Result<Event>.Ok(retrievedEvent);
                 }
             }
             catch (Exception ex)
             {
+                // Step 5: Handle any other unexpected errors.
                 if (ex.InnerException != null)
                 {
                     return Result<Event>.InternalServerError($"InnerException: {ex.InnerException.Message}");
@@ -136,20 +146,26 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
-                // Ensure new events are not created as deleted
+                // Step 1: Ensure new events are not created as deleted.
                 eventToBeCreated.isDeleted = false;
 
+                // Step 2: Add the new event to the database context.
                 await _context.Events.AddAsync(eventToBeCreated);
+
+                // Step 3: Save changes to persist the new event in the database.
                 await _context.SaveChangesAsync();
 
+                // Step 4: Return successful result with the created event.
                 return Result<Event>.Created(eventToBeCreated);
             }
             catch (OperationCanceledException ex)
             {
+                // Step 5: Handle operation cancellation errors.
                 return Result<Event>.InternalServerError($"{ex.Message}");
             }
             catch (DbUpdateException ex)
             {
+                // Step 6: Handle database update errors with detailed constraint violation checks.
                 if (ex.InnerException != null)
                 {
                     // Check for foreign key constraint violation
@@ -174,6 +190,7 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (Exception ex)
             {
+                // Step 7: Handle any other unexpected errors.
                 if (ex.InnerException != null)
                 {
                     return Result<Event>.InternalServerError($"InnerException: {ex.InnerException.Message}");
@@ -202,6 +219,7 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
+                // Step 1: Query the database to verify the event exists and is not deleted.
                 Event? retrievedEvent = await _context.Events
                     .Where(e => !e.isDeleted)
                     .Include(existingEvent => existingEvent.Location)
@@ -209,18 +227,21 @@ namespace CleanUps.DataAccess.Repositories
                     .Include(existingEvent => existingEvent.EventAttendances)
                     .FirstOrDefaultAsync(existingEvent => existingEvent.EventId == eventToBeUpdated.EventId);
 
+                // Step 2: If event doesn't exist or is deleted, return NotFound.
                 if (retrievedEvent is null)
                 {
                     return Result<Event>.NotFound($"Event with id: {eventToBeUpdated.EventId} does not exist");
                 }
-
                 else
                 {
-                    // Preserve the current isDeleted state - don't allow changing via normal update
+                    // Step 3: Preserve the current isDeleted state - don't allow changing via normal update.
                     eventToBeUpdated.isDeleted = retrievedEvent.isDeleted;
 
+                    // Step 4: Update the event entity in the database context.
                     _context.Entry(retrievedEvent).State = EntityState.Detached;
                     _context.Events.Attach(eventToBeUpdated);
+                    
+                    // Step 5: Mark individual properties as modified to enable partial update.
                     _context.Entry(eventToBeUpdated).Property(ev => ev.Title).IsModified = true;
                     _context.Entry(eventToBeUpdated).Property(ev => ev.Description).IsModified = true;
                     _context.Entry(eventToBeUpdated).Property(ev => ev.StartTime).IsModified = true;
@@ -230,17 +251,21 @@ namespace CleanUps.DataAccess.Repositories
                     _context.Entry(eventToBeUpdated).Property(ev => ev.StatusId).IsModified = true;
                     _context.Entry(eventToBeUpdated).Property(ev => ev.LocationId).IsModified = true;
 
+                    // Step 6: Save changes to persist the updated event in the database.
                     await _context.SaveChangesAsync();
 
+                    // Step 7: Return successful result with the updated event.
                     return Result<Event>.Ok(eventToBeUpdated);
                 }
             }
             catch (OperationCanceledException ex)
             {
+                // Step 8: Handle operation cancellation errors.
                 return Result<Event>.InternalServerError($"{ex.Message}");
             }
             catch (DbUpdateConcurrencyException ex)
             {
+                // Step 9: Handle concurrency conflicts.
                 if (ex.InnerException != null)
                 {
                     return Result<Event>.Conflict($"DB InnerException: {ex.InnerException.Message}");
@@ -249,6 +274,7 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (DbUpdateException ex)
             {
+                // Step 10: Handle database update errors.
                 if (ex.InnerException != null)
                 {
                     // Check for foreign key constraint violation
@@ -273,6 +299,7 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (Exception ex)
             {
+                // Step 11: Handle any other unexpected errors.
                 if (ex.InnerException != null)
                 {
                     return Result<Event>.InternalServerError($"InnerException: {ex.InnerException.Message}");
@@ -290,25 +317,55 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
+                // Step 1: Query the database to verify the event exists and is not already deleted.
                 Event? retrievedEvent = await _context.Events
-                    .Where(e => !e.isDeleted)
-                    .FirstOrDefaultAsync(existingEvent => existingEvent.EventId == id);
+                    .Include(existingEvent => existingEvent.Location)
+                    .Include(existingEvent => existingEvent.Status)
+                    .Include(existingEvent => existingEvent.EventAttendances)
+                    .FirstOrDefaultAsync(existingEvent => existingEvent.EventId == id && !existingEvent.isDeleted);
 
+                // Step 2: If event doesn't exist or is already deleted, return NotFound.
                 if (retrievedEvent is null)
                 {
-                    return Result<Event>.NotFound($"Event with id: {id} does not exist");
+                    return Result<Event>.NotFound($"Event with id: {id} does not exist or is already deleted");
                 }
                 else
                 {
-                    // Instead of removing from the database, set the isDeleted flag
+                    // Step 3: Implement soft delete by setting isDeleted flag to true.
                     retrievedEvent.isDeleted = true;
-
+                    // Step 4: Save changes to persist the soft-deleted state in the database.
                     await _context.SaveChangesAsync();
+
+                    // Step 5: Return successful result with the soft-deleted event.
                     return Result<Event>.Ok(retrievedEvent);
                 }
             }
+            catch (OperationCanceledException ex)
+            {
+                // Step 6: Handle operation cancellation errors.
+                return Result<Event>.InternalServerError($"{ex.Message}");
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                // Step 7: Handle concurrency conflicts.
+                if (ex.InnerException != null)
+                {
+                    return Result<Event>.Conflict($"DB InnerException: {ex.InnerException.Message}");
+                }
+                return Result<Event>.Conflict($"{ex.Message}");
+            }
+            catch (DbUpdateException ex)
+            {
+                // Step 8: Handle database update errors.
+                if (ex.InnerException != null)
+                {
+                    return Result<Event>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                }
+                return Result<Event>.InternalServerError($"{ex.Message}");
+            }
             catch (Exception ex)
             {
+                // Step 9: Handle any other unexpected errors.
                 if (ex.InnerException != null)
                 {
                     return Result<Event>.InternalServerError($"InnerException: {ex.InnerException.Message}");

@@ -17,12 +17,13 @@ namespace CleanUps.BusinessLogic.Validators
         /// <returns>A Result containing the validated DTO if successful, or an error message if validation fails</returns>
         public Result<bool> ValidateForCreate(CreateEventAttendanceRequest createRequest)
         {
+            // Verify that the DTO itself is not null to prevent null reference exceptions
             if (createRequest == null)
             {
                 return Result<bool>.BadRequest("EventAttendanceDTO cannot be null.");
             }
 
-            // Validate common fields
+            // Validate that user ID and event ID are valid
             var commonValidation = ValidateCommonFields(createRequest.UserId, createRequest.EventId);
             if (!commonValidation.IsSuccess)
             {
@@ -42,25 +43,26 @@ namespace CleanUps.BusinessLogic.Validators
         /// <returns>A Result containing the validated DTO if successful, or an error message if validation fails</returns>
         public Result<bool> ValidateForUpdate(UpdateEventAttendanceRequest updateRequest)
         {
+            // Verify that the DTO itself is not null to prevent null reference exceptions
             if (updateRequest == null)
             {
                 return Result<bool>.BadRequest("EventAttendanceDTO cannot be null.");
             }
 
-            // Validate common fields (checks UserId > 0 and EventId > 0)
+            // Validate that user ID and event ID are valid positive numbers
             var commonValidation = ValidateCommonFields(updateRequest.UserId, updateRequest.EventId);
             if (!commonValidation.IsSuccess)
             {
                 return commonValidation;
             }
 
-            // Ensure CheckIn is not the default value
+            // Verify that the check-in timestamp is provided (not default DateTime value)
             if (updateRequest.CheckIn == default)
             {
                 return Result<bool>.BadRequest("Check-In time must be provided.");
             }
 
-            // Ensure CheckIn is not in the future
+            // Ensure check-in time is not in the future (logical validation)
             if (updateRequest.CheckIn > DateTime.Now)
             {
                 return Result<bool>.BadRequest("Check-In time cannot be in the future.");
@@ -76,6 +78,7 @@ namespace CleanUps.BusinessLogic.Validators
         /// <returns>A Result indicating success or failure with an error message</returns>
         public Result<bool> ValidateId(int id)
         {
+            // Ensure the ID is valid (positive number)
             if (id <= 0)
             {
                 return Result<bool>.BadRequest("Id must be greater than zero.");
@@ -90,11 +93,13 @@ namespace CleanUps.BusinessLogic.Validators
         /// <returns>A Result containing the validated DTO if successful, or an error message if validation fails</returns>
         private Result<bool> ValidateCommonFields(int userId, int eventId)
         {
+            // Ensure the user ID is valid (positive number)
             if (userId <= 0)
             {
                 return Result<bool>.BadRequest("User Id must be greater than zero.");
             }
 
+            // Ensure the event ID is valid (positive number)
             if (eventId <= 0)
             {
                 return Result<bool>.BadRequest("Event Id must be greater than zero.");

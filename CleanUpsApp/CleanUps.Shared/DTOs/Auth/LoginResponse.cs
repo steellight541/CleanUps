@@ -1,7 +1,7 @@
 using CleanUps.Shared.DTOs.AbstractDTOs;
 using CleanUps.Shared.DTOs.Enums;
 
-namespace CleanUps.Shared.DTOs.Users
+namespace CleanUps.Shared.DTOs.Auth
 {
     /// <summary>
     /// Data Transfer Object for user login responses.

@@ -86,34 +86,47 @@
     private bool isLoggedIn = false;
     private bool isOrganizer = false;
 
+    /// <summary>
+    /// Initializes the component and checks user permissions.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     protected override async Task OnInitializedAsync()
     {
-        // Check if user is an organizer
+        // Step 1: Check if user is an organizer
         try
         {
-            // Check if user is logged in
+            // Step 2: Check if user is logged in
             isLoggedIn = await _accessService.IsUserLoggedInAsync();
-            // Check if user is an organizer
+            
+            // Step 3: Check if user is an organizer
             isOrganizer = await _accessService.IsOrganizerAsync();
-            //Allow only organizer to view the page - redirect elsewhere otherwise
+            
+            // Step 4: Allow only organizer to view the page - redirect elsewhere otherwise
             RoleBasedRedirector.CheckOrganizerAccess(isLoggedIn, isOrganizer, _navigationManager);
 
-            // Load event data after access check
+            // Step 5: Load event data after access check
             await LoadEvent();
         }
         catch
         {
-            // In case of errors, redirect to login
+            // Step 6: In case of errors, redirect to login
             _navigationManager.NavigateTo("/auth/login");
         }
     }
 
+    /// <summary>
+    /// Loads the event data from the API service and populates the edit model.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     private async Task LoadEvent()
     {
+        // Step 1: Call the API to get the event by its ID
         eventResult = await _eventApiService.GetByIdAsync(eventId);
 
+        // Step 2: Check if the operation was successful and data was returned
         if (eventResult.IsSuccess && eventResult.Data != null)
         {
+            // Step 3: Populate the edit model with the event data
             eventEditModel.Title = eventResult.Data.Title;
             eventEditModel.Description = eventResult.Data.Description;
             eventEditModel.StartTime = eventResult.Data.StartTime;
@@ -124,8 +137,13 @@
         }
     }
 
+    /// <summary>
+    /// Handles the form submission to update the event.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     private async Task HandleSubmit()
     {
+        // Step 1: Create an update event request from the form data
         UpdateEventRequest updateEvent = new UpdateEventRequest(
             eventId,
             eventEditModel.Title,
@@ -138,43 +156,84 @@
             new UpdateLocationRequest(0, 0, 0)
         );
 
+        // Step 2: Call the API service to update the event
         var updateResult = await _eventApiService.UpdateAsync(updateEvent);
+        
+        // Step 3: Check if the operation was successful
         if (updateResult.IsSuccess)
         {
+            // Step 4: If successful, navigate to the events list page
             _navigationManager.NavigateTo("/events");
         }
         else
         {
-            //If updating was not successful, set the errorMessage from the createResult. If the createResult is empty then set the errorMessage to be the written below
+            // Step 5: If not successful, set the error message from the result
             errorMessage = updateResult.ErrorMessage ?? "An error occurred while updating the event.";
         }
     }
 
+    /// <summary>
+    /// Handles cancellation of event editing by navigating back to the events list.
+    /// </summary>
     private void Cancel()
     {
+        // Step 1: Navigate back to the events list page
         _navigationManager.NavigateTo("/events");
     }
 
+    /// <summary>
+    /// Model class for editing existing events with validation attributes.
+    /// This class defines the data structure and validation rules for the event edit form.
+    /// </summary>
     private class EventEditModel
     {
+        /// <summary>
+        /// Gets or sets the title of the event.
+        /// </summary>
+        /// <value>A string that cannot be empty.</value>
         [Required(ErrorMessage = "Title is required.")]
         public string Title { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Gets or sets the detailed description of the event.
+        /// </summary>
+        /// <value>A string that cannot be empty.</value>
         [Required(ErrorMessage = "Description is required.")]
         public string Description { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Gets or sets the starting date and time of the event.
+        /// </summary>
+        /// <value>A DateTime representing when the event begins.</value>
         [Required(ErrorMessage = "Start time is required.")]
         public DateTime StartTime { get; set; }
 
+        /// <summary>
+        /// Gets or sets the ending date and time of the event.
+        /// </summary>
+        /// <value>A DateTime representing when the event ends.</value>
         [Required(ErrorMessage = "End time is required.")]
         public DateTime EndTime { get; set; }
 
+        /// <summary>
+        /// Gets or sets whether the event is suitable for families with children.
+        /// </summary>
+        /// <value>A boolean indicating if the event is family-friendly.</value>
         public bool FamilyFriendly { get; set; }
 
+        /// <summary>
+        /// Gets or sets the current status of the event.
+        /// Valid values are defined in the StatusDTO enum.
+        /// </summary>
+        /// <value>The event's current status from the StatusDTO enum.</value>
         [Required(ErrorMessage = "Status is required.")]
         [EnumDataType(typeof(StatusDTO), ErrorMessage = "Invalid status selected.")]
         public StatusDTO Status { get; set; }
 
+        /// <summary>
+        /// Gets or sets the amount of trash collected during the event in kilograms.
+        /// </summary>
+        /// <value>A non-negative decimal representing the amount of trash collected.</value>
         [Required(ErrorMessage = "Trash collected amount is required.")]
         [Range(0, double.MaxValue, ErrorMessage = "Trash collected cannot be negative.")]
         public decimal TrashCollected { get; set; }

@@ -141,94 +141,133 @@
     private bool isLoggedIn = false;
     private bool isOrganizer = false;
 
+    /// <summary>
+    /// Initializes the component, checks user permissions, and loads user data.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            // Check if user is logged in
+            // Step 1: Check if user is logged in
             isLoggedIn = await _accessService.IsUserLoggedInAsync();
 
-            // Check if user is an organizer
+            // Step 2: Check if user is an organizer
             isOrganizer = await _accessService.IsOrganizerAsync();
 
-            //Allow only organizer to view the page - redirect elsewhere otherwise
+            // Step 3: Allow only organizer to view the page - redirect elsewhere otherwise
             RoleBasedRedirector.CheckOrganizerAccess(isLoggedIn, isOrganizer, _navigationManager);
 
-            // Load users after access check
+            // Step 4: Load users after access check
             await LoadUsers();
         }
         catch
         {
-            // In case of errors, redirect to login
+            // Step 5: In case of errors, redirect to login
             _navigationManager.NavigateTo("/auth/login");
         }
     }
 
+    /// <summary>
+    /// Loads all users from the API with progressive loading effect.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     private async Task LoadUsers()
     {
         try
         {
+            // Step 1: Set loading state and update UI
             isLoadingUsers = true;
             loadedUsers = new List<UserResponse>();
             StateHasChanged();
 
+            // Step 2: Call API to get all users
             getAllUsersResponse = await _userApiService.GetAllAsync();
 
+            // Step 3: Process the result
             if (getAllUsersResponse.IsSuccess && getAllUsersResponse.Data != null)
             {
-                // Simulate progressive loading by adding users one by one with a small delay
+                // Step 4: Simulate progressive loading by adding users one by one with a small delay
                 foreach (UserResponse userResponse in getAllUsersResponse.Data)
                 {
+                    // Step 5: Add each user to the collection
                     loadedUsers.Add(userResponse);
 
-                    // Update UI after each user is added
+                    // Step 6: Update UI after each user is added
                     StateHasChanged();
 
-                    // Optional: Small delay to show the progressive loading (remove in production)
+                    // Step 7: Small delay to show the progressive loading
                     await Task.Delay(20);
                 }
             }
             else
             {
+                // Step 8: Handle error if API call failed
                 loadError = getAllUsersResponse.ErrorMessage;
             }
         }
         catch (Exception ex)
         {
+            // Step 9: Handle any unexpected exceptions
             loadError = $"Error loading users: {ex.Message}";
         }
         finally
         {
+            // Step 10: Reset loading state and update UI
             isLoadingUsers = false;
             StateHasChanged();
         }
     }
 
+    /// <summary>
+    /// Navigates to the user details page.
+    /// </summary>
+    /// <param name="userId">The ID of the user to view.</param>
     private void ViewUser(int userId)
     {
+        // Step 1: Navigate to the user profile page
         _navigationManager.NavigateTo($"/users/{userId}/profile");
     }
 
+    /// <summary>
+    /// Navigates to the user edit page.
+    /// </summary>
+    /// <param name="userId">The ID of the user to edit.</param>
     private void EditUser(int userId)
     {
+        // Step 1: Navigate to the user edit page
         _navigationManager.NavigateTo($"/users/{userId}/edit");
     }
 
+    /// <summary>
+    /// Deletes a user and refreshes the user list.
+    /// </summary>
+    /// <param name="userId">The ID of the user to delete.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     private async Task DeleteUser(int userId)
     {
+        // Step 1: Call API to delete the user
         var deleteResult = await _userApiService.DeleteAsync(new DeleteUserRequest(userId));
+        
+        // Step 2: Process the result
         if (deleteResult.IsSuccess)
         {
+            // Step 3: If successful, reload the users list
             await LoadUsers();
         }
         else
         {
+            // Step 4: If failed, display error message
             errorMessage = deleteResult.ErrorMessage ?? "An error occurred while deleting the user.";
         }
     }
 
+    /// <summary>
+    /// Navigates to the user creation page.
+    /// </summary>
     private void CreateNewUser()
     {
+        // Step 1: Navigate to the create user page
         _navigationManager.NavigateTo("/users/create");
     }
 }

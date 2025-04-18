@@ -1,5 +1,6 @@
 ﻿using CleanUps.BusinessLogic.Converters;
 using CleanUps.BusinessLogic.Converters.Interfaces;
+using CleanUps.BusinessLogic.Helpers;
 using CleanUps.BusinessLogic.Repositories.Interfaces;
 using CleanUps.BusinessLogic.Services;
 using CleanUps.BusinessLogic.Services.Interfaces;
@@ -47,6 +48,9 @@ namespace CleanUps.Configuration
                 )
             );
 
+            // Register SmtpSettings configuration from BusinessLogic.Models
+            services.Configure<SmtpSettings>(configuration.GetSection("SmtpSettings"));
+
             // Register repositories
             services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
@@ -60,12 +64,14 @@ namespace CleanUps.Configuration
             services.AddScoped<IPhotoService, PhotoService>();
             services.AddScoped<IEventAttendanceService, EventAttendanceService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IEmailService, SmtpEmailService>();
 
             // Register Validators
             services.AddScoped<IEventValidator, EventValidator>();
             services.AddScoped<IUserValidator, UserValidator>();
             services.AddScoped<IPhotoValidator, PhotoValidator>();
             services.AddScoped<IEventAttendanceValidator, EventAttendanceValidator>();
+            services.AddScoped<IAuthValidator, AuthValidator>();
             
             // Register Converters
             services.AddSingleton<IEventConverter, EventConverter>();

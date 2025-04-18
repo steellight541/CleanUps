@@ -14,8 +14,15 @@
     </div>
 </div>
 @code {
+    [Parameter]
+    public int eventId { get; set; }
+    
+    /// <summary>
+    /// Navigates to the home page.
+    /// </summary>
     private void HomePage()
     {
+        // Navigate back to the home page
         _navigationManager.NavigateTo("/");
     }
 }

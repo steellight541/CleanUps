@@ -2,6 +2,7 @@ using CleanUps.BusinessLogic.Helpers;
 using CleanUps.BusinessLogic.Models;
 using CleanUps.BusinessLogic.Repositories.Interfaces;
 using CleanUps.BusinessLogic.Services.Interfaces;
+using CleanUps.BusinessLogic.Validators.Interfaces;
 using CleanUps.Shared.DTOs.Auth;
 using CleanUps.Shared.DTOs.Enums;
 using CleanUps.Shared.DTOs.Users;
@@ -15,63 +16,65 @@ using System.Runtime.CompilerServices;
 namespace CleanUps.BusinessLogic.Services
 {
     /// <summary>
-    /// Service responsible for user authentication operations.
-    /// Implements login functionality and user validation.
+    /// Service responsible for handling user authentication, login, and password reset workflows.
+    /// Coordinates interactions between repositories, validators, and email services for auth operations.
     /// </summary>
     internal class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordResetTokenRepository _tokenRepository;
+        private readonly IEmailService _emailService;
+        private readonly IAuthValidator _validator;
         private readonly ILogger<AuthService> _logger;
 
         /// <summary>
-        /// Initializes a new instance of the AuthService class.
+        /// Initializes a new instance of the <see cref="AuthService"/> class.
         /// </summary>
-        /// <param name="userRepository">The repository for user data access.</param>
-        /// <param name="tokenRepository">The repository for password reset token data access.</param>
-        /// <param name="logger">The logger for logging operations.</param>
+        /// <param name="userRepository">Repository for accessing user data.</param>
+        /// <param name="tokenRepository">Repository for managing password reset tokens.</param>
+        /// <param name="emailService">Service for sending emails (password reset, confirmations).</param>
+        /// <param name="validator">Validator for authentication-related DTOs.</param>
+        /// <param name="logger">Logger for recording service operations and errors.</param>
         public AuthService(
             IUserRepository userRepository,
             IPasswordResetTokenRepository tokenRepository,
+            IEmailService emailService,
+            IAuthValidator validator,
             ILogger<AuthService> logger)
         {
             _userRepository = userRepository;
             _tokenRepository = tokenRepository;
+            _emailService = emailService;
+            _validator = validator;
             _logger = logger;
         }
 
         /// <summary>
-        /// Authenticates a user based on provided credentials.
+        /// Authenticates a user based on the provided email and password.
+        /// Verifies credentials against stored user data and password hash.
         /// </summary>
-        /// <param name="loginRequest">The login request containing user credentials.</param>
-        /// <returns>A Result containing the logged-in user information if successful, or an error message if authentication fails.</returns>
+        /// <param name="loginRequest">The login request DTO containing email and password.</param>
+        /// <returns>
+        /// A <see cref="Result{T}"/> of <see cref="LoginResponse"/>. On success, contains the user's login details.
+        /// On failure, contains an error status code and message (e.g., BadRequest, Unauthorized).
+        /// </returns>
         public async Task<Result<LoginResponse>> LoginAsync(LoginRequest loginRequest)
         {
-            if (loginRequest == null)
+            // Use validator
+            var validationResult = _validator.ValidateForLogin(loginRequest);
+            if (!validationResult.IsSuccess)
             {
-                return Result<LoginResponse>.BadRequest("Login request cannot be null");
-            }
-
-            if (string.IsNullOrWhiteSpace(loginRequest.Email))
-            {
-                return Result<LoginResponse>.BadRequest("Email is required");
-            }
-
-            if (string.IsNullOrWhiteSpace(loginRequest.Password))
-            {
-                return Result<LoginResponse>.BadRequest("Password is required");
+                return Result<LoginResponse>.BadRequest(validationResult.ErrorMessage ?? "Invalid login request.");
             }
 
             // Get the user by email
             var userResult = await _userRepository.GetByEmailAsync(loginRequest.Email);
-
             if (!userResult.IsSuccess)
             {
-                // Return NotFound for non-existent user, but use a generic message for security
+                // Use a generic message for security
                 return Result<LoginResponse>.Unauthorized("Invalid email or password");
             }
-
-            var user = userResult.Data;
+            User user = userResult.Data;
 
             // Verify the password
             if (!PasswordHelper.VerifyPassword(loginRequest.Password, user.PasswordHash))
@@ -80,7 +83,7 @@ namespace CleanUps.BusinessLogic.Services
             }
 
             // Create and return the login response
-            var loginResponse = new LoginResponse(
+            LoginResponse loginResponse = new LoginResponse(
                 user.UserId,
                 user.Name,
                 user.Email,
@@ -90,11 +93,23 @@ namespace CleanUps.BusinessLogic.Services
             return Result<LoginResponse>.Ok(loginResponse);
         }
 
+        /// <summary>
+        /// Initiates the password reset process for a user identified by their email address.
+        /// Generates a secure, time-limited token, stores it, and triggers sending a password reset email.
+        /// Does not reveal whether the email exists to prevent user enumeration attacks.
+        /// </summary>
+        /// <param name="request">The <see cref="RequestPasswordResetRequest"/> containing the user's email.</param>
+        /// <returns>
+        /// A <see cref="Result{T}"/> of <see cref="bool"/>. Always returns <c>Ok(true)</c> to the caller unless input validation fails,
+        /// to avoid revealing if an email exists in the system. Internal errors are logged.
+        /// </returns>
         public async Task<Result<bool>> RequestPasswordResetAsync(RequestPasswordResetRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.Email))
+            // Use validator
+            var validationResult = _validator.ValidateForPasswordResetRequest(request);
+            if (!validationResult.IsSuccess)
             {
-                return Result<bool>.BadRequest("Email is required.");
+                return validationResult;
             }
 
             // Find the user by email
@@ -105,14 +120,13 @@ namespace CleanUps.BusinessLogic.Services
                 _logger.LogInformation("Password reset requested for non-existent or invalid email: {Email}", request.Email);
                 return Result<bool>.Ok(true); // Pretend success
             }
-
-            var user = userResult.Data;
+            User user = userResult.Data;
 
             // Generate a secure token
-            var tokenString = GenerateSecureToken();
+            string tokenString = GenerateSecureToken();
 
             // Create the token record
-            var tokenRecord = new PasswordResetToken
+            PasswordResetToken tokenRecord = new PasswordResetToken
             {
                 UserId = user.UserId,
                 Token = tokenString,
@@ -129,25 +143,44 @@ namespace CleanUps.BusinessLogic.Services
                 return Result<bool>.Ok(true);
             }
 
-            // ** Simulate sending email **
-            _logger.LogWarning("--- Password Reset Email Simulation ---");
-            _logger.LogWarning("To: {Email}", user.Email);
-            _logger.LogWarning("Subject: Reset Your Password");
-            _logger.LogWarning("Body: Use this token to reset your password: {Token}", tokenString);
-            _logger.LogWarning("--- End Simulation ---");
-            // TODO: Replace simulation with actual call to _emailService.SendPasswordResetEmailAsync(user.Email, tokenString);
+            // ** Use Email Service **
+            try
+            {
+                await _emailService.SendPasswordResetEmailAsync(user.Email, user.Name, tokenString);
+            }
+            catch (Exception ex)
+            {
+                // Log email sending failure but don't block the user-facing success response
+                _logger.LogError(ex, "Failed to send password reset email to {Email} for user {UserId}", user.Email, user.UserId);
+            }
 
             return Result<bool>.Ok(true);
         }
 
+        /// <summary>
+        /// Validates a provided password reset token.
+        /// Checks if the token exists, has not expired, and has not already been used.
+        /// </summary>
+        /// <param name="request">The <see cref="ValidateTokenRequest"/> containing the token string.</param>
+        /// <returns>
+        /// A <see cref="Result{T}"/> of <see cref="bool"/>. Returns <c>Ok(true)</c> if the token is valid.
+        /// Returns <c>Failure</c> with a specific status code (BadRequest, NotFound, Conflict) if the token is invalid.
+        /// </returns>
         public async Task<Result<bool>> ValidateResetTokenAsync(ValidateTokenRequest request)
         {
+            // Use validator
+            var validationResult = _validator.ValidateForTokenValidation(request);
+            if (!validationResult.IsSuccess)
+            {
+                return validationResult;
+            }
+
             // Use the repository method which includes validation checks
             var tokenResult = await _tokenRepository.GetByTokenAsync(request.Token);
 
             if (!tokenResult.IsSuccess)
             {
-                // Map repository errors to appropriate failure types
+                // Convert repository errors to appropriate failure types
                 switch(tokenResult.StatusCode)
                 {
                     case 400: return Result<bool>.BadRequest(tokenResult.ErrorMessage ?? "Invalid token format.");
@@ -161,9 +194,26 @@ namespace CleanUps.BusinessLogic.Services
             return Result<bool>.Ok(true);
         }
 
+        /// <summary>
+        /// Resets a user's password using a validated token and the new password.
+        /// Validates the token again, hashes the new password, updates the user record, marks the token as used,
+        /// and attempts to send a password change confirmation email.
+        /// </summary>
+        /// <param name="request">The <see cref="ResetPasswordRequest"/> containing the token and new password details.</param>
+        /// <returns>
+        /// A <see cref="Result{T}"/> of <see cref="bool"/>. Returns <c>Ok(true)</c> on successful password reset.
+        /// Returns <c>Failure</c> with a specific status code if validation fails or an internal error occurs.
+        /// </returns>
         public async Task<Result<bool>> ResetPasswordAsync(ResetPasswordRequest request)
         {
-            // 1. Validate the token again
+            // Step 1: Validate Input requestDTO
+            var validationResult = _validator.ValidateForPasswordReset(request);
+            if (!validationResult.IsSuccess)
+            {
+                return validationResult;
+            }
+
+            // Step 2: Validate the Token (If it exists, if it is not used, and if it is not expired)
             var tokenResult = await _tokenRepository.GetByTokenAsync(request.Token);
              if (!tokenResult.IsSuccess)
             {
@@ -176,27 +226,15 @@ namespace CleanUps.BusinessLogic.Services
                     default: return Result<bool>.InternalServerError(tokenResult.ErrorMessage ?? "Failed to validate token.");
                 }
             }
-            var validToken = tokenResult.Data;
+            PasswordResetToken validToken = tokenResult.Data;
 
-            // 2. Validate passwords match (already done by DTO validation, but good practice)
-            if (request.NewPassword != request.ConfirmPassword)
-            {
-                return Result<bool>.BadRequest("Passwords do not match.");
-            }
-
-            // 3. Basic password complexity check (can be enhanced in a validator)
-            if (request.NewPassword.Length < 8)
-            {
-                 return Result<bool>.BadRequest("Password must be at least 8 characters long.");
-            }
-
-            // 4. Get the associated User ID from the validated token
+            // Step 3: Get the associated User ID from the validated token
             int userId = validToken.UserId;
 
-            // 5. Hash the new password
-            string newPasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+            // Step 4: Hash the New Password
+            string newPasswordHash = PasswordHelper.HashPassword(request.NewPassword);
 
-            // 6. Update the user's password in the user repository
+            // Step 5: Update User's Password in Repository
             var updatePasswordResult = await _userRepository.UpdatePasswordAsync(userId, newPasswordHash);
             if (!updatePasswordResult.IsSuccess)
             {
@@ -204,7 +242,7 @@ namespace CleanUps.BusinessLogic.Services
                 return Result<bool>.InternalServerError("Failed to update password.");
             }
 
-            // 7. Mark the token as used
+            // Step 6: Mark the Token as Used
             var markUsedResult = await _tokenRepository.MarkAsUsedAsync(validToken);
             if (!markUsedResult.IsSuccess)
             {
@@ -212,14 +250,35 @@ namespace CleanUps.BusinessLogic.Services
                  _logger.LogError("Failed to mark reset token {TokenId} as used for user {UserId}: {Error}", validToken.Id, userId, markUsedResult.ErrorMessage);
             }
 
-            // 8. (Optional) Send confirmation email
-            // var user = await _userRepository.GetByIdAsync(userId); // Need user email
-            // if (user.IsSuccess) _logger.LogWarning("--- Password Reset Confirmation Email Simulation ---");
-            // TODO: Send confirmation email
+            // Step 7: Send Confirmation Email
+            var userResult = await _userRepository.GetByIdAsync(userId);
+            if (userResult.IsSuccess)
+            {
+                try
+                {
+                    await _emailService.SendPasswordResetConfirmationEmailAsync(userResult.Data.Email, userResult.Data.Name);
+                }
+                catch (Exception ex)
+                {
+                    // Log email sending failure but don't let it fail the overall operation
+                    _logger.LogError(ex, "Failed to send password reset confirmation email to {Email} for user {UserId}", userResult.Data.Email, userId);
+                }
+            }
+            else
+            {
+                 _logger.LogWarning("Could not retrieve user details for user {UserId} to send confirmation email.", userId);
+            }
 
+            // Step 8: Return Success
             return Result<bool>.Ok(true);
         }
 
+        /// <summary>
+        /// Generates a cryptographically secure, URL-safe token string.
+        /// Uses <see cref="RandomNumberGenerator"/> for security.
+        /// </summary>
+        /// <param name="length">The desired length of the raw byte array before Base64 encoding (default is 32, resulting in approx. 44 character string).</param>
+        /// <returns>A URL-safe Base64 encoded string token.</returns>
         private string GenerateSecureToken(int length = 32)
         {
             // Using URL-safe base64 encoding

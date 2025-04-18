@@ -74,33 +74,46 @@
     private bool isSubmitting = false;
 
     private PasswordChangeModel passwordModel = new PasswordChangeModel();
+    
+    /// <summary>
+    /// Initializes the component and checks user permissions.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     protected override async Task OnInitializedAsync()
     {
-        // Check if user is logged in (volunteers and organizers)
+        // Step 1: Check if user is logged in (volunteers and organizers)
         try
         {
+            // Step 2: Get login status from access service
             isLoggedIn = await _accessService.IsUserLoggedInAsync();
-            //Redirect if you arent logged in
+            
+            // Step 3: Redirect if user isn't logged in
             RoleBasedRedirector.CheckVolunteerAccess(isLoggedIn, _navigationManager);
 
-            // Load profile information
+            // Step 4: Load user profile information
             await LoadProfileData();
         }
         catch
         {
-            // In case of errors, redirect to login
+            // Step 5: In case of errors, redirect to login
             _navigationManager.NavigateTo("/auth/login");
         }
     }
 
+    /// <summary>
+    /// Loads the user's profile data from the access service.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     private async Task LoadProfileData()
     {
+        // Step 1: Set loading state
         isLoading = true;
 
-        // Get user info from AccessService
+        // Step 2: Get user info from AccessService
         userName = await _accessService.GetLoggedUserNameAsync() ?? "Unknown";
         userEmail = await _accessService.GetLoggedUserEmailAsync() ?? "Unknown";
 
+        // Step 3: Get and format user role
         RoleDTO? role = await _accessService.GetLoggedUserRoleAsync();
 
         if (role is not null)
@@ -112,32 +125,45 @@
             userRole = "Unknown";
         }
 
+        // Step 4: Clear loading state
         isLoading = false;
     }
 
+    /// <summary>
+    /// Toggles the visibility of the password change form.
+    /// </summary>
     private void TogglePasswordChangeForm()
     {
-        showPasswordChangeForm = !showPasswordChangeForm; // Toggle form visibility
-        passwordModel = new PasswordChangeModel(); // Reset the model
-        statusMessage = string.Empty; // Clear status message when toggling
+        // Step 1: Toggle form visibility
+        showPasswordChangeForm = !showPasswordChangeForm;
+        
+        // Step 2: Reset the model when toggling
+        passwordModel = new PasswordChangeModel();
+        
+        // Step 3: Clear any status messages
+        statusMessage = string.Empty;
     }
 
-    // Updated to handle valid submission from EditForm
+    /// <summary>
+    /// Handles the password change submission.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     private async Task ChangePassword()
     {
+        // Step 1: Reset state variables
         statusMessage = string.Empty;
         isSuccess = false;
         isSubmitting = true;
 
-        // Basic validation is now handled by EditForm and DataAnnotations
-        // Manual checks can be kept for logic not covered by attributes
-
         try
         {
-            // Call the service with the new password from the model
+            // Step 2: Call the service with the new password from the model
             var changePasswordResult = await _accessService.ChangePasswordAsync(passwordModel.NewPassword);
+            
+            // Step 3: Process the result
             if (changePasswordResult.IsSuccess)
             {
+                // Step 4a: If successful, update UI and reset form
                 isSuccess = true;
                 statusMessage = "Password changed successfully!";
                 showPasswordChangeForm = false; // Hide form on success
@@ -145,35 +171,54 @@
             }
             else
             {
+                // Step 4b: If failed, show error message
                 statusMessage = changePasswordResult.ErrorMessage ?? "Failed to change password.";
             }
         }
         catch
         {
-            // Log the exception if needed
+            // Step 5: Handle unexpected errors
             statusMessage = "An unexpected error occurred while changing the password.";
         }
         finally
         {
+            // Step 6: Clear submitting state and update UI
             isSubmitting = false;
             StateHasChanged(); // Ensure UI updates after async operation
         }
     }
 
+    /// <summary>
+    /// Logs out the current user and redirects to the events page.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     private async Task Logout()
     {
+        // Step 1: Clear user session data
         await _accessService.ClearUserSessionAsync();
+        
+        // Step 2: Redirect to events page
         _navigationManager.NavigateTo("/events");
     }
 
-    // Model definition with validation attributes
+    /// <summary>
+    /// Model class for password change form with validation attributes.
+    /// </summary>
     private class PasswordChangeModel
     {
+        /// <summary>
+        /// Gets or sets the new password.
+        /// Must be between 8 and 50 characters.
+        /// </summary>
         [Required(ErrorMessage = "New Password is required.")]
         [StringLength(50, MinimumLength = 8, ErrorMessage = "Password must be between 8 and 50 characters long.")]
         // Add other complexity rules here if needed via custom attributes or Regex
         public string NewPassword { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Gets or sets the confirmation of the new password.
+        /// Must match the NewPassword property.
+        /// </summary>
         [Required(ErrorMessage = "Confirm New Password is required.")]
         [Compare(nameof(NewPassword), ErrorMessage = "New passwords do not match.")]
         public string ConfirmNewPassword { get; set; } = string.Empty;

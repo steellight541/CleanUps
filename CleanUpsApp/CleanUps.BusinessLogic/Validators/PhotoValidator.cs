@@ -17,24 +17,25 @@ namespace CleanUps.BusinessLogic.Validators
         /// <returns>A Result indicating success or failure with an error message</returns>
         public Result<bool> ValidateForCreate(CreatePhotoRequest createRequest)
         {
+            // Verify that the DTO itself is not null to prevent null reference exceptions
             if (createRequest == null)
             {
                 return Result<bool>.BadRequest("CreatePhotoRequest cannot be null.");
             }
 
-            // Validate EventId
+            // Ensure the event ID is valid (positive number)
             if (createRequest.EventId <= 0)
             {
                 return Result<bool>.BadRequest("Event Id must be greater than zero.");
             }
 
-            // Validate PhotoData
+            // Verify that photo data is provided and not empty
             if (createRequest.PhotoData == null || createRequest.PhotoData.Length == 0)
             {
                 return Result<bool>.BadRequest("PhotoData cannot be null or empty.");
             }
 
-            // Optional: Validate Caption (e.g., maximum length)
+            // Check that caption doesn't exceed the maximum allowed length if provided
             if (!string.IsNullOrEmpty(createRequest.Caption) && createRequest.Caption.Length > 200)
             {
                 return Result<bool>.BadRequest("Caption cannot exceed 200 characters.");
@@ -51,18 +52,19 @@ namespace CleanUps.BusinessLogic.Validators
         /// <returns>A Result indicating success or failure with an error message</returns>
         public Result<bool> ValidateForUpdate(UpdatePhotoRequest updateREquest)
         {
+            // Verify that the DTO itself is not null to prevent null reference exceptions
             if (updateREquest == null)
             {
                 return Result<bool>.BadRequest("UpdatePhotoRequest cannot be null.");
             }
 
-            // Validate PhotoId
+            // Ensure the photo ID is valid (positive number)
             if (updateREquest.PhotoId <= 0)
             {
                 return Result<bool>.BadRequest("Photo Id must be greater than zero.");
             }
 
-            // Validate Caption (e.g., maximum length)
+            // Check that caption doesn't exceed the maximum allowed length
             if (updateREquest.Caption.Length > 200)
             {
                 return Result<bool>.BadRequest("Caption cannot exceed 200 characters.");
@@ -78,6 +80,7 @@ namespace CleanUps.BusinessLogic.Validators
         /// <returns>A Result indicating success or failure with an error message</returns>
         public Result<bool> ValidateId(int id)
         {
+            // Ensure the photo ID is valid (positive number)
             if (id <= 0)
             {
                 return Result<bool>.BadRequest("Photo Id must be greater than zero.");

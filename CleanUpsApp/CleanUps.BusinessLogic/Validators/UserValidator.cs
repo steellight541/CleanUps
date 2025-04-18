@@ -20,6 +20,7 @@ namespace CleanUps.BusinessLogic.Validators
         /// <returns>A Result indicating success or failure with an error message</returns>
         public Result<bool> ValidateForCreate(CreateUserRequest dto)
         {
+            // Verify that the DTO itself is not null to prevent null reference exceptions
             if (dto == null)
             {
                 return Result<bool>.BadRequest("CreateUserRequest cannot be null.");
@@ -32,13 +33,13 @@ namespace CleanUps.BusinessLogic.Validators
                 return commonValidation;
             }
 
-            // Validate Password
+            // Ensure a password is provided for the new user account
             if (string.IsNullOrWhiteSpace(dto.Password))
             {
                 return Result<bool>.BadRequest("Password is required.");
             }
 
-            // Enhanced password strength check (length and complexity)
+            // Validate password length to ensure it meets security requirements
             if (dto.Password.Length < 8 || dto.Password.Length > 50)
             {
                 return Result<bool>.BadRequest("Password must be between 8 and 50 characters long.");
@@ -56,12 +57,13 @@ namespace CleanUps.BusinessLogic.Validators
         /// <returns>A Result indicating success or failure with an error message</returns>
         public Result<bool> ValidateForUpdate(UpdateUserRequest dto)
         {
+            // Verify that the DTO itself is not null to prevent null reference exceptions
             if (dto == null)
             {
                 return Result<bool>.BadRequest("UpdateUserRequest cannot be null.");
             }
 
-            // Validate UserId
+            // Ensure the user ID is valid (positive number)
             if (dto.UserId <= 0)
             {
                 return Result<bool>.BadRequest("User Id must be greater than zero.");
@@ -84,6 +86,7 @@ namespace CleanUps.BusinessLogic.Validators
         /// <returns>A Result indicating success or failure with an error message</returns>
         public Result<bool> ValidateId(int id)
         {
+            // Ensure the user ID is valid (positive number)
             if (id <= 0)
             {
                 return Result<bool>.BadRequest("User Id must be greater than zero.");
@@ -99,25 +102,31 @@ namespace CleanUps.BusinessLogic.Validators
         /// <returns>A Result indicating success or failure with an error message</returns>
         private Result<bool> ValidateNameAndEmail(string name, string email)
         {
+            // Ensure name field is provided and not empty
             if (string.IsNullOrWhiteSpace(name))
             {
                 return Result<bool>.BadRequest("Name is required.");
             }
+            
+            // Validate name length to ensure it fits database constraints
              if (name.Length > 100)
             {
                 return Result<bool>.BadRequest("Name cannot exceed 100 characters.");
             }
 
+            // Ensure email field is provided and not empty
             if (string.IsNullOrWhiteSpace(email))
             {
                 return Result<bool>.BadRequest("Email is required.");
             }
 
+            // Validate email length to ensure it fits database constraints
             if (email.Length > 255)
             {
                 return Result<bool>.BadRequest("Email cannot exceed 255 characters.");
             }
 
+            // Verify that the email format is valid using the email validation helper method
             if (!IsValidEmail(email))
             {
                 return Result<bool>.BadRequest("Invalid email format.");
@@ -135,11 +144,14 @@ namespace CleanUps.BusinessLogic.Validators
         {
             try
             {
+                // Use .NET's MailAddress class to verify the email format
                 var addr = new MailAddress(email);
+                // Ensure the parsed address exactly matches the input to catch partial matches
                 return addr.Address == email;
             }
             catch
             {
+                // Return false if the email couldn't be parsed as a valid address
                 return false;
             }
         }
@@ -152,24 +164,25 @@ namespace CleanUps.BusinessLogic.Validators
         /// <returns>A Result indicating success or failure with an error message.</returns>
         public Result<bool> ValidateForPasswordChange(ChangePasswordRequest changePasswordRequestDto)
         {
+            // Verify that the DTO itself is not null to prevent null reference exceptions
             if (changePasswordRequestDto == null)
             {
                 return Result<bool>.BadRequest("ChangePasswordRequest cannot be null.");
             }
 
-            // Validate UserId
+            // Ensure the user ID is valid (positive number)
             if (changePasswordRequestDto.UserId <= 0)
             {
                 return Result<bool>.BadRequest("User Id must be greater than zero.");
             }
 
-            // Validate NewPassword
+            // Ensure the new password is provided and not empty
             if (string.IsNullOrWhiteSpace(changePasswordRequestDto.NewPassword))
             {
                 return Result<bool>.BadRequest("New Password is required.");
             }
 
-            // Enhanced password strength check (length and complexity)
+            // Validate password length to ensure it meets security requirements
             if (changePasswordRequestDto.NewPassword.Length < 8 || changePasswordRequestDto.NewPassword.Length > 50)
             {
                 return Result<bool>.BadRequest("New Password must be between 8 and 50 characters long.");

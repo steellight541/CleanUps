@@ -8,9 +8,9 @@ using System.Text.Json;
 namespace CleanUps.Shared.ClientServices
 {
     /// <summary>
-    /// Client service for interacting with the Events API.
-    /// Provides methods for performing CRUD operations on events through HTTP requests.
-    /// Implements error handling with Result pattern instead of throwing exceptions.
+    /// Client service for interacting with the Events API endpoints.
+    /// Provides methods for creating, reading, updating, and deleting event data through HTTP requests.
+    /// Implements standardized error handling using the Result pattern for consistent response handling.
     /// </summary>
     public class EventApiService : IEventApiService
     {
@@ -26,27 +26,31 @@ namespace CleanUps.Shared.ClientServices
         }
 
         /// <summary>
-        /// Retrieves all events from the API.
+        /// Retrieves all events from the API endpoint.
         /// </summary>
         /// <returns>
         /// A Result containing a list of all events if successful,
-        /// a NoContent result if no events exist,
-        /// or an error message if the operation fails.
+        /// a NoContent result if no events exist in the system,
+        /// or an error message if a network or server error occurs.
         /// </returns>
         public async Task<Result<List<EventResponse>>> GetAllAsync()
         {
             try
             {
+                // Step 1: Send request to the API endpoint to retrieve all events
                 HttpResponseMessage response = await _httpClient.GetAsync("api/events");
 
+                // Step 2: Process successful response
                 if (response.IsSuccessStatusCode)
                 {
+                    // Step 3: Deserialize the successful response
                     List<EventResponse>? events = await response.Content.ReadFromJsonAsync<List<EventResponse>>();
                     return events != null
                         ? Result<List<EventResponse>>.Ok(events)
                         : Result<List<EventResponse>>.InternalServerError("Failed to deserialize events");
                 }
 
+                // Step 4: Handle error responses based on status code
                 string errorMessage = await response.Content.ReadAsStringAsync();
                 switch (response.StatusCode)
                 {
@@ -58,42 +62,49 @@ namespace CleanUps.Shared.ClientServices
             }
             catch (HttpRequestException ex)
             {
+                // Step 5: Handle network-related exceptions
                 return Result<List<EventResponse>>.InternalServerError($"Network error: {ex.Message}");
             }
             catch (TaskCanceledException ex)
             {
+                // Step 6: Handle request timeout exceptions
                 return Result<List<EventResponse>>.InternalServerError($"Request timeout: {ex.Message}");
             }
             catch (Exception ex)
             {
+                // Step 7: Handle any other unexpected exceptions
                 return Result<List<EventResponse>>.InternalServerError($"Unexpected error: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Retrieves a specific event by its ID.
+        /// Retrieves a specific event by its unique identifier.
         /// </summary>
-        /// <param name="id">The ID of the event to retrieve.</param>
+        /// <param name="id">The unique identifier of the event to retrieve.</param>
         /// <returns>
         /// A Result containing the requested event if found,
         /// a NotFound result if the event doesn't exist,
-        /// a BadRequest result if the ID is invalid,
-        /// or an error message if the operation fails.
+        /// a BadRequest result if the ID format is invalid,
+        /// or an error message if a network or server error occurs.
         /// </returns>
         public async Task<Result<EventResponse>> GetByIdAsync(int id)
         {
             try
             {
+                // Step 1: Send request to the API endpoint to retrieve specific event
                 HttpResponseMessage response = await _httpClient.GetAsync($"api/events/{id}");
 
+                // Step 2: Process successful response
                 if (response.IsSuccessStatusCode)
                 {
+                    // Step 3: Deserialize the successful response
                     EventResponse? eventDto = await response.Content.ReadFromJsonAsync<EventResponse>();
                     return eventDto != null
                         ? Result<EventResponse>.Ok(eventDto)
                         : Result<EventResponse>.InternalServerError("Failed to deserialize event");
                 }
 
+                // Step 4: Handle error responses based on status code
                 string errorMessage = await response.Content.ReadAsStringAsync();
                 switch (response.StatusCode)
                 {
@@ -107,41 +118,48 @@ namespace CleanUps.Shared.ClientServices
             }
             catch (HttpRequestException ex)
             {
+                // Step 5: Handle network-related exceptions
                 return Result<EventResponse>.InternalServerError($"Network error: {ex.Message}");
             }
             catch (TaskCanceledException ex)
             {
+                // Step 6: Handle request timeout exceptions
                 return Result<EventResponse>.InternalServerError($"Request timeout: {ex.Message}");
             }
             catch (Exception ex)
             {
+                // Step 7: Handle any other unexpected exceptions
                 return Result<EventResponse>.InternalServerError($"Unexpected error: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Creates a new event through the API.
+        /// Creates a new event by sending event data to the API.
         /// </summary>
-        /// <param name="createRequest">The data for creating a new event.</param>
+        /// <param name="createRequest">The data transfer object containing event details for creation.</param>
         /// <returns>
-        /// A Result containing the created event if successful,
-        /// a BadRequest result if the request data is invalid,
-        /// or an error message if the operation fails.
+        /// A Result containing the created event with its generated ID if successful,
+        /// a BadRequest result if the event data is invalid or missing required fields,
+        /// or an error message if a network or server error occurs.
         /// </returns>
         public async Task<Result<EventResponse>> CreateAsync(CreateEventRequest createRequest)
         {
             try
             {
+                // Step 1: Send create request to the API endpoint
                 HttpResponseMessage response = await _httpClient.PostAsJsonAsync("api/events", createRequest);
 
+                // Step 2: Process successful response
                 if (response.IsSuccessStatusCode)
                 {
+                    // Step 3: Deserialize the created event from the response
                     EventResponse? createdEvent = await response.Content.ReadFromJsonAsync<EventResponse>();
                     return createdEvent != null
                         ? Result<EventResponse>.Created(createdEvent)
                         : Result<EventResponse>.InternalServerError("Failed to deserialize event");
                 }
 
+                // Step 4: Handle error responses based on status code
                 string errorMessage = await response.Content.ReadAsStringAsync();
                 switch (response.StatusCode)
                 {
@@ -153,48 +171,55 @@ namespace CleanUps.Shared.ClientServices
             }
             catch (HttpRequestException ex)
             {
+                // Step 5: Handle network-related exceptions
                 return Result<EventResponse>.InternalServerError($"Network error: {ex.Message}");
             }
             catch (JsonException ex)
             {
+                // Step 6: Handle JSON parsing exceptions
                 return Result<EventResponse>.BadRequest($"Invalid request format: {ex.Message}");
             }
             catch (TaskCanceledException ex)
             {
+                // Step 7: Handle request timeout exceptions
                 return Result<EventResponse>.InternalServerError($"Request timeout: {ex.Message}");
             }
             catch (Exception ex)
             {
+                // Step 8: Handle any other unexpected exceptions
                 return Result<EventResponse>.InternalServerError($"Unexpected error: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Updates an existing event through the API.
+        /// Updates an existing event with new information.
         /// </summary>
-        /// <param name="id">The ID of the event to update.</param>
-        /// <param name="updateRequest">The updated event data.</param>
+        /// <param name="updateRequest">The data transfer object containing updated event details, including its identifier.</param>
         /// <returns>
         /// A Result containing the updated event if successful,
         /// a BadRequest result if the request data is invalid,
         /// a NotFound result if the event doesn't exist,
         /// a Conflict result if there's a concurrency issue,
-        /// or an error message if the operation fails.
+        /// or an error message if a network or server error occurs.
         /// </returns>
         public async Task<Result<EventResponse>> UpdateAsync(UpdateEventRequest updateRequest)
         {
             try
             {
+                // Step 1: Send update request to the API endpoint
                 HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"api/events/{updateRequest.EventId}", updateRequest);
 
+                // Step 2: Process successful response
                 if (response.IsSuccessStatusCode)
                 {
+                    // Step 3: Deserialize the updated event from response
                     EventResponse? updatedEvent = await response.Content.ReadFromJsonAsync<EventResponse>();
                     return updatedEvent != null
                         ? Result<EventResponse>.Ok(updatedEvent)
                         : Result<EventResponse>.InternalServerError("Failed to deserialize event");
                 }
 
+                // Step 4: Handle error responses based on status code
                 string errorMessage = await response.Content.ReadAsStringAsync();
                 switch (response.StatusCode)
                 {
@@ -210,47 +235,55 @@ namespace CleanUps.Shared.ClientServices
             }
             catch (HttpRequestException ex)
             {
+                // Step 5: Handle network-related exceptions
                 return Result<EventResponse>.InternalServerError($"Network error: {ex.Message}");
             }
             catch (JsonException ex)
             {
+                // Step 6: Handle JSON parsing exceptions
                 return Result<EventResponse>.BadRequest($"Invalid request format: {ex.Message}");
             }
             catch (TaskCanceledException ex)
             {
+                // Step 7: Handle request timeout exceptions
                 return Result<EventResponse>.InternalServerError($"Request timeout: {ex.Message}");
             }
             catch (Exception ex)
             {
+                // Step 8: Handle any other unexpected exceptions
                 return Result<EventResponse>.InternalServerError($"Unexpected error: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Deletes an event through the API.
+        /// Deletes an event from the system.
         /// </summary>
-        /// <param name="eventId">The ID of the event to delete.</param>
+        /// <param name="deleteRequest">The data transfer object containing the event ID to delete.</param>
         /// <returns>
-        /// A Result containing the deleted event if successful,
+        /// A Result containing the deleted event data if successful,
         /// a BadRequest result if the ID is invalid,
         /// a NotFound result if the event doesn't exist,
-        /// a Conflict result if the event cannot be deleted,
-        /// or an error message if the operation fails.
+        /// a Conflict result if the event cannot be deleted (e.g., referenced by other entities),
+        /// or an error message if a network or server error occurs.
         /// </returns>
         public async Task<Result<EventResponse>> DeleteAsync(DeleteEventRequest deleteRequest)
         {
             try
             {
+                // Step 1: Send delete request to the API endpoint
                 HttpResponseMessage response = await _httpClient.DeleteAsync($"api/events/{deleteRequest.EventId}");
 
+                // Step 2: Process successful response
                 if (response.IsSuccessStatusCode)
                 {
+                    // Step 3: Deserialize the deleted event from response
                     EventResponse? deletedEvent = await response.Content.ReadFromJsonAsync<EventResponse>();
                     return deletedEvent != null
                         ? Result<EventResponse>.Ok(deletedEvent)
                         : Result<EventResponse>.InternalServerError("Failed to deserialize event");
                 }
 
+                // Step 4: Handle error responses based on status code
                 string errorMessage = await response.Content.ReadAsStringAsync();
                 switch (response.StatusCode)
                 {
@@ -266,14 +299,17 @@ namespace CleanUps.Shared.ClientServices
             }
             catch (HttpRequestException ex)
             {
+                // Step 5: Handle network-related exceptions
                 return Result<EventResponse>.InternalServerError($"Network error: {ex.Message}");
             }
             catch (TaskCanceledException ex)
             {
+                // Step 6: Handle request timeout exceptions
                 return Result<EventResponse>.InternalServerError($"Request timeout: {ex.Message}");
             }
             catch (Exception ex)
             {
+                // Step 7: Handle any other unexpected exceptions
                 return Result<EventResponse>.InternalServerError($"Unexpected error: {ex.Message}");
             }
         }

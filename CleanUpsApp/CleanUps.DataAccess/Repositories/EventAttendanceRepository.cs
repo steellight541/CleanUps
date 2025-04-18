@@ -35,30 +35,18 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
+                // Step 1: Query the database for all event attendances, including related data.
                 List<EventAttendance> eventAttendances = await _context.EventAttendances
-                    .Include(e => e.User)
-                    .Include(e => e.Event)
+                    .Include(eventAttendance => eventAttendance.Event)
+                    .Include(eventAttendance => eventAttendance.User)
                     .ToListAsync();
+
+                // Step 2: Return successful result with the list of event attendances.
                 return Result<List<EventAttendance>>.Ok(eventAttendances);
-            }
-            catch (ArgumentNullException ex)
-            {
-                return Result<List<EventAttendance>>.InternalServerError($"{ex.Message}");
-            }
-            catch (OperationCanceledException ex)
-            {
-                return Result<List<EventAttendance>>.InternalServerError($"{ex.Message}");
-            }
-            catch (DbUpdateException ex)
-            {
-                if (ex.InnerException != null)
-                {
-                    return Result<List<EventAttendance>>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
-                }
-                return Result<List<EventAttendance>>.InternalServerError($"{ex.Message}");
             }
             catch (Exception ex)
             {
+                // Step 3: Handle any unexpected errors.
                 if (ex.InnerException != null)
                 {
                     return Result<List<EventAttendance>>.InternalServerError($"InnerException: {ex.InnerException.Message}");
@@ -87,6 +75,14 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
+                // Step 1: Validate the userId parameter.
+                if (userId <= 0)
+                {
+                    return Result<List<Event>>.BadRequest("User ID must be a positive integer.");
+                }
+
+                // Step 2: Query the database for all events that the user is attending.
+                // Join events with event attendances based on user ID.
                 List<Event> events = await _context.Events
                     .Where(existingEvent => _context.EventAttendances
                     .Any(existinEventAttendance => existinEventAttendance.UserId == userId
@@ -95,22 +91,28 @@ namespace CleanUps.DataAccess.Repositories
                     .Include(existingEvent => existingEvent.Status)
                     .ToListAsync();
 
+                // Step 3: Check if any events were found.
                 if (events.Count == 0)
                 {
                     return Result<List<Event>>.NoContent();
                 }
+                
+                // Step 4: Return successful result with the list of events.
                 return Result<List<Event>>.Ok(events);
             }
             catch (ArgumentNullException ex)
             {
+                // Step 5: Handle argument null errors.
                 return Result<List<Event>>.InternalServerError($"{ex.Message}");
             }
             catch (OperationCanceledException ex)
             {
+                // Step 6: Handle operation cancellation errors.
                 return Result<List<Event>>.InternalServerError($"{ex.Message}");
             }
             catch (DbUpdateException ex)
             {
+                // Step 7: Handle database update errors.
                 if (ex.InnerException != null)
                 {
                     return Result<List<Event>>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
@@ -119,6 +121,7 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (Exception ex)
             {
+                // Step 8: Handle any other unexpected errors.
                 if (ex.InnerException != null)
                 {
                     return Result<List<Event>>.InternalServerError($"InnerException: {ex.InnerException.Message}");
@@ -140,51 +143,58 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
-                // First, retrieve the event to check its end time
+                // Step 1: Retrieve the event to check its end time.
                 Event? theEvent = await _context.Events
                     .FirstOrDefaultAsync(e => e.EventId == eventId);
 
+                // Step 2: If event doesn't exist, return NotFound.
                 if (theEvent == null)
                 {
                     return Result<List<User>>.NotFound($"Event with id: {eventId} does not exist");
                 }
 
-                // Check if the event is in the future or ended within the last 72 hours
+                // Step 3: Determine if the event is recent (within last 72 hours) or in the future.
                 bool isRecentOrFutureEvent = theEvent.EndTime > DateTime.UtcNow.AddHours(-72);
 
-                // Build the query to get users attending the event
+                // Step 4: Build the query to get users attending the event.
                 var query = _context.Users
                     .Where(existingUser => _context.EventAttendances.Any(
                         existingEventAttendance => existingEventAttendance.EventId == eventId &&
                         existingEventAttendance.UserId == existingUser.UserId));
 
-                // For recent or future events, exclude deleted users
+                // Step 5: Apply soft-delete filter for recent or future events.
                 if (isRecentOrFutureEvent)
                 {
                     query = query.Where(existingUser => !existingUser.isDeleted);
                 }
 
-                // Include role data and execute the query
+                // Step 6: Include role data and execute the query.
                 List<User> users = await query
                     .Include(existingUser => existingUser.Role)
                     .ToListAsync();
 
+                // Step 7: Check if any users were found.
                 if (users.Count == 0)
                 {
                     return Result<List<User>>.NoContent();
                 }
+                
+                // Step 8: Return successful result with the list of users.
                 return Result<List<User>>.Ok(users);
             }
             catch (ArgumentNullException ex)
             {
+                // Step 9: Handle specific exceptions for better error reporting.
                 return Result<List<User>>.InternalServerError($"{ex.Message}");
             }
             catch (OperationCanceledException ex)
             {
+                // Step 10: Handle operation cancellation errors.
                 return Result<List<User>>.InternalServerError($"{ex.Message}");
             }
             catch (DbUpdateException ex)
             {
+                // Step 11: Handle database update errors.
                 if (ex.InnerException != null)
                 {
                     return Result<List<User>>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
@@ -193,6 +203,7 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (Exception ex)
             {
+                // Step 12: Handle any other unexpected errors.
                 if (ex.InnerException != null)
                 {
                     return Result<List<User>>.InternalServerError($"InnerException: {ex.InnerException.Message}");
@@ -210,25 +221,35 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
+                // Step 1: Verify that the specified event exists.
                 if (!await _context.Events.AnyAsync(e => e.EventId == eventAttendanceToBeCreated.EventId))
                 {
                     return Result<EventAttendance>.NotFound("Event with the specified ID does not exist.");
                 }
+                
+                // Step 2: Verify that the specified user exists.
                 if (!await _context.Users.AnyAsync(u => u.UserId == eventAttendanceToBeCreated.UserId))
                 {
                     return Result<EventAttendance>.NotFound("User with the specified ID does not exist.");
                 }
 
+                // Step 3: Add the new event attendance to the database context.
                 await _context.EventAttendances.AddAsync(eventAttendanceToBeCreated);
+                
+                // Step 4: Save changes to persist the new attendance record in the database.
                 await _context.SaveChangesAsync();
+                
+                // Step 5: Return successful result with the created event attendance.
                 return Result<EventAttendance>.Created(eventAttendanceToBeCreated);
             }
             catch (OperationCanceledException ex)
             {
+                // Step 6: Handle operation cancellation errors.
                 return Result<EventAttendance>.InternalServerError($"{ex.Message}");
             }
             catch (DbUpdateException ex)
             {
+                // Step 7: Handle database update errors with detailed constraint violation checks.
                 if (ex.InnerException != null)
                 {
                     // Check for primary key constraint violation
@@ -254,6 +275,7 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (Exception ex)
             {
+                // Step 8: Handle any other unexpected errors.
                 if (ex.InnerException != null)
                 {
                     return Result<EventAttendance>.InternalServerError($"InnerException: {ex.InnerException.Message}");
@@ -272,30 +294,42 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
+                // Step 1: Query the database to verify the event attendance record exists.
                 EventAttendance? existingEventAttendance = await _context.EventAttendances
                     .Include(e => e.User)
                     .Include(e => e.Event)
                     .FirstOrDefaultAsync(ev => ev.EventId == eventAttendanceToBeUpdated.EventId && ev.UserId == eventAttendanceToBeUpdated.UserId);
 
+                // Step 2: If record doesn't exist, return NotFound.
                 if (existingEventAttendance == null)
                 {
                     return Result<EventAttendance>.NotFound($"EventAttendance for event with Id-{eventAttendanceToBeUpdated.EventId} and user with Id-{eventAttendanceToBeUpdated.UserId} does not exist");
                 }
 
+                // Step 3: Update the CheckIn property on the existing entity.
                 existingEventAttendance.CheckIn = eventAttendanceToBeUpdated.CheckIn; // Assuming only CheckIn is updatable
 
+                // Step 4: Update the event attendance entity in the database context.
                 _context.Entry(existingEventAttendance).State = EntityState.Detached;
                 _context.EventAttendances.Attach(eventAttendanceToBeUpdated);
+                
+                // Step 5: Mark only the CheckIn property as modified to enable partial update.
                 _context.Entry(eventAttendanceToBeUpdated).Property(p => p.CheckIn).IsModified = true;
+                
+                // Step 6: Save changes to persist the updated attendance record in the database.
                 await _context.SaveChangesAsync();
+                
+                // Step 7: Return successful result with the updated event attendance.
                 return Result<EventAttendance>.Ok(eventAttendanceToBeUpdated);
             }
             catch (OperationCanceledException ex)
             {
+                // Step 8: Handle operation cancellation errors.
                 return Result<EventAttendance>.InternalServerError($"{ex.Message}");
             }
             catch (DbUpdateConcurrencyException ex)
             {
+                // Step 9: Handle concurrency conflicts.
                 if (ex.InnerException != null)
                 {
                     return Result<EventAttendance>.Conflict($"DB InnerException: {ex.InnerException.Message}");
@@ -304,6 +338,7 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (DbUpdateException ex)
             {
+                // Step 10: Handle database update errors with detailed constraint violation checks.
                 if (ex.InnerException != null)
                 {
                     // Check for foreign key constraint violations
@@ -324,6 +359,7 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (Exception ex)
             {
+                // Step 11: Handle any other unexpected errors.
                 if (ex.InnerException != null)
                 {
                     return Result<EventAttendance>.InternalServerError($"InnerException: {ex.InnerException.Message}");
@@ -341,26 +377,35 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
-
+                // Step 1: Query the database to verify the event attendance record exists.
                 EventAttendance? existingEventAttendance = await _context.EventAttendances
                     .Include(e => e.User)
                     .Include(e => e.Event)
                     .FirstOrDefaultAsync(ev => ev.EventId == deleteRequest.EventId && ev.UserId == deleteRequest.UserId);
+                
+                // Step 2: If record doesn't exist, return NotFound.
                 if (existingEventAttendance == null)
                 {
                     return Result<EventAttendance>.NotFound($"EventAttendance for event with Id-{deleteRequest.EventId} and user with Id-{deleteRequest.UserId} does not exist");
                 }
 
+                // Step 3: Remove the event attendance entity from the database context.
                 _context.EventAttendances.Remove(existingEventAttendance);
+                
+                // Step 4: Save changes to persist the deletion in the database.
                 await _context.SaveChangesAsync();
+                
+                // Step 5: Return successful result with the deleted event attendance.
                 return Result<EventAttendance>.Ok(existingEventAttendance);
             }
             catch (OperationCanceledException ex)
             {
+                // Step 6: Handle operation cancellation errors.
                 return Result<EventAttendance>.InternalServerError($"{ex.Message}");
             }
             catch (DbUpdateConcurrencyException ex)
             {
+                // Step 7: Handle concurrency conflicts.
                 if (ex.InnerException != null)
                 {
                     return Result<EventAttendance>.Conflict($"DB InnerException: {ex.InnerException.Message}");
@@ -369,6 +414,7 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (DbUpdateException ex)
             {
+                // Step 8: Handle database update errors with detailed constraint violation checks.
                 if (ex.InnerException != null)
                 {
                     // Check for foreign key constraint violations
@@ -389,6 +435,7 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (Exception ex)
             {
+                // Step 9: Handle any other unexpected errors.
                 if (ex.InnerException != null)
                 {
                     return Result<EventAttendance>.InternalServerError($"InnerException: {ex.InnerException.Message}");

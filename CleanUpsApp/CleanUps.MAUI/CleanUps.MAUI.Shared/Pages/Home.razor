@@ -13,6 +13,7 @@
 Welcome to your new app running on <em>@factor</em> using <em>@platform</em>.
 
 @code {
+    // Properties to display platform and form factor information
     private string factor => FormFactor.GetFormFactor();
     private string platform => FormFactor.GetPlatform();
     private bool isLoggedIn = false;
@@ -21,13 +22,17 @@ Welcome to your new app running on <em>@factor</em> using <em>@platform</em>.
     {
         try 
         {
-            // Check if user is logged in, if not redirect to events page
+            // Step 1: Check if the user is currently logged in
             isLoggedIn = await _accessService.IsUserLoggedInAsync();
+            
+            // Step 2: Redirect to appropriate page based on authentication status
+            // If logged in, user stays on home page, otherwise redirected to events page
             RoleBasedRedirector.RedirectPublicToEvents(isLoggedIn, _navigationManager);
         }
         catch
         {
-            // In case of error, assume not logged in and redirect
+            // Step 3: Handle any exceptions during authentication check
+            // In case of error, assume user is not logged in and redirect to events page
             _navigationManager.NavigateTo("/events");
         }
     }

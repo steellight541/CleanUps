@@ -1,4 +1,5 @@
 ﻿using CleanUps.Shared.DTOs.Users;
+using CleanUps.Shared.DTOs.Auth;
 using CleanUps.Shared.ErrorHandling;
 
 namespace CleanUps.Shared.ClientServices.Interfaces

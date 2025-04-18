@@ -56,29 +56,38 @@
     private bool isLoggedIn = false;
     private bool isOrganizer = false;
 
+    /// <summary>
+    /// Initializes the component and checks user permissions.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     protected override async Task OnInitializedAsync()
     {
-        // Check if user is an organizer
+        // Step 1: Check if user is an organizer
         try
         {
-            // Check if user is logged in
+            // Step 2: Check if user is logged in
             isLoggedIn = await _accessService.IsUserLoggedInAsync();
 
-            // Check if user is an organizer
+            // Step 3: Check if user is an organizer
             isOrganizer = await _accessService.IsOrganizerAsync();
 
-            //Allow only organizer to view the page - redirect elsewhere otherwise
+            // Step 4: Allow only organizer to view the page - redirect elsewhere otherwise
             RoleBasedRedirector.CheckOrganizerAccess(isLoggedIn, isOrganizer, _navigationManager);
         }
         catch
         {
-            // In case of errors, redirect to login
+            // Step 5: In case of errors, redirect to login
             _navigationManager.NavigateTo("/auth/login");
         }
     }
 
+    /// <summary>
+    /// Handles the form submission to create a new event.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     private async Task HandleSubmit()
     {
+        // Step 1: Create a new event request from the form data
         CreateEventRequest newEvent = new CreateEventRequest(
             eventCreateModel.Title,
             eventCreateModel.Description,
@@ -86,47 +95,89 @@
             eventCreateModel.EndTime,
             eventCreateModel.FamilyFriendly,
             new CreateLocationRequest(eventCreateModel.Longitude, eventCreateModel.Latitude)
-    );
+        );
 
+        // Step 2: Call the API service to create the event
         var createResult = await _eventApiService.CreateAsync(newEvent);
+        
+        // Step 3: Check if the operation was successful
         if (createResult.IsSuccess)
         {
+            // Step 4: If successful, navigate to the events list page
             _navigationManager.NavigateTo("/events");
         }
         else
         {
-            //If creating was not successful, set the errorMessage from the createResult. If the createResult is empty then set the errorMessage to be the written below
+            // Step 5: If not successful, set the error message from the result
             errorMessage = createResult.ErrorMessage ?? "An error occurred while creating the event.";
         }
     }
 
+    /// <summary>
+    /// Handles cancellation of event creation by navigating back to the events list.
+    /// </summary>
     private void Cancel()
     {
+        // Step 1: Navigate back to the events list page
         _navigationManager.NavigateTo("/events");
     }
 
+    /// <summary>
+    /// Model class for creating new events with validation attributes.
+    /// This class defines the data structure and validation rules for the event creation form.
+    /// </summary>
     private class EventCreateModel
     {
+        /// <summary>
+        /// Gets or sets the title of the event.
+        /// </summary>
+        /// <value>A string that cannot be empty.</value>
         [Required(ErrorMessage = "Title is required.")]
         public string Title { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Gets or sets the detailed description of the event.
+        /// </summary>
+        /// <value>A string that cannot be empty.</value>
         [Required(ErrorMessage = "Description is required.")]
         public string Description { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Gets or sets the starting date and time of the event.
+        /// Defaults to the current date and time.
+        /// </summary>
+        /// <value>A DateTime representing when the event begins.</value>
         [Required(ErrorMessage = "Start time is required.")]
         public DateTime StartTime { get; set; } = DateTime.Now; // Default now
 
+        /// <summary>
+        /// Gets or sets the ending date and time of the event.
+        /// Defaults to 2 hours after the current date and time.
+        /// </summary>
+        /// <value>A DateTime representing when the event ends.</value>
         [Required(ErrorMessage = "End time is required.")]
         public DateTime EndTime { get; set; } = DateTime.Now.AddHours(2); // Default in 2 hours
 
+        /// <summary>
+        /// Gets or sets whether the event is suitable for families with children.
+        /// </summary>
+        /// <value>A boolean indicating if the event is family-friendly.</value>
         public bool FamilyFriendly { get; set; } // Default is false
 
-        // Default set to 50 temporarily - needs proper input later (address etc)
+        /// <summary>
+        /// Gets or sets the longitude coordinate for the event location.
+        /// Temporarily defaulted to 50 until proper address input is implemented.
+        /// </summary>
+        /// <value>A decimal between -180 and 180 representing the longitude coordinate.</value>
         [Required(ErrorMessage = "Longitude is required.")]
         [Range(-180.0, 180.0, ErrorMessage = "Longitude must be between -180 and 180.")]
         public decimal Longitude { get; set; } = 50;
 
-        // Default set to 50 temporarily - needs proper input later (address etc)
+        /// <summary>
+        /// Gets or sets the latitude coordinate for the event location.
+        /// Temporarily defaulted to 50 until proper address input is implemented.
+        /// </summary>
+        /// <value>A decimal between -90 and 90 representing the latitude coordinate.</value>
         [Required(ErrorMessage = "Latitude is required.")]
         [Range(-90.0, 90.0, ErrorMessage = "Latitude must be between -90 and 90.")]
         public decimal Latitude { get; set; } = 50;
