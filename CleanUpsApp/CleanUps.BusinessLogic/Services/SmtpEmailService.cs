@@ -90,7 +90,7 @@ namespace CleanUps.BusinessLogic.Services
         "  <style>" +
         "    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333333; text-align: center; max-width: 600px; margin: 0 auto; padding: 20px; }" +
         "    h1 { color: #2E8B57; font-size: 1.4rem; margin-bottom: 20px; }" +
-        "    .token-container { background-color: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 4px; padding: 15px; margin: 15px auto; font-family: monospace; font-size: 16px; text-align: center; max-width: 80%; }" +
+        "    .token-container { background-color: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 4px; padding: 15px; margin: 15px auto; font-family: monospace; font-size: 24px; font-weight: bold; text-align: center; max-width: 80%; }" +
         "  </style>" +
         "</head>" +
         "<body>" +
@@ -105,7 +105,7 @@ namespace CleanUps.BusinessLogic.Services
         $"    <div class=\"token-container\">{resetToken}</div>" +
         // another left‑aligned block for warnings & extra copy
         "    <div style=\"text-align:left;margin:0 auto;max-width:90%;\">" +
-        "      <p style=\"margin:15px 0;font-size:0.8rem;\"><span style=\"font-weight:bold;color:#d32f2f;\">This token will expire in 30 minutes.</span></p>" +
+        "      <p style=\"margin:15px 0;font-size:0.8rem;\"><span style=\"font-weight:bold;color:#d32f2f;\">This token will expire in 15 minutes.</span></p>" +
         "      <p style=\"margin:15px 0;font-size:0.8rem;\">If you did not request this, please ignore this email.</p>" +
         "    </div>" +
         // footer also left‑aligned

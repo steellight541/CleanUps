@@ -58,36 +58,39 @@ namespace CleanUps.BusinessLogic.Services
         /// </returns>
         public async Task<Result<LoginResponse>> LoginAsync(LoginRequest loginRequest)
         {
-            // Use validator
+            // Step 1: Validate the login request DTO.
             var validationResult = _validator.ValidateForLogin(loginRequest);
             if (!validationResult.IsSuccess)
             {
+                // Step 2: Return BadRequest if validation fails.
                 return Result<LoginResponse>.BadRequest(validationResult.ErrorMessage ?? "Invalid login request.");
             }
 
-            // Get the user by email
+            // Step 3: Retrieve the user by email from the repository.
             var userResult = await _userRepository.GetByEmailAsync(loginRequest.Email);
             if (!userResult.IsSuccess)
             {
-                // Use a generic message for security
+                // Step 4: Return Unauthorized using a generic message if user not found (security).
                 return Result<LoginResponse>.Unauthorized("Invalid email or password");
             }
             User user = userResult.Data;
 
-            // Verify the password
+            // Step 5: Verify the provided password against the user's stored hash.
             if (!PasswordHelper.VerifyPassword(loginRequest.Password, user.PasswordHash))
             {
+                // Step 6: Return Unauthorized using a generic message if password doesn't match (security).
                 return Result<LoginResponse>.Unauthorized("Invalid email or password");
             }
 
-            // Create and return the login response
+            // Step 7: Create the LoginResponse DTO upon successful authentication.
             LoginResponse loginResponse = new LoginResponse(
                 user.UserId,
                 user.Name,
                 user.Email,
-                user.Role is not null ? (RoleDTO)user.Role.Id : RoleDTO.Volunteer
+                user.Role is not null ? (RoleDTO)user.Role.Id : RoleDTO.Volunteer // Map Role or default
             );
 
+            // Step 8: Return successful result with login response data.
             return Result<LoginResponse>.Ok(loginResponse);
         }
 
@@ -103,55 +106,57 @@ namespace CleanUps.BusinessLogic.Services
         /// </returns>
         public async Task<Result<bool>> RequestPasswordResetAsync(RequestPasswordResetRequest request)
         {
-            // Use validator
+            // Step 1: Validate the password reset request DTO.
             var validationResult = _validator.ValidateForPasswordResetRequest(request);
             if (!validationResult.IsSuccess)
             {
+                // Step 2: Return failure if validation fails.
                 return validationResult;
             }
 
-            // Find the user by email
+            // Step 3: Find the user by email.
             var userResult = await _userRepository.GetByEmailAsync(request.Email);
             if (!userResult.IsSuccess)
             {
-                // Don't reveal if the email exists or not for security, return success anyway
+                // Step 4: If user not found, log info and return success to prevent email enumeration.
                 _logger.LogInformation("Password reset requested for non-existent or invalid email: {Email}", request.Email);
-                return Result<bool>.Ok(true); // Pretend success
+                return Result<bool>.Ok(true); // Pretend success for security
             }
             User user = userResult.Data;
 
-            // Generate a secure token
+            // Step 5: Generate a secure password reset token.
             string tokenString = GenerateSecureToken();
 
-            // Create the token record
+            // Step 6: Create a PasswordResetToken record with user ID, token, and expiration.
             PasswordResetToken tokenRecord = new PasswordResetToken
             {
                 UserId = user.UserId,
                 Token = tokenString,
-                ExpirationDate = DateTime.UtcNow.AddMinutes(30), // 30-minute expiry
+                ExpirationDate = DateTime.UtcNow.AddMinutes(15), // Set token expiry (15 minutes)
                 IsUsed = false
             };
 
-            // Save the token to the database
+            // Step 7: Save the generated token to the database.
             var createTokenResult = await _tokenRepository.CreateAsync(tokenRecord);
             if (!createTokenResult.IsSuccess)
             {
+                // Step 8: Log error if token saving fails, but still return success to the user.
                 _logger.LogError("Failed to save password reset token for user {UserId}: {Error}", user.UserId, createTokenResult.ErrorMessage);
-                // Still return success to the caller, don't reveal backend issues
-                return Result<bool>.Ok(true);
+                return Result<bool>.Ok(true); // Pretend success for security
             }
 
-            // ** Use Email Service **
+            // Step 9: Attempt to send the password reset email containing the token.
             try
             {
                 await _emailService.SendPasswordResetEmailAsync(user.Email, user.Name, tokenString);
             }
             catch (Exception ex)
             {
-                // Log email sending failure but don't block the user-facing success response
+                // Step 10: Log error if email sending fails, but don't block the success response.
                 _logger.LogError(ex, "Failed to send password reset email to {Email} for user {UserId}", user.Email, user.UserId);
             }
 
+            // Step 11: Return success to the caller (hiding potential backend issues).
             return Result<bool>.Ok(true);
         }
 
@@ -166,19 +171,20 @@ namespace CleanUps.BusinessLogic.Services
         /// </returns>
         public async Task<Result<bool>> ValidateResetTokenAsync(ValidateTokenRequest request)
         {
-            // Use validator
+            // Step 1: Validate the token validation request DTO.
             var validationResult = _validator.ValidateForTokenValidation(request);
             if (!validationResult.IsSuccess)
             {
+                // Step 2: Return failure if validation fails.
                 return validationResult;
             }
 
-            // Use the repository method which includes validation checks
+            // Step 3: Attempt to retrieve the token using the repository (which performs checks).
             var tokenResult = await _tokenRepository.GetByTokenAsync(request.Token);
 
             if (!tokenResult.IsSuccess)
             {
-                // Convert repository errors to appropriate failure types
+                // Step 4: If token retrieval/validation fails, map repository error to specific failure result.
                 switch(tokenResult.StatusCode)
                 {
                     case 400: return Result<bool>.BadRequest(tokenResult.ErrorMessage ?? "Invalid token format.");
@@ -188,7 +194,7 @@ namespace CleanUps.BusinessLogic.Services
                 }
             }
 
-            // Token is valid, exists, not used, and not expired
+            // Step 5: If tokenResult is successful, the token is valid.
             return Result<bool>.Ok(true);
         }
 
@@ -204,18 +210,19 @@ namespace CleanUps.BusinessLogic.Services
         /// </returns>
         public async Task<Result<bool>> ResetPasswordAsync(ResetPasswordRequest request)
         {
-            // Step 1: Validate Input requestDTO
+            // Step 1: Validate the password reset DTO (token, new password, confirmation).
             var validationResult = _validator.ValidateForPasswordReset(request);
             if (!validationResult.IsSuccess)
             {
+                // Step 2: Return failure if validation fails.
                 return validationResult;
             }
 
-            // Step 2: Validate the Token (If it exists, if it is not used, and if it is not expired)
+            // Step 3: Re-validate the token exists, is not used, and not expired via the repository.
             var tokenResult = await _tokenRepository.GetByTokenAsync(request.Token);
              if (!tokenResult.IsSuccess)
             {
-                 // Map repository errors
+                 // Step 4: Map repository errors to specific failure results if token is invalid.
                 switch(tokenResult.StatusCode)
                 {
                     case 400: return Result<bool>.BadRequest(tokenResult.ErrorMessage ?? "Invalid token format.");
@@ -226,69 +233,108 @@ namespace CleanUps.BusinessLogic.Services
             }
             PasswordResetToken validToken = tokenResult.Data;
 
-            // Step 3: Get the associated User ID from the validated token
+            // Step 5: Extract the User ID from the validated token.
             int userId = validToken.UserId;
 
-            // Step 4: Hash the New Password
+            // Step 6: Hash the user's new password securely.
             string newPasswordHash = PasswordHelper.HashPassword(request.NewPassword);
 
-            // Step 5: Update User's Password in Repository
+            // Step 7: Update the user's password hash in the user repository.
             var updatePasswordResult = await _userRepository.UpdatePasswordAsync(userId, newPasswordHash);
             if (!updatePasswordResult.IsSuccess)
             {
+                // Step 8: Log error and return InternalServerError if password update fails.
                 _logger.LogError("Failed to update password for user {UserId} during reset: {Error}", userId, updatePasswordResult.ErrorMessage);
                 return Result<bool>.InternalServerError("Failed to update password.");
             }
 
-            // Step 6: Mark the Token as Used
+            // Step 9: Mark the password reset token as used in the token repository.
             var markUsedResult = await _tokenRepository.MarkAsUsedAsync(validToken);
             if (!markUsedResult.IsSuccess)
             {
-                // Log this failure, but proceed as password was reset successfully
+                // Step 10: Log error if marking token as used fails (but continue, password was reset).
                  _logger.LogError("Failed to mark reset token {TokenId} as used for user {UserId}: {Error}", validToken.Id, userId, markUsedResult.ErrorMessage);
             }
 
-            // Step 7: Send Confirmation Email
+            // Step 11: Attempt to retrieve user details to send a confirmation email.
             var userResult = await _userRepository.GetByIdAsync(userId);
             if (userResult.IsSuccess)
             {
+                // Step 12: Send password reset confirmation email.
                 try
                 {
                     await _emailService.SendPasswordResetConfirmationEmailAsync(userResult.Data.Email, userResult.Data.Name);
                 }
                 catch (Exception ex)
                 {
-                    // Log email sending failure but don't let it fail the overall operation
+                    // Step 13: Log error if confirmation email fails, but don't fail the operation.
                     _logger.LogError(ex, "Failed to send password reset confirmation email to {Email} for user {UserId}", userResult.Data.Email, userId);
                 }
             }
             else
             {
+                 // Step 14: Log warning if user details couldn't be retrieved for confirmation email.
                  _logger.LogWarning("Could not retrieve user details for user {UserId} to send confirmation email.", userId);
             }
 
-            // Step 8: Return Success
+            // Step 15: Return success indicating password reset was successful.
             return Result<bool>.Ok(true);
         }
 
         /// <summary>
-        /// Generates a cryptographically secure, URL-safe token string.
+        /// Generates a cryptographically secure random alphanumeric token string.
         /// Uses <see cref="RandomNumberGenerator"/> for security.
         /// </summary>
-        /// <param name="length">The desired length of the raw byte array before Base64 encoding (default is 32, resulting in approx. 44 character string).</param>
-        /// <returns>A URL-safe Base64 encoded string token.</returns>
+        /// <param name="length">The desired length of the token string (default is 8 characters).</param>
+        /// <returns>An alphanumeric random token string (A-Z, a-z, 0-9).</returns>
         private string GenerateSecureToken(int length = 8)
         {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            char[] token = new char[length];
-            using var rng = RandomNumberGenerator.Create();
-            byte[] buffer = new byte[length];
-            rng.GetBytes(buffer);
+            // Step 1: Define the pool of allowed characters for the token.
+            const string allowedTokenCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            
+            // Step 2: Create a character array to build the resulting token.
+            char[] tokenCharacters = new char[length];
+            
+            // Step 3: Create a byte array to hold the generated random bytes.
+            byte[] randomBytes = new byte[length];
+            
+            // Step 4: Use a cryptographic random number generator for security.
+            using (RandomNumberGenerator randomNumberGenerator = RandomNumberGenerator.Create())
+            {
+                // Step 5: Fill the byte array with random bytes.
+                randomNumberGenerator.GetBytes(randomBytes);
+            }
+            
+            // Step 6: Convert each random byte into a character from the allowed set.
             for (int i = 0; i < length; i++)
             {
-                token[i] = chars[buffer[i] % chars.Length];
+                /*Detailed Explanation for this line:
+                1.randomBytes[i]: Get the random byte generated for this spot in the token.
+                   Think of this byte as a random number between 0 and 255.
+
+
+                2.allowedTokenCharacters.Length: Count how many different characters we're
+                   allowed to use(e.g., 62 if we use A-Z, a - z, 0 - 9).
+                
+                3.Pick a valid position: We need to use the random number(0 - 255)
+                    to fairly choose one of the allowed characters(e.g., one of the 62).
+                    The `%` symbol here is a programming trick that takes the random number
+                    and effectively "wraps it around" the count of allowed characters.
+                    This guarantees we get a position number that's definitely within the
+                    range of our allowed characters(e.g., a number from 0 to 61).
+
+
+                4.allowedTokenCharacters[position_number]: Use the position number
+                    we just calculated to look up the character at that spot in our
+                    allowedTokenCharacters string.
+
+                5.tokenCharacters[i] = ... : Put the chosen character into the
+                    current spot `i` of the token we are building.*/
+                tokenCharacters[i] = allowedTokenCharacters[randomBytes[i] % allowedTokenCharacters.Length];
             }
-            return new string(token);
+            
+            // Step 7: Convert the character array to a string and return it.
+            return new string(tokenCharacters);
         }
     }
 }
