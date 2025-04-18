@@ -110,7 +110,7 @@ namespace CleanUps.BusinessLogic.Services
         "    </div>" +
         // footer also left‑aligned
         "    <div style=\"text-align:left;margin-top:30px;border-top:1px solid #e0e0e0;padding-top:15px;font-size:14px;color:#666;\">" +
-        "      <p>Thanks,<br/>The CleanUps Team</p>" +
+        "      <p class=\"text-align:center\">Thanks,<br/>The CleanUps Team</p>" +
         "    </div>" +
         "  </div>" +
         "</body>" +

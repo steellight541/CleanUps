@@ -141,8 +141,8 @@ public partial class CleanUpsContext : DbContext
             // Set composite primary key using both foreign keys
             entity.HasKey(e => new { e.EventId, e.UserId });
 
-            // Configure CheckIn as datetime type
-            entity.Property(e => e.CheckIn).HasColumnType("datetime");
+            // Configure CheckIn as datetime2 type
+            entity.Property(e => e.CheckIn).HasColumnType("datetime2");
 
             // Configure CreatedDate with default value of current UTC time
             entity.Property(e => e.CreatedDate)
@@ -184,10 +184,10 @@ public partial class CleanUpsContext : DbContext
             // Set unique constraint on Email
             entity.HasIndex(e => e.Email, "UQ_Email").IsUnique();
 
-            // Configure CreatedDate with default value of current UTC time
+            // Configure CreatedDate with default value and correct type
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getutcdate())")
-                .HasColumnType("datetime");
+                .HasColumnType("datetime2"); // Updated type back to datetime2
 
             // Configure isDeleted with default value of false (soft delete)
             entity.Property(e => e.isDeleted)
@@ -196,7 +196,8 @@ public partial class CleanUpsContext : DbContext
             // Set maximum lengths for string properties
             entity.Property(e => e.Email).HasMaxLength(255);
             entity.Property(e => e.Name).HasMaxLength(100);
-            entity.Property(e => e.PasswordHash).HasMaxLength(50);
+            // PasswordHash is NVARCHAR(MAX) in SQL, so no MaxLength needed here for EF Core
+            // entity.Property(e => e.PasswordHash).HasMaxLength(50); // Removed MaxLength
 
             // Configure one-to-many relationship between Role and User
             entity.HasOne(e => e.Role)
@@ -230,8 +231,9 @@ public partial class CleanUpsContext : DbContext
             // Set primary key
             entity.HasKey(e => e.Id);
 
-            // Set unique constraint on Token
+            // Set unique constraint on Token and updated MaxLength
             entity.HasIndex(e => e.Token, "UQ_PasswordResetToken_Token").IsUnique();
+            entity.Property(e => e.Token).HasMaxLength(450); // Updated MaxLength
 
             // Configure CreatedDate with default value of current UTC time
             entity.Property(e => e.CreatedDate)
