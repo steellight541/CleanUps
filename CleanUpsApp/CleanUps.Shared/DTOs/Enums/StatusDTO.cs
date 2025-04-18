@@ -19,11 +19,11 @@
         /// <summary>
         /// The event has finished successfully.
         /// </summary>
-        Completed = 4,
+        Completed = 3,
 
         /// <summary>
         /// The event has been cancelled and will not take place.
         /// </summary>
-        Canceled = 5
+        Canceled = 4
     }
 }
