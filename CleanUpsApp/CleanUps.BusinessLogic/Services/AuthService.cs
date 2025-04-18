@@ -277,16 +277,18 @@ namespace CleanUps.BusinessLogic.Services
         /// </summary>
         /// <param name="length">The desired length of the raw byte array before Base64 encoding (default is 32, resulting in approx. 44 character string).</param>
         /// <returns>A URL-safe Base64 encoded string token.</returns>
-        private string GenerateSecureToken(int length = 32)
+        private string GenerateSecureToken(int length = 8)
         {
-            // Using URL-safe base64 encoding
-            using (var rng = RandomNumberGenerator.Create())
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            char[] token = new char[length];
+            using var rng = RandomNumberGenerator.Create();
+            byte[] buffer = new byte[length];
+            rng.GetBytes(buffer);
+            for (int i = 0; i < length; i++)
             {
-                byte[] tokenBytes = new byte[length];
-                rng.GetBytes(tokenBytes);
-                // Replace URL-unsafe characters and remove padding
-                return Convert.ToBase64String(tokenBytes).Replace('+', '-').Replace('/', '_').TrimEnd('=');
+                token[i] = chars[buffer[i] % chars.Length];
             }
+            return new string(token);
         }
     }
 }
