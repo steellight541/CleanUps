@@ -1,0 +1,21 @@
+﻿@page "/events/map"
+
+@inject NavigationManager _navigationManager
+
+<div class="card shadow p-4">
+    <h3>Event Map</h3>
+
+    <div class="mb-2">
+        <p>Not yet implemented</p>
+    </div>
+
+    <div class="mb-2">
+        <button class="btn btn-secondary btn-sm" @onclick="HomePage">Home Page</button>
+    </div>
+</div>
+@code {
+    private void HomePage()
+    {
+        _navigationManager.NavigateTo("/");
+    }
+}

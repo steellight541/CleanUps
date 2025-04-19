@@ -1,0 +1,130 @@
+﻿@page "/users/{UserId:int}/profile"
+
+@inject NavigationManager _navigationManager
+@inject IUserApiService _userApiService
+@inject IAccessService _accessService
+
+@using CleanUps.Shared.DTOs.Users
+
+<div class="card shadow position-relative">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h3 class="mb-0">User Details</h3>
+        @if (isOrganizer && userDetail != null)
+        {
+             <button class="btn btn-sm btn-primary" @onclick="EditUser" title="Edit User">
+                 <i class="bi bi-pencil-square"></i> Edit
+             </button>
+        }
+    </div>
+
+    <div class="card-body p-4">
+        @if (isLoading)
+        {
+            <p><em>Loading user details...</em></p>
+        }
+        else if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger">@errorMessage</div>
+        }
+        else if (userDetail != null)
+        {
+            <div class="mb-3">
+                <strong>ID:</strong> @userDetail.UserId
+            </div>
+            <div class="mb-3">
+                <strong>Name:</strong> @userDetail.Name
+            </div>
+            <div class="mb-3">
+                <strong>Email:</strong> @userDetail.Email
+            </div>
+            <div class="mb-3">
+                <strong>Created Date:</strong> @userDetail.CreatedDate.ToShortDateString()
+            </div>
+        }
+        else
+        {
+            <p><em>User not found.</em></p>
+        }
+    </div>
+
+    <div class="card-footer py-3 d-flex gap-2">
+        <button class="btn btn-dark" @onclick="GoBack">Back to List</button>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public int UserId { get; set; }
+
+    private UserResponse? userDetail;
+    private string? errorMessage;
+    private bool isLoading = true;
+    private bool isLoggedIn = false;
+    private bool isOrganizer = false;
+
+    /// <summary>
+    /// Initializes the component, checks user permissions, and loads the user details.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    protected override async Task OnInitializedAsync()
+    {
+        // Step 1: Set loading state
+        isLoading = true;
+        try
+        {
+            // Step 2: Check access rights
+            isLoggedIn = await _accessService.IsUserLoggedInAsync();
+            isOrganizer = await _accessService.IsOrganizerAsync();
+
+            // Step 3: Allow only organizer to view the page - redirect elsewhere otherwise
+            RoleBasedRedirector.CheckOrganizerAccess(isLoggedIn, isOrganizer, _navigationManager);
+
+            // Step 4: Call API to get user details
+            var result = await _userApiService.GetByIdAsync(UserId);
+            
+            // Step 5: Process the result
+            if (result.IsSuccess && result.Data != null)
+            {
+                // Step 6a: If successful, set user details
+                userDetail = result.Data;
+            }
+            else
+            {
+                // Step 6b: If failed, set error message
+                errorMessage = result.ErrorMessage ?? "Failed to load user details.";
+            }
+        }
+        catch (Exception ex)
+        {
+            // Step 7: Handle potential exceptions during API call or access checks
+            errorMessage = $"An error occurred: {ex.Message}";
+            
+            // Step 8: Optionally redirect on critical errors
+            _navigationManager.NavigateTo("/auth/login");
+        }
+        finally
+        {
+            // Step 9: Clear loading state
+            isLoading = false;
+        }
+    }
+
+    /// <summary>
+    /// Navigates back to the users list page.
+    /// </summary>
+    private void GoBack()
+    {
+        // Step 1: Navigate back to the users list
+        _navigationManager.NavigateTo("/users");
+    }
+
+    /// <summary>
+    /// Navigates to the user edit page.
+    /// </summary>
+    private void EditUser()
+    {
+        // Step 1: Navigate to the edit page for this user
+        _navigationManager.NavigateTo($"/users/{UserId}/edit");
+    }
+}

@@ -1,0 +1,28 @@
+﻿@page "/events/{eventId:int}/stats"
+
+@inject NavigationManager _navigationManager
+
+<div class="card shadow p-4">
+    <h3>My CleanUp Stats</h3>
+
+    <div class="mb-2">
+        <p>Not yet implemented</p>
+    </div>
+
+    <div class="mb-2">
+        <button class="btn btn-secondary btn-sm" @onclick="HomePage">Home Page</button>
+    </div>
+</div>
+@code {
+    [Parameter]
+    public int eventId { get; set; }
+    
+    /// <summary>
+    /// Navigates to the home page.
+    /// </summary>
+    private void HomePage()
+    {
+        // Navigate back to the home page
+        _navigationManager.NavigateTo("/");
+    }
+}

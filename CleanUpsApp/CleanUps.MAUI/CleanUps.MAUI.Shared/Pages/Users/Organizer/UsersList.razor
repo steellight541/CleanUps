@@ -1,0 +1,273 @@
+﻿@page "/users"
+
+@inject NavigationManager _navigationManager
+@inject IUserApiService _userApiService
+@inject IAccessService _accessService
+
+<div class="card shadow p-4">
+    <h3>Users</h3>
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <button class="btn btn-success" @onclick="CreateNewUser">Create New User</button>
+        </div>
+    </div>
+
+    @if (loadedUsers == null)
+    {
+        <p>Loading users...</p>
+    }
+    else
+    {
+        <!-- Table layout for larger screens -->
+        <div class="d-none d-md-block mb-2">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Created Date</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (UserResponse loadedUser in loadedUsers)
+                    {
+                        <tr>
+                            <td>@loadedUser.UserId</td>
+                            <td>@loadedUser.Name</td>
+                            <td>@loadedUser.Email</td>
+                            <td>@loadedUser.CreatedDate</td>
+                            <td>@loadedUser.Role.ToString()</td>
+                            <td>
+                                <div class="btn-group" role="group" aria-label="Basic example">
+                                    <button class="btn btn-primary btn-sm" @onclick="() => ViewUser(loadedUser.UserId)">View</button>
+                                    @if (isOrganizer)
+                                    {
+                                        <button class="btn btn-secondary btn-sm" @onclick="() => EditUser(loadedUser.UserId)">Edit</button>
+                                        <button class="btn btn-danger btn-sm" @onclick="() => DeleteUser(loadedUser.UserId)">Delete</button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (isLoadingUsers)
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                Loading more users...
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- List-group for small screens -->
+        <div class="d-block d-md-none mb-2">
+            <div class="list-group">
+                @foreach (UserResponse loadedUser in loadedUsers)
+                {
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+
+                            <h5>@loadedUser.Name</h5>
+                            @if (isOrganizer)
+                            {
+                                <div class="dropdown">
+                                    <button class="btn btn-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuButton-@loadedUser.UserId" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Actions
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-@loadedUser.UserId">
+
+                                        <li>
+                                            <button class="dropdown-item text-secondary" @onclick="() => EditUser(loadedUser.UserId)">
+                                                <i class="bi bi-pencil-fill me-2"></i>Edit
+                                            </button>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <button class="dropdown-item text-danger" @onclick="() => DeleteUser(loadedUser.UserId)">
+                                                <i class="bi bi-trash-fill me-2"></i>Delete
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            }
+                        </div>
+                        <p><strong>Email:</strong> @loadedUser.Email</p>
+                        <p><strong>Role:</strong> @loadedUser.Role.ToString()</p>
+
+                        <div class="d-flex flex-column gap-2">
+                            <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewUser(loadedUser.UserId)">View</button>
+                        </div>
+                    </div>
+                }
+                @if (isLoadingUsers)
+                {
+                    <div class="list-group-item text-center">
+                        <div class="spinner-border spinner-border-sm" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        Loading more users...
+                    </div>
+                }
+            </div>
+        </div>
+
+        @if (loadError != null)
+        {
+            <p class="text-danger">Error: @loadError</p>
+        }
+    }
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <p class="text-danger">@errorMessage</p>
+    }
+</div>
+
+@code {
+    private Result<List<UserResponse>> getAllUsersResponse;
+    private List<UserResponse> loadedUsers = new List<UserResponse>();
+    private string errorMessage;
+    private string loadError;
+    private bool isLoadingUsers = false;
+    private bool isLoggedIn = false;
+    private bool isOrganizer = false;
+
+    /// <summary>
+    /// Initializes the component, checks user permissions, and loads user data.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Step 1: Check if user is logged in
+            isLoggedIn = await _accessService.IsUserLoggedInAsync();
+
+            // Step 2: Check if user is an organizer
+            isOrganizer = await _accessService.IsOrganizerAsync();
+
+            // Step 3: Allow only organizer to view the page - redirect elsewhere otherwise
+            RoleBasedRedirector.CheckOrganizerAccess(isLoggedIn, isOrganizer, _navigationManager);
+
+            // Step 4: Load users after access check
+            await LoadUsers();
+        }
+        catch
+        {
+            // Step 5: In case of errors, redirect to login
+            _navigationManager.NavigateTo("/auth/login");
+        }
+    }
+
+    /// <summary>
+    /// Loads all users from the API with progressive loading effect.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private async Task LoadUsers()
+    {
+        try
+        {
+            // Step 1: Set loading state and update UI
+            isLoadingUsers = true;
+            loadedUsers = new List<UserResponse>();
+            StateHasChanged();
+
+            // Step 2: Call API to get all users
+            getAllUsersResponse = await _userApiService.GetAllAsync();
+
+            // Step 3: Process the result
+            if (getAllUsersResponse.IsSuccess && getAllUsersResponse.Data != null)
+            {
+                // Step 4: Simulate progressive loading by adding users one by one with a small delay
+                foreach (UserResponse userResponse in getAllUsersResponse.Data)
+                {
+                    // Step 5: Add each user to the collection
+                    loadedUsers.Add(userResponse);
+
+                    // Step 6: Update UI after each user is added
+                    StateHasChanged();
+
+                    // Step 7: Small delay to show the progressive loading
+                    await Task.Delay(20);
+                }
+            }
+            else
+            {
+                // Step 8: Handle error if API call failed
+                loadError = getAllUsersResponse.ErrorMessage;
+            }
+        }
+        catch (Exception ex)
+        {
+            // Step 9: Handle any unexpected exceptions
+            loadError = $"Error loading users: {ex.Message}";
+        }
+        finally
+        {
+            // Step 10: Reset loading state and update UI
+            isLoadingUsers = false;
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Navigates to the user details page.
+    /// </summary>
+    /// <param name="userId">The ID of the user to view.</param>
+    private void ViewUser(int userId)
+    {
+        // Step 1: Navigate to the user profile page
+        _navigationManager.NavigateTo($"/users/{userId}/profile");
+    }
+
+    /// <summary>
+    /// Navigates to the user edit page.
+    /// </summary>
+    /// <param name="userId">The ID of the user to edit.</param>
+    private void EditUser(int userId)
+    {
+        // Step 1: Navigate to the user edit page
+        _navigationManager.NavigateTo($"/users/{userId}/edit");
+    }
+
+    /// <summary>
+    /// Deletes a user and refreshes the user list.
+    /// </summary>
+    /// <param name="userId">The ID of the user to delete.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private async Task DeleteUser(int userId)
+    {
+        // Step 1: Call API to delete the user
+        var deleteResult = await _userApiService.DeleteAsync(new DeleteUserRequest(userId));
+        
+        // Step 2: Process the result
+        if (deleteResult.IsSuccess)
+        {
+            // Step 3: If successful, reload the users list
+            await LoadUsers();
+        }
+        else
+        {
+            // Step 4: If failed, display error message
+            errorMessage = deleteResult.ErrorMessage ?? "An error occurred while deleting the user.";
+        }
+    }
+
+    /// <summary>
+    /// Navigates to the user creation page.
+    /// </summary>
+    private void CreateNewUser()
+    {
+        // Step 1: Navigate to the create user page
+        _navigationManager.NavigateTo("/users/create");
+    }
+}

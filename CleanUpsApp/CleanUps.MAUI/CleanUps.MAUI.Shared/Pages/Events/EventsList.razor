@@ -1,0 +1,336 @@
+﻿@page "/events"
+
+@inject NavigationManager _navigationManager
+@inject IEventApiService _eventApiService
+@inject IEventAttendanceApiService _eventAttendanceApiService
+@inject IAccessService _accessService
+
+<div class="card shadow p-4">
+
+    <h3>Events</h3>
+
+    @if (loadedEvents == null)
+    {
+        <p>Loading events...</p>
+    }
+    else
+    {
+        @if (isOrganizer)
+        {
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <button class="btn btn-success" @onclick="CreateNewEvent">Create New Event</button>
+                </div>
+            </div>
+
+
+        }
+
+        <!-- Table layout for larger screens -->
+        <div class="d-none d-md-block mb-2">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Start time</th>
+                        <th>End time</th>
+                        <th>Family Friendly?</th>
+                        <th>Trash Collected</th>
+                        <th>Status</th>
+                        <th>Location</th>
+                        <th>Participants</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (EventResponse loadedEvent in loadedEvents)
+                    {
+                        <tr>
+                            <td>@loadedEvent.EventId</td>
+                            <td>@loadedEvent.Title</td>
+                            <td>@loadedEvent.Description</td>
+                            <td>@loadedEvent.StartTime.ToShortDateString()</td>
+                            <td>@loadedEvent.EndTime.ToShortDateString()</td>
+                            <td>@(loadedEvent.FamilyFriendly ? "Yes" : "No")</td>
+                            <td>@loadedEvent.TrashCollected</td>
+                            <td>@loadedEvent.Status.ToString()</td>
+                            <td>No location yet</td>
+                            <td>@GetAttendeeCount(loadedEvent.EventId)</td>
+                            <td>
+                                <div class="btn-group" role="group" aria-label="Basic example">
+                                    <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewDetails(loadedEvent.EventId)">View</button>
+                                    @if (isOrganizer)
+                                    {
+                                        <button class="btn btn-secondary btn-sm mt-2" @onclick="() => EditEvent(loadedEvent.EventId)">Edit</button>
+                                        <button class="btn btn-danger btn-sm mt-2" @onclick="() => DeleteEvent(loadedEvent.EventId)">Delete</button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (isLoadingEvents)
+                    {
+                        <tr>
+                            <td colspan="11" class="text-center">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                Loading more events...
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- List-group layout for small screens with dropdown -->
+        <div class="d-block d-md-none mb-2">
+            <div class="list-group">
+                @foreach (EventResponse loadedEvent in loadedEvents)
+                {
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">@loadedEvent.Title</h5>
+                            @if (isOrganizer)
+                            {
+                                <div class="dropdown">
+                                    <button class="btn btn-dark btn-sm dropdown-toggle" type="button" id="dropdownMenuButton-@loadedEvent.EventId" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Actions
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-@loadedEvent.EventId">
+
+                                        <li>
+                                            <button class="dropdown-item text-secondary" @onclick="() => EditEvent(loadedEvent.EventId)">
+                                                <i class="bi bi-pencil-fill me-2"></i>Edit
+                                            </button>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <button class="dropdown-item text-danger" @onclick="() => DeleteEvent(loadedEvent.EventId)">
+                                                <i class="bi bi-trash-fill me-2"></i>Delete
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            }
+                        </div>
+                        <p><strong>Start Time:</strong> @loadedEvent.StartTime.ToShortDateString()</p>
+                        <p><strong>End Time:</strong> @loadedEvent.EndTime.ToShortDateString()</p>
+                        <p><strong>Status:</strong> @loadedEvent.Status.ToString()</p>
+                        <p><strong>Participants:</strong> @GetAttendeeCount(loadedEvent.EventId)</p>
+                        <div class="d-flex flex-column gap-2">
+                            <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewDetails(loadedEvent.EventId)">View</button>
+                        </div>
+                    </div>
+                }
+                @if (isLoadingEvents)
+                {
+                    <div class="list-group-item text-center">
+                        <div class="spinner-border spinner-border-sm" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        Loading more events...
+                    </div>
+                }
+            </div>
+        </div>
+
+        @if (loadError != null)
+        {
+            <p class="text-danger">Error: @loadError</p>
+        }
+
+    }
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <p class="text-danger">@errorMessage</p>
+    }
+</div>
+
+@code {
+    /// <summary>
+    /// EventsList is a component that displays a list of cleanup events with different views for mobile and desktop.
+    /// It allows organizers to create, edit, and delete events, and shows event details for all users.
+    /// </summary>
+    
+    private Result<List<EventResponse>> eventsResult;
+    private List<EventResponse> loadedEvents = new List<EventResponse>();
+    private string errorMessage;
+    private string loadError;
+    private bool isOrganizer = false;
+    private Dictionary<int, int> eventAttendeeCount = new Dictionary<int, int>();
+    private bool isLoadingAttendees = false;
+    private bool isLoadingEvents = false;
+
+    /// <summary>
+    /// Initializes the component by checking user permissions and loading events.
+    /// </summary>
+    protected override async Task OnInitializedAsync()
+    {
+        // Step 1: Check if the current user is an organizer
+        if (await _accessService.IsOrganizerAsync())
+        {
+            isOrganizer = true;
+        }
+        else
+        {
+            isOrganizer = false;
+        }
+
+        // Step 2: Load all events from the API
+        await LoadEvents();
+    }
+
+    /// <summary>
+    /// Loads all events from the event API service and updates the UI progressively.
+    /// </summary>
+    private async Task LoadEvents()
+    {
+        try
+        {
+            // Step 1: Set loading state and update UI
+            isLoadingEvents = true;
+            StateHasChanged();
+
+            // Step 2: Call the API to get all events
+            eventsResult = await _eventApiService.GetAllAsync();
+
+            // Step 3: Process the result
+            if (eventsResult.IsSuccess && eventsResult.Data != null)
+            {
+                // Step 4: Add events one by one with small delay for progressive loading effect
+                foreach (EventResponse eventResponse in eventsResult.Data)
+                {
+                    loadedEvents.Add(eventResponse);
+
+                    // Step 5: Update UI after each event is added
+                    StateHasChanged();
+
+                    // Step 6: Small delay to show the progressive loading
+                    await Task.Delay(20);
+                }
+
+                // Step 7: Load attendance counts for each event
+                await LoadAttendeeCountsAsync();
+            }
+            else
+            {
+                // Step 8: Handle error if API call failed
+                loadError = eventsResult.ErrorMessage;
+            }
+        }
+        catch (Exception ex)
+        {
+            // Step 9: Handle any unexpected exceptions
+            loadError = $"Error loading events: {ex.Message}";
+        }
+        finally
+        {
+            // Step 10: Reset loading state and update UI
+            isLoadingEvents = false;
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Loads the number of attendees for each event.
+    /// </summary>
+    private async Task LoadAttendeeCountsAsync()
+    {
+        if (loadedEvents != null && loadedEvents.Count > 0)
+        {
+            // Step 1: Set loading state for attendees and update UI
+            isLoadingAttendees = true;
+            StateHasChanged();
+
+            // Step 2: For each event, get the list of users attending
+            foreach (EventResponse eventResponse in loadedEvents)
+            {
+                // Step 3: Call API to get users for this event
+                var getUserResult = await _eventAttendanceApiService.GetUsersByEventIdAsync(eventResponse.EventId);
+                
+                // Step 4: Update the dictionary with the count of attendees
+                eventAttendeeCount[eventResponse.EventId] = getUserResult.IsSuccess && getUserResult.Data != null ? getUserResult.Data.Count : 0;
+                
+                // Step 5: Update UI after each event's attendees are loaded
+                StateHasChanged();
+            }
+
+            // Step 6: Reset loading state
+            isLoadingAttendees = false;
+        }
+    }
+
+    /// <summary>
+    /// Gets the formatted attendee count for an event.
+    /// </summary>
+    /// <param name="eventId">The ID of the event to get the attendee count for.</param>
+    /// <returns>A formatted string with the attendee count or loading message.</returns>
+    private string GetAttendeeCount(int eventId)
+    {
+        // Step 1: Show loading indicator if still loading and count not yet available
+        if (isLoadingAttendees && !eventAttendeeCount.ContainsKey(eventId))
+        {
+            return "Loading...";
+        }
+        
+        // Step 2: Return the count or 0 if not found
+        return eventAttendeeCount.ContainsKey(eventId) ? eventAttendeeCount[eventId].ToString() : "0";
+    }
+
+    /// <summary>
+    /// Navigates to the event details page.
+    /// </summary>
+    /// <param name="eventId">The ID of the event to view.</param>
+    private void ViewDetails(int eventId)
+    {
+        // Step 1: Navigate to the details page for the specified event
+        _navigationManager.NavigateTo($"/events/{eventId}/details");
+    }
+
+    /// <summary>
+    /// Navigates to the event edit page.
+    /// </summary>
+    /// <param name="eventId">The ID of the event to edit.</param>
+    private void EditEvent(int eventId)
+    {
+        // Step 1: Navigate to the edit page for the specified event
+        _navigationManager.NavigateTo($"/events/{eventId}/edit");
+    }
+
+    /// <summary>
+    /// Deletes an event and refreshes the list.
+    /// </summary>
+    /// <param name="eventId">The ID of the event to delete.</param>
+    private async Task DeleteEvent(int eventId)
+    {
+        // Step 1: Call API to delete the event
+        var deleteResult = await _eventApiService.DeleteAsync(new DeleteEventRequest(eventId));
+        
+        // Step 2: Process the result
+        if (deleteResult.IsSuccess)
+        {
+            // Step 3: If successful, reload the events list
+            loadedEvents.Clear();
+            await LoadEvents();
+        }
+        else
+        {
+            // Step 4: If failed, display error message
+            errorMessage = deleteResult.ErrorMessage ?? "An error occurred while deleting the event.";
+        }
+    }
+
+    /// <summary>
+    /// Navigates to the event creation page.
+    /// </summary>
+    private void CreateNewEvent()
+    {
+        // Step 1: Navigate to the create event page
+        _navigationManager.NavigateTo("/events/create");
+    }
+}

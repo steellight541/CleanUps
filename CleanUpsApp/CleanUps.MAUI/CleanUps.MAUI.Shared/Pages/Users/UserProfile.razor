@@ -1,0 +1,235 @@
+﻿@page "/users/profile"
+
+@inject IAccessService _accessService
+@inject NavigationManager _navigationManager
+
+@using System.ComponentModel.DataAnnotations
+@using CleanUps.Shared.DTOs.Auth
+
+<div class="card shadow position-relative">
+    <div class="card-header py-3">
+        <h3 class="mb-0">My Profile</h3>
+    </div>
+
+    <div class="card-body p-4">
+        @if (isLoading)
+        {
+            <p>Loading profile...</p>
+        }
+        else
+        {
+            <h4>@userName</h4>
+            <p class="mb-1"><strong>Email:</strong> @userEmail</p>
+            <p class="mb-3"><strong>Role:</strong> @userRole</p>
+
+            @if (!string.IsNullOrEmpty(statusMessage))
+            {
+                <div class="alert @(isSuccess ? "alert-success" : "alert-danger") mb-3" role="alert">
+                    @statusMessage
+                </div>
+            }
+
+            @* Password Change Section *@
+            @if (!showPasswordChangeForm)
+            {
+                <button class="btn btn-outline-dark" @onclick="TogglePasswordChangeForm">
+                    <i class="bi bi-key"></i> Change Password
+                </button>
+            }
+            else
+            {
+                <div class="card bg-light p-3 mb-3">
+                    <EditForm Model="@passwordModel" OnValidSubmit="ChangePassword">
+                        <DataAnnotationsValidator />
+                        <h5>Change Password</h5>
+                        <div class="form-group mb-2">
+                            <label for="newPassword" class="form-label">New Password</label>
+                            <InputText type="password" class="form-control" id="newPassword" @bind-Value="passwordModel.NewPassword" />
+                            <ValidationMessage For="() => passwordModel.NewPassword" />
+                        </div>
+                        <div class="form-group mb-2">
+                            <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                            <InputText type="password" class="form-control" id="confirmPassword" @bind-Value="passwordModel.ConfirmNewPassword" />
+                            <ValidationMessage For="() => passwordModel.ConfirmNewPassword" />
+                        </div>
+                        <div class="mt-3 d-flex gap-2">
+                             <button type="submit" class="btn btn-success" disabled="@isSubmitting">@(isSubmitting ? "Submitting..." : "Submit New Password")</button>
+                             <button type="button" class="btn btn-secondary" @onclick="TogglePasswordChangeForm" disabled="@isSubmitting">Cancel</button>
+                        </div>
+                    </EditForm>
+                 </div>
+            }
+        }
+    </div>
+
+    @* Footer for Logout button *@
+    <div class="card-footer py-3 d-flex justify-content-end">
+         <button class="btn btn-danger" @onclick="Logout">
+            <i class="bi bi-box-arrow-right"></i> Logout
+        </button>
+    </div>
+</div>
+
+@code {
+    private bool isLoading = true;
+    private string userName = string.Empty;
+    private string userEmail = string.Empty;
+    private string userRole = string.Empty;
+    private bool isLoggedIn = false;
+
+    private bool showPasswordChangeForm = false;
+    private string statusMessage = string.Empty;
+    private bool isSuccess = false;
+    private bool isSubmitting = false;
+
+    private PasswordChangeModel passwordModel = new PasswordChangeModel();
+    
+    /// <summary>
+    /// Initializes the component and checks user permissions.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    protected override async Task OnInitializedAsync()
+    {
+        // Step 1: Check if user is logged in (volunteers and organizers)
+        try
+        {
+            // Step 2: Get login status from access service
+            isLoggedIn = await _accessService.IsUserLoggedInAsync();
+            
+            // Step 3: Redirect if user isn't logged in
+            RoleBasedRedirector.CheckVolunteerAccess(isLoggedIn, _navigationManager);
+
+            // Step 4: Load user profile information
+            await LoadProfileData();
+        }
+        catch
+        {
+            // Step 5: In case of errors, redirect to login
+            _navigationManager.NavigateTo("/auth/login");
+        }
+    }
+
+    /// <summary>
+    /// Loads the user's profile data from the access service.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private async Task LoadProfileData()
+    {
+        // Step 1: Set loading state
+        isLoading = true;
+
+        // Step 2: Get user info from AccessService
+        userName = await _accessService.GetLoggedUserNameAsync() ?? "Unknown";
+        userEmail = await _accessService.GetLoggedUserEmailAsync() ?? "Unknown";
+
+        // Step 3: Get and format user role
+        RoleDTO? role = await _accessService.GetLoggedUserRoleAsync();
+
+        if (role is not null)
+        {
+            userRole = role.ToString();
+        }
+        else
+        {
+            userRole = "Unknown";
+        }
+
+        // Step 4: Clear loading state
+        isLoading = false;
+    }
+
+    /// <summary>
+    /// Toggles the visibility of the password change form.
+    /// </summary>
+    private void TogglePasswordChangeForm()
+    {
+        // Step 1: Toggle form visibility
+        showPasswordChangeForm = !showPasswordChangeForm;
+        
+        // Step 2: Reset the model when toggling
+        passwordModel = new PasswordChangeModel();
+        
+        // Step 3: Clear any status messages
+        statusMessage = string.Empty;
+    }
+
+    /// <summary>
+    /// Handles the password change submission.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private async Task ChangePassword()
+    {
+        // Step 1: Reset state variables
+        statusMessage = string.Empty;
+        isSuccess = false;
+        isSubmitting = true;
+
+        try
+        {
+            // Step 2: Call the service with the new password from the model
+            var changePasswordResult = await _accessService.ChangePasswordAsync(passwordModel.NewPassword);
+            
+            // Step 3: Process the result
+            if (changePasswordResult.IsSuccess)
+            {
+                // Step 4a: If successful, update UI and reset form
+                isSuccess = true;
+                statusMessage = "Password changed successfully!";
+                showPasswordChangeForm = false; // Hide form on success
+                passwordModel = new PasswordChangeModel(); // Reset the model
+            }
+            else
+            {
+                // Step 4b: If failed, show error message
+                statusMessage = changePasswordResult.ErrorMessage ?? "Failed to change password.";
+            }
+        }
+        catch
+        {
+            // Step 5: Handle unexpected errors
+            statusMessage = "An unexpected error occurred while changing the password.";
+        }
+        finally
+        {
+            // Step 6: Clear submitting state and update UI
+            isSubmitting = false;
+            StateHasChanged(); // Ensure UI updates after async operation
+        }
+    }
+
+    /// <summary>
+    /// Logs out the current user and redirects to the events page.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private async Task Logout()
+    {
+        // Step 1: Clear user session data
+        await _accessService.ClearUserSessionAsync();
+        
+        // Step 2: Redirect to events page
+        _navigationManager.NavigateTo("/events");
+    }
+
+    /// <summary>
+    /// Model class for password change form with validation attributes.
+    /// </summary>
+    private class PasswordChangeModel
+    {
+        /// <summary>
+        /// Gets or sets the new password.
+        /// Must be between 8 and 50 characters.
+        /// </summary>
+        [Required(ErrorMessage = "New Password is required.")]
+        [StringLength(50, MinimumLength = 8, ErrorMessage = "Password must be between 8 and 50 characters long.")]
+        // Add other complexity rules here if needed via custom attributes or Regex
+        public string NewPassword { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the confirmation of the new password.
+        /// Must match the NewPassword property.
+        /// </summary>
+        [Required(ErrorMessage = "Confirm New Password is required.")]
+        [Compare(nameof(NewPassword), ErrorMessage = "New passwords do not match.")]
+        public string ConfirmNewPassword { get; set; } = string.Empty;
+    }
+}

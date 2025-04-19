@@ -1,0 +1,183 @@
+﻿@page "/users/create"
+
+@inject NavigationManager _navigationManager
+@inject IAccessService _accessService
+@inject IUserApiService _userApiService
+
+@using CleanUps.Shared.DTOs.Users
+@using System.ComponentModel.DataAnnotations
+
+<div class="card shadow position-relative">
+    <div class="card-header py-3">
+        <h3 class="mb-0">Create New User</h3>
+    </div>
+
+    <EditForm Model="newUserModel" OnValidSubmit="HandleSubmit">
+        <div class="card-body p-4">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group mb-3">
+                <label for="name" class="form-label">Name</label>
+                <InputText id="name" @bind-Value="newUserModel.Name" class="form-control" />
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="email" class="form-label">Email</label>
+                <InputText id="email" @bind-Value="newUserModel.Email" class="form-control" />
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="password" class="form-label">Password</label>
+                <InputText id="password" type="password" @bind-Value="newUserModel.Password" class="form-control" aria-describedby="passwordHelpBlock" />
+                <div id="passwordHelpBlock" class="form-text">
+                    Password must be 8-50 characters long, contain letters and numbers, and must not contain spaces, special characters, or emoji.
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                <InputText id="confirmPassword" type="password" @bind-Value="newUserModel.ConfirmPassword" class="form-control" />
+            </div>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <p class="text-danger mt-2">@errorMessage</p>
+            }
+            @if (!string.IsNullOrEmpty(successMessage))
+            {
+                <p class="text-success mt-2">@successMessage</p>
+            }
+        </div>
+        
+        <div class="card-footer py-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary" disabled="@isSubmitting">@(isSubmitting ? "Creating..." : "Create User")</button>
+            <button type="button" class="btn btn-dark" @onclick="GoBack" disabled="@isSubmitting">Back</button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private CreateUserModel newUserModel = new CreateUserModel();
+    private bool isLoggedIn = false;
+    private bool isOrganizer = false;
+    private bool isSubmitting = false;
+    private string? errorMessage;
+    private string? successMessage;
+
+    /// <summary>
+    /// Initializes the component and checks user permissions.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Step 1: Check if user is logged in
+            isLoggedIn = await _accessService.IsUserLoggedInAsync();
+            
+            // Step 2: Check if user is an organizer
+            isOrganizer = await _accessService.IsOrganizerAsync();
+            
+            // Step 3: Verify access permissions and redirect if necessary
+            RoleBasedRedirector.CheckOrganizerAccess(isLoggedIn, isOrganizer, _navigationManager);
+        }
+        catch
+        {
+            // Step 4: In case of errors, redirect to login
+            _navigationManager.NavigateTo("/auth/login");
+        }
+    }
+
+    /// <summary>
+    /// Handles the form submission to create a new user.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private async Task HandleSubmit()
+    {
+        // Step 1: Set form to submitting state
+        isSubmitting = true;
+        errorMessage = null;
+        successMessage = null;
+        StateHasChanged();
+
+        // Step 2: Create user request from form data
+        CreateUserRequest request = new CreateUserRequest(newUserModel.Name, newUserModel.Email, newUserModel.Password);
+        
+        // Step 3: Call API to create the user
+        var result = await _userApiService.CreateAsync(request);
+
+        // Step 4: Process the result
+        if (result.IsSuccess)
+        {
+            // Step 5a: If successful, display success message and reset form
+            successMessage = $"User '{newUserModel.Name}' created successfully!";
+            newUserModel = new CreateUserModel(); // Reset form
+            // Optionally navigate back to list or show success message longer
+            // _navigationManager.NavigateTo("/users");
+        }
+        else
+        {
+            // Step 5b: If failed, display error message
+            errorMessage = result.ErrorMessage ?? "Failed to create user.";
+        }
+
+        // Step 6: Reset submitting state and update UI
+        isSubmitting = false;
+        StateHasChanged();
+        
+        // Step 7: Navigate back to users list
+        _navigationManager.NavigateTo("/users");
+    }
+
+    /// <summary>
+    /// Navigates back to the users list page.
+    /// </summary>
+    private void GoBack()
+    {
+        // Step 1: Navigate back to the users list
+        _navigationManager.NavigateTo("/users");
+    }
+
+    /// <summary>
+    /// Model class for the create user form with validation attributes.
+    /// </summary>
+    private class CreateUserModel
+    {
+        /// <summary>
+        /// Gets or sets the name of the user.
+        /// </summary>
+        /// <value>A string that cannot exceed 100 characters.</value>
+        [Required(ErrorMessage = "Name is required.")]
+        [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
+        public string Name { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the email address of the user.
+        /// Must be in a valid email format.
+        /// </summary>
+        /// <value>A string in email format that cannot exceed 255 characters.</value>
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Invalid email format.")]
+        [StringLength(255, ErrorMessage = "Email cannot exceed 255 characters.")]
+        public string Email { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the password for the user account.
+        /// Must be between 8 and 50 characters long.
+        /// </summary>
+        /// <value>A string between 8 and 50 characters.</value>
+        [Required(ErrorMessage = "Password is required.")]
+        [StringLength(50, MinimumLength = 8, ErrorMessage = "Password must be between 8 and 50 characters.")]
+        public string Password { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the confirmation of the password.
+        /// Must match the Password property exactly.
+        /// </summary>
+        /// <value>A string that matches the Password property.</value>
+        [Required(ErrorMessage = "Confirm Password is required.")]
+        [Compare("Password", ErrorMessage = "Passwords do not match.")]
+        public string ConfirmPassword { get; set; } = string.Empty;
+    }
+}   

@@ -1,0 +1,172 @@
+﻿@page "/users/{userId:int}/edit"
+
+@inject NavigationManager _navigationManager
+@inject IUserApiService _userApiService
+@inject IAccessService _accessService
+
+@using CleanUps.Shared.DTOs.Users
+@using System.ComponentModel.DataAnnotations
+
+<div class="card shadow position-relative">
+    <div class="card-header py-3">
+        <h3 class="mb-0">Edit User</h3>
+    </div>
+
+    <div class="card-body p-4">
+        @if (getUserResult == null)
+        {
+            <p>Loading...</p>
+        }
+        else if (!getUserResult.IsSuccess)
+        {
+            <div class="alert alert-danger">Error loading user: @getUserResult.ErrorMessage</div>
+            <div class="mt-3">
+                 <button class="btn btn-dark" @onclick="Cancel">Back</button>
+            </div>
+        }
+        else if (editModel != null)
+        {
+            <EditForm Model="editModel" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="form-group mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <InputText id="name" @bind-Value="editModel.Name" class="form-control" />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <InputText id="email" @bind-Value="editModel.Email" class="form-control" />
+                </div>
+
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="alert alert-danger mt-3">@errorMessage</div>
+                }
+                 
+                <div class="card-footer py-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>
+                </div>
+            </EditForm>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int userId { get; set; }
+
+    private Result<UserResponse> getUserResult;
+    private UserEditModel editModel;
+    private string errorMessage;
+    
+    private bool isLoggedIn = false;
+    private bool isOrganizer = false;
+
+    /// <summary>
+    /// Initializes the component, checks user permissions, and loads the user data.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Step 1: Check if user is logged in
+            isLoggedIn = await _accessService.IsUserLoggedInAsync();
+
+            // Step 2: Check if user is an organizer
+            isOrganizer = await _accessService.IsOrganizerAsync();
+            
+            // Step 3: Verify access permissions and redirect if necessary
+            RoleBasedRedirector.CheckOrganizerAccess(isLoggedIn, isOrganizer, _navigationManager);
+            
+            // Step 4: Load user data after access check
+            await LoadUser();
+        }
+        catch
+        {
+            // Step 5: In case of errors, redirect to login
+            _navigationManager.NavigateTo("/auth/login");
+        }
+    }
+
+    /// <summary>
+    /// Loads the user data from the API and populates the edit model.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private async Task LoadUser()
+    {
+        // Step 1: Call API to get the user by ID
+        getUserResult = await _userApiService.GetByIdAsync(userId);
+        
+        // Step 2: If successful, populate the edit model with user data
+        if (getUserResult.IsSuccess)
+        {
+            editModel = new UserEditModel
+            {
+                Name = getUserResult.Data.Name,
+                Email = getUserResult.Data.Email
+            };
+        }
+    }
+
+    /// <summary>
+    /// Handles the form submission to update the user.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private async Task HandleSubmit()
+    {
+        // Step 1: Create update request from form data
+        UpdateUserRequest updateRequest = new UpdateUserRequest(userId, editModel.Name, editModel.Email);
+
+        // Step 2: Call API to update the user
+        var updateResonse = await _userApiService.UpdateAsync(updateRequest);
+        
+        // Step 3: Process the result
+        if (updateResonse.IsSuccess)
+        {
+            // Step 4a: If successful, navigate back to users list
+            _navigationManager.NavigateTo("/users");
+        }
+        else
+        {
+            // Step 4b: If failed, display error message
+            errorMessage = updateResonse.ErrorMessage ?? "An error occurred while updating the user.";
+        }
+    }
+
+    /// <summary>
+    /// Handles cancellation of user editing by navigating back to the users list.
+    /// </summary>
+    private void Cancel()
+    {
+        // Step 1: Navigate back to the users list
+        _navigationManager.NavigateTo("/users");
+    }
+
+    /// <summary>
+    /// Model class for editing user information with validation attributes.
+    /// </summary>
+    private class UserEditModel
+    {
+        /// <summary>
+        /// Gets or sets the name of the user.
+        /// </summary>
+        /// <value>A string that cannot exceed 100 characters.</value>
+        [Required(ErrorMessage = "Name is required.")]
+        [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets the email address of the user.
+        /// Must be in a valid email format.
+        /// </summary>
+        /// <value>A string in email format that cannot exceed 255 characters.</value>
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Invalid email format.")]
+        [StringLength(255, ErrorMessage = "Email cannot exceed 255 characters.")]
+        public string Email { get; set; }
+    }
+}

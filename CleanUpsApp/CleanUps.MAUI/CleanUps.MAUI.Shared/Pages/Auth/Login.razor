@@ -1,0 +1,124 @@
+﻿@page "/auth/login"
+
+@inject IAuthApiService _authApiService
+@inject IAccessService _accessService
+@inject NavigationManager _navigationManager
+
+@using CleanUps.Shared.DTOs.Auth
+@using System.ComponentModel.DataAnnotations
+
+<div class="card shadow position-relative">
+    <div class="card-header py-3">
+        <h3 class="mb-0">Login</h3>
+    </div>
+
+    <EditForm Model="loginModel" OnValidSubmit="HandleSubmit">
+        <div class="card-body p-4">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group mb-3">
+                <label for="email" class="form-label">Email</label>
+                <InputText id="email" @bind-Value="loginModel.Email" class="form-control" placeholder="Enter your email" />
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="password" class="form-label">Password</label>
+                <InputText id="password" type="password" @bind-Value="loginModel.Password" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <a href="/auth/password-reset">Forgot password?</a>
+            </div>
+
+            <div class="mb-3">
+                 <a href="/auth/signup">Don't have an account? Sign up</a>
+            </div>
+            
+            @if (!string.IsNullOrEmpty(errorMsg))
+            {
+                <div class="alert alert-danger mt-3">@errorMsg</div>
+            }
+        </div>
+
+        <div class="card-footer py-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Login</button>
+            <button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private LoginModel loginModel = new LoginModel();
+    private string errorMsg = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Step 1: Check if user is already authenticated
+        if (await _accessService.IsUserLoggedInAsync())
+        {
+            // Step 2: If authenticated, redirect to home page
+            _navigationManager.NavigateTo("/");
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        // Step 1: Create login request from the form model
+        LoginRequest request = new LoginRequest(loginModel.Email, loginModel.Password);
+
+        // Step 2: Call the authentication service to attempt login
+        var result = await _authApiService.LoginAsync(request);
+
+        // Step 3: Process the authentication result
+        if (result.IsSuccess)
+        {
+            // Step 4: On successful login, create a user session object
+            UserSessionInfo userSession = new UserSessionInfo
+            {
+                UserId = result.Data.UserId,
+                Name = result.Data.Name,
+                Email = result.Data.Email,
+                Role = result.Data.Role
+            };
+
+            // Step 5: Store the user session information
+            await _accessService.SetUserSessionAsync(userSession);
+            
+            // Step 6: Redirect to events page after successful login
+            _navigationManager.NavigateTo("/events");
+        }
+        else
+        {
+            // Step 7: Display error message if login fails
+            errorMsg = result.ErrorMessage ?? "Invalid email or password.";
+        }
+    }
+
+    private void Cancel()
+    {
+        // Step 1: Navigate back to the homepage when cancel is clicked
+        _navigationManager.NavigateTo("/");
+    }
+
+    /// <summary>
+    /// Model class for the login form that captures user credentials.
+    /// Contains validation attributes to ensure proper data entry.
+    /// </summary>
+    private class LoginModel
+    {
+        /// <summary>
+        /// The user's email address used for authentication.
+        /// Must be in a valid email format.
+        /// </summary>
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Invalid email format.")]
+        public string Email { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The user's password for authentication.
+        /// </summary>
+        [Required(ErrorMessage = "Password is required.")]
+        public string Password { get; set; } = string.Empty;
+    }
+}

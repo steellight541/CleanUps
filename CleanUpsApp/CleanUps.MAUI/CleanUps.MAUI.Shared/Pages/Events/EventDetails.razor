@@ -1,0 +1,643 @@
+﻿@page "/events/{eventId:int}/details"
+
+@inject NavigationManager _navigationManager
+@inject IEventApiService _eventApiService
+@inject IEventAttendanceApiService _eventAttendanceApiService
+@inject IAccessService _accessService
+@inject IUserApiService _userApiService
+
+@using CleanUps.Shared.DTOs.EventAttendances
+@using CleanUps.Shared.DTOs.Enums
+
+<div class="card shadow position-relative">
+    @* Header with title and top-right Edit/Delete for Organizers *@
+    <div class="card-header d-flex justify-content-between align-items-center py-3">
+        <h3 class="mb-0">Event Details</h3>
+        @if (isOrganizer && eventResult?.Data != null)
+        {
+            <div>
+                @* Small Screen Buttons (Icon + Text) *@
+                <button class="btn btn-sm btn-primary me-1 d-lg-none" @onclick="() => EditEvent(eventResult.Data.EventId)" disabled="@isAttendanceActionLoading" title="Edit Event">
+                    <i class="bi bi-pencil-square"></i> Edit
+                </button>
+                <button class="btn btn-sm btn-danger d-lg-none" @onclick="() => DeleteEvent(eventResult.Data.EventId)" disabled="@isAttendanceActionLoading" title="Delete Event">
+                    <i class="bi bi-trash"></i> Delete
+                </button>
+
+                @* Large Screen Buttons (Text Style Links) *@
+                <button class="btn btn-link text-primary text-decoration-none p-0 me-2 d-none d-lg-inline-block" @onclick="() => EditEvent(eventResult.Data.EventId)" disabled="@isAttendanceActionLoading" title="Edit Event">
+                    <i class="bi bi-pencil-square"></i> Edit
+                </button>
+                <button class="btn btn-link text-danger text-decoration-none p-0 d-none d-lg-inline-block" @onclick="() => DeleteEvent(eventResult.Data.EventId)" disabled="@isAttendanceActionLoading" title="Delete Event">
+                    <i class="bi bi-trash"></i> Delete
+                </button>
+            </div>
+        }
+    </div>
+
+    <div class="card-body p-4">
+        @if (eventResult == null)
+        {
+            <p>Loading...</p>
+        }
+        else if (eventResult.IsSuccess && eventResult.Data != null)
+        {
+            var ev = eventResult.Data;
+            bool isPastEvent = ev.EndTime < DateTime.Now;
+
+            <div class="mb-4">
+                <h4>@ev.Title</h4>
+                <p>@ev.Description</p>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <p><strong>Start Time:</strong> @ev.StartTime.ToString("g")</p>
+                    <p><strong>End Time:</strong> @ev.EndTime.ToString("g")</p>
+                    <p><strong>Status:</strong> @ev.Status</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Family Friendly:</strong> @(ev.FamilyFriendly ? "Yes" : "No")</p>
+                    <p><strong>Trash Collected:</strong> @ev.TrashCollected kg</p>
+                    <p><strong>Participants:</strong> @(eventAttendees?.Count ?? 0)</p>
+                </div>
+            </div>
+
+            @if (ev.Location != null)
+            {
+                <div class="mb-4">
+                    <h5>Location</h5>
+                    <p>Latitude: @ev.Location.Latitude, Longitude: @ev.Location.Longitude</p>
+                </div>
+            }
+
+            @* Organizer Controls (Status & Manage Attendance Toggle) *@
+            @if (isOrganizer)
+            {
+                <div class="mb-3 border-top pt-3">
+                     <h5>Organizer Actions</h5>
+                     <div class="d-flex flex-wrap gap-2 align-items-center">
+                         <div class="input-group" style="max-width: 250px;">
+                            <label class="input-group-text" for="statusSelect">Status</label>
+                            <select id="statusSelect" class="form-select"
+                                    @bind="selectedStatus" @bind:after="HandleStatusChange"
+                                    disabled="@(isPastEvent || isStatusUpdateLoading)">
+                                @foreach (StatusDTO s in Enum.GetValues(typeof(StatusDTO)))
+                                {
+                                    <option value="@s">@s</option>
+                                }
+                            </select>
+                            @if (isStatusUpdateLoading)
+                            {
+                                <span class="input-group-text">
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                </span>
+                            }
+                        </div>
+                         <button class="btn btn-info" @onclick="ToggleManageAttendance">
+                             <i class="bi bi-people"></i> @(isManageAttendanceVisible ? "Hide Attendance" : "Manage Attendance")
+                         </button>
+                     </div>
+                     @if (!string.IsNullOrEmpty(statusUpdateMessage))
+                     {
+                         <p class="@statusUpdateMessageClass mt-2 mb-0">@statusUpdateMessage</p>
+                     }
+                 </div>
+            }
+
+            @* Organizer Management Section (Collapsible) *@
+            @if (isOrganizer && isManageAttendanceVisible)
+            {
+                <div class="card bg-light p-3 my-3">
+                    <h5>Manage User Attendance</h5>
+                    <div class="mb-2">
+                        <input type="text" class="form-control" placeholder="Search users by name or email..." @bind="searchTerm" @bind:event="oninput" />
+                    </div>
+
+                    @if (allUsersResult == null)
+                    {
+                        <p><em>Loading users...</em></p>
+                    }
+                    else if (!allUsersResult.IsSuccess)
+                    {
+                        <p class="text-danger">Could not load users: @allUsersResult.ErrorMessage</p>
+                    }
+                    else if (!FilteredUsers.Any())
+                    {
+                        <p><em>No matching users found.</em></p>
+                    }
+                    else
+                    {
+                        <div class="list-group mb-2" style="max-height: 300px; overflow-y: auto;">
+                            @foreach (var user in FilteredUsers)
+                            {
+                                bool isAttending = eventAttendees?.Any(a => a.UserId == user.UserId) ?? false;
+                                <div class="list-group-item d-flex justify-content-between align-items-center" key="@user.UserId">
+                                    <div>
+                                         @user.Name (@user.Email) - 
+                                         <span class="@(isAttending ? "text-success fw-bold" : "text-muted")">
+                                             @(isAttending ? (isPastEvent ? "Attended" : "Going") : "Not Going")
+                                         </span>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        @{
+                                            bool isLoadingThisUser = manageAttendanceLoadingUserId == user.UserId;
+                                            bool isPastEventForDisable = isPastEvent; // Use the existing isPastEvent variable
+                                        }
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               role="switch"
+                                               checked="@isAttending"
+                                               @onchange="@(e => ToggleUserAttendance(user.Name, user.UserId, (bool)e.Value))"
+                                               disabled="@(isLoadingThisUser || isPastEventForDisable)" />
+                                        @if (isLoadingThisUser)
+                                        {
+                                            <span class="spinner-border spinner-border-sm text-secondary" role="status" aria-hidden="true"></span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(manageAttendanceMessage))
+                    {
+                        <p class="@manageAttendanceMessageClass mt-2">@manageAttendanceMessage</p>
+                    }
+                </div>
+            }
+        }
+        else if (eventResult != null) // Handles case where eventResult exists but IsSuccess is false
+        {
+            <p class="text-danger">Error loading event: @eventResult.ErrorMessage</p>
+        }
+        else // Should not happen if initialized correctly, but safety check
+        {
+             <p class="text-danger">An unexpected error occurred.</p>
+        }
+
+        @* Display general error message if any occurred during initialization or other actions *@
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger mt-3">@errorMessage</div>
+        }
+    </div>
+
+    @* Footer with Back and Attendance action *@
+    <div class="card-footer d-flex justify-content-start align-items-center gap-2 py-3">
+        <button class="btn btn-secondary" @onclick="GoBack">
+            <i class="bi bi-arrow-left"></i> Back
+        </button>
+
+        @* Attendance Button Logic (Only show if event loaded successfully) *@
+        @if (eventResult?.Data != null)
+        {
+            bool isPastEvent = eventResult.Data.EndTime < DateTime.Now;
+            if (isPastEvent)
+            {
+                <button class="btn btn-secondary" disabled>
+                    @if (isCurrentUserAttending)
+                    {
+                        <i class="bi bi-check-lg"><span>Attended</span></i> 
+                    }
+                    else
+                    {
+                        <i class="bi bi-x-lg"><span>Did Not Attend</span></i> 
+                    }
+                </button>
+            }
+            else if (isAttendanceActionLoading)
+            {
+                <button class="btn btn-info" disabled>
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading…
+                </button>
+            }
+            else if (isCurrentUserAttending)
+            {
+                <button class="btn btn-warning" @onclick="UnregisterFromEvent">
+                    <i class="bi bi-person-dash"></i><span> Not Going</span>
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-success" @onclick="SignUpForEvent">
+                    <i class="bi bi-person-plus"></i><span> Going</span>
+                </button>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>
+    /// EventDetails component displays detailed information about a specific cleanup event.
+    /// It provides functionality for users to join/leave events and for organizers to manage attendance.
+    /// </summary>
+
+    /// <summary>
+    /// The ID of the event to display, passed as a route parameter.
+    /// </summary>
+    [Parameter]
+    public int eventId { get; set; }
+
+    private Result<EventResponse> eventResult;
+    private List<UserResponse> eventAttendees;
+    private string errorMessage = string.Empty;
+    private bool isLoadingEvent = true;
+    private bool isAttendanceActionLoading = false;
+
+    private int? currentUserId;
+    private RoleDTO? currentUserRole;
+    private bool isCurrentUserAttending = false;
+    private bool isOrganizer = false;
+
+    // Organizer Manage Attendance State
+    private Result<List<UserResponse>>? allUsersResult;
+    private bool isManageAttendanceVisible = false;
+    private string searchTerm = string.Empty;
+    private string manageAttendanceMessage = string.Empty;
+    private string manageAttendanceMessageClass = string.Empty;
+    private int? manageAttendanceLoadingUserId = null;
+
+    private bool isStatusUpdateLoading = false;
+    private string statusUpdateMessage = string.Empty;
+    private string statusUpdateMessageClass = string.Empty;
+    private StatusDTO selectedStatus; // Added for dropdown binding
+
+    /// <summary>
+    /// Filtered user list for organizer management based on search term and event status.
+    /// </summary>
+    private IEnumerable<UserResponse> FilteredUsers
+    {
+        get
+        {
+            if (allUsersResult?.Data == null) return Enumerable.Empty<UserResponse>();
+
+            IEnumerable<UserResponse> baseList;
+            bool isPastEvent = eventResult?.Data?.EndTime < DateTime.Now;
+
+            if (isPastEvent)
+            {
+                // For past events, show only users who attended
+                var attendeeIds = eventAttendees?.Select(a => a.UserId).ToHashSet() ?? new HashSet<int>();
+                baseList = allUsersResult.Data.Where(u => attendeeIds.Contains(u.UserId));
+            }
+            else
+            {
+                // For future events, show all users
+                baseList = allUsersResult.Data;
+            }
+
+            // Apply search term
+            if (string.IsNullOrEmpty(searchTerm))
+            {
+                return baseList;
+            }
+            else
+            {
+                return baseList.Where(u =>
+                    u.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    u.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+            }
+        }
+    }
+
+    /// <summary>
+    /// Initializes the component, loading event data and user permissions.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    protected override async Task OnInitializedAsync()
+    {
+        // Step 1: Set loading state
+        isLoadingEvent = true;
+
+        try
+        {
+            // Step 2: Get current user information
+            currentUserId = await _accessService.GetLoggedUserIdAsync();
+            currentUserRole = await _accessService.GetLoggedUserRoleAsync();
+
+            // Step 3: Check if user is authenticated, redirect to login if not
+            if (currentUserId == null || currentUserRole == null)
+            {
+                _navigationManager.NavigateTo("/auth/login");
+                return;
+            }
+
+            // Step 4: Set user role permissions
+            isOrganizer = currentUserRole == RoleDTO.Organizer;
+
+            // Step 5: Load event data and attendees
+            await LoadEventData();
+
+            // Step 6: If user is organizer, load all users for attendance management
+            if (isOrganizer)
+            {
+                allUsersResult = await _userApiService.GetAllAsync();
+                if (!allUsersResult.IsSuccess)
+                {
+                    manageAttendanceMessage = $"Could not load all users for management: {allUsersResult.ErrorMessage}";
+                    manageAttendanceMessageClass = "text-danger";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Step 7: Handle any exceptions during initialization
+            errorMessage = $"An error occurred during initialization: {ex.Message}";
+        }
+        finally
+        {
+            // Step 8: Clear loading state
+            isLoadingEvent = false;
+        }
+    }
+
+    /// <summary>
+    /// Loads event data and attendance information.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private async Task LoadEventData()
+    {
+        // Step 1: Reset state variables
+        errorMessage = string.Empty;
+        eventAttendees = new List<UserResponse>();
+        isCurrentUserAttending = false;
+        statusUpdateMessage = string.Empty; // Reset status message on load
+
+        // Step 2: Load event details
+        var loadedEventResult = await _eventApiService.GetByIdAsync(eventId);
+
+        // Update the main eventResult property
+        eventResult = loadedEventResult;
+
+        // Step 3: If event loaded successfully, load attendance data and set initial selected status
+        if (eventResult.IsSuccess && eventResult.Data != null)
+        {
+            selectedStatus = eventResult.Data.Status; // Initialize dropdown selection
+
+            // Step 4: Load event attendance data
+            var eventAttendanceResult = await _eventAttendanceApiService.GetUsersByEventIdAsync(eventId);
+            if (eventAttendanceResult.IsSuccess)
+            {
+                // Step 5: Set attendees list and check if current user is attending
+                eventAttendees = eventAttendanceResult.Data ?? new List<UserResponse>();
+                if (currentUserId != null)
+                {
+                    isCurrentUserAttending = eventAttendees.Any(u => u.UserId == currentUserId.Value);
+                }
+            }
+            else
+            {
+                // Step 6: Handle error loading attendees
+                errorMessage = $"Could not load attendee list: {eventAttendanceResult.ErrorMessage}";
+            }
+        }
+    }
+
+    /// <summary>
+    /// Registers the current user for the event.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private async Task SignUpForEvent()
+    {
+        // Step 1: Verify user is logged in
+        if (currentUserId == null) return;
+
+        // Step 2: Set loading state
+        isAttendanceActionLoading = true;
+        errorMessage = string.Empty;
+        StateHasChanged();
+
+        // Step 3: Create and send attendance request
+        var request = new CreateEventAttendanceRequest(currentUserId.Value, eventId);
+        var result = await _eventAttendanceApiService.CreateAsync(request);
+
+        // Step 4: Handle response
+        if (result.IsSuccess)
+        {
+            // Step 5: Reload event data to reflect changes
+            await LoadEventData();
+        }
+        else
+        {
+            // Step 6: Display error message if failed
+            errorMessage = result.ErrorMessage ?? "Failed to sign up for the event.";
+        }
+
+        // Step 7: Clear loading state
+        isAttendanceActionLoading = false;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Removes the current user from the event's attendance list.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private async Task UnregisterFromEvent()
+    {
+        // Step 1: Verify user is logged in
+        if (currentUserId == null) return;
+
+        // Step 2: Set loading state
+        isAttendanceActionLoading = true;
+        errorMessage = string.Empty;
+        StateHasChanged();
+
+        // Step 3: Create and send delete attendance request
+        var request = new DeleteEventAttendanceRequest(currentUserId.Value, eventId);
+        var result = await _eventAttendanceApiService.DeleteAsync(request);
+
+        // Step 4: Handle response
+        if (result.IsSuccess)
+        {
+            // Step 5: Reload event data to reflect changes
+            await LoadEventData();
+        }
+        else
+        {
+            // Step 6: Display error message if failed
+            errorMessage = result.ErrorMessage ?? "Failed to unregister from the event.";
+        }
+
+        // Step 7: Clear loading state
+        isAttendanceActionLoading = false;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Navigates back to the events list page.
+    /// </summary>
+    private void GoBack()
+    {
+        // Step 1: Navigate back to the events list
+        _navigationManager.NavigateTo("/events");
+    }
+
+    /// <summary>
+    /// Navigates to the edit page for the specified event.
+    /// </summary>
+    /// <param name="eventId">The ID of the event to edit.</param>
+    private void EditEvent(int eventId)
+    {
+        // Step 1: Navigate to the edit page for the specified event
+        _navigationManager.NavigateTo($"/events/{eventId}/edit");
+    }
+
+    /// <summary>
+    /// Deletes the specified event and redirects to the events list on success.
+    /// </summary>
+    /// <param name="eventId">The ID of the event to delete.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private async Task DeleteEvent(int eventId)
+    {
+        // Step 1: Set loading state
+        isAttendanceActionLoading = true;
+        errorMessage = string.Empty;
+        StateHasChanged();
+
+        // Step 2: Send delete request to API
+        var deleteResult = await _eventApiService.DeleteAsync(new DeleteEventRequest(eventId));
+
+        // Step 3: Handle response
+        if (deleteResult.IsSuccess)
+        {
+            // Step 4: Navigate back to events list on success
+            _navigationManager.NavigateTo("/events");
+        }
+        else
+        {
+            // Step 5: Display error message if failed
+            errorMessage = deleteResult.ErrorMessage ?? "An error occurred while deleting the event.";
+        }
+
+        // Step 6: Clear loading state
+        isAttendanceActionLoading = false;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Toggles the visibility of the attendance management section.
+    /// </summary>
+    private void ToggleManageAttendance()
+    {
+        // Step 1: Toggle visibility flag
+        isManageAttendanceVisible = !isManageAttendanceVisible;
+
+        // Step 2: Clear search and messages when hiding
+        if (!isManageAttendanceVisible)
+        {
+            searchTerm = string.Empty;
+            manageAttendanceMessage = string.Empty;
+        }
+    }
+
+    /// <summary>
+    /// Toggles a user's attendance status for this event.
+    /// </summary>
+    /// <param name="userName">The name of the user for display purposes.</param>
+    /// <param name="userIdToToggle">The ID of the user whose attendance is being toggled.</param>
+    /// <param name="shouldAttend">Whether the user should be added (true) or removed (false) from the event.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private async Task ToggleUserAttendance(string userName, int userIdToToggle, bool shouldAttend)
+    {
+        // Step 1: Prevent modification for past events
+        if (eventResult?.Data?.EndTime < DateTime.Now)
+        {
+            manageAttendanceMessage = "Cannot modify attendance for past events.";
+            manageAttendanceMessageClass = "text-warning";
+            StateHasChanged();
+            return;
+        }
+
+        // Step 2: Verify user is an organizer
+        if (!isOrganizer) return;
+
+        // Step 3: Set loading state
+        manageAttendanceLoadingUserId = userIdToToggle;
+        manageAttendanceMessage = string.Empty;
+        StateHasChanged();
+
+        // Step 4: Perform the appropriate action based on toggle state
+        Result<EventAttendanceResponse>? result = null;
+        if (shouldAttend)
+        {
+            // Step 5a: Add user to event
+            var request = new CreateEventAttendanceRequest(userIdToToggle, eventId);
+            result = await _eventAttendanceApiService.CreateAsync(request);
+        }
+        else
+        {
+            // Step 5b: Remove user from event
+            var request = new DeleteEventAttendanceRequest(userIdToToggle, eventId);
+            result = await _eventAttendanceApiService.DeleteAsync(request);
+        }
+
+        // Step 6: Handle response
+        if (result != null && result.IsSuccess)
+        {
+            // Step 7a: Show success message and reload data
+            manageAttendanceMessage = $"Attendance updated successfully for {userName}.";
+            manageAttendanceMessageClass = "text-success";
+            await LoadEventData();
+        }
+        else
+        {
+            // Step 7b: Show error message
+            manageAttendanceMessage = $"Error updating attendance for {userName}: {result?.ErrorMessage ?? "Unknown error"}";
+            manageAttendanceMessageClass = "text-danger";
+        }
+
+        // Step 8: Clear loading state
+        manageAttendanceLoadingUserId = null;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Handles the change event of the status dropdown for organizers (triggered after bind).
+    /// </summary>
+    private async Task HandleStatusChange()
+    {
+        if (!isOrganizer || eventResult?.Data == null) return;
+
+        var originalStatus = eventResult.Data.Status;
+        var newStatus = selectedStatus;
+
+        // Prevent redundant updates if the status hasn't actually changed
+        if (newStatus == originalStatus) return;
+
+        // Step 1: Set loading state and clear previous messages
+        isStatusUpdateLoading = true;
+        statusUpdateMessage = string.Empty;
+        errorMessage = string.Empty; // Clear general error message too
+        StateHasChanged();
+
+        // Step 2: Create request and call API service
+        var request = new UpdateEventStatusRequest(eventId, newStatus);
+        var updateResult = await _eventApiService.UpdateStatusAsync(request); // Changed variable name
+
+        // Step 3: Handle API response
+        if (updateResult.IsSuccess && updateResult.Data != null)
+        {
+            statusUpdateMessage = "Event status updated successfully.";
+            statusUpdateMessageClass = "text-success";
+            // Update the local event data with the response from the API
+            eventResult = updateResult; // Replace the whole result object
+            selectedStatus = eventResult.Data.Status; // Ensure dropdown reflects the final state
+            // Manually update attendees list if needed (e.g., if status change affects attendance rules),
+            // but for now, just using the updated event data should be sufficient.
+        }
+        else
+        {
+            statusUpdateMessage = $"Failed to update event status: {updateResult.ErrorMessage}";
+            statusUpdateMessageClass = "text-danger";
+            // Revert the dropdown selection and local data on failure
+            selectedStatus = originalStatus;
+            // Optionally reload all data from server for robustness:
+            // await LoadEventData();
+        }
+
+        // Step 4: Clear loading state
+        isStatusUpdateLoading = false;
+        StateHasChanged();
+    }
+}
