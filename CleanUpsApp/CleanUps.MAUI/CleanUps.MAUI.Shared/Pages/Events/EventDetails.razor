@@ -7,6 +7,7 @@
 @inject IUserApiService _userApiService
 
 @using CleanUps.Shared.DTOs.EventAttendances
+@using CleanUps.Shared.DTOs.Enums
 
 <div class="card shadow p-4">
     <h3>Event Details</h3>
@@ -18,6 +19,8 @@
     else if (eventResult.IsSuccess && eventResult.Data != null)
     {
         var ev = eventResult.Data;
+        bool isPastEvent = ev.EndTime < DateTime.Now;
+        bool isCompletedOrCanceled = ev.Status == StatusDTO.Completed || ev.Status == StatusDTO.Canceled;
 
         <div class="mb-4">
             <h4>@ev.Title</h4>
@@ -85,15 +88,41 @@
                 }
             }
 
-            @* --- Organizer-Specific Buttons --- *@
+            @* --- Organizer-Specific Buttons & Controls --- *@
             @if (isOrganizer)
             {
-                // Disable organizer buttons while attendance action is happening
-                <button class="btn btn-primary" @onclick="() => EditEvent(ev.EventId)" disabled="@isAttendanceActionLoading">Edit</button>
-                <button class="btn btn-danger" @onclick="() => DeleteEvent(ev.EventId)" disabled="@isAttendanceActionLoading">Delete</button>
-                <button class="btn btn-info" @onclick="ToggleManageAttendance">
-                    @(isManageAttendanceVisible ? "Hide" : "Show") User Attendance Management
-                </button>
+                <div class="d-flex flex-wrap gap-2 mb-2 align-items-center">
+                    <button class="btn btn-primary" @onclick="() => EditEvent(ev.EventId)" disabled="@isAttendanceActionLoading">Edit</button>
+                    <button class="btn btn-danger" @onclick="() => DeleteEvent(ev.EventId)" disabled="@isAttendanceActionLoading">Delete</button>
+                    <button class="btn btn-info" @onclick="ToggleManageAttendance">
+                        @(isManageAttendanceVisible ? "Hide" : "Show") User Attendance Management
+                    </button>
+
+                    @* --- Status Update Dropdown --- *@
+                    <div class="input-group" style="max-width: 200px;">
+                        <label class="input-group-text" for="statusSelect">Set Status:</label>
+                        <select id="statusSelect" class="form-select"
+                                @bind="selectedStatus" 
+                                @bind:after="HandleStatusChange"
+                                disabled="@(isPastEvent || isCompletedOrCanceled || isStatusUpdateLoading)">
+                            @foreach (StatusDTO statusValue in Enum.GetValues(typeof(StatusDTO)))
+                            {
+                                <option value="@statusValue">@statusValue</option>
+                            }
+                        </select>
+                        @if (isStatusUpdateLoading)
+                        {
+                             <span class="input-group-text">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                             </span>
+                        }
+                    </div>
+                    @* --- End Status Update Dropdown --- *@
+                </div>
+                @if (!string.IsNullOrEmpty(statusUpdateMessage))
+                {
+                    <p class="@statusUpdateMessageClass mt-1 mb-2">@statusUpdateMessage</p>
+                }
             }
         </div>
 
@@ -128,9 +157,6 @@
                                 bool isAttending = eventAttendees?.Any(a => a.UserId == user.UserId) ?? false;
                                 <div class="list-group-item d-flex justify-content-between align-items-center" key="@user.UserId">
                                     <div>
-                                        @{ 
-                                            bool isPastEvent = eventResult?.Data?.EndTime < DateTime.Now; 
-                                        }
                                          @user.Name (@user.Email) - 
                                          <span class="@(isAttending ? "text-success fw-bold" : "text-muted")">
                                              @(isAttending ? (isPastEvent ? "Attended" : "Going") : "Not Going")
@@ -139,7 +165,7 @@
                                     <div class="form-check form-switch">
                                         @{
                                             bool isLoadingThisUser = manageAttendanceLoadingUserId == user.UserId;
-                                            bool isPastEventForDisable = eventResult?.Data?.EndTime < DateTime.Now;
+                                            bool isPastEventForDisable = isPastEvent; // Use the existing isPastEvent variable
                                         }
                                         <input class="form-check-input"
                                                type="checkbox"
@@ -206,6 +232,11 @@
     private string manageAttendanceMessage = string.Empty;
     private string manageAttendanceMessageClass = string.Empty;
     private int? manageAttendanceLoadingUserId = null;
+
+    private bool isStatusUpdateLoading = false;
+    private string statusUpdateMessage = string.Empty;
+    private string statusUpdateMessageClass = string.Empty;
+    private StatusDTO selectedStatus; // Added for dropdown binding
 
     /// <summary>
     /// Filtered user list for organizer management based on search term and event status.
@@ -306,21 +337,24 @@
         errorMessage = string.Empty;
         eventAttendees = new List<UserResponse>();
         isCurrentUserAttending = false;
+        statusUpdateMessage = string.Empty; // Reset status message on load
 
         // Step 2: Load event details
-        eventResult = await _eventApiService.GetByIdAsync(eventId);
+        var loadedEventResult = await _eventApiService.GetByIdAsync(eventId);
 
-        // Step 3: If event loaded successfully, load attendance data
+        // Update the main eventResult property
+        eventResult = loadedEventResult;
+
+        // Step 3: If event loaded successfully, load attendance data and set initial selected status
         if (eventResult.IsSuccess && eventResult.Data != null)
         {
-            // Step 4: Check if event is in the past
-            bool isPastEvent = eventResult.Data.EndTime < DateTime.Now;
-
-            // Step 5: Load event attendance data
+            selectedStatus = eventResult.Data.Status; // Initialize dropdown selection
+            
+            // Step 4: Load event attendance data
             var eventAttendanceResult = await _eventAttendanceApiService.GetUsersByEventIdAsync(eventId);
             if (eventAttendanceResult.IsSuccess)
             {
-                // Step 6: Set attendees list and check if current user is attending
+                // Step 5: Set attendees list and check if current user is attending
                 eventAttendees = eventAttendanceResult.Data ?? new List<UserResponse>();
                 if (currentUserId != null)
                 {
@@ -329,7 +363,7 @@
             }
             else
             {
-                // Step 7: Handle error loading attendees
+                // Step 6: Handle error loading attendees
                 errorMessage = $"Could not load attendee list: {eventAttendanceResult.ErrorMessage}";
             }
         }
@@ -530,6 +564,55 @@
 
         // Step 8: Clear loading state
         manageAttendanceLoadingUserId = null;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Handles the change event of the status dropdown for organizers (triggered after bind).
+    /// </summary>
+    private async Task HandleStatusChange()
+    {
+        if (!isOrganizer || eventResult?.Data == null) return;
+
+        var originalStatus = eventResult.Data.Status;
+        var newStatus = selectedStatus;
+
+        // Prevent redundant updates if the status hasn't actually changed
+        if (newStatus == originalStatus) return;
+
+        // Step 1: Set loading state and clear previous messages
+        isStatusUpdateLoading = true;
+        statusUpdateMessage = string.Empty;
+        errorMessage = string.Empty; // Clear general error message too
+        StateHasChanged();
+
+        // Step 2: Create request and call API service
+        var request = new UpdateEventStatusRequest(eventId, newStatus);
+        var updateResult = await _eventApiService.UpdateStatusAsync(request); // Changed variable name
+
+        // Step 3: Handle API response
+        if (updateResult.IsSuccess && updateResult.Data != null)
+        {
+            statusUpdateMessage = "Event status updated successfully.";
+            statusUpdateMessageClass = "text-success";
+            // Update the local event data with the response from the API
+            eventResult = updateResult; // Replace the whole result object
+            selectedStatus = eventResult.Data.Status; // Ensure dropdown reflects the final state
+            // Manually update attendees list if needed (e.g., if status change affects attendance rules), 
+            // but for now, just using the updated event data should be sufficient.
+        }
+        else
+        {
+            statusUpdateMessage = $"Failed to update event status: {updateResult.ErrorMessage}";
+            statusUpdateMessageClass = "text-danger";
+            // Revert the dropdown selection and local data on failure
+            selectedStatus = originalStatus; 
+            // Optionally reload all data from server for robustness:
+            // await LoadEventData(); 
+        }
+
+        // Step 4: Clear loading state
+        isStatusUpdateLoading = false;
         StateHasChanged();
     }
 }

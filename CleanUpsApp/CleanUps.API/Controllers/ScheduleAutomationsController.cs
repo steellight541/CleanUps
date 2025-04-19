@@ -42,7 +42,7 @@ namespace CleanUps.API.Controllers
         /// <returns>An <see cref="IActionResult"/> indicating success (200 OK) or failure (500 Internal Server Error).</returns>
         /// <response code="200">Indicates the cleanup procedures were triggered successfully.</response>
         /// <response code="500">Indicates an error occurred during the cleanup process. Check server logs.</response>
-        [HttpPost("nightlycleanup")] // Changed HttpGet to HttpPost as it performs an action
+        [HttpGet("nightlycleanup")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         public async Task<IActionResult> RunNightlyCleanup()
@@ -76,7 +76,7 @@ namespace CleanUps.API.Controllers
         /// <returns>An <see cref="IActionResult"/> indicating success (200 OK) or failure (500 Internal Server Error).</returns>
         /// <response code="200">Indicates the status update procedure was triggered successfully.</response>
         /// <response code="500">Indicates an error occurred during the status update. Check server logs.</response>
-        [HttpPost("statusupdate")] // Changed HttpGet to HttpPost as it performs an action
+        [HttpGet("statusupdate")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         public async Task<IActionResult> RunStatusUpdate()

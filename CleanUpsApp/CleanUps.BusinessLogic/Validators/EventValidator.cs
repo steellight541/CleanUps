@@ -172,5 +172,35 @@ namespace CleanUps.BusinessLogic.Validators
 
             return Result<bool>.Ok(true);
         }
+
+        /// <summary>
+        /// Validates an UpdateEventStatusRequest before updating an event's status.
+        /// Ensures the ID and status are valid.
+        /// </summary>
+        /// <param name="request">The UpdateEventStatusRequest to validate.</param>
+        /// <returns>A Result indicating success or failure with an error message.</returns>
+        public Result<bool> ValidateForStatusUpdate(UpdateEventStatusRequest request)
+        {
+            // Verify that the DTO itself is not null
+            if (request == null)
+            {
+                return Result<bool>.BadRequest("UpdateEventStatusRequest cannot be null.");
+            }
+
+            // Validate the EventId using the existing ValidateId method
+            var idValidationResult = ValidateId(request.EventId);
+            if (!idValidationResult.IsSuccess)
+            {
+                return idValidationResult;
+            }
+
+            // Validate that the status is a valid enumeration value
+            if (!Enum.IsDefined(typeof(StatusDTO), request.NewStatus))
+            {
+                return Result<bool>.BadRequest("Invalid status value provided.");
+            }
+
+            return Result<bool>.Ok(true);
+        }
     }
 }

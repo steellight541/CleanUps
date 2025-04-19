@@ -138,5 +138,29 @@ namespace CleanUps.BusinessLogic.Services
             // Step 4: Convert domain model to response DTO and return.
             return repoResult.Transform(eventObj => _converter.ToResponse(eventObj));
         }
+
+        /// <summary>
+        /// Updates the status of a specific event and returns the updated event.
+        /// </summary>
+        /// <param name="request">The request containing the event ID and the new status.</param>
+        /// <returns>A Result containing the updated <see cref="EventResponse"/> if successful, or an error message otherwise.</returns>
+        public async Task<Result<EventResponse>> UpdateStatusAsync(UpdateEventStatusRequest request)
+        {
+            // Step 1: Validate the update status request.
+            var validationResult = _validator.ValidateForStatusUpdate(request);
+
+            // Step 2: If validation fails, return BadRequest with error message.
+            if (!validationResult.IsSuccess)
+            {
+                // Need to cast the error result to the correct type.
+                return Result<EventResponse>.BadRequest(validationResult.ErrorMessage);
+            }
+
+            // Step 3: Call the repository to update the status.
+            Result<Event> repoResult = await _repository.UpdateStatusAsync(request.EventId, (int)request.NewStatus);
+
+            // Step 4: Convert the repository result (Event) to a service result (EventResponse).
+            return repoResult.Transform(eventModel => _converter.ToResponse(eventModel));
+        }
     }
 }

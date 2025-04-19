@@ -313,5 +313,69 @@ namespace CleanUps.Shared.ClientServices
                 return Result<EventResponse>.InternalServerError($"Unexpected error: {ex.Message}");
             }
         }
+
+        /// <summary>
+        /// Updates the status of an existing event via the API and returns the updated event.
+        /// </summary>
+        /// <param name="request">The request containing the event ID and the new status.</param>
+        /// <returns>
+        /// A Result containing the updated <see cref="EventResponse"/> if successful.
+        /// Returns BadRequest if the request data is invalid,
+        /// NotFound if the event doesn't exist,
+        /// Conflict if there's a concurrency issue or the status update is invalid,
+        /// or an error message for other network/server issues.
+        /// </returns>
+        public async Task<Result<EventResponse>> UpdateStatusAsync(UpdateEventStatusRequest request)
+        {
+            try
+            {
+                // Step 1: Send PATCH request to the status update endpoint
+                HttpResponseMessage response = await _httpClient.PatchAsJsonAsync($"api/events/{request.EventId}/status", request);
+
+                // Step 2: Process successful response (200 OK)
+                if (response.IsSuccessStatusCode)
+                {
+                    // Deserialize the updated event from the response
+                    EventResponse? updatedEvent = await response.Content.ReadFromJsonAsync<EventResponse>();
+                    return updatedEvent != null 
+                        ? Result<EventResponse>.Ok(updatedEvent)
+                        : Result<EventResponse>.InternalServerError("Failed to deserialize updated event.");
+                }
+
+                // Step 3: Handle error responses based on status code
+                string errorMessage = await response.Content.ReadAsStringAsync();
+                switch (response.StatusCode)
+                {
+                    case HttpStatusCode.BadRequest:
+                        return Result<EventResponse>.BadRequest(errorMessage);
+                    case HttpStatusCode.NotFound:
+                        return Result<EventResponse>.NotFound(errorMessage);
+                    case HttpStatusCode.Conflict:
+                        return Result<EventResponse>.Conflict(errorMessage);
+                    default:
+                        return Result<EventResponse>.InternalServerError(errorMessage);
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                // Step 4: Handle network-related exceptions
+                return Result<EventResponse>.InternalServerError($"Network error: {ex.Message}");
+            }
+            catch (JsonException ex)
+            {
+                // Step 5: Handle JSON parsing exceptions (for request or response)
+                return Result<EventResponse>.BadRequest($"Invalid data format: {ex.Message}");
+            }
+            catch (TaskCanceledException ex)
+            {
+                // Step 6: Handle request timeout exceptions
+                return Result<EventResponse>.InternalServerError($"Request timeout: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                // Step 7: Handle any other unexpected exceptions
+                return Result<EventResponse>.InternalServerError($"Unexpected error: {ex.Message}");
+            }
+        }
     }
 }

@@ -373,5 +373,87 @@ namespace CleanUps.DataAccess.Repositories
                 return Result<Event>.InternalServerError($"{ex.Message}");
             }
         }
+
+        /// <summary>
+        /// Updates the status of a specific event and returns the updated event.
+        /// </summary>
+        /// <param name="eventId">The ID of the event to update.</param>
+        /// <param name="newStatusId">The ID of the new status to set.</param>
+        /// <returns>A Result containing the updated Event if successful, or an error message otherwise.</returns>
+        public async Task<Result<Event>> UpdateStatusAsync(int eventId, int newStatusId)
+        {
+            try
+            {
+                // Step 1: Query the database to verify the event exists and is not deleted.
+                // Also include necessary navigation properties for the return object.
+                Event? retrievedEvent = await _context.Events
+                    .Where(e => !e.isDeleted)
+                    .Include(e => e.Location) // Include Location
+                    .Include(e => e.Status)   // Include Status
+                    .Include(e => e.EventAttendances) // Include Attendances for consistency, though not strictly needed for status update
+                        .ThenInclude(ea => ea.User)
+                    .FirstOrDefaultAsync(existingEvent => existingEvent.EventId == eventId);
+
+                // Step 2: If event doesn't exist or is deleted, return NotFound.
+                if (retrievedEvent is null)
+                {
+                    return Result<Event>.NotFound($"Event with id: {eventId} does not exist");
+                }
+                
+                // Step 3: Update the event status
+                retrievedEvent.StatusId = newStatusId;
+                
+                // Step 4: Save changes to persist the updated status in the database.
+                await _context.SaveChangesAsync();
+
+                // Step 5: Re-fetch the status navigation property if StatusId was changed
+                // This ensures the returned object has the updated Status object loaded.
+                await _context.Entry(retrievedEvent).Reference(e => e.Status).LoadAsync();
+
+                // Step 6: Return successful result with the updated event.
+                // We already have the updated event with included properties in retrievedEvent.
+                return Result<Event>.Ok(retrievedEvent);
+            }
+            catch (OperationCanceledException ex)
+            {
+                // Step 7: Handle operation cancellation errors.
+                return Result<Event>.InternalServerError($"{ex.Message}");
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                // Step 8: Handle concurrency conflicts.
+                if (ex.InnerException != null)
+                {
+                    return Result<Event>.Conflict($"DB InnerException: {ex.InnerException.Message}");
+                }
+                return Result<Event>.Conflict($"{ex.Message}");
+            }
+            catch (DbUpdateException ex)
+            {
+                // Step 9: Handle database update errors.
+                if (ex.InnerException != null)
+                {
+                    // Check for foreign key constraint violation
+                    if (ex.InnerException.Message.Contains("FK_Events_Statuses_StatusId"))
+                    {
+                        return Result<Event>.Conflict("The specified status does not exist.");
+                    }
+                    else
+                    {
+                        return Result<Event>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
+                    }
+                }
+                return Result<Event>.InternalServerError($"{ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                // Step 10: Handle any other unexpected errors.
+                if (ex.InnerException != null)
+                {
+                    return Result<Event>.InternalServerError($"InnerException: {ex.InnerException.Message}");
+                }
+                return Result<Event>.InternalServerError($"{ex.Message}");
+            }
+        }
     }
 }
