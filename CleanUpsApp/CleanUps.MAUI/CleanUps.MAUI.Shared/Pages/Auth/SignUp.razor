@@ -5,51 +5,59 @@
 @inject IAccessService _accessService;
 @inject NavigationManager _navigationManager
 
-<div class="card shadow p-4">
+@using CleanUps.Shared.DTOs.Users
+@using CleanUps.Shared.DTOs.Auth
+@using System.ComponentModel.DataAnnotations
 
-    <h3>Sign Up</h3>
+<div class="card shadow position-relative">
+    <div class="card-header py-3">
+        <h3 class="mb-0">Sign Up</h3>
+    </div>
 
     <EditForm Model="singUpModel" OnValidSubmit="HandleSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+        <div class="card-body p-4">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
-        <div class="form-group mb-2">
-            <label for="name">Name</label>
-            <InputText id="name" @bind-Value="singUpModel.Name" class="form-control" placeholder="Mirza Džaferadžović" />
-        </div>
-
-        <div class="form-group mb-2">
-            <label for="email">Email</label>
-            <InputText id="email" @bind-Value="singUpModel.Email" class="form-control" placeholder="office@zerowastemontenegro.me" />
-        </div>
-
-        <div class="form-group mb-2">
-            <label for="password">Password</label>
-            <InputText id="password" type="password" @bind-Value="singUpModel.Password" class="form-control" aria-describedby="passwordHelpBlock" />
-            <div id="passwordHelpBlock" class="form-text">
-                Your password must be 8-50 characters long, contain letters and numbers, and must not contain spaces, special characters, or emoji.
+            <div class="form-group mb-3">
+                <label for="name" class="form-label">Name</label>
+                <InputText id="name" @bind-Value="singUpModel.Name" class="form-control" placeholder="Enter your name" />
             </div>
-        </div>
 
-        <div class="form-group mb-2">
-            <label for="confirmPassword">Confirm Password</label>
-            <InputText id="confirmPassword" type="password" @bind-Value="singUpModel.ConfirmPassword" class="form-control" />
-        </div>
+            <div class="form-group mb-3">
+                <label for="email" class="form-label">Email</label>
+                <InputText id="email" @bind-Value="singUpModel.Email" class="form-control" placeholder="Enter your email" />
+            </div>
 
-        <div class="mb-2">
-            <button type="submit" class="btn btn-primary btn-sm">Sign Up</button>
-            <button type="button" class="btn btn-dark btn-sm" @onclick="Cancel">Cancel</button>
-        </div>
+            <div class="form-group mb-3">
+                <label for="password" class="form-label">Password</label>
+                <InputText id="password" type="password" @bind-Value="singUpModel.Password" class="form-control" aria-describedby="passwordHelpBlock" />
+                <div id="passwordHelpBlock" class="form-text">
+                    Your password must be 8-50 characters long, contain letters and numbers, and must not contain spaces, special characters, or emoji.
+                </div>
+            </div>
 
-        <div class="mb-2">
-            <a href="/auth/login">Already have an account? Log in</a>
+            <div class="form-group mb-3">
+                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                <InputText id="confirmPassword" type="password" @bind-Value="singUpModel.ConfirmPassword" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                 <a href="/auth/login">Already have an account? Log in</a>
+            </div>
+
+            @if (!string.IsNullOrEmpty(errorMsg))
+            {
+                <div class="alert alert-danger mt-3">@errorMsg</div>
+            }
+        </div>
+        
+        <div class="card-footer py-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Sign Up</button>
+            <button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>
         </div>
     </EditForm>
 </div>
-@if (!string.IsNullOrEmpty(errorMsg))
-{
-    <p class="text-danger">@errorMsg</p>
-}
 
 @code {
     private SignUpModel singUpModel = new SignUpModel();

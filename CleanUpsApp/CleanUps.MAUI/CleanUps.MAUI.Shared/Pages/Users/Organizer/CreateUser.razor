@@ -4,51 +4,57 @@
 @inject IAccessService _accessService
 @inject IUserApiService _userApiService
 
+@using CleanUps.Shared.DTOs.Users
+@using System.ComponentModel.DataAnnotations
 
-<div class="card shadow p-4">
-    <h3>Create New User</h3>
+<div class="card shadow position-relative">
+    <div class="card-header py-3">
+        <h3 class="mb-0">Create New User</h3>
+    </div>
 
     <EditForm Model="newUserModel" OnValidSubmit="HandleSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+        <div class="card-body p-4">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
-        <div class="form-group mb-2">
-            <label for="name">Name</label>
-            <InputText id="name" @bind-Value="newUserModel.Name" class="form-control" />
-        </div>
-
-        <div class="form-group mb-2">
-            <label for="email">Email</label>
-            <InputText id="email" @bind-Value="newUserModel.Email" class="form-control" />
-        </div>
-
-        <div class="form-group mb-2">
-            <label for="password">Password</label>
-            <InputText id="password" type="password" @bind-Value="newUserModel.Password" class="form-control" aria-describedby="passwordHelpBlock" />
-             <div id="passwordHelpBlock" class="form-text">
-                Password must be 8-50 characters long, contain letters and numbers, and must not contain spaces, special characters, or emoji.
+            <div class="form-group mb-3">
+                <label for="name" class="form-label">Name</label>
+                <InputText id="name" @bind-Value="newUserModel.Name" class="form-control" />
             </div>
-        </div>
 
-         <div class="form-group mb-2">
-            <label for="confirmPassword">Confirm Password</label>
-            <InputText id="confirmPassword" type="password" @bind-Value="newUserModel.ConfirmPassword" class="form-control" />
-        </div>
+            <div class="form-group mb-3">
+                <label for="email" class="form-label">Email</label>
+                <InputText id="email" @bind-Value="newUserModel.Email" class="form-control" />
+            </div>
 
-        <div class="mb-2">
-            <button type="submit" class="btn btn-primary btn-sm" disabled="@isSubmitting">@(isSubmitting ? "Creating..." : "Create User")</button>
-            <button type="button" class="btn btn-secondary btn-sm" @onclick="GoBack" disabled="@isSubmitting">Back</button>
+            <div class="form-group mb-3">
+                <label for="password" class="form-label">Password</label>
+                <InputText id="password" type="password" @bind-Value="newUserModel.Password" class="form-control" aria-describedby="passwordHelpBlock" />
+                <div id="passwordHelpBlock" class="form-text">
+                    Password must be 8-50 characters long, contain letters and numbers, and must not contain spaces, special characters, or emoji.
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                <InputText id="confirmPassword" type="password" @bind-Value="newUserModel.ConfirmPassword" class="form-control" />
+            </div>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <p class="text-danger mt-2">@errorMessage</p>
+            }
+            @if (!string.IsNullOrEmpty(successMessage))
+            {
+                <p class="text-success mt-2">@successMessage</p>
+            }
+        </div>
+        
+        <div class="card-footer py-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary" disabled="@isSubmitting">@(isSubmitting ? "Creating..." : "Create User")</button>
+            <button type="button" class="btn btn-dark" @onclick="GoBack" disabled="@isSubmitting">Back</button>
         </div>
     </EditForm>
-
-     @if (!string.IsNullOrEmpty(errorMessage))
-    {
-        <p class="text-danger mt-2">@errorMessage</p>
-    }
-     @if (!string.IsNullOrEmpty(successMessage))
-    {
-        <p class="text-success mt-2">@successMessage</p>
-    }
 </div>
 
 @code {
