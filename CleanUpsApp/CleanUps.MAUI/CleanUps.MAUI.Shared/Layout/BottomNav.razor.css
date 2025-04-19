@@ -1,0 +1,84 @@
+.bottom-nav-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: white; /* Or your desired background color */
+    border-top: 1px solid #e0e0e0; /* Optional border */
+    z-index: 1000; /* Ensure it stays on top */
+}
+
+.bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 70px; /* Increased height for circles */
+    padding: 5px 10px; /* Adjust padding */
+}
+
+.nav-item {
+    flex-grow: 1;
+    text-align: center;
+}
+
+/* Make NavLink a flex container to center the circle */
+.nav-item ::deep .nav-link {
+    display: flex; 
+    flex-direction: column;
+    align-items: center; 
+    justify-content: center; 
+    height: 100%;
+    padding: 0;
+    color: inherit; /* Inherit color */
+    text-decoration: none;
+    transition: none; /* Remove previous transition */
+}
+
+/* Style for the blue circle */
+.nav-item ::deep .nav-link .nav-button-circle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 50px; /* Circle size */
+    height: 50px; /* Circle size */
+    background-color: #0d6efd; /* Bootstrap primary blue */
+    border-radius: 50%;
+    color: white;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.nav-item ::deep .nav-link .bi {
+    font-size: 1.25rem; /* Icon size */
+    margin-bottom: 0;  /* Remove margin */
+    /* Reset inherited styles if needed */
+    display: block;
+    width: auto;
+    height: auto;
+    position: static;
+    margin-right: 0;
+    top: 0;
+}
+
+.nav-text {
+    display: block;
+    line-height: 1.1;
+    font-size: 0.65rem; /* Slightly smaller text */
+    margin-top: 2px; /* Small space between icon and text */
+}
+
+/* Style for the active link's circle */
+.nav-item ::deep .nav-link.active .nav-button-circle {
+    background-color: #0a58ca; /* Darker blue for active */
+}
+
+/* Optional: Hover effect for the circle */
+.nav-item ::deep .nav-link:hover .nav-button-circle {
+    background-color: #0b5ed7; /* Slightly darker blue on hover */
+}
+
+/* Remove the text decoration from NavLink */
+.nav-item ::deep .nav-link,
+.nav-item ::deep .nav-link:hover {
+    text-decoration: none;
+} 

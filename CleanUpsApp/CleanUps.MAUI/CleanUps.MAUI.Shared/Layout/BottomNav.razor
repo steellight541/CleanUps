@@ -1,0 +1,125 @@
+@implements IDisposable
+@inject IAccessService _accessService
+@inject NavigationManager _navigationManager
+
+<div class="bottom-nav-container shadow-lg" 
+     style="position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; background-color: white; border-top: 1px solid #e0e0e0;">
+    <nav class="bottom-nav">
+        @* Common Left Button: EventMap/Explore *@
+        <div class="nav-item">
+            <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
+                <div class="nav-button-circle">
+                    <span class="bi bi-geo-alt-fill" aria-hidden="true"></span>
+                    <span class="nav-text">EventMap</span>
+                </div>
+            </NavLink>
+        </div>
+
+        @* Common Middle-Left Button: EventList *@
+        <div class="nav-item">
+            <NavLink class="nav-link" href="events" Match="NavLinkMatch.Prefix"> @* Assuming href is /events *@
+                <div class="nav-button-circle">
+                    <span class="bi bi-list-stars" aria-hidden="true"></span> @* Placeholder Icon *@
+                    <span class="nav-text">EventList</span>
+                </div>
+            </NavLink>
+        </div>
+
+        @if (isLoggedIn)
+        {
+            @if (userRole == RoleDTO.Organizer)
+            {
+                @* Organizer Middle-Right: Users List *@
+                <div class="nav-item">
+                    <NavLink class="nav-link" href="users" Match="NavLinkMatch.Prefix"> @* Assuming href is /users *@
+                        <div class="nav-button-circle">
+                            <span class="bi bi-people-fill" aria-hidden="true"></span> @* Placeholder Icon *@
+                            <span class="nav-text">Users List</span>
+                        </div>
+                    </NavLink>
+                </div>
+            }
+            @* Volunteer doesn't get a 3rd middle button *@
+
+            @* Common Logged-in Right: Profile *@
+            <div class="nav-item">
+                <NavLink class="nav-link" href="users/profile" Match="NavLinkMatch.All">
+                     <div class="nav-button-circle">
+                        <span class="bi bi-person-fill" aria-hidden="true"></span>
+                        <span class="nav-text">Profile</span>
+                    </div>
+                </NavLink>
+            </div>
+        }
+        else // Not logged in
+        {
+            @* Not Logged-in Middle-Right: Login *@
+            <div class="nav-item">
+                <NavLink class="nav-link" href="auth/login">
+                    <div class="nav-button-circle">
+                        <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span>
+                        <span class="nav-text">Login</span>
+                    </div>
+                </NavLink>
+            </div>
+
+            @* Not Logged-in Right: Sign Up *@
+            <div class="nav-item">
+                <NavLink class="nav-link" href="auth/signup">
+                     <div class="nav-button-circle">
+                        <span class="bi bi-person-plus-fill" aria-hidden="true"></span>
+                        <span class="nav-text">Sign Up</span>
+                    </div>
+                </NavLink>
+            </div>
+        }
+    </nav>
+</div>
+
+@code {
+    private bool isLoggedIn = false;
+    private RoleDTO? userRole = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _navigationManager.LocationChanged += OnLocationChanged;
+        await UpdateAuthState();
+    }
+
+    private async void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        await InvokeAsync(async () =>
+        {
+            await UpdateAuthState();
+            StateHasChanged();
+        });
+    }
+
+    private async Task UpdateAuthState()
+    {
+        try
+        {
+            isLoggedIn = await _accessService.IsUserLoggedInAsync();
+            if (isLoggedIn)
+            {
+                // Assuming GetUserRoleAsync exists and returns the role string
+                userRole = await _accessService.GetLoggedUserRoleAsync(); 
+            }
+            else
+            {
+                userRole = null;
+            }
+        }
+        catch
+        {
+            isLoggedIn = false; // Assume not logged in if error
+            userRole = null;
+        }
+    }
+
+    public void Dispose()
+    {
+        _navigationManager.LocationChanged -= OnLocationChanged;
+        GC.SuppressFinalize(this);
+    }
+} 
