@@ -222,7 +222,7 @@ namespace CleanUps.API.Controllers
         /// 404 Not Found if the user doesn't exist,
         /// 500 Internal Server Error if an error occurs during processing.
         /// </returns>
-        [HttpPut]
+        [HttpPatch]
         [Route("{id}/password")]
         // [Authorize] // Add appropriate authorization policy here
         [ProducesResponseType(StatusCodes.Status200OK)]

@@ -335,7 +335,7 @@ namespace CleanUps.Shared.ClientServices
             try
             {
                 // Step 1: Send password change request to the API endpoint
-                HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"api/users/{changeRequest.UserId}/password", changeRequest);
+                HttpResponseMessage response = await _httpClient.PatchAsJsonAsync($"api/users/{changeRequest.UserId}/password", changeRequest);
 
                 // Step 2: Process successful response
                 if (response.IsSuccessStatusCode)

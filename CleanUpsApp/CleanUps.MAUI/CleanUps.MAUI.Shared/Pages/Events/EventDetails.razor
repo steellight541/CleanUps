@@ -9,129 +9,106 @@
 @using CleanUps.Shared.DTOs.EventAttendances
 @using CleanUps.Shared.DTOs.Enums
 
-<div class="card shadow p-4">
-    <h3>Event Details</h3>
-
-    @if (eventResult == null)
-    {
-        <p>Loading...</p>
-    }
-    else if (eventResult.IsSuccess && eventResult.Data != null)
-    {
-        var ev = eventResult.Data;
-        bool isPastEvent = ev.EndTime < DateTime.Now;
-        bool isCompletedOrCanceled = ev.Status == StatusDTO.Completed || ev.Status == StatusDTO.Canceled;
-
-        <div class="mb-4">
-            <h4>@ev.Title</h4>
-            <p>@ev.Description</p>
-        </div>
-
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <p><strong>Start Time:</strong> @ev.StartTime.ToString("g")</p>
-                <p><strong>End Time:</strong> @ev.EndTime.ToString("g")</p>
-                <p><strong>Status:</strong> @ev.Status</p>
-            </div>
-            <div class="col-md-6">
-                <p><strong>Family Friendly:</strong> @(ev.FamilyFriendly ? "Yes" : "No")</p>
-                <p><strong>Trash Collected:</strong> @ev.TrashCollected kg</p>
-                <p><strong>Participants:</strong> @(eventAttendees?.Count ?? 0)</p>
-            </div>
-        </div>
-
-        @if (ev.Location != null)
+<div class="card shadow position-relative">
+    @* Header with title and top-right Edit/Delete for Organizers *@
+    <div class="card-header d-flex justify-content-between align-items-center py-3">
+        <h3 class="mb-0">Event Details</h3>
+        @if (isOrganizer && eventResult?.Data != null)
         {
-            <div class="mb-4">
-                <h5>Location</h5>
-                <p>Latitude: @ev.Location.Latitude, Longitude: @ev.Location.Longitude</p>
+            <div>
+                @* Small Screen Buttons (Icon + Text) *@
+                <button class="btn btn-sm btn-primary me-1 d-lg-none" @onclick="() => EditEvent(eventResult.Data.EventId)" disabled="@isAttendanceActionLoading" title="Edit Event">
+                    <i class="bi bi-pencil-square"></i> Edit
+                </button>
+                <button class="btn btn-sm btn-danger d-lg-none" @onclick="() => DeleteEvent(eventResult.Data.EventId)" disabled="@isAttendanceActionLoading" title="Delete Event">
+                    <i class="bi bi-trash"></i> Delete
+                </button>
+
+                @* Large Screen Buttons (Text Style Links) *@
+                <button class="btn btn-link text-primary text-decoration-none p-0 me-2 d-none d-lg-inline-block" @onclick="() => EditEvent(eventResult.Data.EventId)" disabled="@isAttendanceActionLoading" title="Edit Event">
+                    <i class="bi bi-pencil-square"></i> Edit
+                </button>
+                <button class="btn btn-link text-danger text-decoration-none p-0 d-none d-lg-inline-block" @onclick="() => DeleteEvent(eventResult.Data.EventId)" disabled="@isAttendanceActionLoading" title="Delete Event">
+                    <i class="bi bi-trash"></i> Delete
+                </button>
             </div>
         }
+    </div>
 
-        <div class="d-flex gap-2 mb-2">
-            <button class="btn btn-secondary" @onclick="GoBack">Back</button>
+    <div class="card-body p-4">
+        @if (eventResult == null)
+        {
+            <p>Loading...</p>
+        }
+        else if (eventResult.IsSuccess && eventResult.Data != null)
+        {
+            var ev = eventResult.Data;
+            bool isPastEvent = ev.EndTime < DateTime.Now;
 
-            @* --- Attendance Button Logic (Visible to Volunteers & Organizers) --- *@
-            @if (eventResult?.Data != null)
+            <div class="mb-4">
+                <h4>@ev.Title</h4>
+                <p>@ev.Description</p>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <p><strong>Start Time:</strong> @ev.StartTime.ToString("g")</p>
+                    <p><strong>End Time:</strong> @ev.EndTime.ToString("g")</p>
+                    <p><strong>Status:</strong> @ev.Status</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Family Friendly:</strong> @(ev.FamilyFriendly ? "Yes" : "No")</p>
+                    <p><strong>Trash Collected:</strong> @ev.TrashCollected kg</p>
+                    <p><strong>Participants:</strong> @(eventAttendees?.Count ?? 0)</p>
+                </div>
+            </div>
+
+            @if (ev.Location != null)
             {
-                @if (eventResult.Data.EndTime < DateTime.Now) // Event is in the past
-                {
-                    @if (isCurrentUserAttending)
-                    {
-                        <button class="btn btn-success disabled" disabled>Attended</button>
-                    }
-                    else
-                    {
-                        <button class="btn btn-secondary disabled" disabled>Did not attend</button>
-                    }
-                }
-                else // Event is in the future or ongoing
-                {
-                    @if (isAttendanceActionLoading)
-                    {
-                        <button class="btn btn-info disabled" disabled>
-                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            Loading...
-                        </button>
-                    }
-                    else
-                    {
-                        @if (isCurrentUserAttending)
-                        {
-                            <button class="btn btn-warning" @onclick="UnregisterFromEvent">Not Going</button>
-                        }
-                        else
-                        {
-                            <button class="btn btn-success" @onclick="SignUpForEvent">Going</button>
-                        }
-                    }
-                }
+                <div class="mb-4">
+                    <h5>Location</h5>
+                    <p>Latitude: @ev.Location.Latitude, Longitude: @ev.Location.Longitude</p>
+                </div>
             }
 
-            @* --- Organizer-Specific Buttons & Controls --- *@
+            @* Organizer Controls (Status & Manage Attendance Toggle) *@
             @if (isOrganizer)
             {
-                <div class="d-flex flex-wrap gap-2 mb-2 align-items-center">
-                    <button class="btn btn-primary" @onclick="() => EditEvent(ev.EventId)" disabled="@isAttendanceActionLoading">Edit</button>
-                    <button class="btn btn-danger" @onclick="() => DeleteEvent(ev.EventId)" disabled="@isAttendanceActionLoading">Delete</button>
-                    <button class="btn btn-info" @onclick="ToggleManageAttendance">
-                        @(isManageAttendanceVisible ? "Hide" : "Show") User Attendance Management
-                    </button>
-
-                    @* --- Status Update Dropdown --- *@
-                    <div class="input-group" style="max-width: 200px;">
-                        <label class="input-group-text" for="statusSelect">Set Status:</label>
-                        <select id="statusSelect" class="form-select"
-                                @bind="selectedStatus" 
-                                @bind:after="HandleStatusChange"
-                                disabled="@(isPastEvent || isCompletedOrCanceled || isStatusUpdateLoading)">
-                            @foreach (StatusDTO statusValue in Enum.GetValues(typeof(StatusDTO)))
+                <div class="mb-3 border-top pt-3">
+                     <h5>Organizer Actions</h5>
+                     <div class="d-flex flex-wrap gap-2 align-items-center">
+                         <div class="input-group" style="max-width: 250px;">
+                            <label class="input-group-text" for="statusSelect">Status</label>
+                            <select id="statusSelect" class="form-select"
+                                    @bind="selectedStatus" @bind:after="HandleStatusChange"
+                                    disabled="@(isPastEvent || isStatusUpdateLoading)">
+                                @foreach (StatusDTO s in Enum.GetValues(typeof(StatusDTO)))
+                                {
+                                    <option value="@s">@s</option>
+                                }
+                            </select>
+                            @if (isStatusUpdateLoading)
                             {
-                                <option value="@statusValue">@statusValue</option>
+                                <span class="input-group-text">
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                </span>
                             }
-                        </select>
-                        @if (isStatusUpdateLoading)
-                        {
-                             <span class="input-group-text">
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                             </span>
-                        }
-                    </div>
-                    @* --- End Status Update Dropdown --- *@
-                </div>
-                @if (!string.IsNullOrEmpty(statusUpdateMessage))
-                {
-                    <p class="@statusUpdateMessageClass mt-1 mb-2">@statusUpdateMessage</p>
-                }
+                        </div>
+                         <button class="btn btn-info" @onclick="ToggleManageAttendance">
+                             <i class="bi bi-people"></i> @(isManageAttendanceVisible ? "Hide Attendance" : "Manage Attendance")
+                         </button>
+                     </div>
+                     @if (!string.IsNullOrEmpty(statusUpdateMessage))
+                     {
+                         <p class="@statusUpdateMessageClass mt-2 mb-0">@statusUpdateMessage</p>
+                     }
+                 </div>
             }
-        </div>
 
-        @* --- Organizer Management Section --- *@
-        @if (isOrganizer)
-        {
-            @if (isManageAttendanceVisible)
+            @* Organizer Management Section (Collapsible) *@
+            @if (isOrganizer && isManageAttendanceVisible)
             {
-                <div class="card bg-light p-3 mb-3">
+                <div class="card bg-light p-3 my-3">
                     <h5>Manage User Attendance</h5>
                     <div class="mb-2">
                         <input type="text" class="form-control" placeholder="Search users by name or email..." @bind="searchTerm" @bind:event="oninput" />
@@ -189,17 +166,65 @@
                 </div>
             }
         }
-        @* --- End Organizer Management Section --- *@
-    }
-    else
-    {
-        <p class="text-danger">Error: @eventResult.ErrorMessage</p>
-    }
+        else if (eventResult != null) // Handles case where eventResult exists but IsSuccess is false
+        {
+            <p class="text-danger">Error loading event: @eventResult.ErrorMessage</p>
+        }
+        else // Should not happen if initialized correctly, but safety check
+        {
+             <p class="text-danger">An unexpected error occurred.</p>
+        }
 
-    @if (!string.IsNullOrEmpty(errorMessage))
-    {
-        <p class="text-danger">@errorMessage</p>
-    }
+        @* Display general error message if any occurred during initialization or other actions *@
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger mt-3">@errorMessage</div>
+        }
+    </div>
+
+    @* Footer with Back and Attendance action *@
+    <div class="card-footer d-flex justify-content-start align-items-center gap-2 py-3">
+        <button class="btn btn-secondary" @onclick="GoBack">
+            <i class="bi bi-arrow-left"></i> Back
+        </button>
+
+        @* Attendance Button Logic (Only show if event loaded successfully) *@
+        @if (eventResult?.Data != null)
+        {
+            bool isPastEvent = eventResult.Data.EndTime < DateTime.Now;
+            if (isPastEvent)
+            {
+                <button class="btn btn-secondary" disabled>
+                    @if (isCurrentUserAttending)
+                    {
+                        <i class="bi bi-check-lg"><span>Attended</span></i> 
+                    }
+                    else
+                    {
+                        <i class="bi bi-x-lg"><span>Did Not Attend</span></i> 
+                    }
+                </button>
+            }
+            else if (isAttendanceActionLoading)
+            {
+                <button class="btn btn-info" disabled>
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading…
+                </button>
+            }
+            else if (isCurrentUserAttending)
+            {
+                <button class="btn btn-warning" @onclick="UnregisterFromEvent">
+                    <i class="bi bi-person-dash"></i><span> Not Going</span>
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-success" @onclick="SignUpForEvent">
+                    <i class="bi bi-person-plus"></i><span> Going</span>
+                </button>
+            }
+        }
+    </div>
 </div>
 
 @code {
@@ -241,9 +266,9 @@
     /// <summary>
     /// Filtered user list for organizer management based on search term and event status.
     /// </summary>
-    private IEnumerable<UserResponse> FilteredUsers 
+    private IEnumerable<UserResponse> FilteredUsers
     {
-        get 
+        get
         {
             if (allUsersResult?.Data == null) return Enumerable.Empty<UserResponse>();
 
@@ -269,7 +294,7 @@
             }
             else
             {
-                return baseList.Where(u => 
+                return baseList.Where(u =>
                     u.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
                     u.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
             }
@@ -284,7 +309,7 @@
     {
         // Step 1: Set loading state
         isLoadingEvent = true;
-        
+
         try
         {
             // Step 2: Get current user information
@@ -349,7 +374,7 @@
         if (eventResult.IsSuccess && eventResult.Data != null)
         {
             selectedStatus = eventResult.Data.Status; // Initialize dropdown selection
-            
+
             // Step 4: Load event attendance data
             var eventAttendanceResult = await _eventAttendanceApiService.GetUsersByEventIdAsync(eventId);
             if (eventAttendanceResult.IsSuccess)
@@ -377,7 +402,7 @@
     {
         // Step 1: Verify user is logged in
         if (currentUserId == null) return;
-        
+
         // Step 2: Set loading state
         isAttendanceActionLoading = true;
         errorMessage = string.Empty;
@@ -412,7 +437,7 @@
     {
         // Step 1: Verify user is logged in
         if (currentUserId == null) return;
-        
+
         // Step 2: Set loading state
         isAttendanceActionLoading = true;
         errorMessage = string.Empty;
@@ -472,7 +497,7 @@
 
         // Step 2: Send delete request to API
         var deleteResult = await _eventApiService.DeleteAsync(new DeleteEventRequest(eventId));
-        
+
         // Step 3: Handle response
         if (deleteResult.IsSuccess)
         {
@@ -484,7 +509,7 @@
             // Step 5: Display error message if failed
             errorMessage = deleteResult.ErrorMessage ?? "An error occurred while deleting the event.";
         }
-        
+
         // Step 6: Clear loading state
         isAttendanceActionLoading = false;
         StateHasChanged();
@@ -497,7 +522,7 @@
     {
         // Step 1: Toggle visibility flag
         isManageAttendanceVisible = !isManageAttendanceVisible;
-        
+
         // Step 2: Clear search and messages when hiding
         if (!isManageAttendanceVisible)
         {
@@ -521,11 +546,11 @@
             manageAttendanceMessage = "Cannot modify attendance for past events.";
             manageAttendanceMessageClass = "text-warning";
             StateHasChanged();
-            return; 
+            return;
         }
 
         // Step 2: Verify user is an organizer
-        if (!isOrganizer) return; 
+        if (!isOrganizer) return;
 
         // Step 3: Set loading state
         manageAttendanceLoadingUserId = userIdToToggle;
@@ -598,7 +623,7 @@
             // Update the local event data with the response from the API
             eventResult = updateResult; // Replace the whole result object
             selectedStatus = eventResult.Data.Status; // Ensure dropdown reflects the final state
-            // Manually update attendees list if needed (e.g., if status change affects attendance rules), 
+            // Manually update attendees list if needed (e.g., if status change affects attendance rules),
             // but for now, just using the updated event data should be sufficient.
         }
         else
@@ -606,9 +631,9 @@
             statusUpdateMessage = $"Failed to update event status: {updateResult.ErrorMessage}";
             statusUpdateMessageClass = "text-danger";
             // Revert the dropdown selection and local data on failure
-            selectedStatus = originalStatus; 
+            selectedStatus = originalStatus;
             // Optionally reload all data from server for robustness:
-            // await LoadEventData(); 
+            // await LoadEventData();
         }
 
         // Step 4: Clear loading state

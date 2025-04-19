@@ -24,6 +24,8 @@ namespace CleanUps.MAUI.Shared.Services
             services.AddHttpClient("CleanupsApi", client =>
             {
                 client.BaseAddress = new Uri("http://cleanups-api.mbuzinous.com/");
+                //http://cleanups-api.mbuzinous.com/
+                //https://localhost:7128/
             });
 
             // Add simplified session services
