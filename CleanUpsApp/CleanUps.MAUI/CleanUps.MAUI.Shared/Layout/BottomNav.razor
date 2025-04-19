@@ -7,21 +7,25 @@
     <nav class="bottom-nav">
         @* Common Left Button: EventMap/Explore *@
         <div class="nav-item">
-            <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
+            <NavLink class="nav-link" href="events/map" Match="NavLinkMatch.All">
                 <div class="nav-button-circle">
-                    <span class="bi bi-geo-alt-fill" aria-hidden="true"></span>
-                    <span class="nav-text">EventMap</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo-alt-fill" viewBox="0 0 16 16" aria-hidden="true">
+                      <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6"/>
+                    </svg>
                 </div>
+                <span class="nav-text">EventMap</span>
             </NavLink>
         </div>
 
         @* Common Middle-Left Button: EventList *@
         <div class="nav-item">
-            <NavLink class="nav-link" href="events" Match="NavLinkMatch.Prefix"> @* Assuming href is /events *@
+            <NavLink class="nav-link" href="events" Match="NavLinkMatch.All">
                 <div class="nav-button-circle">
-                    <span class="bi bi-list-stars" aria-hidden="true"></span> @* Placeholder Icon *@
-                    <span class="nav-text">EventList</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-ul" viewBox="0 0 16 16" aria-hidden="true">
+                      <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
+                    </svg>
                 </div>
+                <span class="nav-text">EventList</span>
             </NavLink>
         </div>
 
@@ -31,11 +35,13 @@
             {
                 @* Organizer Middle-Right: Users List *@
                 <div class="nav-item">
-                    <NavLink class="nav-link" href="users" Match="NavLinkMatch.Prefix"> @* Assuming href is /users *@
+                    <NavLink class="nav-link" href="users" Match="NavLinkMatch.All"> @* Assuming href is /users *@
                         <div class="nav-button-circle">
-                            <span class="bi bi-people-fill" aria-hidden="true"></span> @* Placeholder Icon *@
-                            <span class="nav-text">Users List</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-lines-fill" viewBox="0 0 16 16" aria-hidden="true">
+                              <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5 6s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zM11 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5m.5 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1zm2 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1z"/>
+                            </svg>
                         </div>
+                        <span class="nav-text">Users List</span>
                     </NavLink>
                 </div>
             }
@@ -45,9 +51,11 @@
             <div class="nav-item">
                 <NavLink class="nav-link" href="users/profile" Match="NavLinkMatch.All">
                      <div class="nav-button-circle">
-                        <span class="bi bi-person-fill" aria-hidden="true"></span>
-                        <span class="nav-text">Profile</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16" aria-hidden="true">
+                          <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                        </svg>
                     </div>
+                    <span class="nav-text">Profile</span>
                 </NavLink>
             </div>
         }
@@ -57,9 +65,12 @@
             <div class="nav-item">
                 <NavLink class="nav-link" href="auth/login">
                     <div class="nav-button-circle">
-                        <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span>
-                        <span class="nav-text">Login</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-in-right" viewBox="0 0 16 16" aria-hidden="true">
+                          <path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0z"/>
+                          <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+                        </svg>
                     </div>
+                    <span class="nav-text">Login</span>
                 </NavLink>
             </div>
 
@@ -67,9 +78,12 @@
             <div class="nav-item">
                 <NavLink class="nav-link" href="auth/signup">
                      <div class="nav-button-circle">
-                        <span class="bi bi-person-plus-fill" aria-hidden="true"></span>
-                        <span class="nav-text">Sign Up</span>
+                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope-open-heart-fill" viewBox="0 0 16 16" aria-hidden="true">
+                           <path d="M8.941.435a2 2 0 0 0-1.882 0l-6 3.2A2 2 0 0 0 0 5.4v.313l4.222 2.475q.035-.087.08-.17c.665-1.3 2.362-1.917 3.698-1.25 1.336-.667 3.033-.05 3.699 1.25a3 3 0 0 1 .08.17L16 5.713V5.4a2 2 0 0 0-1.059-1.765zM0 6.873l4 2.344c-.012.542.124 1.117.416 1.694l.004.006L0 13.372v-6.5Zm.059 7.611 4.9-2.723c.563.73 1.383 1.467 2.49 2.198l.551.365.551-.365c1.107-.73 1.927-1.467 2.49-2.198l4.9 2.723A2 2 0 0 1 14 16H2a2 2 0 0 1-1.941-1.516M16 13.372l-4.42-2.455.004-.006c.292-.577.428-1.152.415-1.694L16 6.873v6.5Z"/>
+                           <path d="M8 7.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132"/>
+                         </svg>
                     </div>
+                    <span class="nav-text">Sign Up</span>
                 </NavLink>
             </div>
         }

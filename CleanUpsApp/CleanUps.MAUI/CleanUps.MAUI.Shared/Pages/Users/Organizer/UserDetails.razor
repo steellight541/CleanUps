@@ -11,9 +11,14 @@
         <h3 class="mb-0">User Details</h3>
         @if (isOrganizer && userDetail != null)
         {
+            <div>
              <button class="btn btn-sm btn-primary" @onclick="EditUser" title="Edit User">
                  <i class="bi bi-pencil-square"></i> Edit
              </button>
+             <button class="btn btn-sm btn-danger" @onclick="DeleteUser" title="Delete User">
+                 <i class="bi bi-trash-fill"></i> Delete
+             </button>
+            </div>
         }
     </div>
 
@@ -126,5 +131,28 @@
     {
         // Step 1: Navigate to the edit page for this user
         _navigationManager.NavigateTo($"/users/{UserId}/edit");
+    }
+
+        /// <summary>
+    /// Deletes a user and refreshes the user list.
+    /// </summary>
+    /// <param name="userId">The ID of the user to delete.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private async Task DeleteUser()
+    {
+        // Step 1: Call API to delete the user
+        var deleteResult = await _userApiService.DeleteAsync(new DeleteUserRequest(UserId));
+        
+        // Step 2: Process the result
+        if (deleteResult.IsSuccess)
+        {
+            // Step 3: If successful, navigate back to the users list
+            _navigationManager.NavigateTo("/users");
+        }
+        else
+        {
+            // Step 4: If failed, display error message
+            errorMessage = deleteResult.ErrorMessage ?? "An error occurred while deleting the user.";
+        }
     }
 }

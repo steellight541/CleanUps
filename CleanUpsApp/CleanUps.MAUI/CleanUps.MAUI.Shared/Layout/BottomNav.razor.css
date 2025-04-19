@@ -12,7 +12,7 @@
     display: flex;
     justify-content: space-around;
     align-items: center;
-    height: 70px; /* Increased height for circles */
+    height: 90px; /* Increased height for circles */
     padding: 5px 10px; /* Adjust padding */
 }
 
@@ -26,7 +26,7 @@
     display: flex; 
     flex-direction: column;
     align-items: center; 
-    justify-content: center; 
+    justify-content: center; /* Center items vertically */
     height: 100%;
     padding: 0;
     color: inherit; /* Inherit color */
@@ -34,47 +34,53 @@
     transition: none; /* Remove previous transition */
 }
 
-/* Style for the blue circle */
+/* Style for the blue elongated shape (Icon background) */
 .nav-item ::deep .nav-link .nav-button-circle {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 50px; /* Circle size */
-    height: 50px; /* Circle size */
-    background-color: #0d6efd; /* Bootstrap primary blue */
-    border-radius: 50%;
-    color: white;
+    width: 70px; /* Increased width */
+    height: 40px; /* Decreased height */
+    background-color: #0A4884; /* Updated background color */
+    border-radius: 20px; /* Adjusted for capsule shape (half of height) */
+    color: white; /* SVG will inherit this */
     transition: background-color 0.2s ease-in-out;
+    margin-bottom: 4px; /* Add space below icon background */
 }
 
-.nav-item ::deep .nav-link .bi {
-    font-size: 1.25rem; /* Icon size */
-    margin-bottom: 0;  /* Remove margin */
-    /* Reset inherited styles if needed */
-    display: block;
-    width: auto;
-    height: auto;
-    position: static;
-    margin-right: 0;
-    top: 0;
+/* Add rule for styling SVGs inside the circle */
+.nav-item ::deep .nav-link .nav-button-circle svg {
+    width: 1.25rem;  /* Set width */
+    height: 1.25rem; /* Set height */
+    margin-bottom: 0; /* Replicate margin removal */
 }
 
 .nav-text {
-    display: block;
+    display: none; /* Hide by default */
     line-height: 1.1;
-    font-size: 0.65rem; /* Slightly smaller text */
-    margin-top: 2px; /* Small space between icon and text */
+    font-size: 0.8rem; /* Slightly smaller text */
+    font-weight: bold;
+    margin-top: 0; /* Reset margin-top */
+    color: #fd7e14; /* Orange background */
+    padding: 2px 6px; /* Add padding */
+    border-radius: 4px; /* Rounded corners */
+    text-align: center;
+}
+
+/* Style for the text when the link is active */
+.nav-item ::deep .nav-link.active .nav-text {
+    display: inline-block; /* Show only when active */
 }
 
 /* Style for the active link's circle */
 .nav-item ::deep .nav-link.active .nav-button-circle {
-    background-color: #0a58ca; /* Darker blue for active */
+    background-color: #042241; /* Darker blue for active */
 }
 
 /* Optional: Hover effect for the circle */
 .nav-item ::deep .nav-link:hover .nav-button-circle {
-    background-color: #0b5ed7; /* Slightly darker blue on hover */
+    background-color: #8ea3b8; /* Slightly darker blue on hover */
 }
 
 /* Remove the text decoration from NavLink */
