@@ -57,6 +57,7 @@ namespace CleanUps.Configuration
             services.AddScoped<IPhotoRepository, PhotoRepository>();
             services.AddScoped<IEventAttendanceRepository, EventAttendanceRepository>();
             services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
+            services.AddScoped<IScheduleAutomationRepository, ScheduleAutomationRepository>();
 
             // Register services
             services.AddScoped<IEventService, EventService>();

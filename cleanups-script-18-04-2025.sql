@@ -1,4 +1,4 @@
-﻿USE CleanUpsDb;
+﻿USE mbuzinous_com_db_cleanups;
 GO
 
 -- ### Step 1: Create Tables without inline NOT NULL or DEFAULT constraints
@@ -27,7 +27,7 @@ CREATE TABLE Users (
     Email NVARCHAR(255),
     PasswordHash NVARCHAR(MAX),
     RoleId INT,
-    CreatedDate DATETIME,
+    CreatedDate DATETIME2,
     isDeleted BIT
 );
 GO
@@ -50,7 +50,7 @@ GO
 CREATE TABLE EventAttendances (
     EventId INT,
     UserId INT,
-    CheckIn DATETIME,
+    CheckIn DATETIME2,
     CreatedDate DATETIME2
 );
 GO
@@ -63,6 +63,15 @@ CREATE TABLE Photos (
 );
 GO
 
+ CREATE TABLE PasswordResetTokens (
+	Id INT IDENTITY(1,1),
+	Token NVARCHAR(450),
+	UserId INT,
+	ExpirationDate DATETIME2,
+	IsUsed BIT,
+	CreatedDate DATETIME2
+);
+
 -- ### Step 2: Add NOT NULL Constraints
 ALTER TABLE Locations
 ALTER COLUMN Id INT NOT NULL;
@@ -71,7 +80,6 @@ GO
 ALTER TABLE Locations
 ALTER COLUMN Latitude DECIMAL(10,7) NOT NULL;
 GO
-
 ALTER TABLE Locations
 ALTER COLUMN Longitude DECIMAL(10,7) NOT NULL;
 GO
@@ -79,7 +87,6 @@ GO
 ALTER TABLE Roles
 ALTER COLUMN Id INT NOT NULL;
 GO
-
 ALTER TABLE Roles
 ALTER COLUMN Name NVARCHAR(MAX) NOT NULL;
 GO
@@ -87,7 +94,6 @@ GO
 ALTER TABLE Statuses
 ALTER COLUMN Id INT NOT NULL;
 GO
-
 ALTER TABLE Statuses
 ALTER COLUMN Name NVARCHAR(MAX) NOT NULL;
 GO
@@ -95,27 +101,21 @@ GO
 ALTER TABLE Users
 ALTER COLUMN UserId INT NOT NULL;
 GO
-
 ALTER TABLE Users
 ALTER COLUMN Name NVARCHAR(100) NOT NULL;
 GO
-
 ALTER TABLE Users
 ALTER COLUMN Email NVARCHAR(255) NOT NULL;
 GO
-
 ALTER TABLE Users
 ALTER COLUMN PasswordHash NVARCHAR(MAX) NOT NULL;
 GO
-
 ALTER TABLE Users
 ALTER COLUMN RoleId INT NOT NULL;
 GO
-
 ALTER TABLE Users
-ALTER COLUMN CreatedDate DATETIME NOT NULL;
+ALTER COLUMN CreatedDate DATETIME2 NOT NULL;
 GO
-
 ALTER TABLE Users
 ALTER COLUMN isDeleted BIT NOT NULL;
 GO
@@ -123,43 +123,33 @@ GO
 ALTER TABLE Events
 ALTER COLUMN EventId INT NOT NULL;
 GO
-
 ALTER TABLE Events
 ALTER COLUMN Title NVARCHAR(MAX) NOT NULL;
 GO
-
 ALTER TABLE Events
 ALTER COLUMN Description NVARCHAR(MAX) NOT NULL;
 GO
-
 ALTER TABLE Events
 ALTER COLUMN StartTime DATETIME2 NOT NULL;
 GO
-
 ALTER TABLE Events
 ALTER COLUMN EndTime DATETIME2 NOT NULL;
 GO
-
 ALTER TABLE Events
 ALTER COLUMN FamilyFriendly BIT NOT NULL;
 GO
-
 ALTER TABLE Events
 ALTER COLUMN TrashCollected DECIMAL(18,0) NOT NULL;
 GO
-
 ALTER TABLE Events
 ALTER COLUMN StatusId INT NOT NULL;
 GO
-
 ALTER TABLE Events
 ALTER COLUMN LocationId INT NOT NULL;
 GO
-
 ALTER TABLE Events
 ALTER COLUMN CreatedDate DATETIME2 NOT NULL;
 GO
-
 ALTER TABLE Events
 ALTER COLUMN isDeleted BIT NOT NULL;
 GO
@@ -167,15 +157,12 @@ GO
 ALTER TABLE EventAttendances
 ALTER COLUMN EventId INT NOT NULL;
 GO
-
 ALTER TABLE EventAttendances
 ALTER COLUMN UserId INT NOT NULL;
 GO
-
 ALTER TABLE EventAttendances
-ALTER COLUMN CheckIn DATETIME NOT NULL;
+ALTER COLUMN CheckIn DATETIME2 NOT NULL;
 GO
-
 ALTER TABLE EventAttendances
 ALTER COLUMN CreatedDate DATETIME2 NOT NULL;
 GO
@@ -183,20 +170,37 @@ GO
 ALTER TABLE Photos
 ALTER COLUMN PhotoId INT NOT NULL;
 GO
-
 ALTER TABLE Photos
 ALTER COLUMN EventId INT NOT NULL;
 GO
-
 ALTER TABLE Photos
 ALTER COLUMN PhotoData VARBINARY(MAX) NOT NULL;
+GO
+
+ALTER TABLE PasswordResetTokens
+ALTER COLUMN Id INT NOT NULL;
+GO
+ALTER TABLE PasswordResetTokens
+ALTER COLUMN Token NVARCHAR(450) NOT NULL;
+GO
+ALTER TABLE PasswordResetTokens
+ALTER COLUMN UserId INT NOT NULL;
+GO
+ALTER TABLE PasswordResetTokens
+ALTER COLUMN ExpirationDate DATETIME2 NOT NULL;
+GO
+ALTER TABLE PasswordResetTokens
+ALTER COLUMN IsUsed BIT NOT NULL;
+GO
+
+ALTER TABLE PasswordResetTokens
+ALTER COLUMN CreatedDate DATETIME2 NOT NULL;
 GO
 
 -- ### Step 3: Add DEFAULT Constraints
 ALTER TABLE Users
 ADD CONSTRAINT DF_Users_CreatedDate DEFAULT GETUTCDATE() FOR CreatedDate;
 GO
-
 ALTER TABLE Users
 ADD CONSTRAINT DF_Users_isDeleted DEFAULT 0 FOR isDeleted;
 GO
@@ -204,13 +208,19 @@ GO
 ALTER TABLE Events
 ADD CONSTRAINT DF_Events_CreatedDate DEFAULT GETUTCDATE() FOR CreatedDate;
 GO
-
 ALTER TABLE Events
 ADD CONSTRAINT DF_Events_isDeleted DEFAULT 0 FOR isDeleted;
 GO
 
 ALTER TABLE EventAttendances
 ADD CONSTRAINT DF_EventAttendances_CreatedDate DEFAULT GETUTCDATE() FOR CreatedDate;
+GO
+
+ALTER TABLE PasswordResetTokens
+ADD CONSTRAINT DF_PasswordResetTokens_CreatedDate DEFAULT GETUTCDATE() FOR CreatedDate;
+GO
+ALTER TABLE PasswordResetTokens
+ADD CONSTRAINT DF_PasswordResetTokens_IsUsed DEFAULT 0 FOR IsUsed;
 GO
 
 -- ### Step 4: Add Other Constraints
@@ -229,6 +239,8 @@ ALTER TABLE Photos ADD CONSTRAINT PK_Photos PRIMARY KEY (PhotoId);
 GO
 ALTER TABLE EventAttendances ADD CONSTRAINT PK_EventAttendances PRIMARY KEY (EventId, UserId);
 GO
+ALTER TABLE PasswordResetTokens ADD CONSTRAINT PK_PasswordResetTokens PRIMARY KEY (Id);
+GO
 
 -- Foreign Keys
 ALTER TABLE Users ADD CONSTRAINT FK_Users_Roles_RoleId  FOREIGN KEY (RoleId) REFERENCES Roles(Id);
@@ -243,11 +255,15 @@ ALTER TABLE EventAttendances ADD CONSTRAINT FK_EventAttendances_Users_UserId FOR
 GO
 ALTER TABLE Photos ADD CONSTRAINT FK_Photos_Events_EventId FOREIGN KEY (EventId) REFERENCES Events(EventId);
 GO
+ALTER TABLE PasswordResetTokens ADD CONSTRAINT FK_PasswordResetTokens_Users_UserId FOREIGN KEY (UserId) REFERENCES Users(UserId) ON DELETE CASCADE;
+GO
 
 -- Unique Constraints
 ALTER TABLE Users ADD CONSTRAINT UQ_Email UNIQUE (Email);
 GO
 ALTER TABLE EventAttendances ADD CONSTRAINT UQ_EventId_UserId UNIQUE (EventId, UserId);
+GO
+ALTER TABLE PasswordResetTokens ADD CONSTRAINT UQ_PasswordResetToken_Token UNIQUE (Token);
 GO
 
 -- Check Constraints
@@ -255,37 +271,153 @@ ALTER TABLE Events ADD CONSTRAINT CHK_EndTimeAfterStartTime CHECK (EndTime > Sta
 GO
 
 -- ### Step 5: Create Triggers and Procedures
-CREATE TRIGGER TR_Users_InsteadOfDelete ON Users INSTEAD OF DELETE AS
+CREATE TRIGGER TR_Users_SoftDelete
+ON Users
+INSTEAD OF DELETE
+AS
 BEGIN
-    UPDATE U
-    SET U.isDeleted = 1,
-        U.Email = 'deleted@user.' + CAST(D.UserId AS NVARCHAR(255))
-		FROM Users U
-    INNER JOIN deleted D ON U.UserId = D.UserId
-    WHERE U.isDeleted = 0;
+    -- 1) Prevent the standard DELETE operation from running,
+    --    so we can perform our “soft delete” logic instead.
+    SET NOCOUNT ON;
+
+    -- 2) Update each user being “deleted” in this statement...
+    UPDATE userTable
+    SET
+        userTable.isDeleted = 1,  -- mark the record as deleted
+        userTable.Email = 'deleted@user.' + CAST(deletedRows.UserId AS NVARCHAR(255)), -- overwrite email to avoid unique constraint violation
+        userTable.Name = NULL, -- remove personal name
+        userTable.PasswordHash= NULL -- remove password hash
+    FROM Users AS userTable
+
+    -- 3) Only touch the users that the DELETE statement targeted:
+    INNER JOIN deleted AS deletedRows
+        ON userTable.UserId = deletedRows.UserId
+
+    -- 4) Only affect users not already marked deleted:
+    WHERE userTable.isDeleted = 0;
 END;
 GO
 
-CREATE TRIGGER TR_Events_InsteadOfDelete ON Events INSTEAD OF DELETE AS
+CREATE TRIGGER TR_Events_SoftDelete
+ON Events
+INSTEAD OF DELETE
+AS
 BEGIN
-    UPDATE E
-    SET E.isDeleted = 1
-    FROM Events E
-    INNER JOIN deleted D ON E.EventId = D.EventId;
+    -- 1) Prevent the standard DELETE operation from running,
+    --    so we can perform our “soft delete” logic instead.
+    SET NOCOUNT ON;
+
+    -- 2) Mark each targeted event as deleted:
+    UPDATE eventTable
+    SET eventTable.isDeleted = 1
+    FROM Events AS eventTable
+
+    -- 3) Only update the events the DELETE statement wanted to remove:
+    INNER JOIN deleted AS deletedRows
+        ON eventTable.EventId = deletedRows.EventId;
+END;
+GO
+
+
+CREATE TRIGGER TR_Events_UpdateStatus
+ON Events
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    -- Prevent extra resultsets from interfering with client apps
+    SET NOCOUNT ON;
+
+    -- Recompute status for rows that were just inserted or updated,
+    -- but only if their previous status was not “Canceled”.
+    UPDATE eventTable
+    SET eventTable.StatusId = CASE
+        -- 1) If it’s already Canceled (4), leave it as Canceled
+        WHEN eventTable.StatusId = 4 THEN 4
+
+        -- 2) If current UTC time is before the event’s start, mark Upcoming (1)
+        WHEN GETUTCDATE() < eventTable.StartTime THEN 1
+
+        -- 3) If current UTC time is between start and end, mark Ongoing (2)
+        WHEN GETUTCDATE() BETWEEN eventTable.StartTime AND eventTable.EndTime THEN 2
+
+        -- 4) Otherwise (past end), mark Completed (3)
+        ELSE 3
+    END
+    FROM Events AS eventTable
+
+    -- only touch rows that were just inserted or updated
+    INNER JOIN inserted AS newRows
+        ON eventTable.EventId = newRows.EventId
+
+    -- keep track of what the status was before the change
+    INNER JOIN deleted AS oldRows
+        ON eventTable.EventId = oldRows.EventId
+
+    -- only recalculate if the *old* status was non‑canceled (< 4)
+    WHERE oldRows.StatusId < 4;
+END;
+GO
+
+
+CREATE PROCEDURE DeleteOldUsers
+AS
+BEGIN
+    -- Prevent extra result sets from interfering with SELECT statements.
+    SET NOCOUNT ON;
+
+    -- Permanently delete users that have been previously marked as soft-deleted.
+    -- The TR_Users_InsteadOfDelete trigger handles setting isDeleted = 1 and modifying personal data.
+    -- This procedure cleans up those marked records.
+    DELETE FROM Users
+    WHERE CreatedDate < DATEADD(YEAR, -2, GETUTCDATE())
+    AND isDeleted = 1;
 END;
 GO
 
 CREATE PROCEDURE DeleteOldEvents AS
 BEGIN
+    -- Permanently delete events that have been previously marked as soft-deleted.
+    -- The TR_Events_InsteadOfDelete trigger handles setting isDeleted = 1.
+    -- This procedure cleans up those marked records.
     DELETE FROM Events
-    WHERE CreatedDate < DATEADD(YEAR, -2, GETUTCDATE());
+    WHERE CreatedDate < DATEADD(YEAR, -2, GETUTCDATE())
+    AND isDeleted = 1;
 END;
 GO
 
 CREATE PROCEDURE DeleteOldEventAttendances AS
 BEGIN
+    -- Permanently delete event attendances that have been previously marked as soft-deleted.
+    -- The TR_EventAttendances_InsteadOfDelete trigger handles setting isDeleted = 1.
+    -- This procedure cleans up those marked records.
     DELETE FROM EventAttendances
     WHERE CreatedDate < DATEADD(YEAR, -2, GETUTCDATE());
+END;
+GO
+
+CREATE PROCEDURE UpdateEventStatuses
+AS
+BEGIN
+    -- 1) Prevent extra resultsets from interfering:
+    SET NOCOUNT ON;
+
+    -- 2) Update only non‑canceled events:
+    UPDATE eventsTable
+    SET eventsTable.StatusId = CASE
+        -- a) If already “Canceled” (4), leave it at 4
+        WHEN eventsTable.StatusId = 4 THEN 4 
+
+        -- b) If current UTC time is before StartTime, set “Upcoming” (1)
+        WHEN GETUTCDATE() < eventsTable.StartTime THEN 1
+
+        -- c) If current UTC time is between StartTime and EndTime, set “Ongoing” (2)
+        WHEN GETUTCDATE() BETWEEN eventsTable.StartTime AND eventsTable.EndTime THEN 2
+
+        -- d) Otherwise (if current UTC time is after EndTime), set “Completed” (3)
+        ELSE 3
+    END
+    FROM Events AS eventsTable
+    WHERE eventsTable.StatusId < 4; -- Only recalculate statuses that aren’t already Canceled
 END;
 GO
 
@@ -296,15 +428,40 @@ INSERT INTO Statuses (Name) VALUES ('Upcoming'), ('Ongoing'), ('Completed'), ('C
 GO
 
 -- ### Step 7: Create Indexes
+-- Index on EventAttendances(UserId):  
+--   Speeds up queries that look up all event attendances for a specific user  
+--   (e.g., “SELECT * FROM EventAttendances WHERE UserId = …”).
 CREATE INDEX IX_EventAttendances_UserId ON EventAttendances (UserId);
 GO
+
+-- Index on Events(LocationId):  
+--   Optimizes retrieval of all events at a given location  
+--   and accelerates joins between Events and Locations.
 CREATE INDEX IX_Events_LocationId ON Events (LocationId);
 GO
+
+-- Index on Events(StatusId):  
+--   Enables fast filtering and counting of events by their status  
+--   (Upcoming, Ongoing, Completed, Canceled).
 CREATE INDEX IX_Events_StatusId ON Events (StatusId);
 GO
+
+-- Index on Photos(EventId):  
+--   Speeds up queries that look up all photos for a specific event  
+--   (e.g., “SELECT * FROM Photos WHERE EventId = …”).
 CREATE INDEX IX_Photos_EventId ON Photos (EventId);
 GO
+
+-- Index on Users(RoleId):  
+--   Speeds up queries that filter users by their role  
+--   (e.g., “SELECT * FROM Users WHERE RoleId = …”).
 CREATE INDEX IX_Users_RoleId ON Users (RoleId);
+GO
+
+-- Index on PasswordResetTokens(UserId):  
+--   Speeds up queries that look up all password reset tokens for a specific user  
+--   (e.g., “SELECT * FROM PasswordResetTokens WHERE UserId = …”).
+CREATE INDEX IX_PasswordResetTokens_UserId ON PasswordResetTokens(UserId);
 GO
 
 -- ### Step 8: Insert Dummy Data
@@ -356,21 +513,4 @@ VALUES
 ('Zero Waste Documentary Screening & Discussion', 
  'Watch a powerful documentary on the global waste crisis followed by a moderated discussion with local sustainability experts.', 
  '2025-09-12 19:00:00', '2025-09-12 21:30:00', 0, 0, 1, 10);
-GO
-
--- Insert Users
-INSERT INTO Users (Name, Email, PasswordHash, RoleId, CreatedDate)
-VALUES 
-('Mirza Džaferadžović', 'office@zerowastemontenegro.me', 'FakeHash123', 1, '2025-04-13T11:53:14'),
-('Kevin Waweru', 'wawerukew@gmail.com', 'FakeHash123', 2, '2025-04-13T11:53:37'),
-('Nigel Belderbos', 'nigel.belderbos@outlook.com', 'FakeHash123', 1, '2025-04-13T11:53:53'),
-('Bryan Visser', 'bryanvisser@hotmail.nl', 'FakeHash123', 2, '2025-04-13T11:54:21'),
-('Gorm Wissing', 'Gorm.wissing@hotmail.com', 'FakeHash123', 1, '2025-04-13T11:54:40'),
-('Africa Mateos Vallinoto', 'africamateosvallinoto@gmail.com', 'FakeHash123', 2, '2025-04-13T11:55:03'),
-('Jan Willem Crabbendam', 'janwillem.crabbendam@inholland.nl', 'FakeHash123', 1, '2025-04-13T11:55:23'),
-('dummy1', 'dummy1@dummy.com', 'FakeHash123', 2, '2025-04-13T11:55:43'),
-('dummy2', 'dummy2@dummy2.com', 'FakeHash123', 2, '2025-04-13T11:55:59'),
-('dummy3', 'dummy3@dummy3.com', 'FakeHash123', 2, '2025-04-13T11:56:12'),
-('dummy4', 'dummy4@dummy4.com', 'FakeHash123', 2, '2025-04-13T11:56:26'),
-('dummy5', 'dummy5@dummy5.com', 'FakeHash123', 2, '2025-04-13T11:56:37');
 GO

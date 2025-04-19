@@ -125,12 +125,15 @@ public partial class CleanUpsContext : DbContext
                 .HasColumnType("datetime2");
 
             // Configure isDeleted with default value of false
-            entity.Property(e => e.isDeleted)
+            entity.Property(e => e.isDeleted)   
                 .HasDefaultValue(false);
 
             // Add soft-delete trigger to enable soft deletes instead of hard deletes
-            entity.ToTable(tb => tb.HasTrigger("TR_Events_InsteadOfDelete"));
+            entity.ToTable(tb => tb.HasTrigger("TR_Events_SoftDelete"));
             
+            // Add trigger to update status when event is created or updated
+            entity.ToTable(tb => tb.HasTrigger("TR_Events_UpdateStatus"));
+
             // Add check constraint to ensure end time is after start time
             entity.ToTable(t => t.HasCheckConstraint("CHK_EndTimeAfterStartTime", "EndTime > StartTime"));
         });
@@ -206,7 +209,7 @@ public partial class CleanUpsContext : DbContext
                 .OnDelete(DeleteBehavior.NoAction);  // Prevent cascading deletes for users
 
             // Add soft-delete trigger to enable soft deletes instead of hard deletes
-            entity.ToTable(tb => tb.HasTrigger("TR_Users_InsteadOfDelete"));
+            entity.ToTable(tb => tb.HasTrigger("TR_Users_SoftDelete"));
         });
 
         // Configure Location entity
