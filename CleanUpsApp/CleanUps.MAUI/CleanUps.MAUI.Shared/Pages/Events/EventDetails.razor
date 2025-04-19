@@ -10,6 +10,42 @@
 @using CleanUps.Shared.DTOs.Enums
 
 <div class="card shadow position-relative">
+    @* Adding styles for the sliding icon animations *@
+    <style>
+        .attendance-btn {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-icon {
+            display: inline-block;
+            vertical-align: middle;
+            transition: transform 0.3s ease;
+        }
+        
+        .attendance-btn:hover .going-icon,
+        .attendance-btn:hover .notgoing-icon {
+            transform: scale(1.2);
+        }
+        
+        .btn-text {
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+        
+        .dropdown-menu {
+            min-width: auto;
+            padding: 0.5rem;
+            min-width: 140px; /* Ensure enough width for "Not Going" text */
+        }
+        
+        /* Ensure icon and text align nicely */
+        .btn-icon {
+            vertical-align: middle;
+        }
+    </style>
+
     @* Header with title and top-right Edit/Delete for Organizers *@
     <div class="card-header d-flex justify-content-between align-items-center py-3">
         <h3 class="mb-0">Event Details</h3>
@@ -54,7 +90,9 @@
                 <div class="col-md-6">
                     <p><strong>Start Time:</strong> @ev.StartTime.ToString("g")</p>
                     <p><strong>End Time:</strong> @ev.EndTime.ToString("g")</p>
-                    <p><strong>Status:</strong> @ev.Status</p>
+                    <p><strong>Status:</strong> 
+                        <span class="@($"badge {GetStatusBadgeClass(ev.Status)} {(ev.Status == StatusDTO.Upcoming || ev.Status == StatusDTO.Ongoing ? "text-dark" : "text-white")}")"> @ev.Status </span>
+                    </p>
                 </div>
                 <div class="col-md-6">
                     <p><strong>Family Friendly:</strong> @(ev.FamilyFriendly ? "Yes" : "No")</p>
@@ -82,9 +120,14 @@
                             <select id="statusSelect" class="form-select"
                                     @bind="selectedStatus" @bind:after="HandleStatusChange"
                                     disabled="@(isPastEvent || isStatusUpdateLoading)">
-                                @foreach (StatusDTO s in Enum.GetValues(typeof(StatusDTO)))
+                                @foreach (StatusDTO currentStatusDto in Enum.GetValues(typeof(StatusDTO)))
                                 {
-                                    <option value="@s">@s</option>
+                                    <option value="@currentStatusDto" 
+                                           style="background-color: @GetStatusBgColor(currentStatusDto); 
+                                                  color: @((currentStatusDto == StatusDTO.Upcoming || currentStatusDto == StatusDTO.Ongoing) ? "#000" : "#fff"); 
+                                                  font-weight: bold;">
+                                        @currentStatusDto
+                                    </option>
                                 }
                             </select>
                             @if (isStatusUpdateLoading)
@@ -210,14 +253,38 @@
             }
             else if (isCurrentUserAttending)
             {
-                <button class="btn btn-warning" @onclick="UnregisterFromEvent">
-                    <i class="bi bi-person-dash"></i><span> Not Going</span>
-                </button>
+                <div class="btn-group dropup">
+                    <button type="button" class="btn btn-success attendance-btn">
+                        <span class="btn-icon going-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05"/>
+                            </svg>
+                        </span>
+                        <span class="btn-text">Going</span>
+                    </button>
+                    <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="visually-hidden">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <button class="btn btn-outline-danger btn-sm w-100 text-nowrap d-flex align-items-center justify-content-center" @onclick="UnregisterFromEvent">
+                                <span class="notgoing-icon me-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                                    </svg>
+                                </span>
+                                Not Going
+                            </button>
+                        </li>
+                    </ul>
+                </div>
             }
             else
             {
-                <button class="btn btn-success" @onclick="SignUpForEvent">
-                    <i class="bi bi-person-plus"></i><span> Going</span>
+                <button class="btn btn-primary attendance-btn" @onclick="SignUpForEvent">
+                    <span class="btn-text">Count Me In!</span>
                 </button>
             }
         }
@@ -262,6 +329,40 @@
     private string statusUpdateMessage = string.Empty;
     private string statusUpdateMessageClass = string.Empty;
     private StatusDTO selectedStatus; // Added for dropdown binding
+
+    /// <summary>
+    /// Returns the appropriate Bootstrap badge background class based on the event status.
+    /// </summary>
+    /// <param name="status">The event status.</param>
+    /// <returns>A string representing the CSS class.</returns>
+    private string GetStatusBadgeClass(StatusDTO status)
+    {
+        return status switch
+        {
+            StatusDTO.Upcoming => "bg-info",
+            StatusDTO.Ongoing => "bg-warning", // Using warning for ongoing as success might imply completion
+            StatusDTO.Completed => "bg-success", // Using success for completed
+            StatusDTO.Canceled => "bg-danger",
+            _ => "bg-secondary" // Default/fallback
+        };
+    }
+
+    /// <summary>
+    /// Returns the background color hexadecimal value based on the event status.
+    /// </summary>
+    /// <param name="status">The event status.</param>
+    /// <returns>A string representing the CSS color value.</returns>
+    private string GetStatusBgColor(StatusDTO status)
+    {
+        return status switch
+        {
+            StatusDTO.Upcoming => "#0dcaf0", // bg-info
+            StatusDTO.Ongoing => "#ffc107", // bg-warning
+            StatusDTO.Completed => "#198754", // bg-success
+            StatusDTO.Canceled => "#dc3545", // bg-danger
+            _ => "#6c757d" // bg-secondary (default/fallback)
+        };
+    }
 
     /// <summary>
     /// Filtered user list for organizer management based on search term and event status.

@@ -1,89 +1,92 @@
+/* Container for the entire bottom navigation bar */
 .bottom-nav-container {
-    position: fixed;
+    position: fixed; /* Keep it fixed at the bottom */
     bottom: 0;
     left: 0;
-    width: 100%;
-    background-color: white; /* Or your desired background color */
-    border-top: 1px solid #e0e0e0; /* Optional border */
-    z-index: 1000; /* Ensure it stays on top */
+    width: 100%; /* Span the full width */
+    background-color: white; /* Background color */
+    border-top: 1px solid #e0e0e0; /* Add a subtle top border */
+    z-index: 1000; /* Ensure it stays above other content */
 }
 
+/* The navigation bar itself, holding the items */
 .bottom-nav {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    height: 90px; /* Increased height for circles */
-    padding: 5px 10px; /* Adjust padding */
+    display: flex; /* Use flexbox for layout */
+    justify-content: space-around; /* Distribute items evenly */
+    align-items: center; /* Center items vertically */
+    height: 5.625rem; /* Set the height of the nav bar90px / 16px */
+    padding: 0.3125rem 0.625rem; /* Add padding 5px / 16px, 10px / 16px */
 }
 
+/* Individual navigation item container */
 .nav-item {
-    flex-grow: 1;
-    text-align: center;
+    flex-grow: 1; /* Allow items to grow equally */
+    text-align: center; /* Center content horizontally */
 }
 
-/* Make NavLink a flex container to center the circle */
+/* Styling for the Blazor NavLink component within each nav item */
+/* ::deep targets elements inside the NavLink component's shadow DOM */
 .nav-item ::deep .nav-link {
-    display: flex; 
-    flex-direction: column;
-    align-items: center; 
+    display: flex; /* Use flexbox for internal layout */
+    flex-direction: column; /* Stack icon and text vertically */
+    align-items: center; /* Center items horizontally */
     justify-content: center; /* Center items vertically */
-    height: 100%;
-    padding: 0;
-    color: inherit; /* Inherit color */
-    text-decoration: none;
-    transition: none; /* Remove previous transition */
+    height: 100%; /* Take full height of parent */
+    padding: 0; /* Remove default padding */
+    color: inherit; /* Use parent's text color */
+    text-decoration: none; /* Remove underlines */
+    transition: none; /* Disable default transitions */
 }
 
-/* Style for the blue elongated shape (Icon background) */
+/* Styles the capsule/button shape that contains the icon */
 .nav-item ::deep .nav-link .nav-button-circle {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 70px; /* Increased width */
-    height: 40px; /* Decreased height */
-    background-color: #0A4884; /* Updated background color */
-    border-radius: 20px; /* Adjusted for capsule shape (half of height) */
-    color: white; /* SVG will inherit this */
-    transition: background-color 0.2s ease-in-out;
-    margin-bottom: 4px; /* Add space below icon background */
+    width: 4.375rem; /* Width of the capsule 70px / 16px */
+    height: 2.5rem; /* Height of the capsule40px / 16px */
+    background-color: #0A4884; /* Default background color (blue) */
+    border-radius: 1.25rem; /* Creates the capsule shape 20px / 16px (half of height) */
+    color: white; /* Icon color (SVG inherits this) */
+    transition: background-color 0.2s ease-in-out; /* Smooth background transition */
+    margin-bottom: 0.25rem; /* Space between capsule and text 4px / 16px */
 }
 
-/* Add rule for styling SVGs inside the circle */
+/* Styles the SVG icons within the capsule */
 .nav-item ::deep .nav-link .nav-button-circle svg {
-    width: 1.25rem;  /* Set width */
-    height: 1.25rem; /* Set height */
-    margin-bottom: 0; /* Replicate margin removal */
+    width: 1.25rem; /* Icon width */
+    height: 1.25rem; /* Icon height */
+    margin-bottom: 0; /* Remove any bottom margin */
 }
 
+/* Styles the text label below the icon capsule */
 .nav-text {
-    display: none; /* Hide by default */
+    display: none; /* Hide text by default */
     line-height: 1.1;
-    font-size: 0.8rem; /* Slightly smaller text */
-    font-weight: bold;
-    margin-top: 0; /* Reset margin-top */
-    color: #fd7e14; /* Orange background */
-    padding: 2px 6px; /* Add padding */
-    border-radius: 4px; /* Rounded corners */
-    text-align: center;
+    font-size: 0.8rem; /* Text size */
+    font-weight: bold; /* Make text bold */
+    margin-top: 0; /* Remove top margin */
+    color: #fd7e14; /* Text color (orange) */
+    padding: 0.125rem 0.375rem; /* Padding around text 2px / 16px, 6px / 16px */
 }
 
-/* Style for the text when the link is active */
+/* Styles for the text label when its parent NavLink is active */
 .nav-item ::deep .nav-link.active .nav-text {
-    display: inline-block; /* Show only when active */
+    display: inline-block; /* Show the text only when the link is active */
 }
 
-/* Style for the active link's circle */
+/* Styles for the icon capsule when its parent NavLink is active */
 .nav-item ::deep .nav-link.active .nav-button-circle {
-    background-color: #042241; /* Darker blue for active */
+    background-color: #042241; /* Darker blue background for active state */
 }
 
-/* Optional: Hover effect for the circle */
+/* Optional: Styles for the icon capsule on hover */
 .nav-item ::deep .nav-link:hover .nav-button-circle {
-    background-color: #8ea3b8; /* Slightly darker blue on hover */
+    background-color: #8ea3b8; /* Lighter blue background on hover */
 }
 
-/* Remove the text decoration from NavLink */
+/* Ensure NavLink text decoration is always none, even on hover */
 .nav-item ::deep .nav-link,
 .nav-item ::deep .nav-link:hover {
     text-decoration: none;

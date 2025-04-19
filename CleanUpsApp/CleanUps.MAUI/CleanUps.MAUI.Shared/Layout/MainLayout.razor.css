@@ -1,32 +1,38 @@
+/* Main container for the entire page content */
 .page {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
+    position: relative; /* Establishes a positioning context */
+    display: flex; /* Use flexbox for layout */
+    flex-direction: column; /* Stack children vertically */
+    height: 100vh; /* Make the page container fill the full viewport height */
 }
 
+/* Styles the main content area of the page */
 main {
-    flex: 1;
-    overflow-y: auto;
-    padding-bottom: 70px;
+    flex: 1; /* Allow the main content area to grow and fill available vertical space */
+    overflow-y: auto; /* Add vertical scrollbar if content overflows */
+    /* Add padding at the bottom to prevent content from being hidden behind the fixed bottom navigation */
+    /* Value should roughly match the height of the BottomNav component */
+    padding-bottom: 5.625rem; /* 90px / 16px (matches BottomNav height) */
 }
 
+/* Styles for the default Blazor error UI banner */
 #blazor-error-ui {
-    background: lightyellow;
-    bottom: 0;
-    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
-    box-sizing: border-box;
-    display: none;
-    left: 0;
-    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
-    position: fixed;
-    width: 100%;
-    z-index: 1000;
+    background: lightyellow; /* Background color for the error banner */
+    bottom: 0; /* Position it at the bottom of the viewport */
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2); /* Add a subtle shadow above the banner */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    display: none; /* Hide the banner by default */
+    left: 0; /* Align to the left edge */
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem; /* Padding inside the banner */
+    position: fixed; /* Keep it fixed at the bottom, even when scrolling */
+    width: 100%; /* Span the full viewport width */
+    z-index: 1000; /* Ensure it appears above most other content (same as bottom nav) */
 }
 
+    /* Styles for the dismiss button ('X') within the Blazor error UI */
     #blazor-error-ui .dismiss {
-        cursor: pointer;
-        position: absolute;
-        right: 0.75rem;
-        top: 0.5rem;
+        cursor: pointer; /* Change cursor to indicate it's clickable */
+        position: absolute; /* Position relative to the #blazor-error-ui container */
+        right: 0.75rem; /* Position from the right edge */
+        top: 0.5rem; /* Position from the top edge */
     }

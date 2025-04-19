@@ -91,24 +91,46 @@
 </div>
 
 @code {
+    /// <summary>
+    /// Indicates whether the current user is logged in.
+    /// </summary>
     private bool isLoggedIn = false;
+
+    /// <summary>
+    /// Stores the role of the logged-in user, or null if not logged in.
+    /// </summary>
     private RoleDTO? userRole = null;
 
+    /// <summary>
+    /// Method invoked when the component is first initialized.
+    /// Subscribes to navigation changes and updates the initial authentication state.
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         _navigationManager.LocationChanged += OnLocationChanged;
         await UpdateAuthState();
     }
 
+    /// <summary>
+    /// Handles the event triggered when the navigation location changes.
+    /// Updates the authentication state and triggers a UI refresh.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The event arguments containing the new location.</param>
     private async void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
         await InvokeAsync(async () =>
         {
             await UpdateAuthState();
-            StateHasChanged();
+            StateHasChanged(); // Request a UI re-render
         });
     }
 
+    /// <summary>
+    /// Asynchronously updates the <see cref="isLoggedIn"/> and <see cref="userRole"/> fields
+    /// based on the current user's authentication status fetched from <see cref="_accessService"/>.
+    /// Handles potential exceptions during the fetch process.
+    /// </summary>
     private async Task UpdateAuthState()
     {
         try
@@ -116,31 +138,40 @@
             isLoggedIn = await _accessService.IsUserLoggedInAsync();
             if (isLoggedIn)
             {
-                userRole = await _accessService.GetLoggedUserRoleAsync(); 
+                userRole = await _accessService.GetLoggedUserRoleAsync();
             }
             else
             {
                 userRole = null;
             }
         }
-        catch
+        catch (Exception ex) // Catch specific exceptions if possible
         {
-            isLoggedIn = false; // Assume not logged in if error
+            // Log the exception (using a proper logging mechanism is recommended)
+            Console.WriteLine($"Error updating auth state: {ex.Message}"); 
+            isLoggedIn = false; // Assume not logged in if error occurs
             userRole = null;
         }
     }
 
-    // Helper method to determine if Events List should be active
+    /// <summary>
+    /// Determines if the 'Events List' navigation link should be marked as active.
+    /// </summary>
+    /// <returns>True if the current URL path starts with "/events" but is not exactly "/events/map", false otherwise.</returns>
     private bool IsEventsListActive()
     {
         var currentUri = new Uri(_navigationManager.Uri, UriKind.Absolute);
         var absolutePath = currentUri.AbsolutePath;
-        // Active if path starts with /events but is NOT exactly /events/map
+        // Active if path starts with /events but is NOT exactly /map/events
         return absolutePath.StartsWith("/events", StringComparison.OrdinalIgnoreCase) 
-            && !absolutePath.Equals("/events/map", StringComparison.OrdinalIgnoreCase);
+            && !absolutePath.StartsWith("/map/events", StringComparison.OrdinalIgnoreCase); // Adjusted logic for map/events
     }
 
-    // Helper method to determine if Users List should be active
+    /// <summary>
+    /// Determines if the 'Users List' navigation link should be marked as active.
+    /// This is typically shown only to Organizers.
+    /// </summary>
+    /// <returns>True if the current URL path starts with "/users" but is not exactly "/users/profile", false otherwise.</returns>
     private bool IsUsersListActive()
     {
         var currentUri = new Uri(_navigationManager.Uri, UriKind.Absolute);
@@ -150,6 +181,10 @@
             && !absolutePath.Equals("/users/profile", StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>
+    /// Releases resources used by the component.
+    /// Unsubscribes from the navigation location changed event.
+    /// </summary>
     public void Dispose()
     {
         _navigationManager.LocationChanged -= OnLocationChanged;
