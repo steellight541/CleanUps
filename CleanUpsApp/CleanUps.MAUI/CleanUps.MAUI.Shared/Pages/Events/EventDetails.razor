@@ -75,9 +75,9 @@
             @if (isOrganizer)
             {
                 <div class="mb-3 border-top pt-3">
-                     <h5>Organizer Actions</h5>
-                     <div class="d-flex flex-wrap gap-2 align-items-center">
-                         <div class="input-group" style="max-width: 250px;">
+                    <h5>Organizer Actions</h5>
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                        <div class="input-group" style="max-width: 250px;">
                             <label class="input-group-text" for="statusSelect">Status</label>
                             <select id="statusSelect" class="form-select"
                                     @bind="selectedStatus" @bind:after="HandleStatusChange"
@@ -94,15 +94,15 @@
                                 </span>
                             }
                         </div>
-                         <button class="btn btn-info" @onclick="ToggleManageAttendance">
-                             <i class="bi bi-people"></i> @(isManageAttendanceVisible ? "Hide Attendance" : "Manage Attendance")
-                         </button>
-                     </div>
-                     @if (!string.IsNullOrEmpty(statusUpdateMessage))
-                     {
-                         <p class="@statusUpdateMessageClass mt-2 mb-0">@statusUpdateMessage</p>
-                     }
-                 </div>
+                        <button class="btn btn-info" @onclick="ToggleManageAttendance">
+                            <i class="bi bi-people"></i> @(isManageAttendanceVisible ? "Hide Attendance" : "Manage Attendance")
+                        </button>
+                    </div>
+                    @if (!string.IsNullOrEmpty(statusUpdateMessage))
+                    {
+                        <p class="@statusUpdateMessageClass mt-2 mb-0">@statusUpdateMessage</p>
+                    }
+                </div>
             }
 
             @* Organizer Management Section (Collapsible) *@
@@ -134,10 +134,10 @@
                                 bool isAttending = eventAttendees?.Any(a => a.UserId == user.UserId) ?? false;
                                 <div class="list-group-item d-flex justify-content-between align-items-center" key="@user.UserId">
                                     <div>
-                                         @user.Name (@user.Email) - 
-                                         <span class="@(isAttending ? "text-success fw-bold" : "text-muted")">
-                                             @(isAttending ? (isPastEvent ? "Attended" : "Going") : "Not Going")
-                                         </span>
+                                        @user.Name (@user.Email) -
+                                        <span class="@(isAttending ? "text-success fw-bold" : "text-muted")">
+                                            @(isAttending ? (isPastEvent ? "Attended" : "Going") : "Not Going")
+                                        </span>
                                     </div>
                                     <div class="form-check form-switch">
                                         @{
@@ -172,7 +172,7 @@
         }
         else // Should not happen if initialized correctly, but safety check
         {
-             <p class="text-danger">An unexpected error occurred.</p>
+            <p class="text-danger">An unexpected error occurred.</p>
         }
 
         @* Display general error message if any occurred during initialization or other actions *@
@@ -184,9 +184,6 @@
 
     @* Footer with Back and Attendance action *@
     <div class="card-footer d-flex justify-content-start align-items-center gap-2 py-3">
-        <button class="btn btn-secondary" @onclick="GoBack">
-            <i class="bi bi-arrow-left"></i> Back
-        </button>
 
         @* Attendance Button Logic (Only show if event loaded successfully) *@
         @if (eventResult?.Data != null)
@@ -197,11 +194,11 @@
                 <button class="btn btn-secondary" disabled>
                     @if (isCurrentUserAttending)
                     {
-                        <i class="bi bi-check-lg"><span>Attended</span></i> 
+                        <i class="bi bi-check-lg"><span>Attended</span></i>
                     }
                     else
                     {
-                        <i class="bi bi-x-lg"><span>Did Not Attend</span></i> 
+                        <i class="bi bi-x-lg"><span>Did Not Attend</span></i>
                     }
                 </button>
             }
@@ -224,6 +221,9 @@
                 </button>
             }
         }
+        <button class="btn btn-dark" @onclick="GoBack">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </button>
     </div>
 </div>
 

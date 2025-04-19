@@ -52,9 +52,9 @@
                             <InputText type="password" class="form-control" id="confirmPassword" @bind-Value="passwordModel.ConfirmNewPassword" />
                             <ValidationMessage For="() => passwordModel.ConfirmNewPassword" />
                         </div>
-                        <div class="mt-3 d-flex gap-2">
-                             <button type="submit" class="btn btn-success" disabled="@isSubmitting">@(isSubmitting ? "Submitting..." : "Submit New Password")</button>
-                             <button type="button" class="btn btn-secondary" @onclick="TogglePasswordChangeForm" disabled="@isSubmitting">Cancel</button>
+                        <div class="py-3 d-flex gap-2">
+                             <button type="submit" class="btn btn-success py-1" disabled="@isSubmitting">@(isSubmitting ? "Submitting..." : "Submit New Password")</button>
+                             <button type="button" class="btn btn-dark py-1" @onclick="TogglePasswordChangeForm" disabled="@isSubmitting">Cancel</button>
                         </div>
                     </EditForm>
                  </div>
