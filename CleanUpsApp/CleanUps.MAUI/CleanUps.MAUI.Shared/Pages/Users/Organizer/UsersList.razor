@@ -47,11 +47,11 @@
                             <td>@loadedUser.Role.ToString()</td>
                             <td>
                                 <div class="btn-group" role="group" aria-label="Basic example">
-                                    <button class="btn btn-primary btn-sm" @onclick="() => ViewUser(loadedUser.UserId)" disabled="@isLoadingUsers || deletingUserId == loadedUser.UserId">View</button>
+                                    <button class="btn btn-primary btn-sm" @onclick="() => ViewUser(loadedUser.UserId)" disabled="@(isLoadingUsers || deletingUserId == loadedUser.UserId)">View</button>
                                     @if (isOrganizer)
                                     {
-                                        <button class="btn btn-secondary btn-sm" @onclick="() => EditUser(loadedUser.UserId)" disabled="@isLoadingUsers || deletingUserId == loadedUser.UserId">Edit</button>
-                                        <button class="btn btn-danger btn-sm" @onclick="() => DeleteUser(loadedUser.UserId)" disabled="@isLoadingUsers || deletingUserId == loadedUser.UserId">
+                                        <button class="btn btn-secondary btn-sm" @onclick="() => EditUser(loadedUser.UserId)" disabled="@(isLoadingUsers || deletingUserId == loadedUser.UserId)">Edit</button>
+                                        <button class="btn btn-danger btn-sm" @onclick="() => DeleteUser(loadedUser.UserId)" disabled="@(isLoadingUsers || deletingUserId == loadedUser.UserId)">
                                             @if (deletingUserId == loadedUser.UserId)
                                             {
                                                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -105,13 +105,13 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton-sm-@loadedUser.UserId">
                                     <li>
-                                        <button class="dropdown-item text-dark" @onclick="() => EditUser(loadedUser.UserId)" disabled="@isLoadingUsers || deletingUserId == loadedUser.UserId">
+                                        <button class="dropdown-item text-dark" @onclick="() => EditUser(loadedUser.UserId)" disabled="@(isLoadingUsers || deletingUserId == loadedUser.UserId)">
                                             <i class="bi bi-pencil-fill me-2"></i>Edit
                                         </button>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <button class="dropdown-item text-danger" @onclick="() => DeleteUser(loadedUser.UserId)" disabled="@isLoadingUsers || deletingUserId == loadedUser.UserId">
+                                        <button class="dropdown-item text-danger" @onclick="() => DeleteUser(loadedUser.UserId)" disabled="@(isLoadingUsers || deletingUserId == loadedUser.UserId)">
                                              @if (deletingUserId == loadedUser.UserId)
                                             {
                                                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -132,7 +132,7 @@
                         <p class="card-text mb-0"><small><strong>Role:</strong> @loadedUser.Role.ToString()</small></p>
                     </div>
                     <div class="card-footer d-grid py-2">
-                        <button class="btn btn-primary btn-sm" @onclick="() => ViewUser(loadedUser.UserId)" disabled="@isLoadingUsers || deletingUserId == loadedUser.UserId">View</button>
+                        <button class="btn btn-primary btn-sm" @onclick="() => ViewUser(loadedUser.UserId)" disabled="@(isLoadingUsers || deletingUserId == loadedUser.UserId)">View</button>
                     </div>
                 </div>
             }

@@ -65,11 +65,11 @@
                             <td>@GetAttendeeCount(loadedEvent.EventId)</td>
                             <td>
                                 <div class="btn-group" role="group" aria-label="Basic example">
-                                    <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewDetails(loadedEvent.EventId)" disabled="@isLoadingEvents || deletingEventId == loadedEvent.EventId">View</button>
+                                    <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewDetails(loadedEvent.EventId)" disabled="@(isLoadingEvents || deletingEventId == loadedEvent.EventId)">View</button>
                                     @if (isOrganizer)
                                     {
-                                        <button class="btn btn-secondary btn-sm mt-2" @onclick="() => EditEvent(loadedEvent.EventId)" disabled="@isLoadingEvents || deletingEventId == loadedEvent.EventId">Edit</button>
-                                        <button class="btn btn-danger btn-sm mt-2" @onclick="() => DeleteEvent(loadedEvent.EventId)" disabled="@isLoadingEvents || deletingEventId == loadedEvent.EventId">
+                                        <button class="btn btn-secondary btn-sm mt-2" @onclick="() => EditEvent(loadedEvent.EventId)" disabled="@(isLoadingEvents || deletingEventId == loadedEvent.EventId)">Edit</button>
+                                        <button class="btn btn-danger btn-sm mt-2" @onclick="() => DeleteEvent(loadedEvent.EventId)" disabled="@(isLoadingEvents || deletingEventId == loadedEvent.EventId)">
                                             @if (deletingEventId == loadedEvent.EventId)
                                             {
                                                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -123,13 +123,13 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton-sm-@loadedEvent.EventId">
                                     <li>
-                                        <button class="dropdown-item text-dark" @onclick="() => EditEvent(loadedEvent.EventId)" disabled="@isLoadingEvents || deletingEventId == loadedEvent.EventId">
+                                        <button class="dropdown-item text-dark" @onclick="() => EditEvent(loadedEvent.EventId)" disabled="@(isLoadingEvents || deletingEventId == loadedEvent.EventId)">
                                             <i class="bi bi-pencil-fill me-2"></i>Edit
                                         </button>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <button class="dropdown-item text-danger" @onclick="() => DeleteEvent(loadedEvent.EventId)" disabled="@isLoadingEvents || deletingEventId == loadedEvent.EventId">
+                                        <button class="dropdown-item text-danger" @onclick="() => DeleteEvent(loadedEvent.EventId)" disabled="@(isLoadingEvents || deletingEventId == loadedEvent.EventId)">
                                             @if (deletingEventId == loadedEvent.EventId)
                                             {
                                                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -152,7 +152,7 @@
                         <p class="card-text mb-0"><small><strong>Participants:</strong> @GetAttendeeCount(loadedEvent.EventId)</small></p>
                     </div>
                     <div class="card-footer d-grid py-2">
-                        <button class="btn btn-primary btn-sm" @onclick="() => ViewDetails(loadedEvent.EventId)" disabled="@isLoadingEvents || deletingEventId == loadedEvent.EventId">View</button>
+                        <button class="btn btn-primary btn-sm" @onclick="() => ViewDetails(loadedEvent.EventId)" disabled="@(isLoadingEvents || deletingEventId == loadedEvent.EventId)">View</button>
                     </div>
                 </div>
             }
@@ -428,16 +428,22 @@
             }
             else
             {
-                // Step 4: If failed, display error message
-                errorMessage = deleteResult.ErrorMessage ?? "An error occurred while deleting the event.";
-                StateHasChanged(); // Refresh the UI
+                // Step 4: If deletion failed, show error message
+                errorMessage = deleteResult.ErrorMessage ?? "Failed to delete the event.";
+                StateHasChanged();
             }
         }
         catch (Exception ex)
         {
-            // Handle any unexpected exceptions
-            errorMessage = $"An unexpected error occurred: {ex.Message}";
-            StateHasChanged(); // Refresh the UI
+            // Step 5: Handle any unexpected exceptions
+            errorMessage = $"Error deleting event: {ex.Message}";
+            StateHasChanged();
+        }
+        finally
+        {
+            // Step 6: Always reset deletingEventId to -1 regardless of outcome
+            deletingEventId = -1;
+            StateHasChanged();
         }
     }
 
