@@ -14,8 +14,8 @@
     display: flex; /* Use flexbox for layout */
     justify-content: space-around; /* Distribute items evenly */
     align-items: center; /* Center items vertically */
-    height: 5.625rem; /* Set the height of the nav bar90px / 16px */
-    padding: 0.3125rem 0.625rem; /* Add padding 5px / 16px, 10px / 16px */
+    height: 5.625rem; /* Set the height of the nav bar. Standard mobile navigation height for comfortable touch targets (= 90px) */
+    padding: 0.3125rem 0.625rem; /* Vertical spacing 5px, horizontal spacing 10px to separate from edges */
 }
 
 /* Individual navigation item container */
@@ -44,19 +44,19 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 4.375rem; /* Width of the capsule 70px / 16px */
-    height: 2.5rem; /* Height of the capsule40px / 16px */
+    width: 4.375rem; /* Width of button capsule for optimal touch target (= 70px) */
+    height: 2.5rem; /* Height of button capsule for balanced proportion (= 40px) */
     background-color: #0A4884; /* Default background color (blue) */
-    border-radius: 1.25rem; /* Creates the capsule shape 20px / 16px (half of height) */
+    border-radius: 1.25rem; /* Creates pill/oval shape with rounded ends (= 20px, half of height) */
     color: white; /* Icon color (SVG inherits this) */
     transition: background-color 0.2s ease-in-out; /* Smooth background transition */
-    margin-bottom: 0.25rem; /* Space between capsule and text 4px / 16px */
+    margin-bottom: 0.25rem; /* Small gap between button and label text (= 4px) */
 }
 
 /* Styles the SVG icons within the capsule */
 .nav-item ::deep .nav-link .nav-button-circle svg {
-    width: 1.25rem; /* Icon width */
-    height: 1.25rem; /* Icon height */
+    width: 1.25rem; /* Icon width for clear visibility without overwhelming (= 20px) */
+    height: 1.25rem; /* Icon height matching width for proper proportions (= 20px) */
     margin-bottom: 0; /* Remove any bottom margin */
 }
 
@@ -64,11 +64,11 @@
 .nav-text {
     display: none; /* Hide text by default */
     line-height: 1.1;
-    font-size: 0.8rem; /* Text size */
+    font-size: 0.8rem; /* Smaller text size for compact navigation (= 12.8px) */
     font-weight: bold; /* Make text bold */
     margin-top: 0; /* Remove top margin */
     color: #fd7e14; /* Text color (orange) */
-    padding: 0.125rem 0.375rem; /* Padding around text 2px / 16px, 6px / 16px */
+    padding: 0.125rem 0.375rem; /* Small padding for text readability (= 2px top/bottom, 6px left/right) */
 }
 
 /* Styles for the text label when its parent NavLink is active */

@@ -28,7 +28,7 @@ namespace CleanUps.Shared.ClientServices.Interfaces
         /// A Result containing a confirmation message if the request was processed successfully,
         /// or appropriate error information if the request fails.
         /// </returns>
-        Task<Result<string>> RequestPasswordResetAsync(RequestPasswordResetRequest request);
+        Task<Result<string>> RequestPasswordResetAsync(EmailPasswordResetRequest request);
 
         /// <summary>
         /// Validates a password reset token to ensure it's valid, not expired, and can be used.

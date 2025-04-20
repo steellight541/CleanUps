@@ -1,41 +1,49 @@
+/* Define the basic properties for buttons controlling attendance status */
 .attendance-btn {
-    position: relative;
-    overflow: hidden;
+    position: relative;      /* Enables positioning context for any child elements */
+    overflow: hidden;        /* Ensures any content that exceeds the button dimensions stays hidden */
 }
 
+/* Style for icons within buttons (like checkmarks and X icons) */
 .btn-icon {
-    display: inline-block;
-    vertical-align: middle;
-    transition: transform 0.3s ease;
+    display: inline-block;   /* Makes the icon flow inline with text but allows width/height settings */
+    vertical-align: middle;  /* Vertically centers the icon with surrounding text */
+    transition: transform 0.3s ease;  /* Smooth animation for icon scaling on hover (300ms duration) */
 }
 
+/* Hover effect for "going" and "not going" icons - creates a scale animation */
 .attendance-btn:hover .going-icon,
 .attendance-btn:hover .notgoing-icon {
-    transform: scale(1.2);
+    transform: scale(1.2);   /* Enlarges the icon to 120% of its original size when user hovers */
 }
 
+/* Text styling inside attendance buttons */
 .btn-text {
-    display: inline-block;
-    vertical-align: middle;
-    margin-left: 5px;
+    display: inline-block;   /* Makes text flow inline with icon but allows width/height settings */
+    vertical-align: middle;  /* Vertically centers the text with surrounding elements */
+    margin-left: 0.3125rem;  /* Adds space between the icon and the text that follows it (= 5px) */
 }
 
+/* Styles for dropdown menus (used for attendance options) */
 .dropdown-menu {
-    min-width: auto;
-    padding: 0.5rem;
-    min-width: 140px; /* Ensure enough width for "Not Going" text */
+    min-width: auto;         /* Allows the dropdown to size based on content instead of fixed width */
+    padding: 0.5rem;         /* Adds internal spacing around dropdown content (8px on all sides) */
+    min-width: 8.75rem;      /* Ensures minimum width to accommodate "Not Going" text without wrapping (= 140px) */
+    /* Note: The comment above explains the purpose of setting min-width */
 }
 
-/* Ensure icon and text align nicely */
+/* Ensures consistent vertical alignment between icons and text */
 .btn-icon {
-    vertical-align: middle;
+    vertical-align: middle;  /* Duplicated for emphasis - aligns icon vertically with text */
 }
 
+/* Container for status dropdown to control its maximum width */
 .status-dropdown-container {
-    max-width: 250px;
+    max-width: 15.625rem;    /* Limits the dropdown container width to prevent it from stretching too wide (= 250px) */
 }
 
+/* Scrollable container for user lists (attendees, etc.) */
 .user-list-scrollable {
-    max-height: 300px;
-    overflow-y: auto;
+    max-height: 18.75rem;    /* Limits the height of user lists to prevent excessive page length (= 300px) */
+    overflow-y: auto;        /* Adds vertical scrollbar only when content exceeds max-height */
 } 

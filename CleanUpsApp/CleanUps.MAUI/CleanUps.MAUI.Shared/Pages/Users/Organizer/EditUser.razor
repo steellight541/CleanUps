@@ -67,14 +67,36 @@
 </div>
 
 @code {
+
+    /// <summary>
+    /// The user ID of the user to edit.
+    /// </summary>
     [Parameter]
     public int userId { get; set; }
 
+    /// <summary>
+    /// The result of the user.
+    /// </summary>
     private Result<UserResponse> getUserResult;
+
+    /// <summary>
+    /// The edit model for the user.
+    /// </summary>
     private UserEditModel editModel;
+
+    /// <summary>
+    /// Error message from API.
+    /// </summary>
     private string errorMessage;
-    
+
+    /// <summary>
+    /// Indicates if the user is logged in.
+    /// </summary>
     private bool isLoggedIn = false;
+
+    /// <summary>
+    /// Indicates if the user is an organizer.
+    /// </summary>
     private bool isOrganizer = false;
 
     /// <summary>
@@ -150,12 +172,12 @@
     }
 
     /// <summary>
-    /// Handles cancellation of user editing by navigating back to the users list.
+    /// Navigates to the user details page.
     /// </summary>
     private void Cancel()
     {
-        // Step 1: Navigate back to the users list
-        _navigationManager.NavigateTo("/users");
+        // Step 1: Navigate to the edit page for this user
+        _navigationManager.NavigateTo($"/users/{userId}/details");
     }
 
     /// <summary>

@@ -23,7 +23,7 @@ namespace CleanUps.BusinessLogic.Services.Interfaces
         /// </summary>
         /// <param name="request">Request containing the user's email.</param>
         /// <returns>A Result indicating success or failure.</returns>
-        Task<Result<bool>> RequestPasswordResetAsync(RequestPasswordResetRequest request);
+        Task<Result<bool>> RequestPasswordResetAsync(EmailPasswordResetRequest request);
 
         /// <summary>
         /// Validates a password reset token.

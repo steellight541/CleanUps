@@ -274,33 +274,118 @@
 
     /// <summary>
     /// The ID of the event to display, passed as a route parameter.
+    /// This is used to fetch the specific event details from the API.
     /// </summary>
     [Parameter]
     public int eventId { get; set; }
 
+    /// <summary>
+    /// Contains the complete API response for the event data request.
+    /// Includes both the event information (if successful) and any error details
+    /// that may have occurred during the API call.
+    /// </summary>
     private Result<EventResponse> eventResult;
+
+    /// <summary>
+    /// List of users who are registered as attendees for this event.
+    /// This is populated by a separate API call after the event details are loaded.
+    /// </summary>
     private List<UserResponse> eventAttendees;
+
+    /// <summary>
+    /// Error message to display to the user when operations fail.
+    /// This is displayed in an alert box and is set when API calls or other operations return errors.
+    /// </summary>
     private string errorMessage = string.Empty;
+
+    /// <summary>
+    /// Indicates whether the initial event data is currently being loaded.
+    /// Used to display a loading indicator in the UI until the event details have been retrieved.
+    /// </summary>
     private bool isLoadingEvent = true;
+
+    /// <summary>
+    /// Indicates whether an attendance-related action (join/leave) is in progress.
+    /// Controls the disabled state of attendance action buttons to prevent multiple submissions.
+    /// </summary>
     private bool isAttendanceActionLoading = false;
 
+    /// <summary>
+    /// The ID of the currently logged-in user.
+    /// Used to determine if the current user is attending the event and to authorize actions.
+    /// </summary>
     private int? currentUserId;
+
+    /// <summary>
+    /// The role of the currently logged-in user (Volunteer or Organizer).
+    /// Used to conditionally display administrative features for organizers.
+    /// </summary>
     private RoleDTO? currentUserRole;
+
+    /// <summary>
+    /// Indicates whether the currently logged-in user is registered as an attendee for this event.
+    /// Controls which attendance action buttons are displayed (Join vs Leave).
+    /// </summary>
     private bool isCurrentUserAttending = false;
+
+    /// <summary>
+    /// Indicates whether the currently logged-in user has organizer privileges.
+    /// Used to conditionally display administrative actions like editing or deleting the event.
+    /// </summary>
     private bool isOrganizer = false;
 
-    // Organizer Manage Attendance State
+    /// <summary>
+    /// Contains the API response for the list of all users in the system.
+    /// Used by organizers to manage event attendance for other users.
+    /// </summary>
     private Result<List<UserResponse>>? allUsersResult;
+
+    /// <summary>
+    /// Controls the visibility of the attendance management panel for organizers.
+    /// When true, displays the interface for adding or removing attendees.
+    /// </summary>
     private bool isManageAttendanceVisible = false;
+
+    /// <summary>
+    /// User input for filtering the list of users in the attendance management panel.
+    /// Allows organizers to find specific users by name or email.
+    /// </summary>
     private string searchTerm = string.Empty;
+
+    /// <summary>
+    /// The manage attendance message.
+    /// </summary>
     private string manageAttendanceMessage = string.Empty;
+
+    /// <summary>
+    /// The manage attendance message class.
+    /// </summary>
     private string manageAttendanceMessageClass = string.Empty;
+
+    /// <summary>
+    /// The manage attendance loading user ID.
+    /// </summary>
     private int? manageAttendanceLoadingUserId = null;
 
+    /// <summary>
+    /// Indicates if the status update is loading.
+    /// </summary>
     private bool isStatusUpdateLoading = false;
+
+    /// <summary>
+    /// The status update message.
+    /// </summary>
     private string statusUpdateMessage = string.Empty;
+
+    /// <summary>
+    /// The status update message class.
+    /// </summary>
     private string statusUpdateMessageClass = string.Empty;
-    private StatusDTO selectedStatus; // Added for dropdown binding
+
+    /// <summary>
+    /// The selected status.
+    /// </summary>
+    private StatusDTO selectedStatus;
 
     /// <summary>
     /// Returns the appropriate Bootstrap badge background class based on the event status.
@@ -710,7 +795,7 @@
         }
 
         // Step 4: Clear loading state
-        isStatusUpdateLoading = false;
-        StateHasChanged();
+        isStatusUpdateLoading = false; // Clear the loading state
+        StateHasChanged(); // Refresh the UI
     }
 }

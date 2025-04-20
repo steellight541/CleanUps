@@ -13,12 +13,16 @@
 
     @* Section: Navigation *@
     <div class="mb-2">
-        <button class="btn btn-dark btn-sm" @onclick="HomePage">Home Page</button>
+        <button class="btn btn-dark btn-sm" @onclick="EventPage">Events List</button>
     </div>
 </div>
 @code {
-    private void HomePage()
+    /// <summary>
+    /// Handles the button click event to navigate back to the events list page.
+    /// This method provides an escape route from the not-yet-implemented map page.
+    /// </summary>
+    private void EventPage()
     {
-        _navigationManager.NavigateTo("/");
+        _navigationManager.NavigateTo("/events");
     }
 }

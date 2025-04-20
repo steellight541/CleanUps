@@ -99,12 +99,12 @@ namespace CleanUps.BusinessLogic.Services
         /// Generates a secure, time-limited token, stores it, and triggers sending a password reset email.
         /// Does not reveal whether the email exists to prevent user enumeration attacks.
         /// </summary>
-        /// <param name="request">The <see cref="RequestPasswordResetRequest"/> containing the user's email.</param>
+        /// <param name="request">The <see cref="EmailPasswordResetRequest"/> containing the user's email.</param>
         /// <returns>
         /// A <see cref="Result{T}"/> of <see cref="bool"/>. Always returns <c>Ok(true)</c> to the caller unless input validation fails,
         /// to avoid revealing if an email exists in the system. Internal errors are logged.
         /// </returns>
-        public async Task<Result<bool>> RequestPasswordResetAsync(RequestPasswordResetRequest request)
+        public async Task<Result<bool>> RequestPasswordResetAsync(EmailPasswordResetRequest request)
         {
             // Step 1: Validate the password reset request DTO.
             var validationResult = _validator.ValidateForPasswordResetRequest(request);

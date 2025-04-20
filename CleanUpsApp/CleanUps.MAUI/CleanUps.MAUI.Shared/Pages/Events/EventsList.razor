@@ -164,17 +164,56 @@
 
 @code {
     /// <summary>
-    /// EventsList is a component that displays a list of cleanup events with different views for mobile and desktop.
-    /// It allows organizers to create, edit, and delete events, and shows event details for all users.
+    /// Stores the result returned from the API when requesting all events.
+    /// This includes both the event data (if successful) and any error information,
+    /// providing a complete picture of the API response.
     /// </summary>
-    
     private Result<List<EventResponse>> eventsResult;
+        
+    /// <summary>
+    /// Collection of all loaded events to display in the UI.
+    /// This list is populated progressively for a better user experience,
+    /// with events being added one by one with a small delay.
+    /// </summary>
     private List<EventResponse> loadedEvents = new List<EventResponse>();
+
+    /// <summary>
+    /// Error message specific to API operations like event deletion.
+    /// Displayed to the user when an operation other than the initial
+    /// events loading fails.
+    /// </summary>
     private string errorMessage;
+        
+    /// <summary>
+    /// Error message specific to the initial event loading process.
+    /// Displayed to the user when the API call to retrieve events fails.
+    /// </summary>
     private string loadError;
+
+    /// <summary>
+    /// Indicates whether the current user has organizer privileges.
+    /// Used to conditionally display administrative actions like 
+    /// edit and delete buttons for events.
+    /// </summary>
     private bool isOrganizer = false;
+
+    /// <summary>
+    /// Maps event IDs to the number of attendees for each event.
+    /// This dictionary is populated by a separate API call that retrieves 
+    /// attendance information after the events themselves are loaded. (GetUsersByEventIdAsync)
+    /// </summary>
     private Dictionary<int, int> eventAttendeeCount = new Dictionary<int, int>();
+
+    /// <summary>
+    /// Indicates whether attendee information is currently being loaded.
+    /// Used to display loading indicators in the UI for attendee counts.
+    /// </summary>  
     private bool isLoadingAttendees = false;
+
+    /// <summary>
+    /// Indicates whether the events are currently being loaded from the API.
+    /// Used to display a loading indicator in the UI during the initial load.
+    /// </summary>
     private bool isLoadingEvents = false;
 
     /// <summary>

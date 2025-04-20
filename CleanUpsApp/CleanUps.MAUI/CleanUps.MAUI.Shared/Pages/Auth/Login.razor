@@ -58,9 +58,23 @@
 </div>
 
 @code {
+    /// <summary>
+    /// The data model for capturing and validating user login credentials.
+    /// Contains email and password fields with appropriate validation rules
+    /// used by the login form to gather authentication information.
+    /// </summary>
     private LoginModel loginModel = new LoginModel();
+
+    /// <summary>
+    /// Stores any error message that should be displayed to the user.
+    /// This property is populated with API error responses or validation failures
+    /// and displayed in an alert box within the login form.
+    /// </summary>
     private string errorMsg = string.Empty;
 
+    /// <summary>
+    /// Initializes the component and checks if the user is already authenticated.
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         // Step 1: Check if user is already authenticated
@@ -71,6 +85,9 @@
         }
     }
 
+    /// <summary>
+    /// Handles the submission of the login form.
+    /// </summary>
     private async Task HandleSubmit()
     {
         // Step 1: Create login request from the form model
@@ -92,7 +109,7 @@
             };
 
             // Step 5: Store the user session information
-            await _accessService.SetUserSessionAsync(userSession);
+            await _accessService.SetUserSessionAsync(userSession); 
             
             // Step 6: Redirect to events page after successful login
             _navigationManager.NavigateTo("/events");
@@ -104,6 +121,9 @@
         }
     }
 
+    /// <summary>
+    /// Navigates back to the homepage when cancel is clicked.
+    /// </summary>
     private void Cancel()
     {
         // Step 1: Navigate back to the homepage when cancel is clicked

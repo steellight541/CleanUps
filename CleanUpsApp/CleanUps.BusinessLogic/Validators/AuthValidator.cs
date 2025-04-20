@@ -16,7 +16,7 @@ namespace CleanUps.BusinessLogic.Validators
         /// </summary>
         /// <param name="dto">The password reset request DTO.</param>
         /// <returns>A <see cref="Result{T}"/> indicating success or failure with error details.</returns>
-        public Result<bool> ValidateForPasswordResetRequest(RequestPasswordResetRequest dto)
+        public Result<bool> ValidateForPasswordResetRequest(EmailPasswordResetRequest dto)
         {
             // Verify that the DTO itself is not null to prevent null reference exceptions
             if (dto == null)

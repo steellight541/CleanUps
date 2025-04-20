@@ -14,12 +14,31 @@
 @* Section: Platform Info Display *@
 Welcome to your new app running on <em>@factor</em> using <em>@platform</em>.
 
-@code {
-    // Properties to display platform and form factor information
+@code { 
+    /// <summary>
+    /// Gets the current form factor (e.g., Desktop, Mobile, Tablet) from the platform-specific FormFactor service.
+    /// Used to display the device type to the user on the home page.
+    /// </summary>
     private string factor => FormFactor.GetFormFactor();
+
+    /// <summary>
+    /// Gets the current operating system platform (e.g., Windows, Android, iOS) from the platform-specific FormFactor service.
+    /// Used to display the platform information to the user on the home page.
+    /// </summary>
     private string platform => FormFactor.GetPlatform();
+
+    /// <summary>
+    /// Tracks whether the current user has an active authenticated session.
+    /// Used to control redirections and access to protected functionality.
+    /// </summary>
     private bool isLoggedIn = false;
-    
+
+    /// <summary>
+    /// Initializes the component by checking authentication status and applying redirection rules.
+    /// If the user is not logged in, they will be redirected to the events page which has public access.
+    /// Logged in users will remain on the home page.
+    /// </summary>
+    /// <returns>A task representing the asynchronous initialization operation.</returns>
     protected override async Task OnInitializedAsync()
     {
         try 

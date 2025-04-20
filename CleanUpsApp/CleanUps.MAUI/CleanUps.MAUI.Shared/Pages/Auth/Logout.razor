@@ -4,6 +4,9 @@
 @inject NavigationManager _navigationManager
 
 @code {
+    /// <summary>
+    /// Handles the logout process by clearing the user's authentication session and redirecting to the login page.
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         // Step 1: Clear the user's authentication session

@@ -67,7 +67,7 @@ namespace CleanUps.API.Controllers
         [HttpPost("request-password-reset")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> RequestPasswordReset([FromBody] RequestPasswordResetRequest request)
+        public async Task<IActionResult> RequestPasswordReset([FromBody] EmailPasswordResetRequest request)
         {
             var result = await _authService.RequestPasswordResetAsync(request);
 

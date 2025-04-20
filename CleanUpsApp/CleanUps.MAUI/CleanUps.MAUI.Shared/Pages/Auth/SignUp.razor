@@ -70,9 +70,19 @@
 </div>
 
 @code {
+    /// <summary>
+    /// The sign-up model for the sign-up form.
+    /// </summary>
     private SignUpModel singUpModel = new SignUpModel();
+
+    /// <summary>
+    /// The error message to display.
+    /// </summary>
     private string errorMsg = string.Empty;
 
+    /// <summary>
+    /// Initializes the component and checks if the user is already authenticated.
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         // Step 1: Check if user is already authenticated
@@ -83,6 +93,9 @@
         }
     }
 
+    /// <summary>
+    /// Handles the submission of the sign-up form.
+    /// </summary>
     private async Task HandleSubmit()
     {
         // Step 1: Create user request from the form model
@@ -131,10 +144,13 @@
         }
     }
 
+    /// <summary>
+    /// Navigates back to the login page when cancel is clicked.
+    /// </summary>
     private void Cancel()
     {
         // Step 1: Navigate back to the homepage when cancel is clicked
-        _navigationManager.NavigateTo("/");
+        _navigationManager.NavigateTo("/auth/login");
     }
 
     /// <summary>

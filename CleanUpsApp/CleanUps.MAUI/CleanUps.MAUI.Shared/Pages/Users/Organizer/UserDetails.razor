@@ -69,13 +69,35 @@
 
 
 @code {
+    /// <summary>
+    /// The user ID of the user to display.
+    /// </summary>
     [Parameter]
     public int UserId { get; set; }
 
+    /// <summary>
+    /// The user details from the API.
+    /// </summary>
     private UserResponse? userDetail;
+
+    /// <summary>
+    /// The error message.
+    /// </summary>
     private string? errorMessage;
+
+    /// <summary>
+    /// Indicates if the user is loading.
+    /// </summary>
     private bool isLoading = true;
+
+    /// <summary>
+    /// Indicates if the user is logged in.
+    /// </summary>
     private bool isLoggedIn = false;
+
+    /// <summary>
+    /// Indicates if the user is an organizer.
+    /// </summary>
     private bool isOrganizer = false;
 
     /// <summary>

@@ -143,12 +143,39 @@
 </div>
 
 @code {
+    /// <summary>
+    /// The result of the users from the API.
+    /// </summary>
     private Result<List<UserResponse>> getAllUsersResponse;
+
+    /// <summary>
+    /// The collection of users loaded from the API.
+    /// </summary>
     private List<UserResponse> loadedUsers = new List<UserResponse>();
+
+    /// <summary>
+    /// The error message from the API.
+    /// </summary>
     private string errorMessage;
+
+    /// <summary>
+    /// The error from loading the users.
+    /// </summary>
     private string loadError;
+
+    /// <summary>
+    /// Indicates if the users are loading.
+    /// </summary>
     private bool isLoadingUsers = false;
+
+    /// <summary>
+    /// Indicates if the user is logged in.
+    /// </summary>
     private bool isLoggedIn = false;
+
+    /// <summary>
+    /// Indicates if the user is an organizer.
+    /// </summary>
     private bool isOrganizer = false;
 
     /// <summary>
