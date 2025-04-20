@@ -6,6 +6,39 @@
     height: 100vh; /* Make the page container fill the full viewport height */
 }
 
+/* Styles for the new top navigation bar */
+.top-nav-bar {
+    background-color: #0A4884; /* Match the blue color from the screenshot */
+    color: rgb(255, 255, 255); /* White text for better contrast */
+    height: 4rem; /* Increased height of the top bar */
+    width: 100%;
+    position: relative;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+/* Style for the page title in the top bar */
+.page-title {
+    font-size: 1.25rem; /* Larger text for the title */
+    font-weight: bold;
+    text-align: center;
+    padding: 0.75rem 0;
+}
+
+/* Style for the recycle icon */
+.recycle-icon {
+    padding: 0.5rem;
+    pointer-events: none; /* Makes the icon unclickable as requested */
+    width: 2.5rem; /* Approx width: 24px icon + 2 * 8px padding */
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+/* Style for the invisible spacer */
+.nav-spacer {
+    width: 2.5rem; /* Match the width of the recycle icon */
+    visibility: hidden; /* Make it invisible but take up space */
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
 /* Styles the main content area of the page */
 main {
     flex: 1; /* Allow the main content area to grow and fill available vertical space */
