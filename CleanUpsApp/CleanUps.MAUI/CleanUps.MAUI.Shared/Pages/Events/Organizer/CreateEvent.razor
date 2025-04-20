@@ -72,8 +72,18 @@
 
         @* Subsection: Form Footer (Actions) *@
         <div class="card-footer py-3 d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Save</button>
-            <button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>
+            <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                @if (isSubmitting)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span class="ms-1">Saving...</span>
+                }
+                else
+                {
+                    <span>Save</span>
+                }
+            </button>
+            <button type="button" class="btn btn-dark" @onclick="Cancel" disabled="@isSubmitting">Cancel</button>
         </div>
     </EditForm>
 </div>
@@ -98,6 +108,11 @@
     /// Indicates if the user is an organizer.
     /// </summary>
     private bool isOrganizer = false;
+
+    /// <summary>
+    /// Tracks if the form is currently submitting.
+    /// </summary>
+    private bool isSubmitting = false;
 
     /// <summary>
     /// Initializes the component and checks user permissions.
@@ -130,29 +145,46 @@
     /// <returns>A task representing the asynchronous operation.</returns>
     private async Task HandleSubmit()
     {
-        // Step 1: Create a new event request from the form data
-        CreateEventRequest newEvent = new CreateEventRequest(
-            eventCreateModel.Title,
-            eventCreateModel.Description,
-            eventCreateModel.StartTime,
-            eventCreateModel.EndTime,
-            eventCreateModel.FamilyFriendly,
-            new CreateLocationRequest(eventCreateModel.Longitude, eventCreateModel.Latitude)
-        );
-
-        // Step 2: Call the API service to create the event
-        var createResult = await _eventApiService.CreateAsync(newEvent);
+        isSubmitting = true;
+        errorMessage = string.Empty;
+        StateHasChanged();
         
-        // Step 3: Check if the operation was successful
-        if (createResult.IsSuccess)
+        try
         {
-            // Step 4: If successful, navigate to the events list page
-            _navigationManager.NavigateTo("/events");
+            // Step 1: Create a new event request from the form data
+            CreateEventRequest newEvent = new CreateEventRequest(
+                eventCreateModel.Title,
+                eventCreateModel.Description,
+                eventCreateModel.StartTime,
+                eventCreateModel.EndTime,
+                eventCreateModel.FamilyFriendly,
+                new CreateLocationRequest(eventCreateModel.Longitude, eventCreateModel.Latitude)
+            );
+
+            // Step 2: Call the API service to create the event
+            var createResult = await _eventApiService.CreateAsync(newEvent);
+            
+            // Step 3: Check if the operation was successful
+            if (createResult.IsSuccess)
+            {
+                // Step 4: If successful, navigate to the events list page
+                _navigationManager.NavigateTo("/events");
+            }
+            else
+            {
+                // Step 5: If not successful, set the error message from the result
+                errorMessage = createResult.ErrorMessage ?? "An error occurred while creating the event.";
+            }
         }
-        else
+        catch (Exception ex)
         {
-            // Step 5: If not successful, set the error message from the result
-            errorMessage = createResult.ErrorMessage ?? "An error occurred while creating the event.";
+            // Handle unexpected exceptions not covered by the Result pattern
+            errorMessage = $"Unexpected error: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+            StateHasChanged();
         }
     }
 

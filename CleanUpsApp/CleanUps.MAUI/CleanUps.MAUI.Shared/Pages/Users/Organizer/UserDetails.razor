@@ -13,11 +13,20 @@
         @if (isOrganizer && userDetail != null)
         {
             <div>
-             <button class="btn btn-sm btn-primary" @onclick="EditUser" title="Edit User">
+             <button class="btn btn-sm btn-primary" @onclick="EditUser" title="Edit User" disabled="@isDeleting">
                  <i class="bi bi-pencil-square"></i> Edit
              </button>
-             <button class="btn btn-sm btn-danger" @onclick="DeleteUser" title="Delete User">
-                 <i class="bi bi-trash-fill"></i> Delete
+             <button class="btn btn-sm btn-danger" @onclick="DeleteUser" title="Delete User" disabled="@isDeleting">
+                 @if (isDeleting)
+                 {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span class="ms-1">Deleting...</span>
+                 }
+                 else
+                 {
+                    <i class="bi bi-trash-fill"></i>
+                    <span>Delete</span>
+                 }
              </button>
             </div>
         }
@@ -101,6 +110,11 @@
     private bool isOrganizer = false;
 
     /// <summary>
+    /// Indicates if a delete operation is in progress.
+    /// </summary>
+    private bool isDeleting = false;
+
+    /// <summary>
     /// Initializes the component, checks user permissions, and loads the user details.
     /// </summary>
     /// <returns>A task representing the asynchronous operation.</returns>
@@ -165,26 +179,44 @@
         _navigationManager.NavigateTo($"/users/{UserId}/edit");
     }
 
-        /// <summary>
+    /// <summary>
     /// Deletes a user and refreshes the user list.
     /// </summary>
-    /// <param name="userId">The ID of the user to delete.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     private async Task DeleteUser()
     {
-        // Step 1: Call API to delete the user
-        var deleteResult = await _userApiService.DeleteAsync(new DeleteUserRequest(UserId));
+        // Track deleting state
+        isDeleting = true;
+        errorMessage = string.Empty;
+        StateHasChanged();
         
-        // Step 2: Process the result
-        if (deleteResult.IsSuccess)
+        try
         {
-            // Step 3: If successful, navigate back to the users list
-            _navigationManager.NavigateTo("/users");
+            // Step 1: Call API to delete the user
+            var deleteResult = await _userApiService.DeleteAsync(new DeleteUserRequest(UserId));
+            
+            // Step 2: Process the result
+            if (deleteResult.IsSuccess)
+            {
+                // Step 3: If successful, navigate back to the users list
+                _navigationManager.NavigateTo("/users");
+            }
+            else
+            {
+                // Step 4: If failed, display error message
+                errorMessage = deleteResult.ErrorMessage ?? "An error occurred while deleting the user.";
+            }
         }
-        else
+        catch (Exception ex)
         {
-            // Step 4: If failed, display error message
-            errorMessage = deleteResult.ErrorMessage ?? "An error occurred while deleting the user.";
+            // Handle unexpected errors during deletion
+            errorMessage = $"Unexpected error: {ex.Message}";
+        }
+        finally
+        {
+            // Clear loading state
+            isDeleting = false;
+            StateHasChanged();
         }
     }
 }

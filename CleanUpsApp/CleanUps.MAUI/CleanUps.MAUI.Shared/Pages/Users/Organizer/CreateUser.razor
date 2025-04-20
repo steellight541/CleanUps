@@ -127,39 +127,46 @@
     /// <returns>A task representing the asynchronous operation.</returns>
     private async Task HandleSubmit()
     {
-        // Step 1: Set form to submitting state
-        isSubmitting = true;
-        errorMessage = null;
-        successMessage = null;
-        StateHasChanged();
-
-        // Step 2: Create user request from form data
-        CreateUserRequest request = new CreateUserRequest(newUserModel.Name, newUserModel.Email, newUserModel.Password);
-        
-        // Step 3: Call API to create the user
-        var result = await _userApiService.CreateAsync(request);
-
-        // Step 4: Process the result
-        if (result.IsSuccess)
+        try
         {
-            // Step 5a: If successful, display success message and reset form
-            successMessage = $"User '{newUserModel.Name}' created successfully!";
-            newUserModel = new CreateUserModel(); // Reset form
-            // Optionally navigate back to list or show success message longer
-            // _navigationManager.NavigateTo("/users");
-        }
-        else
-        {
-            // Step 5b: If failed, display error message
-            errorMessage = result.ErrorMessage ?? "Failed to create user.";
-        }
+            // Step 1: Set form to submitting state
+            isSubmitting = true;
+            errorMessage = null;
+            successMessage = null;
+            StateHasChanged(); // Refresh the UI
 
-        // Step 6: Reset submitting state and update UI
-        isSubmitting = false;
-        StateHasChanged();
-        
-        // Step 7: Navigate back to users list
-        _navigationManager.NavigateTo("/users");
+            // Step 2: Create user request from form data
+            CreateUserRequest request = new CreateUserRequest(newUserModel.Name, newUserModel.Email, newUserModel.Password);
+            
+            // Step 3: Call API to create the user
+            var result = await _userApiService.CreateAsync(request);
+
+            // Step 4: Process the result
+            if (result.IsSuccess)
+            {
+                // Step 5a: If successful, display success message and reset form
+                successMessage = $"User '{newUserModel.Name}' created successfully!";
+                newUserModel = new CreateUserModel(); // Reset form
+                
+                // Step 7: Navigate back to users list after a short delay
+                await Task.Delay(1000); // Short delay to show success message
+                _navigationManager.NavigateTo("/users");
+            }
+            else
+            {
+                // Step 5b: If failed, display error message
+                errorMessage = result.ErrorMessage ?? "Failed to create user.";
+                isSubmitting = false;
+                StateHasChanged(); // Refresh the UI
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle unexpected exceptions
+            errorMessage = $"Unexpected error: {ex.Message}";
+            isSubmitting = false;
+            StateHasChanged(); // Refresh the UI
+        }
     }
 
     /// <summary>

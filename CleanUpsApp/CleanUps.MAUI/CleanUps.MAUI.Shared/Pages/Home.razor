@@ -34,6 +34,11 @@ Welcome to your new app running on <em>@factor</em> using <em>@platform</em>.
     private bool isLoggedIn = false;
 
     /// <summary>
+    /// Indicates if the page is currently loading initial data.
+    /// </summary>
+    private bool isLoading = true;
+
+    /// <summary>
     /// Initializes the component by checking authentication status and applying redirection rules.
     /// If the user is not logged in, they will be redirected to the events page which has public access.
     /// Logged in users will remain on the home page.
@@ -41,6 +46,10 @@ Welcome to your new app running on <em>@factor</em> using <em>@platform</em>.
     /// <returns>A task representing the asynchronous initialization operation.</returns>
     protected override async Task OnInitializedAsync()
     {
+        isLoading = true;
+        string errorMessage = string.Empty;
+        StateHasChanged();
+        
         try 
         {
             // Step 1: Check if the user is currently logged in
@@ -50,11 +59,19 @@ Welcome to your new app running on <em>@factor</em> using <em>@platform</em>.
             // If logged in, user stays on home page, otherwise redirected to events page
             RoleBasedRedirector.RedirectPublicToEvents(isLoggedIn, _navigationManager);
         }
-        catch
+        catch (Exception ex)
         {
             // Step 3: Handle any exceptions during authentication check
-            // In case of error, assume user is not logged in and redirect to events page
+            errorMessage = $"Authentication error: {ex.Message}";
+            
+            // In case of error, assume user is not logged in and redirect to events page after a short delay
+            await Task.Delay(1000);
             _navigationManager.NavigateTo("/events");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
         }
     }
 }

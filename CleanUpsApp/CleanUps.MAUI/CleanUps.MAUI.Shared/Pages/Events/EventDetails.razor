@@ -160,7 +160,7 @@
                                                type="checkbox"
                                                role="switch"
                                                checked="@isAttending"
-                                               @onchange="@(e => ToggleUserAttendance(user.Name, user.UserId, (bool)e.Value))"
+                                               @onchange="@(e => ToggleAttendance(user.UserId, (bool)e.Value, user.Name))"
                                                disabled="@(isLoadingThisUser || isPastEventForDisable)" />
                                         @if (isLoadingThisUser)
                                         {
@@ -521,6 +521,9 @@
         eventAttendees = new List<UserResponse>();
         isCurrentUserAttending = false;
         statusUpdateMessage = string.Empty; // Reset status message on load
+        
+        try
+        {
 
         // Step 2: Load event details
         var loadedEventResult = await _eventApiService.GetByIdAsync(eventId);
@@ -550,6 +553,11 @@
                 errorMessage = $"Could not load attendee list: {eventAttendanceResult.ErrorMessage}";
             }
         }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An unexpected error occurred: {ex.Message}";
+        }
     }
 
     /// <summary>
@@ -558,33 +566,45 @@
     /// <returns>A task representing the asynchronous operation.</returns>
     private async Task SignUpForEvent()
     {
-        // Step 1: Verify user is logged in
-        if (currentUserId == null) return;
-
-        // Step 2: Set loading state
-        isAttendanceActionLoading = true;
-        errorMessage = string.Empty;
-        StateHasChanged();
-
-        // Step 3: Create and send attendance request
-        var request = new CreateEventAttendanceRequest(currentUserId.Value, eventId);
-        var result = await _eventAttendanceApiService.CreateAsync(request);
-
-        // Step 4: Handle response
-        if (result.IsSuccess)
+        try
         {
-            // Step 5: Reload event data to reflect changes
-            await LoadEventData();
-        }
-        else
-        {
-            // Step 6: Display error message if failed
-            errorMessage = result.ErrorMessage ?? "Failed to sign up for the event.";
-        }
+            // Step 1: Verify user is logged in
+            if (currentUserId == null) return;
 
-        // Step 7: Clear loading state
-        isAttendanceActionLoading = false;
-        StateHasChanged();
+            // Step 2: Set loading state
+            isAttendanceActionLoading = true;
+            errorMessage = string.Empty;
+            StateHasChanged(); // Refresh the UI immediately to show loading state
+
+            // Step 3: Create and send attendance request
+            var request = new CreateEventAttendanceRequest(currentUserId.Value, eventId);
+            var result = await _eventAttendanceApiService.CreateAsync(request);
+
+            // Step 4: Handle response
+            if (result.IsSuccess)
+            {
+                // Step 5: Reload event data to reflect changes
+                await LoadEventData();
+            }
+            else
+            {
+                // Step 6: Display error message if failed
+                errorMessage = result.ErrorMessage ?? "Failed to sign up for the event.";
+                StateHasChanged(); // Update UI with error message
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle unexpected exceptions
+            errorMessage = $"An unexpected error occurred: {ex.Message}";
+            StateHasChanged(); // Update UI with error message
+        }
+        finally
+        {
+            // Step 7: Clear loading state
+            isAttendanceActionLoading = false;
+            StateHasChanged(); // Refresh the UI
+        }
     }
 
     /// <summary>
@@ -593,33 +613,43 @@
     /// <returns>A task representing the asynchronous operation.</returns>
     private async Task UnregisterFromEvent()
     {
-        // Step 1: Verify user is logged in
-        if (currentUserId == null) return;
-
-        // Step 2: Set loading state
-        isAttendanceActionLoading = true;
-        errorMessage = string.Empty;
-        StateHasChanged();
-
-        // Step 3: Create and send delete attendance request
-        var request = new DeleteEventAttendanceRequest(currentUserId.Value, eventId);
-        var result = await _eventAttendanceApiService.DeleteAsync(request);
-
-        // Step 4: Handle response
-        if (result.IsSuccess)
+        try
         {
-            // Step 5: Reload event data to reflect changes
-            await LoadEventData();
-        }
-        else
-        {
-            // Step 6: Display error message if failed
-            errorMessage = result.ErrorMessage ?? "Failed to unregister from the event.";
-        }
+            // Step 1: Verify user is logged in
+            if (currentUserId == null) return;
 
-        // Step 7: Clear loading state
-        isAttendanceActionLoading = false;
-        StateHasChanged();
+            // Step 2: Set loading state
+            isAttendanceActionLoading = true;
+            errorMessage = string.Empty;
+            StateHasChanged(); // Refresh the UI
+
+            // Step 3: Create and send delete attendance request
+            var request = new DeleteEventAttendanceRequest(currentUserId.Value, eventId);
+            var result = await _eventAttendanceApiService.DeleteAsync(request);
+
+            // Step 4: Handle response
+            if (result.IsSuccess)
+            {
+                // Step 5: Reload event data to reflect changes
+                await LoadEventData();
+            }
+            else
+            {
+                // Step 6: Display error message if failed
+                errorMessage = result.ErrorMessage ?? "Failed to unregister from the event.";
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle unexpected exceptions
+            errorMessage = $"An unexpected error occurred: {ex.Message}";
+        }
+        finally
+        {
+            // Step 7: Clear loading state
+            isAttendanceActionLoading = false;
+            StateHasChanged(); // Refresh the UI
+        }
     }
 
     /// <summary>
@@ -648,29 +678,39 @@
     /// <returns>A task representing the asynchronous operation.</returns>
     private async Task DeleteEvent(int eventId)
     {
-        // Step 1: Set loading state
-        isAttendanceActionLoading = true;
-        errorMessage = string.Empty;
-        StateHasChanged();
-
-        // Step 2: Send delete request to API
-        var deleteResult = await _eventApiService.DeleteAsync(new DeleteEventRequest(eventId));
-
-        // Step 3: Handle response
-        if (deleteResult.IsSuccess)
+        try
         {
-            // Step 4: Navigate back to events list on success
-            _navigationManager.NavigateTo("/events");
-        }
-        else
-        {
-            // Step 5: Display error message if failed
-            errorMessage = deleteResult.ErrorMessage ?? "An error occurred while deleting the event.";
-        }
+            // Step 1: Set loading state
+            isAttendanceActionLoading = true;
+            errorMessage = string.Empty;
+            StateHasChanged(); // Refresh the UI
 
-        // Step 6: Clear loading state
-        isAttendanceActionLoading = false;
-        StateHasChanged();
+            // Step 2: Send delete request to API
+            var deleteResult = await _eventApiService.DeleteAsync(new DeleteEventRequest(eventId));
+
+            // Step 3: Handle response
+            if (deleteResult.IsSuccess)
+            {
+                // Step 4: Navigate back to events list on success
+                _navigationManager.NavigateTo("/events");
+            }
+            else
+            {
+                // Step 5: Display error message if failed
+                errorMessage = deleteResult.ErrorMessage ?? "An error occurred while deleting the event.";
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle unexpected exceptions
+            errorMessage = $"An unexpected error occurred: {ex.Message}";
+        }
+        finally
+        {
+            // Step 6: Clear loading state
+            isAttendanceActionLoading = false;
+            StateHasChanged(); // Refresh the UI
+        }
     }
 
     /// <summary>
@@ -690,64 +730,70 @@
     }
 
     /// <summary>
-    /// Toggles a user's attendance status for this event.
+    /// Toggles the attendance status for a specific user (for organizer use).
     /// </summary>
+    /// <param name="userIdToToggle">The ID of the user whose attendance status should be toggled.</param>
+    /// <param name="shouldAttend">True to add the user, false to remove them.</param>
     /// <param name="userName">The name of the user for display purposes.</param>
-    /// <param name="userIdToToggle">The ID of the user whose attendance is being toggled.</param>
-    /// <param name="shouldAttend">Whether the user should be added (true) or removed (false) from the event.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    private async Task ToggleUserAttendance(string userName, int userIdToToggle, bool shouldAttend)
+    private async Task ToggleAttendance(int userIdToToggle, bool shouldAttend, string userName)
     {
-        // Step 1: Prevent modification for past events
-        if (eventResult?.Data?.EndTime < DateTime.Now)
+        try
         {
-            manageAttendanceMessage = "Cannot modify attendance for past events.";
-            manageAttendanceMessageClass = "alert alert-warning";
-            StateHasChanged();
-            return;
-        }
+            // Step 1: Set the loading state for this specific user
+            manageAttendanceLoadingUserId = userIdToToggle;
+            manageAttendanceMessage = string.Empty;
+            StateHasChanged(); // Refresh the UI
 
-        // Step 2: Verify user is an organizer
-        if (!isOrganizer) return;
+            // Step 2: Clear any previous messages
+            manageAttendanceMessage = string.Empty;
+            manageAttendanceMessageClass = string.Empty;
 
-        // Step 3: Set loading state
-        manageAttendanceLoadingUserId = userIdToToggle;
-        manageAttendanceMessage = string.Empty;
-        StateHasChanged();
+            // Step 3: Prepare action description
+            string actionDescription = shouldAttend ? "adding" : "removing";
 
-        // Step 4: Perform the appropriate action based on toggle state
-        Result<EventAttendanceResponse>? result = null;
-        if (shouldAttend)
-        {
-            // Step 5a: Add user to event
-            var request = new CreateEventAttendanceRequest(userIdToToggle, eventId);
-            result = await _eventAttendanceApiService.CreateAsync(request);
-        }
-        else
-        {
-            // Step 5b: Remove user from event
-            var request = new DeleteEventAttendanceRequest(userIdToToggle, eventId);
-            result = await _eventAttendanceApiService.DeleteAsync(request);
-        }
+            // Step 4: Perform the appropriate action based on toggle state
+            Result<EventAttendanceResponse>? result = null;
+            if (shouldAttend)
+            {
+                // Step 5a: Add user to event
+                var request = new CreateEventAttendanceRequest(userIdToToggle, eventId);
+                result = await _eventAttendanceApiService.CreateAsync(request);
+            }
+            else
+            {
+                // Step 5b: Remove user from event
+                var request = new DeleteEventAttendanceRequest(userIdToToggle, eventId);
+                result = await _eventAttendanceApiService.DeleteAsync(request);
+            }
 
-        // Step 6: Handle response
-        if (result != null && result.IsSuccess)
-        {
-            // Step 7a: Show success message and reload data
-            manageAttendanceMessage = $"Attendance updated successfully for {userName}.";
-            manageAttendanceMessageClass = "alert alert-success";
-            await LoadEventData();
+            // Step 6: Handle response
+            if (result != null && result.IsSuccess)
+            {
+                // Step 7a: Show success message and reload data
+                manageAttendanceMessage = $"Attendance updated successfully for {userName}.";
+                manageAttendanceMessageClass = "alert alert-success";
+                await LoadEventData();
+            }
+            else
+            {
+                // Step 7b: Show error message
+                manageAttendanceMessage = $"Error updating attendance for {userName}: {result?.ErrorMessage ?? "Unknown error"}";
+                manageAttendanceMessageClass = "alert alert-danger";
+            }
         }
-        else
+        catch (Exception ex)
         {
-            // Step 7b: Show error message
-            manageAttendanceMessage = $"Error updating attendance for {userName}: {result?.ErrorMessage ?? "Unknown error"}";
+            // Handle unexpected exceptions
+            manageAttendanceMessage = $"An unexpected error occurred while {(shouldAttend ? "adding" : "removing")} {userName}: {ex.Message}";
             manageAttendanceMessageClass = "alert alert-danger";
         }
-
-        // Step 8: Clear loading state
-        manageAttendanceLoadingUserId = null;
-        StateHasChanged();
+        finally
+        {
+            // Step 8: Clear loading state
+            manageAttendanceLoadingUserId = null;
+            StateHasChanged(); // Refresh the UI
+        }
     }
 
     /// <summary>
@@ -755,7 +801,9 @@
     /// </summary>
     private async Task HandleStatusChange()
     {
-        if (!isOrganizer || eventResult?.Data == null) return;
+        try
+        {
+            if (!isOrganizer || eventResult?.Data == null) return;
 
         var originalStatus = eventResult.Data.Status;
         var newStatus = selectedStatus;
@@ -767,7 +815,7 @@
         isStatusUpdateLoading = true;
         statusUpdateMessage = string.Empty;
         errorMessage = string.Empty; // Clear general error message too
-        StateHasChanged();
+        StateHasChanged(); // Refresh the UI
 
         // Step 2: Create request and call API service
         var request = new UpdateEventStatusRequest(eventId, newStatus);
@@ -797,5 +845,10 @@
         // Step 4: Clear loading state
         isStatusUpdateLoading = false; // Clear the loading state
         StateHasChanged(); // Refresh the UI
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An unexpected error occurred: {ex.Message}";
+        }
     }
 }

@@ -21,6 +21,7 @@
     }
     else
     {
+        @* LARGE SCREEN START *@
         @* Section: Table Layout (Large Screens) *@
         <div class="d-none d-md-block mb-2">
             <table class="table table-striped table-hover">
@@ -46,11 +47,20 @@
                             <td>@loadedUser.Role.ToString()</td>
                             <td>
                                 <div class="btn-group" role="group" aria-label="Basic example">
-                                    <button class="btn btn-primary btn-sm" @onclick="() => ViewUser(loadedUser.UserId)">View</button>
+                                    <button class="btn btn-primary btn-sm" @onclick="() => ViewUser(loadedUser.UserId)" disabled="@isLoadingUsers || deletingUserId == loadedUser.UserId">View</button>
                                     @if (isOrganizer)
                                     {
-                                        <button class="btn btn-secondary btn-sm" @onclick="() => EditUser(loadedUser.UserId)">Edit</button>
-                                        <button class="btn btn-danger btn-sm" @onclick="() => DeleteUser(loadedUser.UserId)">Delete</button>
+                                        <button class="btn btn-secondary btn-sm" @onclick="() => EditUser(loadedUser.UserId)" disabled="@isLoadingUsers || deletingUserId == loadedUser.UserId">Edit</button>
+                                        <button class="btn btn-danger btn-sm" @onclick="() => DeleteUser(loadedUser.UserId)" disabled="@isLoadingUsers || deletingUserId == loadedUser.UserId">
+                                            @if (deletingUserId == loadedUser.UserId)
+                                            {
+                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                            }
+                                            else
+                                            {
+                                                <i class="bi bi-trash-fill"></i>
+                                            }
+                                        </button>
                                     }
                                 </div>
                             </td>
@@ -71,7 +81,12 @@
                 </tbody>
             </table>
         </div>
+        @* LARGE SCREEN END *@
 
+
+
+
+        @* SMALL SCREEN START *@
         @* Section: List Group Layout (Small Screens) *@
         <div class="d-block d-md-none mb-2">
             @* Card Loop, actually loads the users data (Small Screens) *@
@@ -90,14 +105,22 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton-sm-@loadedUser.UserId">
                                     <li>
-                                        <button class="dropdown-item text-dark" @onclick="() => EditUser(loadedUser.UserId)">
+                                        <button class="dropdown-item text-dark" @onclick="() => EditUser(loadedUser.UserId)" disabled="@isLoadingUsers || deletingUserId == loadedUser.UserId">
                                             <i class="bi bi-pencil-fill me-2"></i>Edit
                                         </button>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <button class="dropdown-item text-danger" @onclick="() => DeleteUser(loadedUser.UserId)">
-                                            <i class="bi bi-trash-fill me-2"></i>Delete
+                                        <button class="dropdown-item text-danger" @onclick="() => DeleteUser(loadedUser.UserId)" disabled="@isLoadingUsers || deletingUserId == loadedUser.UserId">
+                                             @if (deletingUserId == loadedUser.UserId)
+                                            {
+                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                <span class="ms-1">Deleting...</span>
+                                            }
+                                            else
+                                            {
+                                                <i class="bi bi-trash-fill me-2"></i><span>Delete</span>
+                                            }
                                         </button>
                                     </li>
                                 </ul>
@@ -109,7 +132,7 @@
                         <p class="card-text mb-0"><small><strong>Role:</strong> @loadedUser.Role.ToString()</small></p>
                     </div>
                     <div class="card-footer d-grid py-2">
-                        <button class="btn btn-primary btn-sm" @onclick="() => ViewUser(loadedUser.UserId)">View</button>
+                        <button class="btn btn-primary btn-sm" @onclick="() => ViewUser(loadedUser.UserId)" disabled="@isLoadingUsers || deletingUserId == loadedUser.UserId">View</button>
                     </div>
                 </div>
             }
@@ -124,6 +147,9 @@
                 </div>
             }
         </div>
+        @* SMALL SCREEN END *@
+
+
 
         @* Section: Error Display (Combined) *@
         @if (loadError != null || !string.IsNullOrEmpty(errorMessage))
@@ -179,6 +205,11 @@
     private bool isOrganizer = false;
 
     /// <summary>
+    /// Tracks the ID of the user currently being deleted, or -1 if none.
+    /// </summary>
+    private int deletingUserId = -1;
+
+    /// <summary>
     /// Initializes the component, checks user permissions, and loads user data.
     /// </summary>
     /// <returns>A task representing the asynchronous operation.</returns>
@@ -213,10 +244,10 @@
     {
         try
         {
-            // Step 1: Set loading state and update UI
+            // Step 1: Set loading state to true and update UI
             isLoadingUsers = true;
-            loadedUsers = new List<UserResponse>();
-            StateHasChanged();
+            loadedUsers.Clear(); // Clear existing list
+            StateHasChanged(); // Refresh the UI
 
             // Step 2: Call API to get all users
             getAllUsersResponse = await _userApiService.GetAllAsync();
@@ -231,7 +262,7 @@
                     loadedUsers.Add(userResponse);
 
                     // Step 6: Update UI after each user is added
-                    StateHasChanged();
+                    StateHasChanged(); // Refresh the UI
 
                     // Step 7: Small delay to show the progressive loading
                     await Task.Delay(20);
@@ -252,7 +283,7 @@
         {
             // Step 10: Reset loading state and update UI
             isLoadingUsers = false;
-            StateHasChanged();
+            StateHasChanged(); // Refresh the UI
         }
     }
 
@@ -283,19 +314,40 @@
     /// <returns>A task representing the asynchronous operation.</returns>
     private async Task DeleteUser(int userId)
     {
-        // Step 1: Call API to delete the user
-        var deleteResult = await _userApiService.DeleteAsync(new DeleteUserRequest(userId));
+        // Track which user is being deleted for UI feedback
+        deletingUserId = userId;
+        errorMessage = string.Empty;
+        StateHasChanged();
         
-        // Step 2: Process the result
-        if (deleteResult.IsSuccess)
+        try
         {
-            // Step 3: If successful, reload the users list
-            await LoadUsers();
+            // Step 1: Call API to delete the user
+            var deleteResult = await _userApiService.DeleteAsync(new DeleteUserRequest(userId));
+            
+            // Step 2: Process the result
+            if (deleteResult.IsSuccess)
+            {
+                // Step 3: If successful, reload the users list
+                await LoadUsers();
+            }
+            else
+            {
+                // Step 4: If failed, display error message
+                errorMessage = deleteResult.ErrorMessage ?? "An error occurred while deleting the user.";
+                StateHasChanged(); // Update UI with error message
+            }
         }
-        else
+        catch (Exception ex)
         {
-            // Step 4: If failed, display error message
-            errorMessage = deleteResult.ErrorMessage ?? "An error occurred while deleting the user.";
+            // Step 5: Handle any unexpected exceptions
+            errorMessage = $"Error deleting user: {ex.Message}";
+            StateHasChanged();
+        }
+        finally
+        {
+            // Clear the deleting user ID
+            deletingUserId = -1;
+            StateHasChanged();
         }
     }
 

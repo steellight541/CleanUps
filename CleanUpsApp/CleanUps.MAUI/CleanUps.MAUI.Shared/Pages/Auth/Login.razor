@@ -51,8 +51,18 @@
 
         @* Subsection: Form Footer (Actions) *@
         <div class="card-footer py-3 d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Login</button>
-            <button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>
+            <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                @if (isSubmitting)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span class="ms-1">Logging in...</span>
+                }
+                else
+                {
+                    <span>Login</span>
+                }
+            </button>
+            <button type="button" class="btn btn-dark" @onclick="Cancel" disabled="@isSubmitting">Cancel</button>
         </div>
     </EditForm>
 </div>
@@ -73,15 +83,27 @@
     private string errorMsg = string.Empty;
 
     /// <summary>
+    /// Tracks if the form is currently submitting.
+    /// </summary>
+    private bool isSubmitting = false;
+
+    /// <summary>
     /// Initializes the component and checks if the user is already authenticated.
     /// </summary>
     protected override async Task OnInitializedAsync()
     {
-        // Step 1: Check if user is already authenticated
-        if (await _accessService.IsUserLoggedInAsync())
+        try
         {
-            // Step 2: If authenticated, redirect to home page
-            _navigationManager.NavigateTo("/");
+            // Step 1: Check if user is already authenticated
+            if (await _accessService.IsUserLoggedInAsync())
+            {
+                // Step 2: If authenticated, redirect to home page
+                _navigationManager.NavigateTo("/");
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMsg = $"An unexpected error occurred: {ex.Message}";
         }
     }
 
@@ -90,34 +112,53 @@
     /// </summary>
     private async Task HandleSubmit()
     {
-        // Step 1: Create login request from the form model
-        LoginRequest request = new LoginRequest(loginModel.Email, loginModel.Password);
-
-        // Step 2: Call the authentication service to attempt login
-        var result = await _authApiService.LoginAsync(request);
-
-        // Step 3: Process the authentication result
-        if (result.IsSuccess)
+        // Track submitting state
+        isSubmitting = true;
+        errorMsg = string.Empty;
+        StateHasChanged();
+        
+        try
         {
-            // Step 4: On successful login, create a user session object
-            UserSessionInfo userSession = new UserSessionInfo
+            // Step 1: Create login request from the form model
+            LoginRequest request = new LoginRequest(loginModel.Email, loginModel.Password);
+
+            // Step 2: Call the authentication service to attempt login
+            var result = await _authApiService.LoginAsync(request);
+
+            // Step 3: Process the authentication result
+            if (result.IsSuccess)
             {
-                UserId = result.Data.UserId,
-                Name = result.Data.Name,
-                Email = result.Data.Email,
-                Role = result.Data.Role
-            };
+                // Step 4: On successful login, create a user session object
+                UserSessionInfo userSession = new UserSessionInfo
+                {
+                    UserId = result.Data.UserId,
+                    Name = result.Data.Name,
+                    Email = result.Data.Email,
+                    Role = result.Data.Role
+                };
 
-            // Step 5: Store the user session information
-            await _accessService.SetUserSessionAsync(userSession); 
-            
-            // Step 6: Redirect to events page after successful login
-            _navigationManager.NavigateTo("/events");
+                // Step 5: Store the user session information
+                await _accessService.SetUserSessionAsync(userSession); 
+                
+                // Step 6: Redirect to events page after successful login
+                _navigationManager.NavigateTo("/events");
+            }
+            else
+            {
+                // Step 7: Display error message if login fails
+                errorMsg = result.ErrorMessage ?? "Invalid email or password.";
+            }
         }
-        else
+        catch (Exception ex)
         {
-            // Step 7: Display error message if login fails
-            errorMsg = result.ErrorMessage ?? "Invalid email or password.";
+            // Handle unexpected exceptions not covered by the Result pattern
+            errorMsg = $"An unexpected error occurred: {ex.Message}";
+        }
+        finally
+        {
+            // Clear loading state
+            isSubmitting = false;
+            StateHasChanged();
         }
     }
 

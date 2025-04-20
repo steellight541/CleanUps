@@ -58,8 +58,18 @@
                  
                 @* Form Footer (Actions) *@
                 <div class="card-footer py-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-success">Save Changes</button>
-                    <button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>
+                    <button type="submit" class="btn btn-success" disabled="@isSubmitting">
+                        @if (isSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span class="ms-1">Saving...</span>
+                        }
+                        else
+                        {
+                            <span>Save Changes</span>
+                        }
+                    </button>
+                    <button type="button" class="btn btn-dark" @onclick="Cancel" disabled="@isSubmitting">Cancel</button>
                 </div>
             </EditForm>
         }
@@ -100,6 +110,11 @@
     private bool isOrganizer = false;
 
     /// <summary>
+    /// Indicates if the form is currently submitting.
+    /// </summary>
+    private bool isSubmitting = false;
+
+    /// <summary>
     /// Initializes the component, checks user permissions, and loads the user data.
     /// </summary>
     /// <returns>A task representing the asynchronous operation.</returns>
@@ -132,9 +147,11 @@
     /// <returns>A task representing the asynchronous operation.</returns>
     private async Task LoadUser()
     {
-        // Step 1: Call API to get the user by ID
-        getUserResult = await _userApiService.GetByIdAsync(userId);
-        
+        try
+        {
+            // Step 1: Call API to get the user by ID
+            getUserResult = await _userApiService.GetByIdAsync(userId);
+            
         // Step 2: If successful, populate the edit model with user data
         if (getUserResult.IsSuccess)
         {
@@ -144,6 +161,11 @@
                 Email = getUserResult.Data.Email
             };
         }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An unexpected error occurred: {ex.Message}";
+        }
     }
 
     /// <summary>
@@ -152,22 +174,41 @@
     /// <returns>A task representing the asynchronous operation.</returns>
     private async Task HandleSubmit()
     {
-        // Step 1: Create update request from form data
-        UpdateUserRequest updateRequest = new UpdateUserRequest(userId, editModel.Name, editModel.Email);
-
-        // Step 2: Call API to update the user
-        var updateResonse = await _userApiService.UpdateAsync(updateRequest);
+        // Track submitting state
+        isSubmitting = true;
+        errorMessage = string.Empty;
+        StateHasChanged();
         
-        // Step 3: Process the result
-        if (updateResonse.IsSuccess)
+        try
         {
-            // Step 4a: If successful, navigate back to users list
-            _navigationManager.NavigateTo("/users");
+            // Step 1: Create update request from form data
+            UpdateUserRequest updateRequest = new UpdateUserRequest(userId, editModel.Name, editModel.Email);
+
+            // Step 2: Call API to update the user
+            var updateResonse = await _userApiService.UpdateAsync(updateRequest);
+            
+            // Step 3: Process the result
+            if (updateResonse.IsSuccess)
+            {
+                // Step 4a: If successful, navigate back to users list
+                _navigationManager.NavigateTo("/users");
+            }
+            else
+            {
+                // Step 4b: If failed, display error message
+                errorMessage = updateResonse.ErrorMessage ?? "An error occurred while updating the user.";
+            }
         }
-        else
+        catch (Exception ex)
         {
-            // Step 4b: If failed, display error message
-            errorMessage = updateResonse.ErrorMessage ?? "An error occurred while updating the user.";
+            // Handle unexpected exceptions
+            errorMessage = $"Unexpected error: {ex.Message}";
+        }
+        finally
+        {
+            // Clear loading state
+            isSubmitting = false;
+            StateHasChanged();
         }
     }
 

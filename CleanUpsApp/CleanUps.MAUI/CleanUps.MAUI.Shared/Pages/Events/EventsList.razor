@@ -29,6 +29,7 @@
 
         }
 
+        @* LARGE SCREEN START *@
         @* Section: Table Layout (Large Screens) *@
         <div class="d-none d-md-block mb-2">
             <table class="table table-striped table-hover">
@@ -64,11 +65,20 @@
                             <td>@GetAttendeeCount(loadedEvent.EventId)</td>
                             <td>
                                 <div class="btn-group" role="group" aria-label="Basic example">
-                                    <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewDetails(loadedEvent.EventId)">View</button>
+                                    <button class="btn btn-primary btn-sm mt-2" @onclick="() => ViewDetails(loadedEvent.EventId)" disabled="@isLoadingEvents || deletingEventId == loadedEvent.EventId">View</button>
                                     @if (isOrganizer)
                                     {
-                                        <button class="btn btn-secondary btn-sm mt-2" @onclick="() => EditEvent(loadedEvent.EventId)">Edit</button>
-                                        <button class="btn btn-danger btn-sm mt-2" @onclick="() => DeleteEvent(loadedEvent.EventId)">Delete</button>
+                                        <button class="btn btn-secondary btn-sm mt-2" @onclick="() => EditEvent(loadedEvent.EventId)" disabled="@isLoadingEvents || deletingEventId == loadedEvent.EventId">Edit</button>
+                                        <button class="btn btn-danger btn-sm mt-2" @onclick="() => DeleteEvent(loadedEvent.EventId)" disabled="@isLoadingEvents || deletingEventId == loadedEvent.EventId">
+                                            @if (deletingEventId == loadedEvent.EventId)
+                                            {
+                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                            }
+                                            else
+                                            {
+                                                <i class="bi bi-trash-fill"></i>
+                                            }
+                                        </button>
                                     }
                                 </div>
                             </td>
@@ -89,7 +99,12 @@
                 </tbody>
             </table>
         </div>
+        @* LARGE SCREEN END *@
 
+
+
+
+        @* SMALL SCREEEN START *@
         @* Section: List Group Layout (Small Screens) *@
         <div class="d-block d-md-none mb-2">
             @* Card Loop, actually loads the events data (Small Screens) *@
@@ -108,14 +123,22 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton-sm-@loadedEvent.EventId">
                                     <li>
-                                        <button class="dropdown-item text-dark" @onclick="() => EditEvent(loadedEvent.EventId)">
+                                        <button class="dropdown-item text-dark" @onclick="() => EditEvent(loadedEvent.EventId)" disabled="@isLoadingEvents || deletingEventId == loadedEvent.EventId">
                                             <i class="bi bi-pencil-fill me-2"></i>Edit
                                         </button>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <button class="dropdown-item text-danger" @onclick="() => DeleteEvent(loadedEvent.EventId)">
-                                            <i class="bi bi-trash-fill me-2"></i>Delete
+                                        <button class="dropdown-item text-danger" @onclick="() => DeleteEvent(loadedEvent.EventId)" disabled="@isLoadingEvents || deletingEventId == loadedEvent.EventId">
+                                            @if (deletingEventId == loadedEvent.EventId)
+                                            {
+                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                <span class="ms-1">Deleting...</span>
+                                            }
+                                            else
+                                            {
+                                                <i class="bi bi-trash-fill me-2"></i><span>Delete</span>
+                                            }
                                         </button>
                                     </li>
                                 </ul>
@@ -129,7 +152,7 @@
                         <p class="card-text mb-0"><small><strong>Participants:</strong> @GetAttendeeCount(loadedEvent.EventId)</small></p>
                     </div>
                     <div class="card-footer d-grid py-2">
-                        <button class="btn btn-primary btn-sm" @onclick="() => ViewDetails(loadedEvent.EventId)">View</button>
+                        <button class="btn btn-primary btn-sm" @onclick="() => ViewDetails(loadedEvent.EventId)" disabled="@isLoadingEvents || deletingEventId == loadedEvent.EventId">View</button>
                     </div>
                 </div>
             }
@@ -144,6 +167,10 @@
                 </div>
             }
         </div>
+        @* SMALL SCREEEN END *@
+
+
+
 
         @* Section: Error Display (Combined) *@
         @if (loadError != null || !string.IsNullOrEmpty(errorMessage))
@@ -217,22 +244,35 @@
     private bool isLoadingEvents = false;
 
     /// <summary>
+    /// Tracks the ID of the event currently being deleted, or -1 if none.
+    /// </summary>
+    private int deletingEventId = -1;
+
+    /// <summary>
     /// Initializes the component by checking user permissions and loading events.
     /// </summary>
     protected override async Task OnInitializedAsync()
     {
-        // Step 1: Check if the current user is an organizer
-        if (await _accessService.IsOrganizerAsync())
+        try 
         {
-            isOrganizer = true;
-        }
-        else
-        {
-            isOrganizer = false;
-        }
+            // Step 1: Check if the current user is an organizer
+            if (await _accessService.IsOrganizerAsync())
+            {
+                isOrganizer = true;
+            }
+            else
+            {
+                isOrganizer = false;
+            }
 
-        // Step 2: Load all events from the API
-        await LoadEvents();
+            // Step 2: Load all events from the API
+            await LoadEvents();
+        }
+        catch (Exception ex)
+        {
+            // Handle any unexpected errors during initialization
+            loadError = $"Error initializing page: {ex.Message}";
+        }
     }
 
     /// <summary>
@@ -242,9 +282,10 @@
     {
         try
         {
-            // Step 1: Set loading state and update UI
+            // Step 1: Set loading state to true and update UI
             isLoadingEvents = true;
-            StateHasChanged();
+            loadedEvents.Clear(); // Clear existing list
+            StateHasChanged(); // Refresh the UI
 
             // Step 2: Call the API to get all events
             eventsResult = await _eventApiService.GetAllAsync();
@@ -258,14 +299,14 @@
                     loadedEvents.Add(eventResponse);
 
                     // Step 5: Update UI after each event is added
-                    StateHasChanged();
+                    StateHasChanged(); // Refresh the UI
 
                     // Step 6: Small delay to show the progressive loading
                     await Task.Delay(20);
                 }
 
                 // Step 7: Load attendance counts for each event
-                await LoadAttendeeCountsAsync();
+                await LoadAttendeeCountsAsync(); //Method is below
             }
             else
             {
@@ -282,7 +323,7 @@
         {
             // Step 10: Reset loading state and update UI
             isLoadingEvents = false;
-            StateHasChanged();
+            StateHasChanged(); // Refresh the UI
         }
     }
 
@@ -295,10 +336,12 @@
         {
             // Step 1: Set loading state for attendees and update UI
             isLoadingAttendees = true;
-            StateHasChanged();
+            StateHasChanged(); // Refresh the UI
 
-            // Step 2: For each event, get the list of users attending
-            foreach (EventResponse eventResponse in loadedEvents)
+            try
+            {
+                // Step 2: For each event, get the list of users attending
+                foreach (EventResponse eventResponse in loadedEvents)
             {
                 // Step 3: Call API to get users for this event
                 var getUserResult = await _eventAttendanceApiService.GetUsersByEventIdAsync(eventResponse.EventId);
@@ -307,11 +350,20 @@
                 eventAttendeeCount[eventResponse.EventId] = getUserResult.IsSuccess && getUserResult.Data != null ? getUserResult.Data.Count : 0;
                 
                 // Step 5: Update UI after each event's attendees are loaded
-                StateHasChanged();
+                StateHasChanged(); // Refresh the UI
             }
-
-            // Step 6: Reset loading state
-            isLoadingAttendees = false;
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"An unexpected error occurred: {ex.Message}";
+                StateHasChanged(); // Refresh the UI
+            }
+            finally
+            {
+                // Step 6: Reset loading state
+                isLoadingAttendees = false;
+                StateHasChanged(); // Refresh the UI
+            }
         }
     }
 
@@ -358,20 +410,34 @@
     /// <param name="eventId">The ID of the event to delete.</param>
     private async Task DeleteEvent(int eventId)
     {
-        // Step 1: Call API to delete the event
-        var deleteResult = await _eventApiService.DeleteAsync(new DeleteEventRequest(eventId));
-        
-        // Step 2: Process the result
-        if (deleteResult.IsSuccess)
+        // Track deleting state
+        deletingEventId = eventId;
+        errorMessage = string.Empty;
+        StateHasChanged();
+
+        try
         {
-            // Step 3: If successful, reload the events list
-            loadedEvents.Clear();
-            await LoadEvents();
+            // Step 1: Call API to delete the event
+            var deleteResult = await _eventApiService.DeleteAsync(new DeleteEventRequest(eventId));
+            
+            // Step 2: Process the result
+            if (deleteResult.IsSuccess)
+            {
+                // Step 3: If successful, reload the events list
+                await LoadEvents();
+            }
+            else
+            {
+                // Step 4: If failed, display error message
+                errorMessage = deleteResult.ErrorMessage ?? "An error occurred while deleting the event.";
+                StateHasChanged(); // Refresh the UI
+            }
         }
-        else
+        catch (Exception ex)
         {
-            // Step 4: If failed, display error message
-            errorMessage = deleteResult.ErrorMessage ?? "An error occurred while deleting the event.";
+            // Handle any unexpected exceptions
+            errorMessage = $"An unexpected error occurred: {ex.Message}";
+            StateHasChanged(); // Refresh the UI
         }
     }
 

@@ -62,7 +62,17 @@
                             <ValidationMessage For="() => passwordModel.ConfirmNewPassword" />
                         </div>
                         <div class="py-3 d-flex gap-2">
-                             <button type="submit" class="btn btn-success py-1" disabled="@isSubmitting">@(isSubmitting ? "Submitting..." : "Submit New Password")</button>
+                             <button type="submit" class="btn btn-success py-1" disabled="@isSubmitting">
+                                @if (isSubmitting)
+                                {
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    <span class="ms-1">Submitting...</span>
+                                }
+                                else
+                                {
+                                    <span>Submit New Password</span>
+                                }
+                             </button>
                              <button type="button" class="btn btn-dark py-1" @onclick="TogglePasswordChangeForm" disabled="@isSubmitting">Cancel</button>
                         </div>
                     </EditForm>
@@ -73,8 +83,17 @@
 
     @* Section: Card Footer (Logout Action) *@
     <div class="card-footer py-3 d-flex justify-content-end">
-         <button class="btn btn-danger" @onclick="Logout">
-            <i class="bi bi-box-arrow-right"></i> Logout
+         <button class="btn btn-danger" @onclick="Logout" disabled="@isLoggingOut">
+            @if (isLoggingOut)
+            {
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span class="ms-1">Logging out...</span>
+            }
+            else
+            {
+                <i class="bi bi-box-arrow-right"></i> 
+                <span>Logout</span>
+            }
         </button>
     </div>
 </div>
@@ -114,6 +133,11 @@
     /// Indicates if a form submission is in progress
     /// </summary>
     private bool isSubmitting = false;
+
+    /// <summary>
+    /// Indicates if a logout operation is in progress.
+    /// </summary>
+    private bool isLoggingOut = false;
 
     /// <summary>
     /// Model for the password change form
@@ -199,6 +223,7 @@
         statusMessage = string.Empty;
         isSuccess = false;
         isSubmitting = true;
+        StateHasChanged(); // Update UI to show submitting state
 
         try
         {
@@ -220,10 +245,10 @@
                 statusMessage = changePasswordResult.ErrorMessage ?? "Failed to change password.";
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // Step 5: Handle unexpected errors
-            statusMessage = "An unexpected error occurred while changing the password.";
+            // Step 5: Handle unexpected errors that aren't captured by the Result pattern
+            statusMessage = $"An unexpected error occurred: {ex.Message}";
         }
         finally
         {
@@ -239,11 +264,36 @@
     /// <returns>A task representing the asynchronous operation.</returns>
     private async Task Logout()
     {
-        // Step 1: Clear user session data
-        await _accessService.ClearUserSessionAsync();
+        // Track logging out state
+        isLoggingOut = true;
+        statusMessage = string.Empty;
+        StateHasChanged();
         
-        // Step 2: Redirect to events page
-        _navigationManager.NavigateTo("/events");
+        try
+        {
+            // Step 1: Clear user session data
+            await _accessService.ClearUserSessionAsync();
+            
+            // Step 2: Redirect to events page
+            _navigationManager.NavigateTo("/events");
+        }
+        catch (Exception ex)
+        {
+            // If logout fails, show error briefly and redirect to logout page
+            statusMessage = $"Logout error: {ex.Message}";
+            isSuccess = false;
+            StateHasChanged();
+            
+            // Short delay to show error message before redirecting
+            await Task.Delay(1000);
+            _navigationManager.NavigateTo("/auth/logout");
+        }
+        finally
+        {
+            // Clear logout loading state
+            isLoggingOut = false;
+            StateHasChanged();
+        }
     }
 
     /// <summary>

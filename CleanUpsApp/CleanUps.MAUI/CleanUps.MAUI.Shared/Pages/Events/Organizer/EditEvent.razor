@@ -89,8 +89,18 @@
                 
                 @* Form Footer (Actions) - Moved inside EditForm scope *@
                  <div class="card-footer py-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-success">Save Changes</button>
-                    <button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>
+                    <button type="submit" class="btn btn-success" disabled="@isSubmitting">
+                        @if (isSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span class="ms-1">Saving...</span>
+                        }
+                        else
+                        {
+                            <span>Save Changes</span>
+                        }
+                    </button>
+                    <button type="button" class="btn btn-dark" @onclick="Cancel" disabled="@isSubmitting">Cancel</button>
                  </div>
             </EditForm>
         }
@@ -138,6 +148,16 @@
     private bool isOrganizer = false;
 
     /// <summary>
+    /// Indicates if the component is currently loading data.
+    /// </summary>
+    private bool isLoading = true;
+
+    /// <summary>
+    /// Tracks if the form is currently submitting.
+    /// </summary>
+    private bool isSubmitting = false;
+
+    /// <summary>
     /// Initializes the component and checks user permissions.
     /// </summary>
     /// <returns>A task representing the asynchronous operation.</returns>
@@ -171,23 +191,44 @@
     /// <returns>A task representing the asynchronous operation.</returns>
     private async Task LoadEvent()
     {
-        // Step 1: Call the API to get the event by its ID
-        eventResult = await _eventApiService.GetByIdAsync(eventId);
-
-        // Step 2: Check if the operation was successful and data was returned
-        if (eventResult.IsSuccess && eventResult.Data != null)
+        isLoading = true;
+        errorMessage = string.Empty; // Clear previous errors
+        StateHasChanged();
+        
+        try
         {
-            // Step 3: Populate the edit model with the event data
-            eventEditModel = new EventEditModel
+            // Step 1: Call the API to get the event by its ID
+            eventResult = await _eventApiService.GetByIdAsync(eventId);
+
+            // Step 2: Check if the operation was successful and data was returned
+            if (eventResult.IsSuccess && eventResult.Data != null)
             {
-                Title = eventResult.Data.Title,
-                Description = eventResult.Data.Description,
-                StartTime = eventResult.Data.StartTime,
-                EndTime = eventResult.Data.EndTime,
-                FamilyFriendly = eventResult.Data.FamilyFriendly,
-                Status = eventResult.Data.Status,
-                TrashCollected = eventResult.Data.TrashCollected,
-            };
+                // Step 3: Populate the edit model with the event data
+                eventEditModel = new EventEditModel
+                {
+                    Title = eventResult.Data.Title,
+                    Description = eventResult.Data.Description,
+                    StartTime = eventResult.Data.StartTime,
+                    EndTime = eventResult.Data.EndTime,
+                    FamilyFriendly = eventResult.Data.FamilyFriendly,
+                    Status = eventResult.Data.Status,
+                    TrashCollected = eventResult.Data.TrashCollected,
+                };
+            }
+            else
+            {
+                // Handle case where event loading failed but was not an exception
+                errorMessage = eventResult?.ErrorMessage ?? "Failed to load event data.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An unexpected error occurred while loading: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
         }
     }
 
@@ -197,48 +238,65 @@
     /// <returns>A task representing the asynchronous operation.</returns>
     private async Task HandleSubmit()
     {
-        if (eventEditModel == null)
-        {
-            errorMessage = "Cannot save, event data not loaded correctly.";
-            return;
-        }
+        isSubmitting = true;
+        errorMessage = string.Empty;
+        StateHasChanged();
         
-        if (eventResult?.Data?.Location == null)
+        try
         {
-             errorMessage = "Cannot save, location data is missing.";
-             return;
-        }
+            if (eventEditModel == null)
+            {
+                errorMessage = "Cannot save, event data not loaded correctly.";
+                return;
+            }
+            
+            if (eventResult?.Data?.Location == null)
+            {
+                errorMessage = "Cannot save, location data is missing.";
+                return;
+            }
 
-        // Step 1: Create an update event request from the form data
-        UpdateEventRequest updateEvent = new UpdateEventRequest(
-            eventId,
-            eventEditModel.Title,
-            eventEditModel.Description,
-            eventEditModel.StartTime,
-            eventEditModel.EndTime,
-            eventEditModel.FamilyFriendly,
-            eventEditModel.TrashCollected,
-            eventEditModel.Status,
-            new UpdateLocationRequest(
-                eventResult.Data.Location.LocationId, 
-                eventResult.Data.Location.Longitude, 
-                eventResult.Data.Location.Latitude
-            )
-        );
+            // Step 1: Create an update event request from the form data
+            UpdateEventRequest updateEvent = new UpdateEventRequest(
+                eventId,
+                eventEditModel.Title,
+                eventEditModel.Description,
+                eventEditModel.StartTime,
+                eventEditModel.EndTime,
+                eventEditModel.FamilyFriendly,
+                eventEditModel.TrashCollected,
+                eventEditModel.Status,
+                new UpdateLocationRequest(
+                    eventResult.Data.Location.LocationId, 
+                    eventResult.Data.Location.Longitude, 
+                    eventResult.Data.Location.Latitude
+                )
+            );
 
-        // Step 2: Call the API service to update the event
-        var updateResult = await _eventApiService.UpdateAsync(updateEvent);
-        
-        // Step 3: Check if the operation was successful
-        if (updateResult.IsSuccess)
-        {
-            // Step 4: If successful, navigate to the events list page
-            _navigationManager.NavigateTo("/events");
+            // Step 2: Call the API service to update the event
+            var updateResult = await _eventApiService.UpdateAsync(updateEvent);
+            
+            // Step 3: Check if the operation was successful
+            if (updateResult.IsSuccess)
+            {
+                // Step 4: If successful, navigate to the events list page
+                _navigationManager.NavigateTo("/events");
+            }
+            else
+            {
+                // Step 5: If not successful, set the error message from the result
+                errorMessage = updateResult.ErrorMessage ?? "An error occurred while updating the event.";
+            }
         }
-        else
+        catch (Exception ex)
         {
-            // Step 5: If not successful, set the error message from the result
-            errorMessage = updateResult.ErrorMessage ?? "An error occurred while updating the event.";
+            // Handle unexpected exceptions
+            errorMessage = $"Unexpected error: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+            StateHasChanged();
         }
     }
 
