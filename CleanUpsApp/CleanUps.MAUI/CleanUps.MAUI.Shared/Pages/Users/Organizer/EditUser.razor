@@ -8,46 +8,68 @@
 @using System.ComponentModel.DataAnnotations
 
 <div class="card shadow position-relative">
+    @* Section: Card Header *@
     <div class="card-header py-3">
         <h3 class="mb-0">Edit User</h3>
     </div>
 
+    @* Section: Card Body *@
     <div class="card-body p-4">
+        @* Subsection: Loading Indicator *@
         @if (getUserResult == null)
         {
-            <p>Loading...</p>
+            <div class="alert alert-info" role="alert">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span class="ms-2">Loading user data...</span>
+            </div>
         }
+        @* Subsection: Error Loading User *@
         else if (!getUserResult.IsSuccess)
         {
-            <div class="alert alert-danger">Error loading user: @getUserResult.ErrorMessage</div>
+            <div class="alert alert-danger" role="alert">Error loading user: @getUserResult.ErrorMessage</div>
             <div class="mt-3">
                  <button class="btn btn-dark" @onclick="Cancel">Back</button>
             </div>
         }
+        @* Subsection: Edit User Form *@
         else if (editModel != null)
         {
             <EditForm Model="editModel" OnValidSubmit="HandleSubmit">
                 <DataAnnotationsValidator />
                 <ValidationSummary />
 
+                @* Input: Name *@
                 <div class="form-group mb-3">
                     <label for="name" class="form-label">Name</label>
                     <InputText id="name" @bind-Value="editModel.Name" class="form-control" />
                 </div>
 
+                @* Input: Email *@
                 <div class="form-group mb-3">
                     <label for="email" class="form-label">Email</label>
                     <InputText id="email" @bind-Value="editModel.Email" class="form-control" />
                 </div>
 
+                @* Display: Error Message *@
                 @if (!string.IsNullOrEmpty(errorMessage))
                 {
-                    <div class="alert alert-danger mt-3">@errorMessage</div>
+                    <div class="alert alert-danger mt-3" role="alert">@errorMessage</div>
                 }
                  
+                @* Form Footer (Actions) *@
                 <div class="card-footer py-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                    <button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>
+                    <button type="submit" class="btn btn-success" disabled="@isSubmitting">
+                        @if (isSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span class="ms-1">Saving...</span>
+                        }
+                        else
+                        {
+                            <span>Save Changes</span>
+                        }
+                    </button>
+                    <button type="button" class="btn btn-dark" @onclick="Cancel" disabled="@isSubmitting">Cancel</button>
                 </div>
             </EditForm>
         }
@@ -55,15 +77,55 @@
 </div>
 
 @code {
+    #region Variables: Parameters
+
+    /// <summary>
+    /// The user ID of the user to edit.
+    /// </summary>
     [Parameter]
     public int userId { get; set; }
 
+    #endregion
+
+    #region Variables: Data Storage
+
+    /// <summary>
+    /// The result of the user.
+    /// </summary>
     private Result<UserResponse> getUserResult;
+
+    #endregion
+
+    #region Variables: Component State
+
+    /// <summary>
+    /// The edit model for the user.
+    /// </summary>
     private UserEditModel editModel;
+
+    /// <summary>
+    /// Error message from API.
+    /// </summary>
     private string errorMessage;
-    
+
+    /// <summary>
+    /// Indicates if the user is logged in.
+    /// </summary>
     private bool isLoggedIn = false;
+
+    /// <summary>
+    /// Indicates if the user is an organizer.
+    /// </summary>
     private bool isOrganizer = false;
+
+    /// <summary>
+    /// Indicates if the form is currently submitting.
+    /// </summary>
+    private bool isSubmitting = false;
+
+    #endregion
+
+    #region Methods: Lifecycle Methods
 
     /// <summary>
     /// Initializes the component, checks user permissions, and loads the user data.
@@ -92,25 +154,56 @@
         }
     }
 
+    #endregion
+
+    #region Methods: Data Loading
+
     /// <summary>
     /// Loads the user data from the API and populates the edit model.
     /// </summary>
     /// <returns>A task representing the asynchronous operation.</returns>
     private async Task LoadUser()
     {
-        // Step 1: Call API to get the user by ID
-        getUserResult = await _userApiService.GetByIdAsync(userId);
-        
+        try
+        {
+            // Step 1: Call API to get the user by ID
+            getUserResult = await _userApiService.GetByIdAsync(userId);
+            
         // Step 2: If successful, populate the edit model with user data
         if (getUserResult.IsSuccess)
-        {
-            editModel = new UserEditModel
+        { 
+            // Check if getUserResult.Data is null before accessing properties
+            if (getUserResult.Data != null) 
             {
-                Name = getUserResult.Data.Name,
-                Email = getUserResult.Data.Email
-            };
+                editModel = new UserEditModel
+                {
+                    Name = getUserResult.Data.Name,
+                    Email = getUserResult.Data.Email
+                };
+            }
+            else
+            {
+                // Handle the case where Data is null, e.g., set an error message
+                errorMessage = "User data is not available.";
+            }
         }
+        else
+        {
+            // Handle the case where the API call was not successful
+            errorMessage = getUserResult.ErrorMessage ?? "Failed to load user data.";
+        }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An unexpected error occurred: {ex.Message}";
+        }
+        // Ensure StateHasChanged is called to update the UI
+        StateHasChanged();
     }
+
+    #endregion
+
+    #region Methods: Event Handlers
 
     /// <summary>
     /// Handles the form submission to update the user.
@@ -118,33 +211,56 @@
     /// <returns>A task representing the asynchronous operation.</returns>
     private async Task HandleSubmit()
     {
-        // Step 1: Create update request from form data
-        UpdateUserRequest updateRequest = new UpdateUserRequest(userId, editModel.Name, editModel.Email);
-
-        // Step 2: Call API to update the user
-        var updateResonse = await _userApiService.UpdateAsync(updateRequest);
+        // Track submitting state
+        isSubmitting = true;
+        errorMessage = string.Empty;
+        StateHasChanged();
         
-        // Step 3: Process the result
-        if (updateResonse.IsSuccess)
+        try
         {
-            // Step 4a: If successful, navigate back to users list
-            _navigationManager.NavigateTo("/users");
+            // Step 1: Create update request from form data
+            UpdateUserRequest updateRequest = new UpdateUserRequest(userId, editModel.Name, editModel.Email);
+
+            // Step 2: Call API to update the user
+            var updateResonse = await _userApiService.UpdateAsync(updateRequest);
+            
+            // Step 3: Process the result
+            if (updateResonse.IsSuccess)
+            {
+                // Step 4a: If successful, navigate back to users list
+                _navigationManager.NavigateTo("/users");
+            }
+            else
+            {
+                // Step 4b: If failed, display error message
+                errorMessage = updateResonse.ErrorMessage ?? "An error occurred while updating the user.";
+            }
         }
-        else
+        catch (Exception ex)
         {
-            // Step 4b: If failed, display error message
-            errorMessage = updateResonse.ErrorMessage ?? "An error occurred while updating the user.";
+            // Handle unexpected exceptions
+            errorMessage = $"Unexpected error: {ex.Message}";
+        }
+        finally
+        {
+            // Clear loading state
+            isSubmitting = false;
+            StateHasChanged();
         }
     }
 
     /// <summary>
-    /// Handles cancellation of user editing by navigating back to the users list.
+    /// Navigates to the user details page.
     /// </summary>
     private void Cancel()
     {
-        // Step 1: Navigate back to the users list
-        _navigationManager.NavigateTo("/users");
+        // Step 1: Navigate to the edit page for this user
+        _navigationManager.NavigateTo($"/users/{userId}/details");
     }
+
+    #endregion
+
+    #region Models: Page Specific Models
 
     /// <summary>
     /// Model class for editing user information with validation attributes.
@@ -169,4 +285,6 @@
         [StringLength(255, ErrorMessage = "Email cannot exceed 255 characters.")]
         public string Email { get; set; }
     }
+
+    #endregion
 }

@@ -10,25 +10,31 @@
 @using System.ComponentModel.DataAnnotations
 
 <div class="card shadow position-relative">
+    @* Section: Card Header *@
     <div class="card-header py-3">
         <h3 class="mb-0">Sign Up</h3>
     </div>
 
+    @* Section: Sign Up Form *@
     <EditForm Model="singUpModel" OnValidSubmit="HandleSubmit">
+        @* Subsection: Form Body *@
         <div class="card-body p-4">
             <DataAnnotationsValidator />
             <ValidationSummary />
 
+            @* Input: Name *@
             <div class="form-group mb-3">
                 <label for="name" class="form-label">Name</label>
                 <InputText id="name" @bind-Value="singUpModel.Name" class="form-control" placeholder="Enter your name" />
             </div>
 
+            @* Input: Email *@
             <div class="form-group mb-3">
                 <label for="email" class="form-label">Email</label>
                 <InputText id="email" @bind-Value="singUpModel.Email" class="form-control" placeholder="Enter your email" />
             </div>
 
+            @* Input: Password *@
             <div class="form-group mb-3">
                 <label for="password" class="form-label">Password</label>
                 <InputText id="password" type="password" @bind-Value="singUpModel.Password" class="form-control" aria-describedby="passwordHelpBlock" />
@@ -37,95 +43,172 @@
                 </div>
             </div>
 
+            @* Input: Confirm Password *@
             <div class="form-group mb-3">
                 <label for="confirmPassword" class="form-label">Confirm Password</label>
                 <InputText id="confirmPassword" type="password" @bind-Value="singUpModel.ConfirmPassword" class="form-control" />
             </div>
 
+            @* Link: Log In *@
             <div class="mb-3">
                  <a href="/auth/login">Already have an account? Log in</a>
             </div>
 
+            @* Display: Error Message *@
             @if (!string.IsNullOrEmpty(errorMsg))
             {
-                <div class="alert alert-danger mt-3">@errorMsg</div>
+                <div class="alert alert-danger mt-3" role="alert">@errorMsg</div>
             }
         </div>
         
+        @* Subsection: Form Footer (Actions) *@
         <div class="card-footer py-3 d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Sign Up</button>
-            <button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>
+            <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                 @if (isSubmitting)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span class="ms-1">Signing Up...</span>
+                }
+                else
+                {
+                    <span>Sign Up</span>
+                }
+            </button>
+            <button type="button" class="btn btn-dark" @onclick="Cancel" disabled="@isSubmitting">Cancel</button>
         </div>
     </EditForm>
 </div>
 
 @code {
+    #region Variables: Component State
+
+    /// <summary>
+    /// The sign-up model for the sign-up form.
+    /// </summary>
     private SignUpModel singUpModel = new SignUpModel();
+
+    /// <summary>
+    /// The error message to display.
+    /// </summary>
     private string errorMsg = string.Empty;
 
+    /// <summary>
+    /// Tracks if the form is currently submitting.
+    /// </summary>
+    private bool isSubmitting = false;
+
+    #endregion
+
+    #region Methods: Lifecycle Methods
+
+    /// <summary>
+    /// Initializes the component and checks if the user is already authenticated.
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
-        // Step 1: Check if user is already authenticated
-        if (await _accessService.IsUserLoggedInAsync())
+        try
         {
-            // Step 2: If authenticated, redirect to home page
-            _navigationManager.NavigateTo("/");
+            // Step 1: Check if user is already authenticated
+            if (await _accessService.IsUserLoggedInAsync())
+            {
+                // Step 2: If authenticated, redirect to home page
+                _navigationManager.NavigateTo("/");
+            }
+        }
+        catch
+        {
+            // If authentication check fails, show login form anyway
+            // User can proceed with signup
+            // No action needed
         }
     }
 
+    #endregion
+
+    #region Methods: Event Handlers
+
+    /// <summary>
+    /// Handles the submission of the sign-up form.
+    /// </summary>
     private async Task HandleSubmit()
     {
-        // Step 1: Create user request from the form model
-        CreateUserRequest newUser = new CreateUserRequest(singUpModel.Name, singUpModel.Email, singUpModel.Password);
-
-        // Step 2: Call the user service to create a new user
-        var createResult = await _userApiService.CreateAsync(newUser);
+        // Track submitting state
+        isSubmitting = true;
+        errorMsg = string.Empty;
+        StateHasChanged();
         
-        // Step 3: Process the user creation result
-        if (createResult.IsSuccess)
+        try
         {
-            // Step 4: If user creation was successful, create login request
-            LoginRequest request = new LoginRequest(singUpModel.Email, singUpModel.Password);
+            // Step 1: Create user request from the form model
+            CreateUserRequest newUser = new CreateUserRequest(singUpModel.Name, singUpModel.Email, singUpModel.Password);
 
-            // Step 5: Attempt to automatically log in the new user
-            var loginResult = await _authApiService.LoginAsync(request);
-
-            // Step 6: Process the login result
-            if (loginResult.IsSuccess)
+            // Step 2: Call the user service to create a new user
+            var createResult = await _userApiService.CreateAsync(newUser);
+            
+            // Step 3: Process the user creation result
+            if (createResult.IsSuccess)
             {
-                // Step 7: On successful login, create a user session object
-                UserSessionInfo userSession = new UserSessionInfo
-                    {
-                        UserId = loginResult.Data.UserId,
-                        Name = loginResult.Data.Name,
-                        Email = loginResult.Data.Email,
-                        Role = loginResult.Data.Role
-                    };
+                // Step 4: If user creation was successful, create login request
+                LoginRequest request = new LoginRequest(singUpModel.Email, singUpModel.Password);
 
-                // Step 8: Store the user session information
-                await _accessService.SetUserSessionAsync(userSession);
-                
-                // Step 9: Redirect to events page after successful signup and login
-                _navigationManager.NavigateTo("/events", forceLoad: false);
+                // Step 5: Attempt to automatically log in the new user
+                var loginResult = await _authApiService.LoginAsync(request);
+
+                // Step 6: Process the login result
+                if (loginResult.IsSuccess)
+                {
+                    // Step 7: On successful login, create a user session object
+                    UserSessionInfo userSession = new UserSessionInfo
+                        {
+                            UserId = loginResult.Data.UserId,
+                            Name = loginResult.Data.Name,
+                            Email = loginResult.Data.Email,
+                            Role = loginResult.Data.Role
+                        };
+
+                    // Step 8: Store the user session information
+                    await _accessService.SetUserSessionAsync(userSession);
+                    
+                    // Step 9: Redirect to events page after successful signup and login
+                    _navigationManager.NavigateTo("/events", forceLoad: false);
+                }
+                else
+                {
+                    // Step 10: If signup worked but auto-login failed, redirect to login page
+                    _navigationManager.NavigateTo("/auth/login");
+                }
             }
             else
             {
-                // Step 10: If signup worked but auto-login failed, redirect to login page
-                _navigationManager.NavigateTo("/auth/login");
+                // Step 11: Display error message if user creation fails
+                errorMsg = createResult.ErrorMessage ?? "An error occurred while signing up.";
             }
         }
-        else
+        catch (Exception ex)
         {
-            // Step 11: Display error message if user creation fails
-            errorMsg = createResult.ErrorMessage ?? "An error occurred while signing up.";
+            // Handle unexpected exceptions not captured by the Result pattern
+            errorMsg = $"An unexpected error occurred: {ex.Message}";
+        }
+        finally
+        {
+            // Clear loading state
+            isSubmitting = false;
+            StateHasChanged();
         }
     }
 
+    /// <summary>
+    /// Navigates back to the login page when cancel is clicked.
+    /// </summary>
     private void Cancel()
     {
         // Step 1: Navigate back to the homepage when cancel is clicked
-        _navigationManager.NavigateTo("/");
+        _navigationManager.NavigateTo("/auth/login");
     }
+
+    #endregion
+
+    #region Models: Page Specific Models
 
     /// <summary>
     /// Model class for the sign-up form that captures new user information.
@@ -165,4 +248,6 @@
         [Compare("Password", ErrorMessage = "Passwords do not match.")]
         public string ConfirmPassword { get; set; }
     }
+
+    #endregion
 }

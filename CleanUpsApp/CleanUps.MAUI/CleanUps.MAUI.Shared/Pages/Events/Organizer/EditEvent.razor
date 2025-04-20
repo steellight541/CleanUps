@@ -10,31 +10,41 @@
 @using System.ComponentModel.DataAnnotations
 
 <div class="card shadow position-relative">
+    @* Section: Card Header *@
     <div class="card-header py-3">
         <h3 class="mb-0">Edit Event</h3>
     </div>
 
+    @* Section: Card Body *@
     <div class="card-body p-4">
+        @* Subsection: Loading Indicator *@
         @if (eventResult == null)
         {
-            <p>Loading...</p>
+            <div class="alert alert-info" role="alert">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span class="ms-2">Loading event data...</span>
+            </div>
         }
+        @* Subsection: Edit Event Form *@
         else if (eventResult.IsSuccess && eventResult.Data != null && eventEditModel != null)
         {
             <EditForm Model="eventEditModel" OnValidSubmit="HandleSubmit">
                 <DataAnnotationsValidator />
                 <ValidationSummary />
 
+                @* Input: Title *@
                 <div class="form-group mb-3">
                     <label for="title" class="form-label">Title</label>
                     <InputText id="title" @bind-Value="eventEditModel.Title" class="form-control" />
                 </div>
 
+                @* Input: Description *@
                 <div class="form-group mb-3">
                     <label for="description" class="form-label">Description</label>
                     <InputTextArea id="description" @bind-Value="eventEditModel.Description" class="form-control" rows="3" />
                 </div>
 
+                @* Input: Start and End Time *@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="startTime" class="form-label">Start Time</label>
@@ -46,6 +56,7 @@
                     </div>
                 </div>
                 
+                @* Input: Trash Collected and Status *@
                 <div class="row mb-3">
                     <div class="col-md-6">
                          <label for="trashCollected" class="form-label">Trash Collected (kg)</label>
@@ -62,28 +73,41 @@
                     </div>
                 </div>
 
+                @* Input: Family Friendly Checkbox *@
                 <div class="form-check mb-3">
                     <InputCheckbox id="familyFriendly" @bind-Value="eventEditModel.FamilyFriendly" class="form-check-input" />
                     <label class="form-check-label" for="familyFriendly">Family Friendly Event</label>
                 </div>
 
-                @* Location editing might need a more complex UI later *@
+                @* TODO: Location editing might need a more complex UI later *@
 
+                @* Display: Error Message *@
                 @if (!string.IsNullOrEmpty(errorMessage))
                 {
-                    <div class="alert alert-danger">@errorMessage</div>
+                    <div class="alert alert-danger" role="alert">@errorMessage</div>
                 }
                 
-                @* Moved buttons to footer *@
+                @* Form Footer (Actions) - Moved inside EditForm scope *@
                  <div class="card-footer py-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                    <button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>
+                    <button type="submit" class="btn btn-success" disabled="@isSubmitting">
+                        @if (isSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span class="ms-1">Saving...</span>
+                        }
+                        else
+                        {
+                            <span>Save Changes</span>
+                        }
+                    </button>
+                    <button type="button" class="btn btn-dark" @onclick="Cancel" disabled="@isSubmitting">Cancel</button>
                  </div>
             </EditForm>
         }
+        @* Subsection: Error Loading Event *@
         else if (eventResult != null) // Error loading event
         {
-            <div class="alert alert-danger">Error loading event: @eventResult.ErrorMessage</div>
+            <div class="alert alert-danger" role="alert">Error loading event: @eventResult.ErrorMessage</div>
              <div class="mt-3">
                 <button class="btn btn-dark" @onclick="Cancel">Back</button>
             </div>
@@ -91,21 +115,61 @@
     </div>
 </div>
 
-@if (!string.IsNullOrEmpty(errorMessage))
-{
-    <p class="text-danger">@errorMessage</p>
-}
-
 @code {
+    #region Variables: Parameters
+
+    /// <summary>
+    /// The ID of the event to edit, passed as a route parameter.
+    /// </summary>
     [Parameter]
     public int eventId { get; set; }
 
+    #endregion
+
+    #region Variables: Data Storage
+
+    /// <summary>
+    /// The result of the event data retrieval operation.
+    /// </summary>
     private Result<EventResponse> eventResult;
+
+    #endregion
+
+    #region Variables: Component State
+
+    /// <summary>
+    /// The edit model for the event.
+    /// </summary>
     private EventEditModel? eventEditModel;
+
+    /// <summary>
+    /// The error message to display.
+    /// </summary>
     private string errorMessage;
 
+    /// <summary>
+    /// Indicates if the user is logged in.
+    /// </summary>
     private bool isLoggedIn = false;
+
+    /// <summary>
+    /// Indicates if the user is an organizer.
+    /// </summary>
     private bool isOrganizer = false;
+
+    /// <summary>
+    /// Indicates if the component is currently loading data.
+    /// </summary>
+    private bool isLoading = true;
+
+    /// <summary>
+    /// Tracks if the form is currently submitting.
+    /// </summary>
+    private bool isSubmitting = false;
+
+    #endregion
+
+    #region Methods: Lifecycle Methods
 
     /// <summary>
     /// Initializes the component and checks user permissions.
@@ -135,31 +199,60 @@
         }
     }
 
+    #endregion
+
+    #region Methods: Data Loading
+
     /// <summary>
     /// Loads the event data from the API service and populates the edit model.
     /// </summary>
     /// <returns>A task representing the asynchronous operation.</returns>
     private async Task LoadEvent()
     {
-        // Step 1: Call the API to get the event by its ID
-        eventResult = await _eventApiService.GetByIdAsync(eventId);
-
-        // Step 2: Check if the operation was successful and data was returned
-        if (eventResult.IsSuccess && eventResult.Data != null)
+        isLoading = true;
+        errorMessage = string.Empty; // Clear previous errors
+        StateHasChanged();
+        
+        try
         {
-            // Step 3: Populate the edit model with the event data
-            eventEditModel = new EventEditModel
+            // Step 1: Call the API to get the event by its ID
+            eventResult = await _eventApiService.GetByIdAsync(eventId);
+
+            // Step 2: Check if the operation was successful and data was returned
+            if (eventResult.IsSuccess && eventResult.Data != null)
             {
-                Title = eventResult.Data.Title,
-                Description = eventResult.Data.Description,
-                StartTime = eventResult.Data.StartTime,
-                EndTime = eventResult.Data.EndTime,
-                FamilyFriendly = eventResult.Data.FamilyFriendly,
-                Status = eventResult.Data.Status,
-                TrashCollected = eventResult.Data.TrashCollected,
-            };
+                // Step 3: Populate the edit model with the event data
+                eventEditModel = new EventEditModel
+                {
+                    Title = eventResult.Data.Title,
+                    Description = eventResult.Data.Description,
+                    StartTime = eventResult.Data.StartTime,
+                    EndTime = eventResult.Data.EndTime,
+                    FamilyFriendly = eventResult.Data.FamilyFriendly,
+                    Status = eventResult.Data.Status,
+                    TrashCollected = eventResult.Data.TrashCollected,
+                };
+            }
+            else
+            {
+                // Handle case where event loading failed but was not an exception
+                errorMessage = eventResult?.ErrorMessage ?? "Failed to load event data.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An unexpected error occurred while loading: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
         }
     }
+
+    #endregion
+
+    #region Methods: Event Handlers
 
     /// <summary>
     /// Handles the form submission to update the event.
@@ -167,115 +260,150 @@
     /// <returns>A task representing the asynchronous operation.</returns>
     private async Task HandleSubmit()
     {
-        if (eventEditModel == null)
-        {
-            errorMessage = "Cannot save, event data not loaded correctly.";
-            return;
-        }
+        isSubmitting = true;
+        errorMessage = string.Empty;
+        StateHasChanged();
         
-        if (eventResult?.Data?.Location == null)
+        try
         {
-             errorMessage = "Cannot save, location data is missing.";
-             return;
-        }
+            if (eventEditModel == null)
+            {
+                errorMessage = "Cannot save, event data not loaded correctly.";
+                return;
+            }
+            
+            if (eventResult?.Data?.Location == null)
+            {
+                errorMessage = "Cannot save, location data is missing.";
+                return;
+            }
 
-        // Step 1: Create an update event request from the form data
-        UpdateEventRequest updateEvent = new UpdateEventRequest(
-            eventId,
-            eventEditModel.Title,
-            eventEditModel.Description,
-            eventEditModel.StartTime,
-            eventEditModel.EndTime,
-            eventEditModel.FamilyFriendly,
-            eventEditModel.TrashCollected,
-            eventEditModel.Status,
-            new UpdateLocationRequest(
-                eventResult.Data.Location.LocationId, 
-                eventResult.Data.Location.Longitude, 
-                eventResult.Data.Location.Latitude
-            )
-        );
+            // Step 1: Create an update event request from the form data
+            UpdateEventRequest updateEvent = new UpdateEventRequest(
+                eventId,
+                eventEditModel.Title,
+                eventEditModel.Description,
+                eventEditModel.StartTime,
+                eventEditModel.EndTime,
+                eventEditModel.FamilyFriendly,
+                eventEditModel.TrashCollected,
+                eventEditModel.Status,
+                new UpdateLocationRequest(
+                    eventResult.Data.Location.LocationId, 
+                    eventResult.Data.Location.Longitude, 
+                    eventResult.Data.Location.Latitude
+                )
+            );
 
-        // Step 2: Call the API service to update the event
-        var updateResult = await _eventApiService.UpdateAsync(updateEvent);
-        
-        // Step 3: Check if the operation was successful
-        if (updateResult.IsSuccess)
-        {
-            // Step 4: If successful, navigate to the events list page
-            _navigationManager.NavigateTo("/events");
+            // Step 2: Call the API service to update the event
+            var updateResult = await _eventApiService.UpdateAsync(updateEvent);
+            
+            // Step 3: Check if the operation was successful
+            if (updateResult.IsSuccess)
+            {
+                // Step 4: If successful, navigate to the events list page
+                _navigationManager.NavigateTo("/events");
+            }
+            else
+            {
+                // Step 5: If not successful, set the error message from the result
+                errorMessage = updateResult.ErrorMessage ?? "An error occurred while updating the event.";
+            }
         }
-        else
+        catch (Exception ex)
         {
-            // Step 5: If not successful, set the error message from the result
-            errorMessage = updateResult.ErrorMessage ?? "An error occurred while updating the event.";
+            // Handle unexpected exceptions
+            errorMessage = $"Unexpected error: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+            StateHasChanged();
         }
     }
 
     /// <summary>
-    /// Handles cancellation of event editing by navigating back to the events list.
+    /// Handles cancellation of the event editing process and returns to the event details page.
+    /// This provides a way for users to abandon edits without saving changes.
     /// </summary>
     private void Cancel()
     {
-        // Step 1: Navigate back to the events list page
-        _navigationManager.NavigateTo("/events");
+        // Step 1: Navigate to the details page for the specified event
+        _navigationManager.NavigateTo($"/events/{eventId}/details");
     }
+
+    #endregion
+
+    #region Models: Page Specific Models
 
     /// <summary>
     /// Model class for editing existing events with validation attributes.
-    /// This class defines the data structure and validation rules for the event edit form.
+    /// This class defines the data structure and validation rules for the event edit form,
+    /// capturing all modifiable properties of an event that an organizer can update.
     /// </summary>
     private class EventEditModel
     {
         /// <summary>
-        /// Gets or sets the title of the event.
+        /// Gets or sets the title of the event displayed as the main identifier.
+        /// This is shown in event lists and at the top of the event details page.
         /// </summary>
-        /// <value>A string that cannot be empty.</value>
+        /// <value>A string that cannot be empty per validation requirements.</value>
         [Required(ErrorMessage = "Title is required.")]
         public string Title { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets the detailed description of the event.
+        /// Gets or sets the detailed description of the event providing additional information.
+        /// This text explains the purpose, activities, and other relevant details about the event.
         /// </summary>
-        /// <value>A string that cannot be empty.</value>
+        /// <value>A string that cannot be empty per validation requirements.</value>
         [Required(ErrorMessage = "Description is required.")]
         public string Description { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the starting date and time of the event.
+        /// This determines when volunteers should arrive and when the event officially begins.
         /// </summary>
-        /// <value>A DateTime representing when the event begins.</value>
+        /// <value>A DateTime representing the exact moment when the event begins.</value>
         [Required(ErrorMessage = "Start time is required.")]
         public DateTime StartTime { get; set; }
 
         /// <summary>
         /// Gets or sets the ending date and time of the event.
+        /// This determines when volunteer activities are expected to conclude.
+        /// The end time must be after the start time to be valid.
         /// </summary>
-        /// <value>A DateTime representing when the event ends.</value>
+        /// <value>A DateTime representing the exact moment when the event ends.</value>
         [Required(ErrorMessage = "End time is required.")]
         public DateTime EndTime { get; set; }
 
         /// <summary>
         /// Gets or sets whether the event is suitable for families with children.
+        /// This flag helps volunteers determine if they can bring their entire family 
+        /// or if the cleanup might involve hazardous materials or conditions.
         /// </summary>
-        /// <value>A boolean indicating if the event is family-friendly.</value>
+        /// <value>A boolean indicating if the event is family-friendly (true) or adults-only (false).</value>
         public bool FamilyFriendly { get; set; }
 
         /// <summary>
-        /// Gets or sets the current status of the event.
-        /// Valid values are defined in the StatusDTO enum.
+        /// Gets or sets the current status of the event in its lifecycle.
+        /// The status reflects whether the event is planned (Upcoming), currently happening (Ongoing),
+        /// has finished (Completed), or was called off (Canceled).
         /// </summary>
-        /// <value>The event's current status from the StatusDTO enum.</value>
+        /// <value>The event's current status from the StatusDTO enum (Upcoming, Ongoing, Completed, Canceled).</value>
         [Required(ErrorMessage = "Status is required.")]
         [EnumDataType(typeof(StatusDTO), ErrorMessage = "Invalid status selected.")]
         public StatusDTO Status { get; set; }
 
         /// <summary>
         /// Gets or sets the amount of trash collected during the event in kilograms.
+        /// This metric helps track the impact of cleanup events and is typically updated
+        /// after the event has been completed.
         /// </summary>
-        /// <value>A non-negative decimal representing the amount of trash collected.</value>
+        /// <value>A non-negative decimal representing the amount of trash collected in kilograms.</value>
         [Required(ErrorMessage = "Trash collected amount is required.")]
         [Range(0, double.MaxValue, ErrorMessage = "Trash collected cannot be negative.")]
         public decimal TrashCollected { get; set; }
     }
+
+    #endregion
 }

@@ -7,25 +7,47 @@
 @using CleanUps.Shared.DTOs.Users
 
 <div class="card shadow position-relative">
+    @* Section: Card Header (Title and Organizer Actions) *@
     <div class="card-header py-3 d-flex justify-content-between align-items-center">
         <h3 class="mb-0">User Details</h3>
         @if (isOrganizer && userDetail != null)
         {
-             <button class="btn btn-sm btn-primary" @onclick="EditUser" title="Edit User">
+            <div>
+             <button class="btn btn-sm btn-primary" @onclick="EditUser" title="Edit User" disabled="@isDeleting">
                  <i class="bi bi-pencil-square"></i> Edit
              </button>
+             <button class="btn btn-sm btn-danger" @onclick="DeleteUser" title="Delete User" disabled="@isDeleting">
+                 @if (isDeleting)
+                 {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span class="ms-1">Deleting...</span>
+                 }
+                 else
+                 {
+                    <i class="bi bi-trash-fill"></i>
+                    <span>Delete</span>
+                 }
+             </button>
+            </div>
         }
     </div>
 
+    @* Section: Card Body (User Information) *@
     <div class="card-body p-4">
+        @* Subsection: Loading Indicator *@
         @if (isLoading)
         {
-            <p><em>Loading user details...</em></p>
+            <div class="alert alert-info" role="alert">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span class="ms-2">Loading user details...</span>
+            </div>
         }
+        @* Subsection: Error Message *@
         else if (!string.IsNullOrEmpty(errorMessage))
         {
-            <div class="alert alert-danger">@errorMessage</div>
+            <div class="alert alert-danger" role="alert">@errorMessage</div>
         }
+        @* Subsection: User Details Display *@
         else if (userDetail != null)
         {
             <div class="mb-3">
@@ -41,12 +63,14 @@
                 <strong>Created Date:</strong> @userDetail.CreatedDate.ToShortDateString()
             </div>
         }
+        @* Subsection: User Not Found *@
         else
         {
-            <p><em>User not found.</em></p>
+            <div class="alert alert-danger" role="alert">User not found.</div>
         }
     </div>
 
+    @* Section: Card Footer (Actions) *@
     <div class="card-footer py-3 d-flex gap-2">
         <button class="btn btn-dark" @onclick="GoBack">Back to List</button>
     </div>
@@ -54,14 +78,55 @@
 
 
 @code {
+    #region Variables: Parameters
+
+    /// <summary>
+    /// The user ID of the user to display.
+    /// </summary>
     [Parameter]
     public int UserId { get; set; }
 
+    #endregion
+
+    #region Variables: Data Storage
+
+    /// <summary>
+    /// The user details from the API.
+    /// </summary>
     private UserResponse? userDetail;
+
+    #endregion
+
+    #region Variables: Component State
+
+    /// <summary>
+    /// The error message.
+    /// </summary>
     private string? errorMessage;
+
+    /// <summary>
+    /// Indicates if the user is loading.
+    /// </summary>
     private bool isLoading = true;
+
+    /// <summary>
+    /// Indicates if the user is logged in.
+    /// </summary>
     private bool isLoggedIn = false;
+
+    /// <summary>
+    /// Indicates if the user is an organizer.
+    /// </summary>
     private bool isOrganizer = false;
+
+    /// <summary>
+    /// Indicates if a delete operation is in progress.
+    /// </summary>
+    private bool isDeleting = false;
+
+    #endregion
+
+    #region Methods: Lifecycle Methods
 
     /// <summary>
     /// Initializes the component, checks user permissions, and loads the user details.
@@ -107,8 +172,13 @@
         {
             // Step 9: Clear loading state
             isLoading = false;
+            StateHasChanged(); // Ensure UI reflects loaded state
         }
     }
+
+    #endregion
+
+    #region Methods: Navigation Methods
 
     /// <summary>
     /// Navigates back to the users list page.
@@ -127,4 +197,51 @@
         // Step 1: Navigate to the edit page for this user
         _navigationManager.NavigateTo($"/users/{UserId}/edit");
     }
+
+    #endregion
+
+    #region Methods: Organizer Actions
+
+    /// <summary>
+    /// Deletes a user and refreshes the user list.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private async Task DeleteUser()
+    {
+        // Track deleting state
+        isDeleting = true;
+        errorMessage = string.Empty;
+        StateHasChanged();
+        
+        try
+        {
+            // Step 1: Call API to delete the user
+            var deleteResult = await _userApiService.DeleteAsync(new DeleteUserRequest(UserId));
+            
+            // Step 2: Process the result
+            if (deleteResult.IsSuccess)
+            {
+                // Step 3: If successful, navigate back to the users list
+                _navigationManager.NavigateTo("/users");
+            }
+            else
+            {
+                // Step 4: If failed, display error message
+                errorMessage = deleteResult.ErrorMessage ?? "An error occurred while deleting the user.";
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle unexpected errors during deletion
+            errorMessage = $"Unexpected error: {ex.Message}";
+        }
+        finally
+        {
+            // Clear loading state
+            isDeleting = false;
+            StateHasChanged();
+        }
+    }
+
+    #endregion
 }

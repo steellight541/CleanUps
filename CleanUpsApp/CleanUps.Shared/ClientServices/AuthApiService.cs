@@ -95,7 +95,7 @@ namespace CleanUps.Shared.ClientServices
         /// a BadRequest result if the email format is invalid,
         /// or an error message if the request fails or the email is not found.
         /// </returns>
-        public async Task<Result<string>> RequestPasswordResetAsync(RequestPasswordResetRequest request)
+        public async Task<Result<string>> RequestPasswordResetAsync(EmailPasswordResetRequest request)
         {
             try
             {

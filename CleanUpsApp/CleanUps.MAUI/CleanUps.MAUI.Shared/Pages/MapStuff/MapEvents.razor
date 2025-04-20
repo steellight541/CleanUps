@@ -1,0 +1,28 @@
+﻿@page "/map/events"
+
+@inject NavigationManager _navigationManager
+
+<div class="card shadow p-4">
+    @* Section: Page Header *@
+    <h3>Event Map</h3>
+
+    @* Section: Placeholder Content *@
+    <div class="mb-2">
+        <p>Not yet implemented</p>
+    </div>
+
+    @* Section: Navigation *@
+    <div class="mb-2">
+        <button class="btn btn-dark btn-sm" @onclick="EventPage">Events List</button>
+    </div>
+</div>
+@code {
+    /// <summary>
+    /// Handles the button click event to navigate back to the events list page.
+    /// This method provides an escape route from the not-yet-implemented map page.
+    /// </summary>
+    private void EventPage()
+    {
+        _navigationManager.NavigateTo("/events");
+    }
+}

@@ -15,7 +15,7 @@ namespace CleanUps.BusinessLogic.Validators.Interfaces
         /// </summary>
         /// <param name="dto">The RequestPasswordResetRequest DTO.</param>
         /// <returns>A Result indicating success or failure.</returns>
-        Result<bool> ValidateForPasswordResetRequest(RequestPasswordResetRequest dto);
+        Result<bool> ValidateForPasswordResetRequest(EmailPasswordResetRequest dto);
 
         /// <summary>
         /// Validates a ValidateTokenRequest.

@@ -4,13 +4,24 @@
 @inject NavigationManager _navigationManager
 
 @code {
+    /// <summary>
+    /// Handles the logout process by clearing the user's authentication session and redirecting to the login page.
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
-        // Step 1: Clear the user's authentication session
-        await _accessService.ClearUserSessionAsync();
-        
-        // Step 2: Redirect user to the login page
-        // Using forceLoad: false to ensure the navigation triggers LocationChanged event
-        _navigationManager.NavigateTo("/auth/login");
+        try
+        {
+            // Step 1: Clear the user's authentication session
+            await _accessService.ClearUserSessionAsync();
+            
+            // Step 2: Redirect user to the login page
+            // Using forceLoad: false to ensure the navigation triggers LocationChanged event
+            _navigationManager.NavigateTo("/auth/login");
+        }
+        catch
+        {
+            // If an error occurs, redirect to the profile page
+            _navigationManager.NavigateTo("/profile");
+        }
     }
 }
