@@ -190,6 +190,8 @@
 </div>
 
 @code {
+    #region Variables: Data Storage
+
     /// <summary>
     /// Stores the result returned from the API when requesting all events.
     /// This includes both the event data (if successful) and any error information,
@@ -203,6 +205,17 @@
     /// with events being added one by one with a small delay.
     /// </summary>
     private List<EventResponse> loadedEvents = new List<EventResponse>();
+
+    /// <summary>
+    /// Maps event IDs to the number of attendees for each event.
+    /// This dictionary is populated by a separate API call that retrieves 
+    /// attendance information after the events themselves are loaded. (GetUsersByEventIdAsync)
+    /// </summary>
+    private Dictionary<int, int> eventAttendeeCount = new Dictionary<int, int>();
+
+    #endregion
+
+    #region Variables: Component State
 
     /// <summary>
     /// Error message specific to API operations like event deletion.
@@ -225,13 +238,6 @@
     private bool isOrganizer = false;
 
     /// <summary>
-    /// Maps event IDs to the number of attendees for each event.
-    /// This dictionary is populated by a separate API call that retrieves 
-    /// attendance information after the events themselves are loaded. (GetUsersByEventIdAsync)
-    /// </summary>
-    private Dictionary<int, int> eventAttendeeCount = new Dictionary<int, int>();
-
-    /// <summary>
     /// Indicates whether attendee information is currently being loaded.
     /// Used to display loading indicators in the UI for attendee counts.
     /// </summary>  
@@ -247,6 +253,10 @@
     /// Tracks the ID of the event currently being deleted, or -1 if none.
     /// </summary>
     private int deletingEventId = -1;
+
+    #endregion
+
+    #region Methods: Lifecycle Methods
 
     /// <summary>
     /// Initializes the component by checking user permissions and loading events.
@@ -274,6 +284,10 @@
             loadError = $"Error initializing page: {ex.Message}";
         }
     }
+
+    #endregion
+
+    #region Methods: Data Loading
 
     /// <summary>
     /// Loads all events from the event API service and updates the UI progressively.
@@ -367,6 +381,10 @@
         }
     }
 
+    #endregion
+
+    #region Methods: UI Helper Methods
+
     /// <summary>
     /// Gets the formatted attendee count for an event.
     /// </summary>
@@ -383,6 +401,10 @@
         // Step 2: Return the count or 0 if not found
         return eventAttendeeCount.ContainsKey(eventId) ? eventAttendeeCount[eventId].ToString() : "0";
     }
+
+    #endregion
+
+    #region Methods: Navigation Methods
 
     /// <summary>
     /// Navigates to the event details page.
@@ -403,6 +425,19 @@
         // Step 1: Navigate to the edit page for the specified event
         _navigationManager.NavigateTo($"/events/{eventId}/edit");
     }
+
+    /// <summary>
+    /// Navigates to the event creation page.
+    /// </summary>
+    private void CreateNewEvent()
+    {
+        // Step 1: Navigate to the create event page
+        _navigationManager.NavigateTo("/events/create");
+    }
+
+    #endregion
+
+    #region Methods: Organizer Actions
 
     /// <summary>
     /// Deletes an event and refreshes the list.
@@ -447,12 +482,5 @@
         }
     }
 
-    /// <summary>
-    /// Navigates to the event creation page.
-    /// </summary>
-    private void CreateNewEvent()
-    {
-        // Step 1: Navigate to the create event page
-        _navigationManager.NavigateTo("/events/create");
-    }
+    #endregion
 }

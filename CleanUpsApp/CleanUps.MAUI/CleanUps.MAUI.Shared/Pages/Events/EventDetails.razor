@@ -281,8 +281,8 @@
 </div>
 
 @code {
-    
-    #region Parameters
+
+    #region Variables: Parameters
 
     /// <summary>
     /// The ID of the event to display, passed as a route parameter.
@@ -293,7 +293,7 @@
 
     #endregion
 
-    #region Data Storage
+    #region Variables: Data Storage
 
     /// <summary>
     /// Contains the complete API response for the event data request.
@@ -316,7 +316,7 @@
 
     #endregion
 
-    #region Component State & User Information
+    #region Variables: Component State & User Information
 
     /// <summary>
     /// Error message to display to the user when operations fail.
@@ -362,7 +362,7 @@
 
     #endregion
 
-    #region Organizer Specific State
+    #region Variables: Organizer Specific State
 
     /// <summary>
     /// Controls the visibility of the attendance management panel for organizers.
@@ -412,46 +412,8 @@
     private StatusDTO selectedStatus;
 
     #endregion
-
-    #region UI Helper Methods
-
-    /// <summary>
-    /// Returns the appropriate Bootstrap badge background class based on the event status.
-    /// </summary>
-    /// <param name="status">The event status.</param>
-    /// <returns>A string representing the CSS class.</returns>
-    private string GetStatusBadgeClass(StatusDTO status)
-    {
-        return status switch
-        {
-            StatusDTO.Upcoming => "bg-info",
-            StatusDTO.Ongoing => "bg-warning", // Using warning for ongoing as success might imply completion
-            StatusDTO.Completed => "bg-success", // Using success for completed
-            StatusDTO.Canceled => "bg-danger",
-            _ => "bg-secondary" // Default/fallback
-        };
-    }
-
-    /// <summary>
-    /// Returns the background color hexadecimal value based on the event status.
-    /// </summary>
-    /// <param name="status">The event status.</param>
-    /// <returns>A string representing the CSS color value.</returns>
-    private string GetStatusBgColor(StatusDTO status)
-    {
-        return status switch
-        {
-            StatusDTO.Upcoming => "#0dcaf0", // bg-info
-            StatusDTO.Ongoing => "#ffc107", // bg-warning
-            StatusDTO.Completed => "#198754", // bg-success
-            StatusDTO.Canceled => "#dc3545", // bg-danger
-            _ => "#6c757d" // bg-secondary (default/fallback)
-        };
-    }
-
-    #endregion
-
-    #region Computed Properties
+    
+    #region Variables: Computed Properties
 
     /// <summary>
     /// Filtered user list for organizer management based on search term and event status.
@@ -493,7 +455,45 @@
 
     #endregion
 
-    #region Lifecycle Methods
+    #region Methods: UI Helper Methods
+
+    /// <summary>
+    /// Returns the appropriate Bootstrap badge background class based on the event status.
+    /// </summary>
+    /// <param name="status">The event status.</param>
+    /// <returns>A string representing the CSS class.</returns>
+    private string GetStatusBadgeClass(StatusDTO status)
+    {
+        return status switch
+        {
+            StatusDTO.Upcoming => "bg-info",
+            StatusDTO.Ongoing => "bg-warning", // Using warning for ongoing as success might imply completion
+            StatusDTO.Completed => "bg-success", // Using success for completed
+            StatusDTO.Canceled => "bg-danger",
+            _ => "bg-secondary" // Default/fallback
+        };
+    }
+
+    /// <summary>
+    /// Returns the background color hexadecimal value based on the event status.
+    /// </summary>
+    /// <param name="status">The event status.</param>
+    /// <returns>A string representing the CSS color value.</returns>
+    private string GetStatusBgColor(StatusDTO status)
+    {
+        return status switch
+        {
+            StatusDTO.Upcoming => "#0dcaf0", // bg-info
+            StatusDTO.Ongoing => "#ffc107", // bg-warning
+            StatusDTO.Completed => "#198754", // bg-success
+            StatusDTO.Canceled => "#dc3545", // bg-danger
+            _ => "#6c757d" // bg-secondary (default/fallback)
+        };
+    }
+
+    #endregion
+
+    #region Methods: Lifecycle Methods
 
     /// <summary>
     /// Initializes the component, loading event data and user permissions.
@@ -548,7 +548,7 @@
 
     #endregion
 
-    #region Data Loading
+    #region Methods: Data Loading
 
     /// <summary>
     /// Loads event data and attendance information.
@@ -602,7 +602,7 @@
 
     #endregion
 
-    #region User Attendance Actions
+    #region Methods: User Attendance Actions
 
     /// <summary>
     /// Registers the current user for the event.
@@ -698,7 +698,7 @@
 
     #endregion
 
-    #region Navigation Methods
+    #region Methods: Navigation Methods
 
     /// <summary>
     /// Navigates back to the events list page.
@@ -721,7 +721,7 @@
 
     #endregion
 
-    #region Organizer Actions
+    #region Methods: Organizer Actions
 
     /// <summary>
     /// Deletes the specified event and redirects to the events list on success.

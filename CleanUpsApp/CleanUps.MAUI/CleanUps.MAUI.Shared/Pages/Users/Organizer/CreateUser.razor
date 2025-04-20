@@ -67,6 +67,8 @@
 </div>
 
 @code {
+    #region Variables: Component State
+
     /// <summary>
     /// This is the model for the create user form.
     /// </summary>
@@ -97,6 +99,10 @@
     /// </summary>
     private string? successMessage;
 
+    #endregion
+
+    #region Methods: Lifecycle Methods
+
     /// <summary>
     /// Initializes the component and checks user permissions.
     /// </summary>
@@ -120,6 +126,10 @@
             _navigationManager.NavigateTo("/auth/login");
         }
     }
+
+    #endregion
+
+    #region Methods: Event Handlers
 
     /// <summary>
     /// Handles the form submission to create a new user.
@@ -180,6 +190,10 @@
         _navigationManager.NavigateTo("/users");
     }
 
+    #endregion
+
+    #region Models: Page Specific Models
+
     /// <summary>
     /// Model class for the create user form with validation attributes.
     /// This class defines the structure and validation rules for creating a new user account
@@ -226,4 +240,6 @@
         [Compare("Password", ErrorMessage = "Passwords do not match.")]
         public string ConfirmPassword { get; set; } = string.Empty;
     }
+
+    #endregion
 }   

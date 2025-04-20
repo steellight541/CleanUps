@@ -68,6 +68,7 @@
 </div>
 
 @code {
+    #region Variables: Component State
     /// <summary>
     /// The data model for capturing and validating user login credentials.
     /// Contains email and password fields with appropriate validation rules
@@ -86,7 +87,9 @@
     /// Tracks if the form is currently submitting.
     /// </summary>
     private bool isSubmitting = false;
+    #endregion
 
+    #region Methods: Lifecycle Methods
     /// <summary>
     /// Initializes the component and checks if the user is already authenticated.
     /// </summary>
@@ -106,6 +109,9 @@
             errorMsg = $"An unexpected error occurred: {ex.Message}";
         }
     }
+    #endregion
+
+    #region Methods: Event Handlers
 
     /// <summary>
     /// Handles the submission of the login form.
@@ -171,6 +177,10 @@
         _navigationManager.NavigateTo("/");
     }
 
+    #endregion
+
+    #region Models: Page Specific Models
+
     /// <summary>
     /// Model class for the login form that captures user credentials.
     /// Contains validation attributes to ensure proper data entry.
@@ -191,4 +201,6 @@
         [Required(ErrorMessage = "Password is required.")]
         public string Password { get; set; } = string.Empty;
     }
+
+    #endregion
 }

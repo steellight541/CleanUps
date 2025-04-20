@@ -116,16 +116,26 @@
 </div>
 
 @code {
+    #region Variables: Parameters
+
     /// <summary>
     /// The ID of the event to edit, passed as a route parameter.
     /// </summary>
     [Parameter]
     public int eventId { get; set; }
 
+    #endregion
+
+    #region Variables: Data Storage
+
     /// <summary>
     /// The result of the event data retrieval operation.
     /// </summary>
     private Result<EventResponse> eventResult;
+
+    #endregion
+
+    #region Variables: Component State
 
     /// <summary>
     /// The edit model for the event.
@@ -157,6 +167,10 @@
     /// </summary>
     private bool isSubmitting = false;
 
+    #endregion
+
+    #region Methods: Lifecycle Methods
+
     /// <summary>
     /// Initializes the component and checks user permissions.
     /// </summary>
@@ -184,6 +198,10 @@
             _navigationManager.NavigateTo("/auth/login");
         }
     }
+
+    #endregion
+
+    #region Methods: Data Loading
 
     /// <summary>
     /// Loads the event data from the API service and populates the edit model.
@@ -231,6 +249,10 @@
             StateHasChanged();
         }
     }
+
+    #endregion
+
+    #region Methods: Event Handlers
 
     /// <summary>
     /// Handles the form submission to update the event.
@@ -310,6 +332,10 @@
         _navigationManager.NavigateTo($"/events/{eventId}/details");
     }
 
+    #endregion
+
+    #region Models: Page Specific Models
+
     /// <summary>
     /// Model class for editing existing events with validation attributes.
     /// This class defines the data structure and validation rules for the event edit form,
@@ -378,4 +404,6 @@
         [Range(0, double.MaxValue, ErrorMessage = "Trash collected cannot be negative.")]
         public decimal TrashCollected { get; set; }
     }
+
+    #endregion
 }

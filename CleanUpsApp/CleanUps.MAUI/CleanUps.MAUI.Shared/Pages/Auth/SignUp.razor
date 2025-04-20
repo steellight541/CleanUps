@@ -80,6 +80,8 @@
 </div>
 
 @code {
+    #region Variables: Component State
+
     /// <summary>
     /// The sign-up model for the sign-up form.
     /// </summary>
@@ -94,6 +96,10 @@
     /// Tracks if the form is currently submitting.
     /// </summary>
     private bool isSubmitting = false;
+
+    #endregion
+
+    #region Methods: Lifecycle Methods
 
     /// <summary>
     /// Initializes the component and checks if the user is already authenticated.
@@ -116,6 +122,10 @@
             // No action needed
         }
     }
+
+    #endregion
+
+    #region Methods: Event Handlers
 
     /// <summary>
     /// Handles the submission of the sign-up form.
@@ -196,6 +206,10 @@
         _navigationManager.NavigateTo("/auth/login");
     }
 
+    #endregion
+
+    #region Models: Page Specific Models
+
     /// <summary>
     /// Model class for the sign-up form that captures new user information.
     /// Contains validation attributes to ensure proper data entry and password matching.
@@ -234,4 +248,6 @@
         [Compare("Password", ErrorMessage = "Passwords do not match.")]
         public string ConfirmPassword { get; set; }
     }
+
+    #endregion
 }

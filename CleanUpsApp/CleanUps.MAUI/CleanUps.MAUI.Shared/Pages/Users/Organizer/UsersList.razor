@@ -169,6 +169,8 @@
 </div>
 
 @code {
+    #region Variables: Data Storage
+
     /// <summary>
     /// The result of the users from the API.
     /// </summary>
@@ -178,6 +180,10 @@
     /// The collection of users loaded from the API.
     /// </summary>
     private List<UserResponse> loadedUsers = new List<UserResponse>();
+
+    #endregion
+
+    #region Variables: Component State
 
     /// <summary>
     /// The error message from the API.
@@ -209,6 +215,10 @@
     /// </summary>
     private int deletingUserId = -1;
 
+    #endregion
+
+    #region Methods: Lifecycle Methods
+
     /// <summary>
     /// Initializes the component, checks user permissions, and loads user data.
     /// </summary>
@@ -235,6 +245,10 @@
             _navigationManager.NavigateTo("/auth/login");
         }
     }
+
+    #endregion
+
+    #region Methods: Data Loading
 
     /// <summary>
     /// Loads all users from the API with progressive loading effect.
@@ -287,6 +301,10 @@
         }
     }
 
+    #endregion
+
+    #region Methods: Navigation Methods
+
     /// <summary>
     /// Navigates to the user details page.
     /// </summary>
@@ -306,6 +324,19 @@
         // Step 1: Navigate to the user edit page
         _navigationManager.NavigateTo($"/users/{userId}/edit");
     }
+
+    /// <summary>
+    /// Navigates to the user creation page.
+    /// </summary>
+    private void CreateNewUser()
+    {
+        // Step 1: Navigate to the create user page
+        _navigationManager.NavigateTo("/users/create");
+    }
+
+    #endregion
+
+    #region Methods: Organizer Actions
 
     /// <summary>
     /// Deletes a user and refreshes the user list.
@@ -351,12 +382,5 @@
         }
     }
 
-    /// <summary>
-    /// Navigates to the user creation page.
-    /// </summary>
-    private void CreateNewUser()
-    {
-        // Step 1: Navigate to the create user page
-        _navigationManager.NavigateTo("/users/create");
-    }
+    #endregion
 }

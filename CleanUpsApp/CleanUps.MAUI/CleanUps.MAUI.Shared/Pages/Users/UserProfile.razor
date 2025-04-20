@@ -99,6 +99,8 @@
 </div>
 
 @code {
+    #region Variables: Component State
+
     /// <summary>
     /// Indicates if the profile data is currently loading
     /// </summary>
@@ -143,7 +145,11 @@
     /// Model for the password change form
     /// </summary>
     private PasswordChangeModel passwordModel = new PasswordChangeModel();
-    
+
+    #endregion
+
+    #region Methods: Lifecycle Methods
+
     /// <summary>
     /// Initializes the component and checks user permissions.
     /// </summary>
@@ -168,6 +174,10 @@
             _navigationManager.NavigateTo("/auth/login");
         }
     }
+
+    #endregion
+
+    #region Methods: Data Loading
 
     /// <summary>
     /// Loads the user's profile data from the access service.
@@ -197,6 +207,10 @@
         // Step 4: Clear loading state
         isLoading = false;
     }
+
+    #endregion
+
+    #region Methods: Event Handlers
 
     /// <summary>
     /// Toggles the visibility of the password change form.
@@ -296,6 +310,10 @@
         }
     }
 
+    #endregion
+
+    #region Models: Page Specific Models
+
     /// <summary>
     /// Page model for displaying user profile information.
     /// This model encapsulates the user data shown on the profile page, separating
@@ -344,4 +362,6 @@
         [Compare(nameof(NewPassword), ErrorMessage = "New passwords do not match.")]
         public string ConfirmNewPassword { get; set; } = string.Empty;
     }
+
+    #endregion
 }

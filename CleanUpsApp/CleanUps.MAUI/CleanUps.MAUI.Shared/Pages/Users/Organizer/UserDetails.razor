@@ -78,16 +78,26 @@
 
 
 @code {
+    #region Variables: Parameters
+
     /// <summary>
     /// The user ID of the user to display.
     /// </summary>
     [Parameter]
     public int UserId { get; set; }
 
+    #endregion
+
+    #region Variables: Data Storage
+
     /// <summary>
     /// The user details from the API.
     /// </summary>
     private UserResponse? userDetail;
+
+    #endregion
+
+    #region Variables: Component State
 
     /// <summary>
     /// The error message.
@@ -113,6 +123,10 @@
     /// Indicates if a delete operation is in progress.
     /// </summary>
     private bool isDeleting = false;
+
+    #endregion
+
+    #region Methods: Lifecycle Methods
 
     /// <summary>
     /// Initializes the component, checks user permissions, and loads the user details.
@@ -158,8 +172,13 @@
         {
             // Step 9: Clear loading state
             isLoading = false;
+            StateHasChanged(); // Ensure UI reflects loaded state
         }
     }
+
+    #endregion
+
+    #region Methods: Navigation Methods
 
     /// <summary>
     /// Navigates back to the users list page.
@@ -178,6 +197,10 @@
         // Step 1: Navigate to the edit page for this user
         _navigationManager.NavigateTo($"/users/{UserId}/edit");
     }
+
+    #endregion
+
+    #region Methods: Organizer Actions
 
     /// <summary>
     /// Deletes a user and refreshes the user list.
@@ -219,4 +242,6 @@
             StateHasChanged();
         }
     }
+
+    #endregion
 }
