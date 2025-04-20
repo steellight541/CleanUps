@@ -10,31 +10,41 @@
 @using System.ComponentModel.DataAnnotations
 
 <div class="card shadow position-relative">
+    @* Section: Card Header *@
     <div class="card-header py-3">
         <h3 class="mb-0">Edit Event</h3>
     </div>
 
+    @* Section: Card Body *@
     <div class="card-body p-4">
+        @* Subsection: Loading Indicator *@
         @if (eventResult == null)
         {
-            <p>Loading...</p>
+            <div class="alert alert-info" role="alert">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span class="ms-2">Loading event data...</span>
+            </div>
         }
+        @* Subsection: Edit Event Form *@
         else if (eventResult.IsSuccess && eventResult.Data != null && eventEditModel != null)
         {
             <EditForm Model="eventEditModel" OnValidSubmit="HandleSubmit">
                 <DataAnnotationsValidator />
                 <ValidationSummary />
 
+                @* Input: Title *@
                 <div class="form-group mb-3">
                     <label for="title" class="form-label">Title</label>
                     <InputText id="title" @bind-Value="eventEditModel.Title" class="form-control" />
                 </div>
 
+                @* Input: Description *@
                 <div class="form-group mb-3">
                     <label for="description" class="form-label">Description</label>
                     <InputTextArea id="description" @bind-Value="eventEditModel.Description" class="form-control" rows="3" />
                 </div>
 
+                @* Input: Start and End Time *@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="startTime" class="form-label">Start Time</label>
@@ -46,6 +56,7 @@
                     </div>
                 </div>
                 
+                @* Input: Trash Collected and Status *@
                 <div class="row mb-3">
                     <div class="col-md-6">
                          <label for="trashCollected" class="form-label">Trash Collected (kg)</label>
@@ -62,39 +73,37 @@
                     </div>
                 </div>
 
+                @* Input: Family Friendly Checkbox *@
                 <div class="form-check mb-3">
                     <InputCheckbox id="familyFriendly" @bind-Value="eventEditModel.FamilyFriendly" class="form-check-input" />
                     <label class="form-check-label" for="familyFriendly">Family Friendly Event</label>
                 </div>
 
-                @* Location editing might need a more complex UI later *@
+                @* TODO: Location editing might need a more complex UI later *@
 
+                @* Display: Error Message *@
                 @if (!string.IsNullOrEmpty(errorMessage))
                 {
-                    <div class="alert alert-danger">@errorMessage</div>
+                    <div class="alert alert-danger" role="alert">@errorMessage</div>
                 }
                 
-                @* Moved buttons to footer *@
+                @* Form Footer (Actions) - Moved inside EditForm scope *@
                  <div class="card-footer py-3 d-flex gap-2">
                     <button type="submit" class="btn btn-success">Save Changes</button>
                     <button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>
                  </div>
             </EditForm>
         }
+        @* Subsection: Error Loading Event *@
         else if (eventResult != null) // Error loading event
         {
-            <div class="alert alert-danger">Error loading event: @eventResult.ErrorMessage</div>
+            <div class="alert alert-danger" role="alert">Error loading event: @eventResult.ErrorMessage</div>
              <div class="mt-3">
                 <button class="btn btn-dark" @onclick="Cancel">Back</button>
             </div>
         }
     </div>
 </div>
-
-@if (!string.IsNullOrEmpty(errorMessage))
-{
-    <p class="text-danger">@errorMessage</p>
-}
 
 @code {
     [Parameter]

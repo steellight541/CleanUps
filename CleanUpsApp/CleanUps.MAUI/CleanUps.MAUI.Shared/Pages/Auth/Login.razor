@@ -8,39 +8,48 @@
 @using System.ComponentModel.DataAnnotations
 
 <div class="card shadow position-relative">
+    @* Section: Card Header *@
     <div class="card-header py-3">
         <h3 class="mb-0">Login</h3>
     </div>
 
+    @* Section: Login Form *@
     <EditForm Model="loginModel" OnValidSubmit="HandleSubmit">
+        @* Subsection: Form Body *@
         <div class="card-body p-4">
             <DataAnnotationsValidator />
             <ValidationSummary />
 
+            @* Input: Email *@
             <div class="form-group mb-3">
                 <label for="email" class="form-label">Email</label>
                 <InputText id="email" @bind-Value="loginModel.Email" class="form-control" placeholder="Enter your email" />
             </div>
 
+            @* Input: Password *@
             <div class="form-group mb-3">
                 <label for="password" class="form-label">Password</label>
                 <InputText id="password" type="password" @bind-Value="loginModel.Password" class="form-control" />
             </div>
 
+            @* Link: Forgot Password *@
             <div class="mb-3">
                 <a href="/auth/password-reset">Forgot password?</a>
             </div>
 
+            @* Link: Sign Up *@
             <div class="mb-3">
                  <a href="/auth/signup">Don't have an account? Sign up</a>
             </div>
             
+            @* Display: Error Message *@
             @if (!string.IsNullOrEmpty(errorMsg))
             {
-                <div class="alert alert-danger mt-3">@errorMsg</div>
+                <div class="alert alert-danger mt-3" role="alert">@errorMsg</div>
             }
         </div>
 
+        @* Subsection: Form Footer (Actions) *@
         <div class="card-footer py-3 d-flex gap-2">
             <button type="submit" class="btn btn-primary">Login</button>
             <button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>

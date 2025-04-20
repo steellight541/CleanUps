@@ -8,43 +8,55 @@
 @using System.ComponentModel.DataAnnotations
 
 <div class="card shadow position-relative">
+    @* Section: Card Header *@
     <div class="card-header py-3">
         <h3 class="mb-0">Edit User</h3>
     </div>
 
+    @* Section: Card Body *@
     <div class="card-body p-4">
+        @* Subsection: Loading Indicator *@
         @if (getUserResult == null)
         {
-            <p>Loading...</p>
+            <div class="alert alert-info" role="alert">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span class="ms-2">Loading user data...</span>
+            </div>
         }
+        @* Subsection: Error Loading User *@
         else if (!getUserResult.IsSuccess)
         {
-            <div class="alert alert-danger">Error loading user: @getUserResult.ErrorMessage</div>
+            <div class="alert alert-danger" role="alert">Error loading user: @getUserResult.ErrorMessage</div>
             <div class="mt-3">
                  <button class="btn btn-dark" @onclick="Cancel">Back</button>
             </div>
         }
+        @* Subsection: Edit User Form *@
         else if (editModel != null)
         {
             <EditForm Model="editModel" OnValidSubmit="HandleSubmit">
                 <DataAnnotationsValidator />
                 <ValidationSummary />
 
+                @* Input: Name *@
                 <div class="form-group mb-3">
                     <label for="name" class="form-label">Name</label>
                     <InputText id="name" @bind-Value="editModel.Name" class="form-control" />
                 </div>
 
+                @* Input: Email *@
                 <div class="form-group mb-3">
                     <label for="email" class="form-label">Email</label>
                     <InputText id="email" @bind-Value="editModel.Email" class="form-control" />
                 </div>
 
+                @* Display: Error Message *@
                 @if (!string.IsNullOrEmpty(errorMessage))
                 {
-                    <div class="alert alert-danger mt-3">@errorMessage</div>
+                    <div class="alert alert-danger mt-3" role="alert">@errorMessage</div>
                 }
                  
+                @* Form Footer (Actions) *@
                 <div class="card-footer py-3 d-flex gap-2">
                     <button type="submit" class="btn btn-success">Save Changes</button>
                     <button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>

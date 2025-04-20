@@ -10,43 +10,7 @@
 @using CleanUps.Shared.DTOs.Enums
 
 <div class="card shadow position-relative">
-    @* Adding styles for the sliding icon animations *@
-    <style>
-        .attendance-btn {
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .btn-icon {
-            display: inline-block;
-            vertical-align: middle;
-            transition: transform 0.3s ease;
-        }
-        
-        .attendance-btn:hover .going-icon,
-        .attendance-btn:hover .notgoing-icon {
-            transform: scale(1.2);
-        }
-        
-        .btn-text {
-            display: inline-block;
-            vertical-align: middle;
-            margin-left: 5px;
-        }
-        
-        .dropdown-menu {
-            min-width: auto;
-            padding: 0.5rem;
-            min-width: 140px; /* Ensure enough width for "Not Going" text */
-        }
-        
-        /* Ensure icon and text align nicely */
-        .btn-icon {
-            vertical-align: middle;
-        }
-    </style>
-
-    @* Header with title and top-right Edit/Delete for Organizers *@
+    @* Section: Card Header (Title and Organizer Edit/Delete Buttons) *@
     <div class="card-header d-flex justify-content-between align-items-center py-3">
         <h3 class="mb-0">Event Details</h3>
         @if (isOrganizer && eventResult?.Data != null)
@@ -71,7 +35,9 @@
         }
     </div>
 
+    @* Section: Card Body *@
     <div class="card-body p-4">
+        @* Subsection: Loading Indicator *@
         @if (eventResult == null)
         {
             <p>Loading...</p>
@@ -81,11 +47,13 @@
             var ev = eventResult.Data;
             bool isPastEvent = ev.EndTime < DateTime.Now;
 
+            @* Subsection: Event Basic Information (Title, Description) *@
             <div class="mb-4">
                 <h4>@ev.Title</h4>
                 <p>@ev.Description</p>
             </div>
 
+            @* Subsection: Event Details Grid (Time, Status, Participants, etc.) *@
             <div class="row mb-4">
                 <div class="col-md-6">
                     <p><strong>Start Time:</strong> @ev.StartTime.ToString("g")</p>
@@ -101,6 +69,7 @@
                 </div>
             </div>
 
+            @* Subsection: Event Location *@
             @if (ev.Location != null)
             {
                 <div class="mb-4">
@@ -109,13 +78,13 @@
                 </div>
             }
 
-            @* Organizer Controls (Status & Manage Attendance Toggle) *@
+            @* Subsection: Organizer Actions (Status Change, Manage Toggle) *@
             @if (isOrganizer)
             {
                 <div class="mb-3 border-top pt-3">
                     <h5>Organizer Actions</h5>
                     <div class="d-flex flex-wrap gap-2 align-items-center">
-                        <div class="input-group" style="max-width: 250px;">
+                        <div class="input-group status-dropdown-container">
                             <label class="input-group-text" for="statusSelect">Status</label>
                             <select id="statusSelect" class="form-select"
                                     @bind="selectedStatus" @bind:after="HandleStatusChange"
@@ -143,12 +112,12 @@
                     </div>
                     @if (!string.IsNullOrEmpty(statusUpdateMessage))
                     {
-                        <p class="@statusUpdateMessageClass mt-2 mb-0">@statusUpdateMessage</p>
+                        <div class="@statusUpdateMessageClass mt-2 mb-0" role="alert">@statusUpdateMessage</div>
                     }
                 </div>
             }
 
-            @* Organizer Management Section (Collapsible) *@
+            @* Subsection: Organizer Attendance Management (Collapsible) *@
             @if (isOrganizer && isManageAttendanceVisible)
             {
                 <div class="card bg-light p-3 my-3">
@@ -163,7 +132,7 @@
                     }
                     else if (!allUsersResult.IsSuccess)
                     {
-                        <p class="text-danger">Could not load users: @allUsersResult.ErrorMessage</p>
+                        <div class="alert alert-danger" role="alert">Could not load users: @allUsersResult.ErrorMessage</div>
                     }
                     else if (!FilteredUsers.Any())
                     {
@@ -171,7 +140,7 @@
                     }
                     else
                     {
-                        <div class="list-group mb-2" style="max-height: 300px; overflow-y: auto;">
+                        <div class="list-group mb-2 user-list-scrollable">
                             @foreach (var user in FilteredUsers)
                             {
                                 bool isAttending = eventAttendees?.Any(a => a.UserId == user.UserId) ?? false;
@@ -204,31 +173,33 @@
                     }
                     @if (!string.IsNullOrEmpty(manageAttendanceMessage))
                     {
-                        <p class="@manageAttendanceMessageClass mt-2">@manageAttendanceMessage</p>
+                        <div class="@manageAttendanceMessageClass mt-2" role="alert">@manageAttendanceMessage</div>
                     }
                 </div>
             }
         }
+        @* Subsection: Error Message - Event Load Failure *@
         else if (eventResult != null) // Handles case where eventResult exists but IsSuccess is false
         {
-            <p class="text-danger">Error loading event: @eventResult.ErrorMessage</p>
+            <div class="alert alert-danger" role="alert">Error loading event: @eventResult.ErrorMessage</div>
         }
+        @* Subsection: Error Message - Unexpected Error *@
         else // Should not happen if initialized correctly, but safety check
         {
-            <p class="text-danger">An unexpected error occurred.</p>
+            <div class="alert alert-danger" role="alert">An unexpected error occurred.</div>
         }
 
-        @* Display general error message if any occurred during initialization or other actions *@
+        @* Subsection: General Error Message Display *@
         @if (!string.IsNullOrEmpty(errorMessage))
         {
-            <div class="alert alert-danger mt-3">@errorMessage</div>
+            <div class="alert alert-danger mt-3" role="alert">@errorMessage</div>
         }
     </div>
 
-    @* Footer with Back and Attendance action *@
+    @* Section: Card Footer (Back Button and User Attendance Actions) *@
     <div class="card-footer d-flex justify-content-start align-items-center gap-2 py-3">
 
-        @* Attendance Button Logic (Only show if event loaded successfully) *@
+        @* Subsection: User Attendance Buttons *@
         @if (eventResult?.Data != null)
         {
             bool isPastEvent = eventResult.Data.EndTime < DateTime.Now;
@@ -284,10 +255,11 @@
             else
             {
                 <button class="btn btn-primary attendance-btn" @onclick="SignUpForEvent">
-                    <span class="btn-text">Count Me In!</span>
+                    <span class="btn-text">Sign me up!</span>
                 </button>
             }
         }
+        @* Subsection: Back Button *@
         <button class="btn btn-dark" @onclick="GoBack">
             <i class="bi bi-arrow-left"></i> Back to List
         </button>
@@ -437,7 +409,7 @@
                 if (!allUsersResult.IsSuccess)
                 {
                     manageAttendanceMessage = $"Could not load all users for management: {allUsersResult.ErrorMessage}";
-                    manageAttendanceMessageClass = "text-danger";
+                    manageAttendanceMessageClass = "alert alert-danger";
                 }
             }
         }
@@ -645,7 +617,7 @@
         if (eventResult?.Data?.EndTime < DateTime.Now)
         {
             manageAttendanceMessage = "Cannot modify attendance for past events.";
-            manageAttendanceMessageClass = "text-warning";
+            manageAttendanceMessageClass = "alert alert-warning";
             StateHasChanged();
             return;
         }
@@ -678,14 +650,14 @@
         {
             // Step 7a: Show success message and reload data
             manageAttendanceMessage = $"Attendance updated successfully for {userName}.";
-            manageAttendanceMessageClass = "text-success";
+            manageAttendanceMessageClass = "alert alert-success";
             await LoadEventData();
         }
         else
         {
             // Step 7b: Show error message
             manageAttendanceMessage = $"Error updating attendance for {userName}: {result?.ErrorMessage ?? "Unknown error"}";
-            manageAttendanceMessageClass = "text-danger";
+            manageAttendanceMessageClass = "alert alert-danger";
         }
 
         // Step 8: Clear loading state
@@ -720,7 +692,7 @@
         if (updateResult.IsSuccess && updateResult.Data != null)
         {
             statusUpdateMessage = "Event status updated successfully.";
-            statusUpdateMessageClass = "text-success";
+            statusUpdateMessageClass = "alert alert-success";
             // Update the local event data with the response from the API
             eventResult = updateResult; // Replace the whole result object
             selectedStatus = eventResult.Data.Status; // Ensure dropdown reflects the final state
@@ -730,7 +702,7 @@
         else
         {
             statusUpdateMessage = $"Failed to update event status: {updateResult.ErrorMessage}";
-            statusUpdateMessageClass = "text-danger";
+            statusUpdateMessageClass = "alert alert-danger";
             // Revert the dropdown selection and local data on failure
             selectedStatus = originalStatus;
             // Optionally reload all data from server for robustness:

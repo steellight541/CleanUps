@@ -8,25 +8,31 @@
 @using System.ComponentModel.DataAnnotations
 
 <div class="card shadow position-relative">
+    @* Section: Card Header *@
     <div class="card-header py-3">
         <h3 class="mb-0">Create New User</h3>
     </div>
 
+    @* Section: Create User Form *@
     <EditForm Model="newUserModel" OnValidSubmit="HandleSubmit">
+        @* Subsection: Form Body *@
         <div class="card-body p-4">
             <DataAnnotationsValidator />
             <ValidationSummary />
 
+            @* Input: Name *@
             <div class="form-group mb-3">
                 <label for="name" class="form-label">Name</label>
                 <InputText id="name" @bind-Value="newUserModel.Name" class="form-control" />
             </div>
 
+            @* Input: Email *@
             <div class="form-group mb-3">
                 <label for="email" class="form-label">Email</label>
                 <InputText id="email" @bind-Value="newUserModel.Email" class="form-control" />
             </div>
 
+            @* Input: Password *@
             <div class="form-group mb-3">
                 <label for="password" class="form-label">Password</label>
                 <InputText id="password" type="password" @bind-Value="newUserModel.Password" class="form-control" aria-describedby="passwordHelpBlock" />
@@ -35,21 +41,24 @@
                 </div>
             </div>
 
+            @* Input: Confirm Password *@
             <div class="form-group mb-3">
                 <label for="confirmPassword" class="form-label">Confirm Password</label>
                 <InputText id="confirmPassword" type="password" @bind-Value="newUserModel.ConfirmPassword" class="form-control" />
             </div>
 
+            @* Display: Error/Success Messages *@
             @if (!string.IsNullOrEmpty(errorMessage))
             {
-                <p class="text-danger mt-2">@errorMessage</p>
+                <div class="alert alert-danger mt-2" role="alert">@errorMessage</div>
             }
             @if (!string.IsNullOrEmpty(successMessage))
             {
-                <p class="text-success mt-2">@successMessage</p>
+                <div class="alert alert-success mt-2" role="alert">@successMessage</div>
             }
         </div>
         
+        @* Subsection: Form Footer (Actions) *@
         <div class="card-footer py-3 d-flex gap-2">
             <button type="submit" class="btn btn-primary" disabled="@isSubmitting">@(isSubmitting ? "Creating..." : "Create User")</button>
             <button type="button" class="btn btn-dark" @onclick="GoBack" disabled="@isSubmitting">Back</button>

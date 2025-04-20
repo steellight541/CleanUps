@@ -7,6 +7,7 @@
 @using CleanUps.Shared.DTOs.Users
 
 <div class="card shadow position-relative">
+    @* Section: Card Header (Title and Organizer Actions) *@
     <div class="card-header py-3 d-flex justify-content-between align-items-center">
         <h3 class="mb-0">User Details</h3>
         @if (isOrganizer && userDetail != null)
@@ -22,15 +23,22 @@
         }
     </div>
 
+    @* Section: Card Body (User Information) *@
     <div class="card-body p-4">
+        @* Subsection: Loading Indicator *@
         @if (isLoading)
         {
-            <p><em>Loading user details...</em></p>
+            <div class="alert alert-info" role="alert">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span class="ms-2">Loading user details...</span>
+            </div>
         }
+        @* Subsection: Error Message *@
         else if (!string.IsNullOrEmpty(errorMessage))
         {
-            <div class="alert alert-danger">@errorMessage</div>
+            <div class="alert alert-danger" role="alert">@errorMessage</div>
         }
+        @* Subsection: User Details Display *@
         else if (userDetail != null)
         {
             <div class="mb-3">
@@ -46,12 +54,14 @@
                 <strong>Created Date:</strong> @userDetail.CreatedDate.ToShortDateString()
             </div>
         }
+        @* Subsection: User Not Found *@
         else
         {
-            <p><em>User not found.</em></p>
+            <div class="alert alert-danger" role="alert">User not found.</div>
         }
     </div>
 
+    @* Section: Card Footer (Actions) *@
     <div class="card-footer py-3 d-flex gap-2">
         <button class="btn btn-dark" @onclick="GoBack">Back to List</button>
     </div>

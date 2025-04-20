@@ -9,25 +9,31 @@
 @using System.ComponentModel.DataAnnotations // Added for validation
 
 <div class="card shadow position-relative">
+    @* Section: Card Header *@
     <div class="card-header py-3">
         <h3 class="mb-0">Create New Event</h3>
     </div>
 
+    @* Section: Create Event Form *@
     <EditForm Model="eventCreateModel" OnValidSubmit="HandleSubmit">
+        @* Subsection: Form Body *@
         <div class="card-body p-4">
             <DataAnnotationsValidator />
             <ValidationSummary />
 
+            @* Input: Title *@
             <div class="form-group mb-3">
                 <label for="title" class="form-label">Title</label>
                 <InputText id="title" @bind-Value="eventCreateModel.Title" class="form-control" />
             </div>
 
+            @* Input: Description *@
             <div class="form-group mb-3">
                 <label for="description" class="form-label">Description</label>
                 <InputTextArea id="description" @bind-Value="eventCreateModel.Description" class="form-control" rows="3" />
             </div>
 
+             @* Input: Start and End Time *@
              <div class="row mb-3">
                 <div class="col-md-6">
                     <label for="startTime" class="form-label">Start Time</label>
@@ -39,6 +45,7 @@
                 </div>
             </div>
             
+             @* Input: Location Coordinates *@
              <div class="row mb-3">
                 <div class="col-md-6">
                     <label for="latitude" class="form-label">Latitude</label>
@@ -50,17 +57,20 @@
                 </div>
             </div>
 
+            @* Input: Family Friendly Checkbox *@
             <div class="form-check mb-3">
                 <InputCheckbox id="familyFriendly" @bind-Value="eventCreateModel.FamilyFriendly" class="form-check-input" />
                 <label class="form-check-label" for="familyFriendly">Family Friendly Event</label>
             </div>
 
+            @* Display: Error Message *@
             @if (!string.IsNullOrEmpty(errorMessage))
             {
-                <div class="alert alert-danger">@errorMessage</div>
+                <div class="alert alert-danger" role="alert">@errorMessage</div>
             }
         </div>
 
+        @* Subsection: Form Footer (Actions) *@
         <div class="card-footer py-3 d-flex gap-2">
             <button type="submit" class="btn btn-primary">Save</button>
             <button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>

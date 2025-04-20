@@ -9,12 +9,14 @@
 
     <h3>Events</h3>
 
+    @* Section: Loading Indicator *@
     @if (loadedEvents == null)
     {
         <p>Loading events...</p>
     }
     else
     {
+        @* Section: Organizer Actions *@
         @if (isOrganizer)
         {
 
@@ -27,7 +29,7 @@
 
         }
 
-        <!-- Table layout for larger screens -->
+        @* Section: Table Layout (Large Screens) *@
         <div class="d-none d-md-block mb-2">
             <table class="table table-striped table-hover">
                 <thead>
@@ -46,6 +48,7 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @* Table Row Loop, actually loads the events data (Large Screens) *@
                     @foreach (EventResponse loadedEvent in loadedEvents)
                     {
                         <tr>
@@ -71,6 +74,7 @@
                             </td>
                         </tr>
                     }
+                    @* Loading Indicator for More Events *@
                     @if (isLoadingEvents)
                     {
                         <tr>
@@ -86,8 +90,9 @@
             </table>
         </div>
 
-        <!-- List-group layout for small screens with dropdown -->
+        @* Section: List Group Layout (Small Screens) *@
         <div class="d-block d-md-none mb-2">
+            @* Card Loop, actually loads the events data (Small Screens) *@
             @foreach (EventResponse loadedEvent in loadedEvents)
             {
                 <div class="card mb-3 shadow-sm">
@@ -128,9 +133,10 @@
                     </div>
                 </div>
             }
+            @* Loading Indicator for More Events (Small Screens) *@
             @if (isLoadingEvents)
             {
-                <div class="list-group-item text-center">
+                <div class="text-center p-2">
                     <div class="spinner-border spinner-border-sm" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
@@ -139,16 +145,20 @@
             }
         </div>
 
-        @if (loadError != null)
+        @* Section: Error Display (Combined) *@
+        @if (loadError != null || !string.IsNullOrEmpty(errorMessage))
         {
-            <p class="text-danger">Error: @loadError</p>
+            <div class="alert alert-danger mt-3" role="alert">
+                @if (loadError != null)
+                {
+                    <div>Error loading events: @loadError</div>
+                }
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div>@errorMessage</div>
+                }
+            </div>
         }
-
-    }
-
-    @if (!string.IsNullOrEmpty(errorMessage))
-    {
-        <p class="text-danger">@errorMessage</p>
     }
 </div>
 

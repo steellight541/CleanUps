@@ -7,19 +7,21 @@
 <div class="card shadow p-4">
     <h3>Users</h3>
 
+    @* Section: Organizer Actions *@
     <div class="row">
         <div class="col-md-4 mb-3">
             <button class="btn btn-success" @onclick="CreateNewUser">Create New User</button>
         </div>
     </div>
 
+    @* Section: Loading Indicator *@
     @if (loadedUsers == null)
     {
         <p>Loading users...</p>
     }
     else
     {
-        <!-- Table layout for larger screens -->
+        @* Section: Table Layout (Large Screens) *@
         <div class="d-none d-md-block mb-2">
             <table class="table table-striped table-hover">
                 <thead>
@@ -33,6 +35,7 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @* Table Row Loop, actually loads the users data (Large Screens) *@
                     @foreach (UserResponse loadedUser in loadedUsers)
                     {
                         <tr>
@@ -53,6 +56,7 @@
                             </td>
                         </tr>
                     }
+                    @* Loading Indicator for More Users (Large Screens) *@
                     @if (isLoadingUsers)
                     {
                         <tr>
@@ -68,8 +72,9 @@
             </table>
         </div>
 
-        <!-- List-group for small screens -->
+        @* Section: List Group Layout (Small Screens) *@
         <div class="d-block d-md-none mb-2">
+            @* Card Loop, actually loads the users data (Small Screens) *@
             @foreach (UserResponse loadedUser in loadedUsers)
             {
                 <div class="card mb-3 shadow-sm">
@@ -108,6 +113,7 @@
                     </div>
                 </div>
             }
+            @* Loading Indicator for More Users (Small Screens) *@
             @if (isLoadingUsers)
             {
                 <div class="text-center p-2">
@@ -119,15 +125,20 @@
             }
         </div>
 
-        @if (loadError != null)
+        @* Section: Error Display (Combined) *@
+        @if (loadError != null || !string.IsNullOrEmpty(errorMessage))
         {
-            <p class="text-danger">Error: @loadError</p>
+            <div class="alert alert-danger mt-3" role="alert">
+                @if (loadError != null)
+                {
+                    <div>Error loading users: @loadError</div>
+                }
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div>@errorMessage</div>
+                }
+            </div>
         }
-    }
-
-    @if (!string.IsNullOrEmpty(errorMessage))
-    {
-        <p class="text-danger">@errorMessage</p>
     }
 </div>
 

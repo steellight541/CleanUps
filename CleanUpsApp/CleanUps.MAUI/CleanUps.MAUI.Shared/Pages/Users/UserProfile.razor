@@ -1,4 +1,4 @@
-﻿@page "/users/profile"
+﻿@page "/profile"
 
 @inject IAccessService _accessService
 @inject NavigationManager _navigationManager
@@ -7,21 +7,29 @@
 @using CleanUps.Shared.DTOs.Auth
 
 <div class="card shadow position-relative">
+    @* Section: Card Header *@
     <div class="card-header py-3">
         <h3 class="mb-0">My Profile</h3>
     </div>
 
+    @* Section: Card Body *@
     <div class="card-body p-4">
+        @* Subsection: Loading Indicator *@
         @if (isLoading)
         {
-            <p>Loading profile...</p>
+            <div class="alert alert-info" role="alert">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span class="ms-2">Loading profile data...</span>
+            </div>
         }
         else
         {
+            @* Subsection: User Information Display *@
             <h4>@userName</h4>
             <p class="mb-1"><strong>Email:</strong> @userEmail</p>
             <p class="mb-3"><strong>Role:</strong> @userRole</p>
 
+            @* Subsection: Status Message Display (Password Change) *@
             @if (!string.IsNullOrEmpty(statusMessage))
             {
                 <div class="alert @(isSuccess ? "alert-success" : "alert-danger") mb-3" role="alert">
@@ -29,7 +37,7 @@
                 </div>
             }
 
-            @* Password Change Section *@
+            @* Subsection: Password Change Toggle Button *@
             @if (!showPasswordChangeForm)
             {
                 <button class="btn btn-outline-dark" @onclick="TogglePasswordChangeForm">
@@ -38,6 +46,7 @@
             }
             else
             {
+                @* Subsection: Password Change Form *@
                 <div class="card bg-light p-3 mb-3">
                     <EditForm Model="@passwordModel" OnValidSubmit="ChangePassword">
                         <DataAnnotationsValidator />
@@ -62,7 +71,7 @@
         }
     </div>
 
-    @* Footer for Logout button *@
+    @* Section: Card Footer (Logout Action) *@
     <div class="card-footer py-3 d-flex justify-content-end">
          <button class="btn btn-danger" @onclick="Logout">
             <i class="bi bi-box-arrow-right"></i> Logout

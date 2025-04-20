@@ -10,25 +10,31 @@
 @using System.ComponentModel.DataAnnotations
 
 <div class="card shadow position-relative">
+    @* Section: Card Header *@
     <div class="card-header py-3">
         <h3 class="mb-0">Sign Up</h3>
     </div>
 
+    @* Section: Sign Up Form *@
     <EditForm Model="singUpModel" OnValidSubmit="HandleSubmit">
+        @* Subsection: Form Body *@
         <div class="card-body p-4">
             <DataAnnotationsValidator />
             <ValidationSummary />
 
+            @* Input: Name *@
             <div class="form-group mb-3">
                 <label for="name" class="form-label">Name</label>
                 <InputText id="name" @bind-Value="singUpModel.Name" class="form-control" placeholder="Enter your name" />
             </div>
 
+            @* Input: Email *@
             <div class="form-group mb-3">
                 <label for="email" class="form-label">Email</label>
                 <InputText id="email" @bind-Value="singUpModel.Email" class="form-control" placeholder="Enter your email" />
             </div>
 
+            @* Input: Password *@
             <div class="form-group mb-3">
                 <label for="password" class="form-label">Password</label>
                 <InputText id="password" type="password" @bind-Value="singUpModel.Password" class="form-control" aria-describedby="passwordHelpBlock" />
@@ -37,21 +43,25 @@
                 </div>
             </div>
 
+            @* Input: Confirm Password *@
             <div class="form-group mb-3">
                 <label for="confirmPassword" class="form-label">Confirm Password</label>
                 <InputText id="confirmPassword" type="password" @bind-Value="singUpModel.ConfirmPassword" class="form-control" />
             </div>
 
+            @* Link: Log In *@
             <div class="mb-3">
                  <a href="/auth/login">Already have an account? Log in</a>
             </div>
 
+            @* Display: Error Message *@
             @if (!string.IsNullOrEmpty(errorMsg))
             {
-                <div class="alert alert-danger mt-3">@errorMsg</div>
+                <div class="alert alert-danger mt-3" role="alert">@errorMsg</div>
             }
         </div>
         
+        @* Subsection: Form Footer (Actions) *@
         <div class="card-footer py-3 d-flex gap-2">
             <button type="submit" class="btn btn-primary">Sign Up</button>
             <button type="button" class="btn btn-dark" @onclick="Cancel">Cancel</button>
