@@ -50,7 +50,6 @@ namespace CleanUps.API.Controllers
                 case 204:
                     return NoContent();
                 default:
-                    _logger.LogError("Error getting events: {StatusCode} - {Message}", result.StatusCode, result.ErrorMessage);
                     return StatusCode(result.StatusCode, result.ErrorMessage);
             }
         }
@@ -200,6 +199,50 @@ namespace CleanUps.API.Controllers
                     return Conflict(result.ErrorMessage);
                 default:
                     _logger.LogError("Error deleting event {EventId}: {StatusCode} - {Message}", id, result.StatusCode, result.ErrorMessage);
+                    return StatusCode(result.StatusCode, result.ErrorMessage);
+            }
+        }
+
+        //TODO: Allow Organizer
+        /// <summary>
+        /// Updates the status of a specific event.
+        /// </summary>
+        /// <param name="id">The ID of the event whose status is to be updated.</param>
+        /// <param name="request">The request containing the new status.</param>
+        /// <returns>
+        /// 200 OK with the updated event data if successful,
+        /// 400 Bad Request if the request data is invalid or IDs don't match,
+        /// 404 Not Found if the event doesn't exist,
+        /// 409 Conflict if there's a concurrency issue or the status cannot be updated,
+        /// 500 Internal Server Error if an error occurs during processing.
+        /// </returns>
+        [HttpPatch("{id}/status")] // YourApi.com/api/events/{id}/status
+        [ProducesResponseType(typeof(EventResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> PatchStatusAsync(int id, [FromBody] UpdateEventStatusRequest request)
+        {
+            if (id != request.EventId)
+            {
+                return BadRequest("ID mismatch between route parameter and request data.");
+            }
+
+            var result = await _eventService.UpdateStatusAsync(request);
+
+            switch (result.StatusCode)
+            {
+                case 200:
+                    return Ok(result.Data);
+                case 400:
+                    return BadRequest(result.ErrorMessage);
+                case 404:
+                    return NotFound(result.ErrorMessage);
+                case 409:
+                    return Conflict(result.ErrorMessage);
+                default:
+                    _logger.LogError("Error updating status for event {EventId}: {StatusCode} - {Message}", id, result.StatusCode, result.ErrorMessage);
                     return StatusCode(result.StatusCode, result.ErrorMessage);
             }
         }

@@ -9,7 +9,7 @@ namespace CleanUps.BusinessLogic.Validators.Interfaces
     /// </summary>
     /// <typeparam name="CreateDto">The create request DTO type.</typeparam>
     /// <typeparam name="UpdateDto">The update request DTO type.</typeparam>
-    internal interface IValidator<CreateDto, UpdateDto> 
+    internal interface IValidator<CreateDto, UpdateDto>
         where CreateDto : CreateRequest
         where UpdateDto : UpdateRequest
     {
@@ -19,14 +19,14 @@ namespace CleanUps.BusinessLogic.Validators.Interfaces
         /// <param name="dto">The create request DTO to validate.</param>
         /// <returns>A <see cref="Result{T}"/> containing a boolean indicating validation success or an error message if validation fails.</returns>
         Result<bool> ValidateForCreate(CreateDto dto);
-        
+
         /// <summary>
         /// Validates a data transfer object for updating an existing entity.
         /// </summary>
         /// <param name="dto">The update request DTO to validate.</param>
         /// <returns>A <see cref="Result{T}"/> containing a boolean indicating validation success or an error message if validation fails.</returns>
         Result<bool> ValidateForUpdate(UpdateDto dto);
-        
+
         /// <summary>
         /// Validates an entity ID.
         /// </summary>

@@ -1,0 +1,93 @@
+/* Container for the entire bottom navigation bar */
+.bottom-nav-container {
+    position: fixed; /* Keep it fixed at the bottom */
+    bottom: 0;
+    left: 0;
+    width: 100%; /* Span the full width */
+    background-color: white; /* Background color */
+    border-top: 1px solid #e0e0e0; /* Add a subtle top border */
+    z-index: 1000; /* Ensure it stays above other content */
+}
+
+/* The navigation bar itself, holding the items */
+.bottom-nav {
+    display: flex; /* Use flexbox for layout */
+    justify-content: space-around; /* Distribute items evenly */
+    align-items: center; /* Center items vertically */
+    height: 5.625rem; /* Set the height of the nav bar. Standard mobile navigation height for comfortable touch targets (= 90px) */
+    padding: 0.3125rem 0.625rem; /* Vertical spacing 5px, horizontal spacing 10px to separate from edges */
+}
+
+/* Individual navigation item container */
+.nav-item {
+    flex-grow: 1; /* Allow items to grow equally */
+    text-align: center; /* Center content horizontally */
+}
+
+/* Styling for the Blazor NavLink component within each nav item */
+/* ::deep targets elements inside the NavLink component's shadow DOM */
+.nav-item ::deep .nav-link {
+    display: flex; /* Use flexbox for internal layout */
+    flex-direction: column; /* Stack icon and text vertically */
+    align-items: center; /* Center items horizontally */
+    justify-content: center; /* Center items vertically */
+    height: 100%; /* Take full height of parent */
+    padding: 0; /* Remove default padding */
+    color: inherit; /* Use parent's text color */
+    text-decoration: none; /* Remove underlines */
+    transition: none; /* Disable default transitions */
+}
+
+/* Styles the capsule/button shape that contains the icon */
+.nav-item ::deep .nav-link .nav-button-circle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 4.375rem; /* Width of button capsule for optimal touch target (= 70px) */
+    height: 2.5rem; /* Height of button capsule for balanced proportion (= 40px) */
+    background-color: #0A4884; /* Default background color (blue) */
+    border-radius: 1.25rem; /* Creates pill/oval shape with rounded ends (= 20px, half of height) */
+    color: white; /* Icon color (SVG inherits this) */
+    transition: background-color 0.2s ease-in-out; /* Smooth background transition */
+    margin-bottom: 0.25rem; /* Small gap between button and label text (= 4px) */
+}
+
+/* Styles the SVG icons within the capsule */
+.nav-item ::deep .nav-link .nav-button-circle svg {
+    width: 1.25rem; /* Icon width for clear visibility without overwhelming (= 20px) */
+    height: 1.25rem; /* Icon height matching width for proper proportions (= 20px) */
+    margin-bottom: 0; /* Remove any bottom margin */
+}
+
+/* Styles the text label below the icon capsule */
+.nav-text {
+    display: none; /* Hide text by default */
+    line-height: 1.1;
+    font-size: 0.8rem; /* Smaller text size for compact navigation (= 12.8px) */
+    font-weight: bold; /* Make text bold */
+    margin-top: 0; /* Remove top margin */
+    color: #fd7e14; /* Text color (orange) */
+    padding: 0.125rem 0.375rem; /* Small padding for text readability (= 2px top/bottom, 6px left/right) */
+}
+
+/* Styles for the text label when its parent NavLink is active */
+.nav-item ::deep .nav-link.active .nav-text {
+    display: inline-block; /* Show the text only when the link is active */
+}
+
+/* Styles for the icon capsule when its parent NavLink is active */
+.nav-item ::deep .nav-link.active .nav-button-circle {
+    background-color: #042241; /* Darker blue background for active state */
+}
+
+/* Optional: Styles for the icon capsule on hover */
+.nav-item ::deep .nav-link:hover .nav-button-circle {
+    background-color: #8ea3b8; /* Lighter blue background on hover */
+}
+
+/* Ensure NavLink text decoration is always none, even on hover */
+.nav-item ::deep .nav-link,
+.nav-item ::deep .nav-link:hover {
+    text-decoration: none;
+} 

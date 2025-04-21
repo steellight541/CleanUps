@@ -1,91 +1,253 @@
 ﻿@page "/auth/signup"
-@using CleanUps.Shared.DTOs.Users
-@inject UserApiService _userApiService;
+
+@inject IUserApiService _userApiService;
+@inject IAuthApiService _authApiService;
+@inject IAccessService _accessService;
 @inject NavigationManager _navigationManager
 
-<div class="card shadow p-4">
+@using CleanUps.Shared.DTOs.Users
+@using CleanUps.Shared.DTOs.Auth
+@using System.ComponentModel.DataAnnotations
 
-    <h3>Sign Up</h3>
+<div class="card shadow position-relative">
+    @* Section: Card Header *@
+    <div class="card-header py-3">
+        <h3 class="mb-0">Sign Up</h3>
+    </div>
 
+    @* Section: Sign Up Form *@
     <EditForm Model="singUpModel" OnValidSubmit="HandleSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+        @* Subsection: Form Body *@
+        <div class="card-body p-4">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
-        <div class="form-group mb-2">
-            <label for="name">Name</label>
-            <InputText id="name" @bind-Value="singUpModel.Name" class="form-control" placeholder="Mirza Džaferadžović" />
-        </div>
-
-        <div class="form-group mb-2">
-            <label for="email">Email</label>
-            <InputText id="email" @bind-Value="singUpModel.Email" class="form-control" placeholder="office@zerowastemontenegro.me" />
-        </div>
-
-        <div class="form-group mb-2">
-            <label for="password">Password</label>
-            <InputText id="password" type="password" @bind-Value="singUpModel.Password" class="form-control" aria-describedby="passwordHelpBlock" />
-            <div id="passwordHelpBlock" class="form-text">
-                Your password must be 8-50 characters long, contain letters and numbers, and must not contain spaces, special characters, or emoji.
+            @* Input: Name *@
+            <div class="form-group mb-3">
+                <label for="name" class="form-label">Name</label>
+                <InputText id="name" @bind-Value="singUpModel.Name" class="form-control" placeholder="Enter your name" />
             </div>
-        </div>
 
-        <div class="form-group mb-2">
-            <label for="confirmPassword">Confirm Password</label>
-            <InputText id="confirmPassword" type="password" @bind-Value="singUpModel.ConfirmPassword" class="form-control" />
-        </div>
+            @* Input: Email *@
+            <div class="form-group mb-3">
+                <label for="email" class="form-label">Email</label>
+                <InputText id="email" @bind-Value="singUpModel.Email" class="form-control" placeholder="Enter your email" />
+            </div>
 
-        <div class="mb-2">
-            <button type="submit" class="btn btn-primary btn-sm">Sign Up</button>
-            <button type="button" class="btn btn-dark btn-sm" @onclick="Cancel">Cancel</button>
-        </div>
+            @* Input: Password *@
+            <div class="form-group mb-3">
+                <label for="password" class="form-label">Password</label>
+                <InputText id="password" type="password" @bind-Value="singUpModel.Password" class="form-control" aria-describedby="passwordHelpBlock" />
+                <div id="passwordHelpBlock" class="form-text">
+                    Your password must be 8-50 characters long, contain letters and numbers, and must not contain spaces, special characters, or emoji.
+                </div>
+            </div>
 
+            @* Input: Confirm Password *@
+            <div class="form-group mb-3">
+                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                <InputText id="confirmPassword" type="password" @bind-Value="singUpModel.ConfirmPassword" class="form-control" />
+            </div>
+
+            @* Link: Log In *@
+            <div class="mb-3">
+                 <a href="/auth/login">Already have an account? Log in</a>
+            </div>
+
+            @* Display: Error Message *@
+            @if (!string.IsNullOrEmpty(errorMsg))
+            {
+                <div class="alert alert-danger mt-3" role="alert">@errorMsg</div>
+            }
+        </div>
+        
+        @* Subsection: Form Footer (Actions) *@
+        <div class="card-footer py-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                 @if (isSubmitting)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span class="ms-1">Signing Up...</span>
+                }
+                else
+                {
+                    <span>Sign Up</span>
+                }
+            </button>
+            <button type="button" class="btn btn-dark" @onclick="Cancel" disabled="@isSubmitting">Cancel</button>
+        </div>
     </EditForm>
 </div>
-@if (!string.IsNullOrEmpty(errorMsg))
-{
-    <p class="text-danger">@errorMsg</p>
-}
 
 @code {
+    #region Variables: Component State
+
+    /// <summary>
+    /// The sign-up model for the sign-up form.
+    /// </summary>
     private SignUpModel singUpModel = new SignUpModel();
+
+    /// <summary>
+    /// The error message to display.
+    /// </summary>
     private string errorMsg = string.Empty;
 
+    /// <summary>
+    /// Tracks if the form is currently submitting.
+    /// </summary>
+    private bool isSubmitting = false;
+
+    #endregion
+
+    #region Methods: Lifecycle Methods
+
+    /// <summary>
+    /// Initializes the component and checks if the user is already authenticated.
+    /// </summary>
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Step 1: Check if user is already authenticated
+            if (await _accessService.IsUserLoggedInAsync())
+            {
+                // Step 2: If authenticated, redirect to home page
+                _navigationManager.NavigateTo("/");
+            }
+        }
+        catch
+        {
+            // If authentication check fails, show login form anyway
+            // User can proceed with signup
+            // No action needed
+        }
+    }
+
+    #endregion
+
+    #region Methods: Event Handlers
+
+    /// <summary>
+    /// Handles the submission of the sign-up form.
+    /// </summary>
     private async Task HandleSubmit()
     {
-        CreateUserRequest newUser = new CreateUserRequest(singUpModel.Name, singUpModel.Email, singUpModel.Password);
+        // Track submitting state
+        isSubmitting = true;
+        errorMsg = string.Empty;
+        StateHasChanged();
+        
+        try
+        {
+            // Step 1: Create user request from the form model
+            CreateUserRequest newUser = new CreateUserRequest(singUpModel.Name, singUpModel.Email, singUpModel.Password);
 
-        var result = await _userApiService.CreateUserAsync(newUser);
-        if (result.IsSuccess)
-        {
-            _navigationManager.NavigateTo("/users");
+            // Step 2: Call the user service to create a new user
+            var createResult = await _userApiService.CreateAsync(newUser);
+            
+            // Step 3: Process the user creation result
+            if (createResult.IsSuccess)
+            {
+                // Step 4: If user creation was successful, create login request
+                LoginRequest request = new LoginRequest(singUpModel.Email, singUpModel.Password);
+
+                // Step 5: Attempt to automatically log in the new user
+                var loginResult = await _authApiService.LoginAsync(request);
+
+                // Step 6: Process the login result
+                if (loginResult.IsSuccess)
+                {
+                    // Step 7: On successful login, create a user session object
+                    UserSessionInfo userSession = new UserSessionInfo
+                        {
+                            UserId = loginResult.Data.UserId,
+                            Name = loginResult.Data.Name,
+                            Email = loginResult.Data.Email,
+                            Role = loginResult.Data.Role
+                        };
+
+                    // Step 8: Store the user session information
+                    await _accessService.SetUserSessionAsync(userSession);
+                    
+                    // Step 9: Redirect to events page after successful signup and login
+                    _navigationManager.NavigateTo("/events", forceLoad: false);
+                }
+                else
+                {
+                    // Step 10: If signup worked but auto-login failed, redirect to login page
+                    _navigationManager.NavigateTo("/auth/login");
+                }
+            }
+            else
+            {
+                // Step 11: Display error message if user creation fails
+                errorMsg = createResult.ErrorMessage ?? "An error occurred while signing up.";
+            }
         }
-        else
+        catch (Exception ex)
         {
-            errorMsg = result.ErrorMessage ?? "An error occurred while signing up.";
+            // Handle unexpected exceptions not captured by the Result pattern
+            errorMsg = $"An unexpected error occurred: {ex.Message}";
+        }
+        finally
+        {
+            // Clear loading state
+            isSubmitting = false;
+            StateHasChanged();
         }
     }
 
+    /// <summary>
+    /// Navigates back to the login page when cancel is clicked.
+    /// </summary>
     private void Cancel()
     {
-        _navigationManager.NavigateTo("/users");
+        // Step 1: Navigate back to the homepage when cancel is clicked
+        _navigationManager.NavigateTo("/auth/login");
     }
 
+    #endregion
+
+    #region Models: Page Specific Models
+
+    /// <summary>
+    /// Model class for the sign-up form that captures new user information.
+    /// Contains validation attributes to ensure proper data entry and password matching.
+    /// </summary>
     private class SignUpModel
     {
+        /// <summary>
+        /// The full name of the user being registered.
+        /// Must not exceed 100 characters.
+        /// </summary>
         [Required(ErrorMessage = "Name is required.")]
         [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
         public string Name { get; set; }
 
+        /// <summary>
+        /// The email address of the user being registered.
+        /// Must be in a valid email format and will be used for login.
+        /// </summary>
         [Required(ErrorMessage = "Email is required.")]
         [EmailAddress(ErrorMessage = "Invalid email format.")]
         [StringLength(255, ErrorMessage = "Email cannot exceed 255 characters.")]
         public string Email { get; set; }
 
+        /// <summary>
+        /// The password for the new user account.
+        /// Must be between 8 and 50 characters long.
+        /// </summary>
         [Required(ErrorMessage = "Password is required.")]
         [StringLength(50, MinimumLength = 8, ErrorMessage = "Password must be between 8 and 50 characters.")]
         public string Password { get; set; }
 
+        /// <summary>
+        /// Confirmation of the password to prevent typing errors.
+        /// Must match the Password property exactly.
+        /// </summary>
         [Compare("Password", ErrorMessage = "Passwords do not match.")]
         public string ConfirmPassword { get; set; }
     }
+
+    #endregion
 }

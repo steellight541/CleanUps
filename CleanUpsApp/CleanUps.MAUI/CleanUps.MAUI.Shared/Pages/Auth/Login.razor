@@ -1,7 +1,206 @@
 ﻿@page "/auth/login"
 
-<h3>Login</h3>
+@inject IAuthApiService _authApiService
+@inject IAccessService _accessService
+@inject NavigationManager _navigationManager
+
+@using CleanUps.Shared.DTOs.Auth
+@using System.ComponentModel.DataAnnotations
+
+<div class="card shadow position-relative">
+    @* Section: Card Header *@
+    <div class="card-header py-3">
+        <h3 class="mb-0">Login</h3>
+    </div>
+
+    @* Section: Login Form *@
+    <EditForm Model="loginModel" OnValidSubmit="HandleSubmit">
+        @* Subsection: Form Body *@
+        <div class="card-body p-4">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            @* Input: Email *@
+            <div class="form-group mb-3">
+                <label for="email" class="form-label">Email</label>
+                <InputText id="email" @bind-Value="loginModel.Email" class="form-control" placeholder="Enter your email" />
+            </div>
+
+            @* Input: Password *@
+            <div class="form-group mb-3">
+                <label for="password" class="form-label">Password</label>
+                <InputText id="password" type="password" @bind-Value="loginModel.Password" class="form-control" />
+            </div>
+
+            @* Link: Forgot Password *@
+            <div class="mb-3">
+                <a href="/auth/password-reset">Forgot password?</a>
+            </div>
+
+            @* Link: Sign Up *@
+            <div class="mb-3">
+                 <a href="/auth/signup">Don't have an account? Sign up</a>
+            </div>
+            
+            @* Display: Error Message *@
+            @if (!string.IsNullOrEmpty(errorMsg))
+            {
+                <div class="alert alert-danger mt-3" role="alert">@errorMsg</div>
+            }
+        </div>
+
+        @* Subsection: Form Footer (Actions) *@
+        <div class="card-footer py-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                @if (isSubmitting)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span class="ms-1">Logging in...</span>
+                }
+                else
+                {
+                    <span>Login</span>
+                }
+            </button>
+            <button type="button" class="btn btn-dark" @onclick="Cancel" disabled="@isSubmitting">Cancel</button>
+        </div>
+    </EditForm>
+</div>
 
 @code {
+    #region Variables: Component State
+    /// <summary>
+    /// The data model for capturing and validating user login credentials.
+    /// Contains email and password fields with appropriate validation rules
+    /// used by the login form to gather authentication information.
+    /// </summary>
+    private LoginModel loginModel = new LoginModel();
 
+    /// <summary>
+    /// Stores any error message that should be displayed to the user.
+    /// This property is populated with API error responses or validation failures
+    /// and displayed in an alert box within the login form.
+    /// </summary>
+    private string errorMsg = string.Empty;
+
+    /// <summary>
+    /// Tracks if the form is currently submitting.
+    /// </summary>
+    private bool isSubmitting = false;
+    #endregion
+
+    #region Methods: Lifecycle Methods
+    /// <summary>
+    /// Initializes the component and checks if the user is already authenticated.
+    /// </summary>
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Step 1: Check if user is already authenticated
+            if (await _accessService.IsUserLoggedInAsync())
+            {
+                // Step 2: If authenticated, redirect to home page
+                _navigationManager.NavigateTo("/");
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMsg = $"An unexpected error occurred: {ex.Message}";
+        }
+    }
+    #endregion
+
+    #region Methods: Event Handlers
+
+    /// <summary>
+    /// Handles the submission of the login form.
+    /// </summary>
+    private async Task HandleSubmit()
+    {
+        // Track submitting state
+        isSubmitting = true;
+        errorMsg = string.Empty;
+        StateHasChanged();
+        
+        try
+        {
+            // Step 1: Create login request from the form model
+            LoginRequest request = new LoginRequest(loginModel.Email, loginModel.Password);
+
+            // Step 2: Call the authentication service to attempt login
+            var result = await _authApiService.LoginAsync(request);
+
+            // Step 3: Process the authentication result
+            if (result.IsSuccess)
+            {
+                // Step 4: On successful login, create a user session object
+                UserSessionInfo userSession = new UserSessionInfo
+                {
+                    UserId = result.Data.UserId,
+                    Name = result.Data.Name,
+                    Email = result.Data.Email,
+                    Role = result.Data.Role
+                };
+
+                // Step 5: Store the user session information
+                await _accessService.SetUserSessionAsync(userSession); 
+                
+                // Step 6: Redirect to events page after successful login
+                _navigationManager.NavigateTo("/events");
+            }
+            else
+            {
+                // Step 7: Display error message if login fails
+                errorMsg = result.ErrorMessage ?? "Invalid email or password.";
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle unexpected exceptions not covered by the Result pattern
+            errorMsg = $"An unexpected error occurred: {ex.Message}";
+        }
+        finally
+        {
+            // Clear loading state
+            isSubmitting = false;
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Navigates back to the homepage when cancel is clicked.
+    /// </summary>
+    private void Cancel()
+    {
+        // Step 1: Navigate back to the homepage when cancel is clicked
+        _navigationManager.NavigateTo("/");
+    }
+
+    #endregion
+
+    #region Models: Page Specific Models
+
+    /// <summary>
+    /// Model class for the login form that captures user credentials.
+    /// Contains validation attributes to ensure proper data entry.
+    /// </summary>
+    private class LoginModel
+    {
+        /// <summary>
+        /// The user's email address used for authentication.
+        /// Must be in a valid email format.
+        /// </summary>
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Invalid email format.")]
+        public string Email { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The user's password for authentication.
+        /// </summary>
+        [Required(ErrorMessage = "Password is required.")]
+        public string Password { get; set; } = string.Empty;
+    }
+
+    #endregion
 }

@@ -1,7 +1,35 @@
 ﻿@page "/events/{eventId:int}/stats"
 
-<h3>My Cleanup Stats</h3>
+@inject NavigationManager _navigationManager
 
+<div class="card shadow p-4">
+    @* Section: Page Header *@
+    <h3>My CleanUp Stats</h3>
+
+    @* Section: Placeholder Content *@
+    <div class="mb-2">
+        <p>Not yet implemented</p>
+    </div>
+
+    @* Section: Navigation *@
+    <div class="mb-2">
+        <button class="btn btn-secondary btn-sm" @onclick="HomePage">Home Page</button>
+    </div>
+</div>
 @code {
 
+    /// <summary>
+    /// The event ID.
+    /// </summary>
+    [Parameter]
+    public int eventId { get; set; }
+    
+    /// <summary>
+    /// Navigates to the home page.
+    /// </summary>
+    private void HomePage()
+    {
+        // Navigate back to the home page
+        _navigationManager.NavigateTo("/");
+    }
 }

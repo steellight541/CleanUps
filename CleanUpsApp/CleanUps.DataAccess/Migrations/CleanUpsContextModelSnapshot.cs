@@ -126,6 +126,45 @@ namespace CleanUps.DataAccess.Migrations
                     b.ToTable("Locations");
                 });
 
+            modelBuilder.Entity("CleanUps.BusinessLogic.Models.PasswordResetToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.Property<DateTime>("ExpirationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsUsed")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex(new[] { "Token" }, "UQ_PasswordResetToken_Token")
+                        .IsUnique();
+
+                    b.ToTable("PasswordResetTokens");
+                });
+
             modelBuilder.Entity("CleanUps.BusinessLogic.Models.Photo", b =>
                 {
                     b.Property<int>("PhotoId")
@@ -274,6 +313,17 @@ namespace CleanUps.DataAccess.Migrations
                         .HasConstraintName("FK_EventAttendances_Users_UserId");
 
                     b.Navigation("Event");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CleanUps.BusinessLogic.Models.PasswordResetToken", b =>
+                {
+                    b.HasOne("CleanUps.BusinessLogic.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });

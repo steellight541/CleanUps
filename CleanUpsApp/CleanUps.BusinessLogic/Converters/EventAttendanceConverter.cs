@@ -64,8 +64,8 @@ namespace CleanUps.BusinessLogic.Converters
         public EventAttendanceResponse ToResponse(EventAttendance model)
         {
             return new EventAttendanceResponse(
-                model.UserId, 
-                model.EventId, 
+                model.UserId,
+                model.EventId,
                 model.CheckIn,
                 model.CreatedDate
             );

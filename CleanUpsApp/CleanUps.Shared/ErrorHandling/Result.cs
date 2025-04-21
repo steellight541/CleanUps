@@ -39,6 +39,7 @@
         /// <param name="data">The data associated with the successful operation.</param>
         private Result(int statusCode, T data)
         {
+            // Set the status code and data for success with data
             StatusCode = statusCode;
             Data = data;
         }
@@ -49,6 +50,7 @@
         /// <param name="statusCode">The HTTP-like status code (204 or 304).</param>
         private Result(int statusCode)
         {
+            // Set the status code for success without data
             StatusCode = statusCode;
         }
 
@@ -59,6 +61,7 @@
         /// <param name="errorMessage">The error message describing the failure.</param>
         private Result(int statusCode, string errorMessage)
         {
+            // Set the status code and error message for failure
             StatusCode = statusCode;
             ErrorMessage = errorMessage;
         }
@@ -146,20 +149,29 @@
         /// <exception cref="InvalidOperationException">Thrown if the data is null for a status code that should have data (200 or 201).</exception>
         public Result<TResult> Transform<TResult>(Func<T, TResult> transformDelegate)
         {
+            // Step 1: Check if this result has data that should be transformed (status code 200 or 201)
             if (StatusCode == 200 || StatusCode == 201)
             {
+                // Step 2: Verify data exists for data-bearing status codes
                 if (Data == null)
                 {
+                    // Step 3: If data is unexpectedly null, create an error result
                     return new Result<TResult>(500, "Data is null for status code that should have data.");
                 }
+
+                // Step 4: Transform the data using the provided delegate and create a new success result
                 return new Result<TResult>(StatusCode, transformDelegate(Data));
             }
+            // Step 5: Handle success results that don't contain data (like 204 No Content)
             else if (IsSuccess)
             {
+                // Step 6: Preserve the same status code for non-data bearing success results
                 return new Result<TResult>(StatusCode);
             }
+            // Step 7: Handle error results
             else
             {
+                // Step 8: Preserve the same status code and error message for error results
                 return new Result<TResult>(StatusCode, ErrorMessage);
             }
         }

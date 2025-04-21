@@ -1,0 +1,193 @@
+@implements IDisposable
+@inject IAccessService _accessService
+@inject NavigationManager _navigationManager
+
+<div class="bottom-nav-container shadow-lg" 
+     style="position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; background-color: white; border-top: 1px solid #e0e0e0;">
+    <nav class="bottom-nav">
+        @* Common Left Button: EventMap/Explore *@
+        <div class="nav-item">
+            <NavLink class="nav-link" href="map/events" Match="NavLinkMatch.All">
+                <div class="nav-button-circle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo-alt-fill" viewBox="0 0 16 16" aria-hidden="true">
+                      <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6"/>
+                    </svg>
+                </div>
+                <span class="nav-text">Event Map</span>
+            </NavLink>
+        </div>
+
+        @* Common Middle-Left Button: EventList *@
+        <div class="nav-item">
+            <NavLink class="@( $"nav-link {(IsEventsListActive() ? "active" : "")}" )" href="events">
+                <div class="nav-button-circle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-ul" viewBox="0 0 16 16" aria-hidden="true">
+                      <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
+                    </svg>
+                </div>
+                <span class="nav-text">Events List</span>
+            </NavLink>
+        </div>
+
+        @if (isLoggedIn)
+        {
+            @if (userRole == RoleDTO.Organizer)
+            {
+                @* Organizer Middle-Right: Users List *@
+                <div class="nav-item">
+                    <NavLink class="@( $"nav-link {(IsUsersListActive() ? "active" : "")}" )" href="users">
+                        <div class="nav-button-circle">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-lines-fill" viewBox="0 0 16 16" aria-hidden="true">
+                              <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5 6s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zM11 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5m.5 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1zm2 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1z"/>
+                            </svg>
+                        </div>
+                        <span class="nav-text">Users List</span>
+                    </NavLink>
+                </div>
+            }
+            @* Volunteer doesn't get a 3rd middle button *@
+
+            @* Common Logged-in Right: Profile *@
+            <div class="nav-item">
+                <NavLink class="nav-link" href="profile" Match="NavLinkMatch.All">
+                     <div class="nav-button-circle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16" aria-hidden="true">
+                          <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                        </svg>
+                    </div>
+                    <span class="nav-text">Profile</span>
+                </NavLink>
+            </div>
+        }
+        else // Not logged in
+        {
+            @* Not Logged-in Middle-Right: Login *@
+            <div class="nav-item">
+                <NavLink class="nav-link" href="auth/login" Match="NavLinkMatch.All">
+                    <div class="nav-button-circle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-in-right" viewBox="0 0 16 16" aria-hidden="true">
+                          <path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0z"/>
+                          <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+                        </svg>
+                    </div>
+                    <span class="nav-text">Login</span>
+                </NavLink>
+            </div>
+
+            @* Not Logged-in Right: Sign Up *@
+            <div class="nav-item">
+                <NavLink class="nav-link" href="auth/signup" Match="NavLinkMatch.All">
+                     <div class="nav-button-circle">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope-open-heart-fill" viewBox="0 0 16 16" aria-hidden="true">
+                           <path d="M8.941.435a2 2 0 0 0-1.882 0l-6 3.2A2 2 0 0 0 0 5.4v.313l4.222 2.475q.035-.087.08-.17c.665-1.3 2.362-1.917 3.698-1.25 1.336-.667 3.033-.05 3.699 1.25a3 3 0 0 1 .08.17L16 5.713V5.4a2 2 0 0 0-1.059-1.765zM0 6.873l4 2.344c-.012.542.124 1.117.416 1.694l.004.006L0 13.372v-6.5Zm.059 7.611 4.9-2.723c.563.73 1.383 1.467 2.49 2.198l.551.365.551-.365c1.107-.73 1.927-1.467 2.49-2.198l4.9 2.723A2 2 0 0 1 14 16H2a2 2 0 0 1-1.941-1.516M16 13.372l-4.42-2.455.004-.006c.292-.577.428-1.152.415-1.694L16 6.873v6.5Z"/>
+                           <path d="M8 7.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132"/>
+                         </svg>
+                    </div>
+                    <span class="nav-text">Sign Up</span>
+                </NavLink>
+            </div>
+        }
+    </nav>
+</div>
+
+@code {
+    /// <summary>
+    /// Indicates whether the current user is logged in.
+    /// </summary>
+    private bool isLoggedIn = false;
+
+    /// <summary>
+    /// Stores the role of the logged-in user, or null if not logged in.
+    /// </summary>
+    private RoleDTO? userRole = null;
+
+    /// <summary>
+    /// Method invoked when the component is first initialized.
+    /// Subscribes to navigation changes and updates the initial authentication state.
+    /// </summary>
+    protected override async Task OnInitializedAsync()
+    {
+        _navigationManager.LocationChanged += OnLocationChanged;
+        await UpdateAuthState();
+    }
+
+    /// <summary>
+    /// Handles the event triggered when the navigation location changes.
+    /// Updates the authentication state and triggers a UI refresh.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The event arguments containing the new location.</param>
+    private async void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        await InvokeAsync(async () =>
+        {
+            await UpdateAuthState();
+            StateHasChanged(); // Request a UI re-render
+        });
+    }
+
+    /// <summary>
+    /// Asynchronously updates the <see cref="isLoggedIn"/> and <see cref="userRole"/> fields
+    /// based on the current user's authentication status fetched from <see cref="_accessService"/>.
+    /// Handles potential exceptions during the fetch process.
+    /// </summary>
+    private async Task UpdateAuthState()
+    {
+        try
+        {
+            isLoggedIn = await _accessService.IsUserLoggedInAsync();
+            if (isLoggedIn)
+            {
+                userRole = await _accessService.GetLoggedUserRoleAsync();
+            }
+            else
+            {
+                userRole = null;
+            }
+        }
+        catch (Exception ex) // Catch specific exceptions if possible
+        {
+            // Log the exception (using a proper logging mechanism is recommended)
+            Console.WriteLine($"Error updating auth state: {ex.Message}"); 
+            isLoggedIn = false; // Assume not logged in if error occurs
+            userRole = null;
+        }
+    }
+
+    /// <summary>
+    /// Determines if the 'Events List' navigation link should be marked as active.
+    /// </summary>
+    /// <returns>True if the current URL path starts with "/events" but is not exactly "/events/map", false otherwise.</returns>
+    private bool IsEventsListActive()
+    {
+        var currentUri = new Uri(_navigationManager.Uri, UriKind.Absolute);
+        var absolutePath = currentUri.AbsolutePath;
+        // Active if path starts with /events but is NOT exactly /map/events
+        return absolutePath.StartsWith("/events", StringComparison.OrdinalIgnoreCase) 
+            && !absolutePath.StartsWith("/map/events", StringComparison.OrdinalIgnoreCase); // Adjusted logic for map/events
+    }
+
+    /// <summary>
+    /// Determines if the 'Users List' navigation link should be marked as active.
+    /// This is typically shown only to Organizers.
+    /// </summary>
+    /// <returns>True if the current URL path starts with "/users" but is not exactly "/users/profile", false otherwise.</returns>
+    private bool IsUsersListActive()
+    {
+        var currentUri = new Uri(_navigationManager.Uri, UriKind.Absolute);
+        var absolutePath = currentUri.AbsolutePath;
+        // Active if path starts with /users but is NOT exactly /users/profile
+        return absolutePath.StartsWith("/users", StringComparison.OrdinalIgnoreCase) 
+            && !absolutePath.Equals("/users/profile", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Releases resources used by the component.
+    /// Unsubscribes from the navigation location changed event.
+    /// </summary>
+    public void Dispose()
+    {
+        _navigationManager.LocationChanged -= OnLocationChanged;
+        GC.SuppressFinalize(this);
+    }
+} 

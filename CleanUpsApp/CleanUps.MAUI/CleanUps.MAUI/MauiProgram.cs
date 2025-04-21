@@ -1,5 +1,4 @@
 ﻿using CleanUps.MAUI.Services;
-using CleanUps.MAUI.Shared;
 using CleanUps.MAUI.Shared.Services;
 using Microsoft.Extensions.Logging;
 

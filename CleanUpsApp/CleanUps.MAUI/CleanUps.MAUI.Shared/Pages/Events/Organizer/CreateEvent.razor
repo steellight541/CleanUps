@@ -1,98 +1,273 @@
 ﻿@page "/events/create"
+
 @inject NavigationManager _navigationManager
-@inject EventApiService _eventApiService
+@inject IEventApiService _eventApiService
+@inject IAccessService _accessService
 
-@if (CurrentUserRole == RoleDTO.Organizer)
-{
-    <div class="card shadow p-4">
-        <h3>Create New Event</h3>
 
-        <EditForm Model="eventCreateModel" OnValidSubmit="HandleSubmit">
+<div class="card shadow position-relative">
+    @* Section: Card Header *@
+    <div class="card-header py-3">
+        <h3 class="mb-0">Create New Event</h3>
+    </div>
+
+    @* Section: Create Event Form *@
+    <EditForm Model="eventCreateModel" OnValidSubmit="HandleSubmit">
+        @* Subsection: Form Body *@
+        <div class="card-body p-4">
             <DataAnnotationsValidator />
             <ValidationSummary />
 
-            <div class="form-group mb-2">
-                <label for="title">Title</label>
+            @* Input: Title *@
+            <div class="form-group mb-3">
+                <label for="title" class="form-label">Title</label>
                 <InputText id="title" @bind-Value="eventCreateModel.Title" class="form-control" />
             </div>
 
-            <div class="form-group mb-2">
-                <label for="description">Description</label>
-                <InputText id="description" @bind-Value="eventCreateModel.Description" class="form-control" />
+            @* Input: Description *@
+            <div class="form-group mb-3">
+                <label for="description" class="form-label">Description</label>
+                <InputTextArea id="description" @bind-Value="eventCreateModel.Description" class="form-control" rows="3" />
             </div>
 
-            <div class="form-group mb-2">
-                <label for="startTime">Start Time of Event</label>
-                <InputDate id="startTime" @bind-Value="eventCreateModel.StartTime" class="form-control" />
+             @* Input: Start and End Time *@
+             <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="startTime" class="form-label">Start Time</label>
+                    <InputDate id="startTime" @bind-Value="eventCreateModel.StartTime" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label for="endTime" class="form-label">End Time</label>
+                    <InputDate id="endTime" @bind-Value="eventCreateModel.EndTime" class="form-control" />
+                </div>
+            </div>
+            
+             @* Input: Location Coordinates *@
+             <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="latitude" class="form-label">Latitude</label>
+                    <InputNumber id="latitude" @bind-Value="eventCreateModel.Latitude" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label for="longitude" class="form-label">Longitude</label>
+                    <InputNumber id="longitude" @bind-Value="eventCreateModel.Longitude" class="form-control" />
+                </div>
             </div>
 
-            <div class="form-group mb-2">
-                <label for="endTime">End Time of Event</label>
-                <InputDate id="endTime" @bind-Value="eventCreateModel.EndTime" class="form-control" />
-            </div>
-
-            <div class="form-check mb-2">
+            @* Input: Family Friendly Checkbox *@
+            <div class="form-check mb-3">
                 <InputCheckbox id="familyFriendly" @bind-Value="eventCreateModel.FamilyFriendly" class="form-check-input" />
-                <label class="form-check-label" for="familyFriendly">Family Friendly</label>
+                <label class="form-check-label" for="familyFriendly">Family Friendly Event</label>
             </div>
 
-            <div class="mb-2">
-                <button type="submit" class="btn btn-primary">Save</button>
-                <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-            </div>
+            @* Display: Error Message *@
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger" role="alert">@errorMessage</div>
+            }
+        </div>
 
-        </EditForm>
-    </div>
+        @* Subsection: Form Footer (Actions) *@
+        <div class="card-footer py-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                @if (isSubmitting)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span class="ms-1">Saving...</span>
+                }
+                else
+                {
+                    <span>Save</span>
+                }
+            </button>
+            <button type="button" class="btn btn-dark" @onclick="Cancel" disabled="@isSubmitting">Cancel</button>
+        </div>
+    </EditForm>
+</div>
 
-    @if (!string.IsNullOrEmpty(errorMessage))
-    {
-        <p class="text-danger">@errorMessage</p>
-    }
-}
-else
-{
-    <p>Access denied</p>
-}
 @code {
-    private EventCreateModel eventCreateModel = new EventCreateModel();
-    private string errorMessage;
-    private RoleDTO CurrentUserRole = RoleDTO.Organizer;
+    #region Variables: Component State
 
+    /// <summary>
+    /// The event create model for the event creation form.
+    /// </summary>
+    private EventCreateModel eventCreateModel = new EventCreateModel();
+
+    /// <summary>
+    /// The error message to display.
+    /// </summary>
+    private string errorMessage;
+
+    /// <summary>
+    /// Indicates if the user is logged in.
+    /// </summary>
+    private bool isLoggedIn = false;
+
+    /// <summary>
+    /// Indicates if the user is an organizer.
+    /// </summary>
+    private bool isOrganizer = false;
+
+    /// <summary>
+    /// Tracks if the form is currently submitting.
+    /// </summary>
+    private bool isSubmitting = false;
+
+    #endregion
+
+    #region Methods: Lifecycle Methods
+
+    /// <summary>
+    /// Initializes the component and checks user permissions.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    protected override async Task OnInitializedAsync()
+    {
+        // Step 1: Check if user is an organizer
+        try
+        {
+            // Step 2: Check if user is logged in
+            isLoggedIn = await _accessService.IsUserLoggedInAsync();
+
+            // Step 3: Check if user is an organizer
+            isOrganizer = await _accessService.IsOrganizerAsync();
+
+            // Step 4: Allow only organizer to view the page - redirect elsewhere otherwise
+            RoleBasedRedirector.CheckOrganizerAccess(isLoggedIn, isOrganizer, _navigationManager);
+        }
+        catch
+        {
+            // Step 5: In case of errors, redirect to login
+            _navigationManager.NavigateTo("/auth/login");
+        }
+    }
+
+    #endregion
+
+    #region Methods: Event Handlers
+
+    /// <summary>
+    /// Handles the form submission to create a new event.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     private async Task HandleSubmit()
     {
-        var newEvent = new CreateEventRequest(
-            Title: eventCreateModel.Title,
-            Description: eventCreateModel.Description,
-            StartTime: eventCreateModel.StartTime,
-            EndTime: eventCreateModel.EndTime,
-            FamilyFriendly: eventCreateModel.FamilyFriendly,
-            Location: new CreateLocationRequest(eventCreateModel.Longitude, eventCreateModel.Latitude)
-    );
+        isSubmitting = true;
+        errorMessage = string.Empty;
+        StateHasChanged();
+        
+        try
+        {
+            // Step 1: Create a new event request from the form data
+            CreateEventRequest newEvent = new CreateEventRequest(
+                eventCreateModel.Title,
+                eventCreateModel.Description,
+                eventCreateModel.StartTime,
+                eventCreateModel.EndTime,
+                eventCreateModel.FamilyFriendly,
+                new CreateLocationRequest(eventCreateModel.Longitude, eventCreateModel.Latitude)
+            );
 
-        var result = await _eventApiService.CreateEventAsync(newEvent);
-        if (result.IsSuccess)
-        {
-            _navigationManager.NavigateTo("/events");
+            // Step 2: Call the API service to create the event
+            var createResult = await _eventApiService.CreateAsync(newEvent);
+            
+            // Step 3: Check if the operation was successful
+            if (createResult.IsSuccess)
+            {
+                // Step 4: If successful, navigate to the events list page
+                _navigationManager.NavigateTo("/events");
+            }
+            else
+            {
+                // Step 5: If not successful, set the error message from the result
+                errorMessage = createResult.ErrorMessage ?? "An error occurred while creating the event.";
+            }
         }
-        else
+        catch (Exception ex)
         {
-            errorMessage = result.ErrorMessage ?? "An error occurred while creating the event.";
+            // Handle unexpected exceptions not covered by the Result pattern
+            errorMessage = $"Unexpected error: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+            StateHasChanged();
         }
     }
 
+    /// <summary>
+    /// Handles cancellation of event creation by navigating back to the events list.
+    /// </summary>
     private void Cancel()
     {
+        // Step 1: Navigate back to the events list page
         _navigationManager.NavigateTo("/events");
     }
 
+    #endregion
+
+    #region Models: Page Specific Models
+
+    /// <summary>
+    /// Model class for creating new events with validation attributes.
+    /// This class defines the data structure and validation rules for the event creation form.
+    /// </summary>
     private class EventCreateModel
     {
+        /// <summary>
+        /// Gets or sets the title of the event.
+        /// </summary>
+        /// <value>A string that cannot be empty.</value>
+        [Required(ErrorMessage = "Title is required.")]
         public string Title { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the detailed description of the event.
+        /// </summary>
+        /// <value>A string that cannot be empty.</value>
+        [Required(ErrorMessage = "Description is required.")]
         public string Description { get; set; } = string.Empty;
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
-        public bool FamilyFriendly { get; set; }
-        public decimal Longitude { get; set; } = 50; //Default set to 50 as i dont know how to add location yet, im looking into some opensource location Apis
-        public decimal Latitude { get; set; } = 50; //Default set to 50 as i dont know how to add location yet, im looking into some opensource location Apis
+
+        /// <summary>
+        /// Gets or sets the starting date and time of the event.
+        /// Defaults to the current date and time.
+        /// </summary>
+        /// <value>A DateTime representing when the event begins.</value>
+        [Required(ErrorMessage = "Start time is required.")]
+        public DateTime StartTime { get; set; } = DateTime.Now; // Default now
+
+        /// <summary>
+        /// Gets or sets the ending date and time of the event.
+        /// Defaults to 2 hours after the current date and time.
+        /// </summary>
+        /// <value>A DateTime representing when the event ends.</value>
+        [Required(ErrorMessage = "End time is required.")]
+        public DateTime EndTime { get; set; } = DateTime.Now.AddHours(2); // Default in 2 hours
+
+        /// <summary>
+        /// Gets or sets whether the event is suitable for families with children.
+        /// </summary>
+        /// <value>A boolean indicating if the event is family-friendly.</value>
+        public bool FamilyFriendly { get; set; } = true; // Default is true
+
+        /// <summary>
+        /// Gets or sets the longitude coordinate for the event location.
+        /// Temporarily defaulted to 50 until proper address input is implemented.
+        /// </summary>
+        /// <value>A decimal between -180 and 180 representing the longitude coordinate.</value>
+        [Required(ErrorMessage = "Longitude is required.")]
+        [Range(-180.0, 180.0, ErrorMessage = "Longitude must be between -180 and 180.")]
+        public decimal Longitude { get; set; } = 50;
+
+        /// <summary>
+        /// Gets or sets the latitude coordinate for the event location.
+        /// Temporarily defaulted to 50 until proper address input is implemented.
+        /// </summary>
+        /// <value>A decimal between -90 and 90 representing the latitude coordinate.</value>
+        [Required(ErrorMessage = "Latitude is required.")]
+        [Range(-90.0, 90.0, ErrorMessage = "Latitude must be between -90 and 90.")]
+        public decimal Latitude { get; set; } = 50;
     }
+
+    #endregion
 }

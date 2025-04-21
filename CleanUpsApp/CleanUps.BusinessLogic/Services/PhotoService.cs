@@ -34,10 +34,10 @@ namespace CleanUps.BusinessLogic.Services
         /// <returns>A <see cref="Result{T}"/> containing a list of <see cref="PhotoResponse"/> if successful, or an error message if the operation fails.</returns>
         public async Task<Result<List<PhotoResponse>>> GetAllAsync()
         {
-            // Retrieve all photos from the repository
+            // Step 1: Call repository to retrieve all photos.
             Result<List<Photo>> repoResult = await _repository.GetAllAsync();
 
-            // Transform the result into a list of PhotoResponse DTOs
+            // Step 2: Convert domain model photos to response DTOs and return.
             return repoResult.Transform(photos => _converter.ToResponseList(photos));
         }
 
@@ -48,17 +48,19 @@ namespace CleanUps.BusinessLogic.Services
         /// <returns>A <see cref="Result{T}"/> containing the <see cref="PhotoResponse"/> if found, or an error message if the operation fails.</returns>
         public async Task<Result<PhotoResponse>> GetByIdAsync(int id)
         {
-            // Validate the provided ID
+            // Step 1: Validate the photo ID.
             var validationResult = _validator.ValidateId(id);
+
+            // Step 2: If validation fails, return BadRequest with error message.
             if (!validationResult.IsSuccess)
             {
                 return Result<PhotoResponse>.BadRequest(validationResult.ErrorMessage);
             }
 
-            // Retrieve the photo from the repository
+            // Step 3: Call repository to retrieve the photo by ID.
             Result<Photo> repoResult = await _repository.GetByIdAsync(id);
 
-            // Transform the result into a PhotoResponse DTO
+            // Step 4: Convert domain model photo to response DTO and return.
             return repoResult.Transform(photo => _converter.ToResponse(photo));
         }
 
@@ -69,17 +71,19 @@ namespace CleanUps.BusinessLogic.Services
         /// <returns>A <see cref="Result{T}"/> containing a list of <see cref="PhotoResponse"/> if successful, or an error message if the operation fails.</returns>
         public async Task<Result<List<PhotoResponse>>> GetPhotosByEventIdAsync(int eventId)
         {
-            // Validate the provided event ID
+            // Step 1: Validate the event ID.
             var validationResult = _validator.ValidateId(eventId);
+
+            // Step 2: If validation fails, return BadRequest with error message.
             if (!validationResult.IsSuccess)
             {
                 return Result<List<PhotoResponse>>.BadRequest(validationResult.ErrorMessage);
             }
 
-            // Retrieve photos associated with the event from the repository
+            // Step 3: Call repository to retrieve photos for the specified event.
             Result<List<Photo>> repoResult = await _repository.GetPhotosByEventIdAsync(eventId);
 
-            // Transform the result into a list of PhotoResponse DTOs
+            // Step 4: Convert domain model photos to response DTOs and return.
             return repoResult.Transform(photos => _converter.ToResponseList(photos));
         }
 
@@ -90,20 +94,22 @@ namespace CleanUps.BusinessLogic.Services
         /// <returns>A <see cref="Result{T}"/> containing the created <see cref="PhotoResponse"/> if successful, or an error message if the operation fails.</returns>
         public async Task<Result<PhotoResponse>> CreateAsync(CreatePhotoRequest createRequest)
         {
-            // Validate the incoming request
+            // Step 1: Validate the create request DTO.
             var validationResult = _validator.ValidateForCreate(createRequest);
+
+            // Step 2: If validation fails, return BadRequest with error message.
             if (!validationResult.IsSuccess)
             {
                 return Result<PhotoResponse>.BadRequest(validationResult.ErrorMessage);
             }
 
-            // Convert the request DTO to a Photo domain model
+            // Step 3: Convert the request DTO to a domain model.
             Photo photoModel = _converter.ToModel(createRequest);
 
-            // Persist the new photo in the repository
+            // Step 4: Call repository to create the photo.
             var repoResult = await _repository.CreateAsync(photoModel);
 
-            // Transform the result into a PhotoResponse DTO
+            // Step 5: Convert domain model to response DTO and return.
             return repoResult.Transform(photo => _converter.ToResponse(photo));
         }
 
@@ -114,20 +120,22 @@ namespace CleanUps.BusinessLogic.Services
         /// <returns>A <see cref="Result{T}"/> containing the updated <see cref="PhotoResponse"/> if successful, or an error message if the operation fails.</returns>
         public async Task<Result<PhotoResponse>> UpdateAsync(UpdatePhotoRequest updateRequest)
         {
-            // Validate the incoming request
+            // Step 1: Validate the update request DTO.
             var validationResult = _validator.ValidateForUpdate(updateRequest);
+
+            // Step 2: If validation fails, return BadRequest with error message.
             if (!validationResult.IsSuccess)
             {
                 return Result<PhotoResponse>.BadRequest(validationResult.ErrorMessage);
             }
 
-            // Convert the request DTO to a Photo domain model
+            // Step 3: Convert the request DTO to a domain model.
             Photo photoModel = _converter.ToModel(updateRequest);
 
-            // Update the photo in the repository
+            // Step 4: Call repository to update the photo.
             var repoResult = await _repository.UpdateAsync(photoModel);
 
-            // Transform the result into a PhotoResponse DTO
+            // Step 5: Convert domain model to response DTO and return.
             return repoResult.Transform(photo => _converter.ToResponse(photo));
         }
 
@@ -138,17 +146,19 @@ namespace CleanUps.BusinessLogic.Services
         /// <returns>A <see cref="Result{T}"/> containing the deleted photo's data as <see cref="UserResponse"/> if the deletion is successful, or an error message if the operation fails.</returns>
         public async Task<Result<PhotoResponse>> DeleteAsync(DeletePhotoRequest deleteRequest)
         {
-            // Validate the provided ID
+            // Step 1: Validate the photo ID to delete.
             var validationResult = _validator.ValidateId(deleteRequest.PhotoId);
+            
+            // Step 2: If validation fails, return BadRequest with error message.
             if (!validationResult.IsSuccess)
             {
                 return Result<PhotoResponse>.BadRequest(validationResult.ErrorMessage);
             }
 
-            // Delete the photo from the repository
+            // Step 3: Call repository to delete the photo.
             Result<Photo> repoResult = await _repository.DeleteAsync(deleteRequest.PhotoId);
 
-            // Transform the result into a PhotoResponse DTO
+            // Step 4: Convert domain model to response DTO and return.
             return repoResult.Transform(photo => _converter.ToResponse(photo));
         }
     }

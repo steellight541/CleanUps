@@ -34,31 +34,17 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
+                // Step 1: Query the database for all photos.
                 List<Photo> photos = await _context.Photos
                     .Include(existingPhoto => existingPhoto.Event)
                     .ToListAsync();
 
+                // Step 2: Return successful result with the list of photos.
                 return Result<List<Photo>>.Ok(photos);
-
-            }
-            catch (ArgumentNullException ex)
-            {
-                return Result<List<Photo>>.InternalServerError($"{ex.Message}");
-            }
-            catch (OperationCanceledException ex)
-            {
-                return Result<List<Photo>>.InternalServerError($"{ex.Message}");
-            }
-            catch (DbUpdateException ex)
-            {
-                if (ex.InnerException != null)
-                {
-                    return Result<List<Photo>>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
-                }
-                return Result<List<Photo>>.InternalServerError($"{ex.Message}");
             }
             catch (Exception ex)
             {
+                // Step 3: Handle any unexpected errors.
                 if (ex.InnerException != null)
                 {
                     return Result<List<Photo>>.InternalServerError($"InnerException: {ex.InnerException.Message}");
@@ -74,24 +60,25 @@ namespace CleanUps.DataAccess.Repositories
         /// <returns>A Result containing the requested photo if found, or an error message if not found or if the operation fails.</returns>
         public async Task<Result<Photo>> GetByIdAsync(int id)
         {
-
             try
             {
+                // Step 1: Query the database for a specific photo by ID.
                 Photo? retrievedPhoto = await _context.Photos
                     .Include(existinPhoto => existinPhoto.Event)
-                    .FirstOrDefaultAsync(existingPhoto => existingPhoto.PhotoId == id); 
-                
+                    .FirstOrDefaultAsync(existingPhoto => existingPhoto.PhotoId == id);
+
+                // Step 2: Check if photo exists. If not, return NotFound result.
                 if (retrievedPhoto is null)
                 {
                     return Result<Photo>.NotFound($"Photo with id: {id} does not exist");
                 }
-                else
-                {
-                    return Result<Photo>.Ok(retrievedPhoto);
-                }
+                
+                // Step 3: Return successful result with the retrieved photo.
+                return Result<Photo>.Ok(retrievedPhoto);
             }
             catch (Exception ex)
             {
+                // Step 4: Handle any unexpected errors.
                 if (ex.InnerException != null)
                 {
                     return Result<Photo>.InternalServerError($"InnerException: {ex.InnerException.Message}");
@@ -108,27 +95,34 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
+                // Step 1: Query the database for photos associated with the specified event.
                 List<Photo> filteredPhotos = await _context.Photos
                                                    .Where(p => p.EventId == eventId)
-                                                   .Include(existinPhoto => existinPhoto.Event) 
+                                                   .Include(existinPhoto => existinPhoto.Event)
                                                    .ToListAsync();
+                
+                // Step 2: Check if any photos were found. If not, return NoContent result.
                 if (filteredPhotos.Count == 0)
                 {
                     return Result<List<Photo>>.NoContent();
-
                 }
+                
+                // Step 3: Return successful result with the list of filtered photos.
                 return Result<List<Photo>>.Ok(filteredPhotos);
             }
             catch (ArgumentNullException ex)
             {
+                // Step 4: Handle specific exceptions for better error reporting.
                 return Result<List<Photo>>.InternalServerError($"{ex.Message}");
             }
             catch (OperationCanceledException ex)
             {
+                // Step 5: Handle operation cancellation errors.
                 return Result<List<Photo>>.InternalServerError($"{ex.Message}");
             }
             catch (DbUpdateException ex)
             {
+                // Step 6: Handle database update errors.
                 if (ex.InnerException != null)
                 {
                     return Result<List<Photo>>.InternalServerError($"DB InnerException: {ex.InnerException.Message}");
@@ -137,6 +131,7 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (Exception ex)
             {
+                // Step 7: Handle any other unexpected errors.
                 if (ex.InnerException != null)
                 {
                     return Result<List<Photo>>.InternalServerError($"InnerException: {ex.InnerException.Message}");
@@ -154,17 +149,23 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
+                // Step 1: Add the new photo to the database context.
                 await _context.Photos.AddAsync(photoToBeCreated);
+                
+                // Step 2: Save changes to persist the new photo in the database.
                 await _context.SaveChangesAsync();
 
+                // Step 3: Return successful result with the created photo.
                 return Result<Photo>.Created(photoToBeCreated);
             }
             catch (OperationCanceledException ex)
             {
+                // Step 4: Handle operation cancellation errors.
                 return Result<Photo>.InternalServerError($"{ex.Message}");
             }
             catch (DbUpdateException ex)
             {
+                // Step 5: Handle database update errors with detailed constraint violation checks.
                 if (ex.InnerException != null)
                 {
                     // Check for foreign key constraint violation
@@ -181,6 +182,7 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (Exception ex)
             {
+                // Step 6: Handle any other unexpected errors.
                 if (ex.InnerException != null)
                 {
                     return Result<Photo>.InternalServerError($"InnerException: {ex.InnerException.Message}");
@@ -199,30 +201,40 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
+                // Step 1: Query the database to verify the photo exists.
                 Photo? retrievedPhoto = await _context.Photos
                     .Include(existinPhoto => existinPhoto.Event)
                     .FirstOrDefaultAsync(existingPhoto => existingPhoto.PhotoId == photoToBeUpdated.PhotoId);
 
+                // Step 2: If photo doesn't exist, return NotFound.
                 if (retrievedPhoto is null)
                 {
                     return Result<Photo>.NotFound($"Photo with id: {photoToBeUpdated.PhotoId} does not exist");
                 }
                 else
                 {
+                    // Step 3: Update the photo entity in the database context.
                     _context.Entry(retrievedPhoto).State = EntityState.Detached;
                     _context.Photos.Attach(photoToBeUpdated);
+                    
+                    // Step 4: Mark only the Caption property as modified to enable partial update.
                     _context.Entry(photoToBeUpdated).Property(p => p.Caption).IsModified = true;
+                    
+                    // Step 5: Save changes to persist the updated photo in the database.
                     await _context.SaveChangesAsync();
 
+                    // Step 6: Return successful result with the updated photo.
                     return Result<Photo>.Ok(photoToBeUpdated);
                 }
             }
             catch (OperationCanceledException ex)
             {
+                // Step 7: Handle operation cancellation errors.
                 return Result<Photo>.InternalServerError($"{ex.Message}");
             }
             catch (DbUpdateConcurrencyException ex)
             {
+                // Step 8: Handle concurrency conflicts.
                 if (ex.InnerException != null)
                 {
                     return Result<Photo>.Conflict($"DB InnerException: {ex.InnerException.Message}");
@@ -231,6 +243,7 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (DbUpdateException ex)
             {
+                // Step 9: Handle database update errors with detailed constraint violation checks.
                 if (ex.InnerException != null)
                 {
                     // Check for foreign key constraint violation
@@ -247,6 +260,7 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (Exception ex)
             {
+                // Step 10: Handle any other unexpected errors.
                 if (ex.InnerException != null)
                 {
                     return Result<Photo>.InternalServerError($"InnerException: {ex.InnerException.Message}");
@@ -264,30 +278,36 @@ namespace CleanUps.DataAccess.Repositories
         {
             try
             {
-                //Tries to get an existing photo in the database
-                //FindAsync returns either an Photo or Null
+                // Step 1: Query the database to verify the photo exists.
                 Photo? photoToDelete = await _context.Photos
                     .Include(existinPhoto => existinPhoto.Event)
                     .FirstOrDefaultAsync(existingPhoto => existingPhoto.PhotoId == id);
 
+                // Step 2: If photo doesn't exist, return NotFound.
                 if (photoToDelete is null)
                 {
                     return Result<Photo>.NotFound($"Photo with id: {id} does not exist");
                 }
                 else
                 {
+                    // Step 3: Remove the photo entity from the database context.
                     _context.Photos.Remove(photoToDelete);
+                    
+                    // Step 4: Save changes to persist the deletion in the database.
                     await _context.SaveChangesAsync();
 
+                    // Step 5: Return successful result with the deleted photo.
                     return Result<Photo>.Ok(photoToDelete);
                 }
             }
             catch (OperationCanceledException ex)
             {
+                // Step 6: Handle operation cancellation errors.
                 return Result<Photo>.InternalServerError($"{ex.Message}");
             }
             catch (DbUpdateConcurrencyException ex)
             {
+                // Step 7: Handle concurrency conflicts.
                 if (ex.InnerException != null)
                 {
                     return Result<Photo>.Conflict($"DB InnerException: {ex.InnerException.Message}");
@@ -296,6 +316,7 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (DbUpdateException ex)
             {
+                // Step 8: Handle database update errors with detailed constraint violation checks.
                 if (ex.InnerException != null && ex.InnerException.Message.Contains("FK_"))
                 {
                     return Result<Photo>.Conflict("Cannot delete photo because it is referenced by other records.");
@@ -308,6 +329,7 @@ namespace CleanUps.DataAccess.Repositories
             }
             catch (Exception ex)
             {
+                // Step 9: Handle any other unexpected errors.
                 if (ex.InnerException != null)
                 {
                     return Result<Photo>.InternalServerError($"InnerException: {ex.InnerException.Message}");

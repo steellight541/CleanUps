@@ -1,14 +1,89 @@
 ﻿@page "/"
-@using CleanUps.MAUI.Shared.Services
+
+@using CleanUps.MAUI.Shared.Services;
+
 @inject IFormFactor FormFactor
+@inject IAccessService _accessService
+@inject NavigationManager _navigationManager
 
 <PageTitle>Home</PageTitle>
 
+@* Section: Welcome Message *@
 <h1>Hello, world!</h1>
 
+@* Section: Platform Info Display *@
 Welcome to your new app running on <em>@factor</em> using <em>@platform</em>.
 
-@code {
+@code { 
+    #region Variables: Computed Properties
+
+    /// <summary>
+    /// Gets the current form factor (e.g., Desktop, Mobile, Tablet) from the platform-specific FormFactor service.
+    /// Used to display the device type to the user on the home page.
+    /// </summary>
     private string factor => FormFactor.GetFormFactor();
+
+    /// <summary>
+    /// Gets the current operating system platform (e.g., Windows, Android, iOS) from the platform-specific FormFactor service.
+    /// Used to display the platform information to the user on the home page.
+    /// </summary>
     private string platform => FormFactor.GetPlatform();
+
+    #endregion
+
+    #region Variables: Component State
+
+    /// <summary>
+    /// Tracks whether the current user has an active authenticated session.
+    /// Used to control redirections and access to protected functionality.
+    /// </summary>
+    private bool isLoggedIn = false;
+
+    /// <summary>
+    /// Indicates if the page is currently loading initial data.
+    /// </summary>
+    private bool isLoading = true;
+
+    #endregion
+
+    #region Methods: Lifecycle Methods
+
+    /// <summary>
+    /// Initializes the component by checking authentication status and applying redirection rules.
+    /// If the user is not logged in, they will be redirected to the events page which has public access.
+    /// Logged in users will remain on the home page.
+    /// </summary>
+    /// <returns>A task representing the asynchronous initialization operation.</returns>
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        string errorMessage = string.Empty;
+        StateHasChanged();
+        
+        try 
+        {
+            // Step 1: Check if the user is currently logged in
+            isLoggedIn = await _accessService.IsUserLoggedInAsync();
+            
+            // Step 2: Redirect to appropriate page based on authentication status
+            // If logged in, user stays on home page, otherwise redirected to events page
+            RoleBasedRedirector.RedirectPublicToEvents(isLoggedIn, _navigationManager);
+        }
+        catch (Exception ex)
+        {
+            // Step 3: Handle any exceptions during authentication check
+            errorMessage = $"Authentication error: {ex.Message}";
+            
+            // In case of error, assume user is not logged in and redirect to events page after a short delay
+            await Task.Delay(1000);
+            _navigationManager.NavigateTo("/events");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    #endregion
 }
