@@ -77,7 +77,7 @@ namespace CleanUps.API.Controllers
         public async Task<IActionResult> GetByIdAsync(int id) // YourApi.com/api/users/{id}
         {
             var result = await _userService.GetByIdAsync(id);
-            UserResponse 
+            
             switch (result.StatusCode)
             {
                 case 200:
