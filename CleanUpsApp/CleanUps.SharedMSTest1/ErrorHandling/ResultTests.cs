@@ -220,5 +220,6 @@ namespace CleanUps.Shared.ErrorHandling.Tests
 
         //https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/400
         //So like with other classes I need to test edge-cases. Test if they return true. Test when they shouldn't return true.
+        //https://grok.com/chat/b8ed3304-ca65-4893-8262-670a84ea12f4
     }
 }
