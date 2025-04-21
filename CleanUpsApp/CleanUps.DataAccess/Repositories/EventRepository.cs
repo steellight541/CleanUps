@@ -12,7 +12,7 @@ namespace CleanUps.DataAccess.Repositories
     /// Repository class for managing Event entities in the database.
     /// Implements CRUD operations and handles related data loading for Events.
     /// </summary>
-    internal class EventRepository : IEventRepository
+    public class EventRepository : IEventRepository
     {
         private readonly CleanUpsContext _context;
 

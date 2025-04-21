@@ -30,7 +30,8 @@ public partial class CleanUpsContext : DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
-            throw new InvalidOperationException("DbContext has not been configured. Ensure that AddDbContext is called in Program.cs with a valid connection string.");        }
+            throw new InvalidOperationException("DbContext has not been configured. Ensure that AddDbContext is called in Program.cs with a valid connection string.");       
+        }
         
         optionsBuilder.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
     }

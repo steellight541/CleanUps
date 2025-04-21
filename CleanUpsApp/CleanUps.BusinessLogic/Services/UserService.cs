@@ -53,8 +53,8 @@ namespace CleanUps.BusinessLogic.Services
             }
 
             Result<User> repoResult = await _repository.GetByIdAsync(id);
-
-            return repoResult.Transform(user => _converter.ToResponse(user));
+            
+            return repoResult.Transform(xsxsda => _converter.ToResponse(repoResult.Data));
         }
 
         /// <summary>

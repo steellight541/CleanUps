@@ -3,6 +3,7 @@
     /// <summary>
     /// Represents the outcome of an operation, encapsulating either successful data or an error message.
     /// This class uses HTTP-like status codes to indicate the result of the operation.
+    /// https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/304 for status codes.
     /// </summary>
     /// <typeparam name="T">The type of data returned in case of a successful operation.</typeparam>
     public class Result<T>
@@ -45,8 +46,9 @@
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Result{T}"/> class for success scenarios without data.
+        /// If the list is empty, there is no content. We use this ctor for that case. 204 means no content
         /// </summary>
-        /// <param name="statusCode">The HTTP-like status code (204 or 304).</param>
+        /// <param name="statusCode">The HTTP-like status code (204).</param>
         private Result(int statusCode)
         {
             StatusCode = statusCode;
@@ -136,8 +138,10 @@
         public static Result<T> InternalServerError(string errorMsg) => new(500, errorMsg);
 
         /// <summary>
-        /// Transforms the data inside the result using the provided transformation function if the result is a success with data (status code 200 or 201).
-        /// For other success statuses without data (e.g., 204 No Content), returns a new result with the same status code.
+        /// Transforms the data inside the result using the provided transformation function 
+        /// if the result is a success with data (status code 200 or 201).
+        /// For other success statuses without data (e.g., 204 No Content), returns a new result
+        /// with the same status code.
         /// For error statuses, returns a new result with the same status code and error message.
         /// </summary>
         /// <typeparam name="TResult">The type to which the data is transformed.</typeparam>
