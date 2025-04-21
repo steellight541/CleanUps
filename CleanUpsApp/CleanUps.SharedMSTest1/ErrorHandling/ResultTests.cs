@@ -149,7 +149,7 @@ namespace CleanUps.Shared.ErrorHandling.Tests
             string errorMsg = "Unauthorized Attempt Access. Step away from the computer. The Holy Inquisition in on its way to apprehend you.";
 
             //Act
-            var result = Result<string>.BadRequest(errorMsg);
+            var result = Result<string>.Unauthorized(errorMsg);
 
             //Assert
             Assert.AreEqual(401, result.StatusCode);
@@ -163,7 +163,7 @@ namespace CleanUps.Shared.ErrorHandling.Tests
             string errorMsg = "Forbidden!!!!!! Desist! Stop! Heresy yonder!!";
 
             //Act
-            var result = Result<string>.BadRequest(errorMsg);
+            var result = Result<string>.Forbidden(errorMsg);
 
             //Assert
             Assert.AreEqual(403, result.StatusCode);
@@ -177,7 +177,7 @@ namespace CleanUps.Shared.ErrorHandling.Tests
             string errorMsg = "The page was not found. Try again.";
 
             //Act
-            var result = Result<string>.BadRequest(errorMsg);
+            var result = Result<string>.NotFound(errorMsg);
 
             //Assert
             Assert.AreEqual(404, result.StatusCode);
@@ -191,7 +191,7 @@ namespace CleanUps.Shared.ErrorHandling.Tests
             string errorMsg = "Conflict! RUN AWAAAAAAY!.";
 
             //Act
-            Result<string> result = Result<string>.BadRequest(errorMsg);
+            Result<string> result = Result<string>.Conflict(errorMsg);
 
             //Assert
             Assert.AreEqual(409, result.StatusCode);
@@ -205,7 +205,7 @@ namespace CleanUps.Shared.ErrorHandling.Tests
             string errorMsg = "The issue in question is being dealt with under internal departmental jurisdictional scrutiny and tribual.";
 
             //Act
-            var result = Result<string>.BadRequest(errorMsg);
+            var result = Result<string>.InternalServerError(errorMsg);
 
             //Assert
             Assert.AreEqual(500, result.StatusCode);
@@ -218,7 +218,7 @@ namespace CleanUps.Shared.ErrorHandling.Tests
             Assert.Fail();
         }
 
-
+        //https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/400
         //So like with other classes I need to test edge-cases. Test if they return true. Test when they shouldn't return true.
     }
 }
