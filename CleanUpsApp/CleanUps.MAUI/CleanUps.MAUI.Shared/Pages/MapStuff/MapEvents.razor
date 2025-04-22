@@ -1,18 +1,26 @@
 ﻿@page "/map/events"
 
 @inject NavigationManager _navigationManager
+<link rel="stylesheet" href="/_content/CleanUps.MAUI.Shared/leaflet/leaflet.css" />
+<script src="/_content/CleanUps.MAUI.Shared/leaflet/leaflet.js"></script>
 
+<div id="lf-map" style="width:400px;height:400px;margin:0;padding:0;"></div>
 
+<script>
+    
+    
 
-<div class="lf-map">
-</div>
-@code {
-    /// <summary>
-    /// Handles the button click event to navigate back to the events list page.
-    /// This method provides an escape route from the not-yet-implemented map page.
-    /// </summary>
-    private void EventPage()
-    {
-        _navigationManager.NavigateTo("/events");
+    function loadMap(){
+        var map = L.map('lf-map').setView([51.505, -0.09], 13);
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        L.marker([51.5, -0.09]).addTo(map)
+            .bindPopup('A pretty CSS popup.<br> Easily customizable.')
+            .openPopup();
     }
-}
+    loadMap();
+
+</script>
