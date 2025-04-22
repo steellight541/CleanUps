@@ -111,6 +111,43 @@ Each was deferred to keep the MVP focused and achievable within the 10-week deve
 
 ---
 
+## 🧪 Development Process & Methodology
+
+We followed a lightweight, agile-inspired approach, taking inspiration from **XP (Extreme Programming)** and **Scrum** but adapting it to our constraints and goals.
+
+### 🌀 Weekly Cycle
+
+Each week followed a recurring rhythm:
+- **Plan** – Define tasks in Jira based on meetings and current goals.
+- **Code** – Work in parallel on frontend, backend, and database tasks.
+- **Commit** – Push changes and merge frequently using Git branches.
+- **Revise** – Review together, refactor as needed, and update tasks.
+
+This cycle allowed us to stay responsive, shift priorities, and continuously integrate feedback from the client and mentor.
+
+### 🧩 Collaboration & Roles
+
+Our team members brought diverse technical strengths:
+- Backend/API: Kevin, Nigel, Gorm
+- Frontend/UX (Figma): Bryan, Afrika
+- Database: Kevin, Nigel, Gorm
+- Frontend Implementation: Kevin, Nigel, Gorm
+- Testing, coordination, and documentation: All
+
+We communicated via Discord and held structured **weekly meetings** (every Monday) with additional ad-hoc check-ins and code-together sessions.
+
+### 🎯 Client Feedback Loop
+
+We met regularly with the product owner (Mirza) to:
+- Validate user stories
+- Present wireframes and working prototypes
+- Clarify business needs (e.g., trash data types, attendance flows)
+- Discuss next-step features like notifications or profile pages
+
+Feedback from these meetings directly shaped our priorities and helped us trim features when needed.
+
+---
+
 ## ✅ Next Steps
 
 - Finalize frontend integration (map, filters, profile page)
