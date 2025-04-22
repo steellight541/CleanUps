@@ -24,19 +24,22 @@ Based on client input, user research, and technical constraints, we chose to foc
 
 1. **🗓 Event Tracking & Attendance**
    - Users can view upcoming cleanups and register their attendance post-event.
-   - Participation data is collected and stored.
+   - Organizers can monitor participation per event.
 
 2. **📍 Event History with Map**
-   - Past events are shown on an interactive map.
-   - Each event includes trash metrics, number of participants, and images.
+   - Past events are displayed on an interactive map.
+   - Each event includes basic metadata like location, date, and summary stats.
 
-3. **📦 Trash Collection Data**
-   - Participants can enter trash weight, categorize it (plastic, glass, etc.), and upload images.
+3. **⚖️ Trash Collection Data**
+   - For now, only the **total collected weight** per event is recorded.
+   - This value is editable in real-time by the organizer.
+   - Individual trash entries, categories, or photo uploads were de-scoped for MVP.
 
-4. **📊 Personal Stats**
-   - Users can view their own cleanup history, such as events attended and trash collected.
-
-5. **📲 Push Notifications** *(Planned – see below)*
+4. **📊 Personal Stats & Event History**
+   - Users can view:
+     - Events they’ve attended
+     - Events they’ve marked as interested
+     - A personal history of their activity
 
 ---
 
@@ -46,6 +49,7 @@ The initial app vision included ambitious features like:
 - Voting-based trash challenges (e.g., “weirdest trash”)
 - Point systems and leaderboards
 - Reward-based gamification
+- Trash categorization and photo documentation per user
 
 However, during development, we intentionally **de-scoped** these due to complexity and time constraints. Our focus shifted to:
 - Building a functional and scalable foundation
@@ -94,6 +98,9 @@ These features were originally scoped but deprioritized:
   - Community voting and challenge scoring
   - Leaderboards and rewards
 
+- **Trash Categorization Per User**
+  - Uploading images, specifying material types (plastic, glass, metal, etc.)
+
 - **Event-Based Media Feeds**
   - Social updates, commenting, or post-event highlights
 
@@ -110,7 +117,7 @@ Each was deferred to keep the MVP focused and achievable within the 10-week deve
 - Continue testing and refinement
 - Deliver presentation in Madrid
 - Hand over documentation and deployment notes
-- Plan future feature expansion (notifications, gamification)
+- Plan future feature expansion (notifications, gamification, trash categorization)
 
 ---
 
