@@ -1,93 +1,83 @@
+
+const apiUrl = "https://cleanups-api.mbuzinous.com/api/events"
 var map = null; // Declare map variable in the global scope
-const apiUrl = "https://cleanups-api.mbuzinous.com/api/events";
 
-window.mapEvents = {
-    loadMap: async function () {
-        // Check if map is already initialized
-        if (map) {
-            console.log("Map already initialized.");
-            // Optionally, re-center or update markers if needed on resize/re-render
-            // handleMarkers(); // Example: Refresh markers if needed
-            return;
-        }
+async function loadMap() {
+    // get location of the user 
+    var loc = await getLocation();
 
-        // get location of the user
-        var loc = await getLocation();
+    console.log(loc);
 
-        console.log(loc);
+    var long = loc ? loc.longitude : 19.2593642;
+    var lat = loc ? loc.latitude : 42.4304196;
 
-        var long = loc ? loc.longitude : 19.2593642;
-        var lat = loc ? loc.latitude : 42.4304196;
+    map = L.map('lf-map').setView([lat, long], 13);
 
-        // Ensure the map container exists
-        var mapContainer = document.getElementById('lf-map');
-        if (!mapContainer) {
-            console.error("Map container 'lf-map' not found.");
-            return;
-        }
-        // Clear previous map instance if any (though the check above should prevent this)
-        if (mapContainer._leaflet_id) {
-            mapContainer._leaflet_id = null;
-        }
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
 
+    handleMarkers()
 
-        map = L.map('lf-map').setView([lat, long], 13);
+    await new Promise(resolve => {
+        setTimeout(() => {
+            resolve();
+        }, 1000); // Wait for 1 second before setting the view
+    });
+    map.setView([lat, long], 13);
 
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        handleMarkers();
-
-        // set view to user location
-        if (loc) {
-            map.setView([lat, long], 13);
-        } else {
-            console.log("User location not available, using default coordinates.");
-        }
-    },
-    disposeMap: function () {
-        if (map) {
-            map.remove();
-            map = null;
-            console.log("Map disposed.");
-        }
-    }
-};
+}
 
 function handleMarkers() {
-    // Use fetch API instead of jQuery $.ajax for better Blazor integration if preferred,
-    // but jQuery should still work if loaded correctly.
-    fetch(apiUrl)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
+    $.ajax({
+        url: apiUrl,
+        type: 'GET',
+        dataType: 'json',
+        success: function (data) {
             setMarkers(data);
-        })
-        .catch(error => {
+        },
+        error: function (error) {
             console.log("Error fetching markers:", error);
-        });
+        }
+    });
 }
 
 function setMarkers(markers) {
-    if (!map) {
-        console.error("Map object not initialized before setting markers.");
-        return;
-    }
     markers.forEach(marker => {
-        // Leaflet uses Lat, Long order
-        L.marker([marker.location.latitude, marker.location.longitude]).addTo(map)
-            .bindPopup(marker.title); // Consider opening popup on click instead of immediately
-        // .openPopup(); // Removed to avoid opening all popups at once
+
+        const startTime = new Date(marker.startTime);
+        const endTime = new Date(marker.endTime);
+        const startTimeString = startTime.toLocaleString('en-US', { timeZone: 'UTC' });
+        const endTimeString = endTime.toLocaleString('en-US', { timeZone: 'UTC' });
+
+
+
+        const popupContent = `
+                <div class="card" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">${marker.title}</h5>
+                        <p class="card-text">${marker.description || 'No description available'}</p>
+                        <p class="card-text"><small class="text-muted">Start: ${startTimeString}</small></p>
+                        <p class="card-text"><small class="text-muted">End: ${endTimeString}</small></p>
+                        <p class="card-text"><small class="text-muted">Location: ${marker.location.latitude}, ${marker.location.longitude}</small></p>
+                    </div>
+                </div>
+            `;
+
+        L.marker([marker.location.longitude, marker.location.latitude]).addTo(map)
+            .bindPopup(popupContent, {
+                className: 'custom-popup',
+                closeButton: true,
+                maxWidth: 300,
+                autoPan: true,
+                autoPanPadding: [100, 100],
+                autoPanPaddingBottomRight: [50, 50]
+            });
     });
 }
 
 function getLocation() {
-    return new Promise((resolve) => { // Removed reject as we resolve with null on error
+    return new Promise((resolve, reject) => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 position => {
@@ -98,12 +88,14 @@ function getLocation() {
                 },
                 error => {
                     console.log("Error getting location:", error);
-                    resolve(null); // Resolve with null when location fails
+                    resolve(null);
                 }
             );
         } else {
             console.log("Geolocation is not supported by this browser.");
-            resolve(null); // Resolve with null when geolocation is not supported
+            resolve(null);
         }
     });
 }
+
+loadMap();
