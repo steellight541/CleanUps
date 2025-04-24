@@ -6,30 +6,23 @@
 @inject IAccessService _accessService
 @inject NavigationManager _navigationManager
 
-<html lang="en">
-<body>
-    <div class="main-container">
-        <div class="placeholder"></div>
-        <div class="header"></div>
-        <img class="logo" src="https://placehold.co/85x85" alt="Logo">
-        <div class="about-us-text">About us</div>
-        <div class="placeholder"></div>
-        <div class="continue-text">Continue</div>
-        <div class="bottom-nav">
-            <div class="nav-item">
-                <div class="icon-container">
-                    <div class="icon">
-                        <div class="icon-shape">
-                            <div class="icon-inner"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</body>
-</html>
+<div class="about-container">
+    <header>
+        <img src="images/logo.png" alt="CleanUp Montenegro Logo" class="logo" />
+        <h1>About us</h1>
+    </header>
 
-@code {
-	
-}
+    <section class="content">
+        <h2>Who are we?</h2>
+        <h3>United for a Cleaner Montenegro since 2017</h3>
+        <p>
+            Founded in 2017 by Zero Waste Montenegro, CleanUp Montenegro is an informal network of NGOs and civil society organizations. Its primary aim is to engage civil society in mitigating waste pollution and curbing waste generation across Montenegro. With over 40 members currently, the network continues to expand, welcoming new members onboard. Actively engaged in communities from the coast to the mountains, we believe in the power of collective action and the impact that individuals can make when they come together for a shared cause.
+        </p>
+
+        <h2>Our mission</h2>
+        <p>
+            CleanUp Montenegro aims to engage and support citizens and local non-governmental organizations in actively addressing waste management issues, promoting awareness through cleanup initiatives, events and educational workshops, with a focus on reducing waste production and littering for a cleaner Montenegro.
+        </p>
+    </section>
+
+</div>
