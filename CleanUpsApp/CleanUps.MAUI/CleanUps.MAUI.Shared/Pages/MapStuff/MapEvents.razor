@@ -1,28 +1,17 @@
 ﻿@page "/map/events"
 
 @inject NavigationManager _navigationManager
+<link rel="stylesheet" href="/_content/CleanUps.MAUI.Shared/leaflet/leaflet.css" />
+<script src="/_content/CleanUps.MAUI.Shared/leaflet/leaflet.js"></script>
+@* jquery *@
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-<div class="card shadow p-4">
-    @* Section: Page Header *@
-    <h3>Event Map</h3>
-
-    @* Section: Placeholder Content *@
-    <div class="mb-2">
-        <p>Not yet implemented</p>
-    </div>
-
-    @* Section: Navigation *@
-    <div class="mb-2">
-        <button class="btn btn-dark btn-sm" @onclick="EventPage">Events List</button>
+<div class="container-fluid p-0">
+    <div class="row g-0">
+        <div class="col">
+            <div id="lf-map" style="width:100%;height:75vh"></div>
+        </div>
     </div>
 </div>
-@code {
-    /// <summary>
-    /// Handles the button click event to navigate back to the events list page.
-    /// This method provides an escape route from the not-yet-implemented map page.
-    /// </summary>
-    private void EventPage()
-    {
-        _navigationManager.NavigateTo("/events");
-    }
-}
+
+<script src="/_content/CleanUps.MAUI.Shared/js/mapEvents.js"></script>

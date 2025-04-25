@@ -1,0 +1,35 @@
+﻿@page "/about-us"
+
+@using CleanUps.MAUI.Shared.Services;
+
+@inject IFormFactor FormFactor
+@inject IAccessService _accessService
+@inject NavigationManager _navigationManager
+
+<html lang="en">
+<body>
+    <div class="main-container">
+        <div class="placeholder"></div>
+        <div class="header"></div>
+        <img class="logo" src="https://placehold.co/85x85" alt="Logo">
+        <div class="about-us-text">About us</div>
+        <div class="placeholder"></div>
+        <div class="continue-text">Continue</div>
+        <div class="bottom-nav">
+            <div class="nav-item">
+                <div class="icon-container">
+                    <div class="icon">
+                        <div class="icon-shape">
+                            <div class="icon-inner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+@code {
+	
+}
