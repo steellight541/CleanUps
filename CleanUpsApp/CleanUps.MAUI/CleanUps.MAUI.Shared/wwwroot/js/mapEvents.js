@@ -1,5 +1,5 @@
 
-const apiUrl = "https://cleanups-api.mbuzinous.com/api/events"
+const apiUrl = "https://cleanups.azurewebsites.net/api/events"
 var map = null; // Declare map variable in the global scope
 
 async function loadMap() {
