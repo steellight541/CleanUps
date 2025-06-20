@@ -23,8 +23,8 @@ namespace CleanUps.MAUI.Shared.Services
         {
             services.AddHttpClient("CleanupsApi", client =>
             {
-                client.BaseAddress = new Uri("https://cleanups-api.mbuzinous.com/");
-                //https://cleanups-api.mbuzinous.com/
+                client.BaseAddress = new Uri("https://cleanups.azurewebsites.net");
+                //https://cleanups.azurewebsites.net
                 //https://localhost:7128/
             });
 
